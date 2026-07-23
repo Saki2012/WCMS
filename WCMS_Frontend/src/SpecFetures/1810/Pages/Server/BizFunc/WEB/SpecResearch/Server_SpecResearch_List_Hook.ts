@@ -23,16 +23,16 @@ import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { AccountFields, PGID, SpecResearchDetailModelFields, SpecResearchModelFields, SpecResearchSetFields } from "@/types/SchemaFields";
+import { AccountFields, PGID, SpecResearchDetailFields, SpecResearchFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"];
+type SpecResearchFormModel = components["schemas"]["SpecResearch"];
 
-type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+type SpecCategoryFormModel = components["schemas"]["SpecCategory"];
 
 type SpecResearchApiAdapter = ReturnType<typeof SpecResearchAdapter>;
 
@@ -75,7 +75,7 @@ export interface SpecResearchListRawData
     count: number;
 
     /** 研究計畫列表資料 */
-    list: SpecResearchSet[];
+    list: SpecResearchFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -90,7 +90,7 @@ export interface SpecResearchListRawData
     param: QueryListParam;
 
     /** 類別原始資料 */
-    categoryData: SpecCategorySet[];
+    categoryData: SpecCategoryFormModel[];
 
     /** 類別代碼與顯示文字對照 */
     categoryMap: Record<string, string>;
@@ -174,12 +174,12 @@ const DEFAULT_SPEC_RESEARCH_LIST_PAGE_STATE: SpecResearchListPageState = {
 /** 建立研究計畫純 Spec ListGridTemplate 設定 */
 export const useSpecResearchListGridTemplate = (opt: { lang: Lang; renderers: SpecResearchListRenderers; }): SpecResearchListGridTemplate =>
 {
-        const pageState = usePageStateMemory<SpecResearchListPageState>({
+    const pageState = usePageStateMemory<SpecResearchListPageState>({
         stateKey: SPEC_RESEARCH_LIST_STATE_KEY,
         defaultState: DEFAULT_SPEC_RESEARCH_LIST_PAGE_STATE,
         scopeKeys: [opt.lang],
     });
-return useMemo<SpecResearchListGridTemplate>(() =>
+    return useMemo<SpecResearchListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.SpecResearch,
@@ -324,8 +324,8 @@ const buildSpecResearchSearchConditions = (ctx: { searchParams: SpecResearchSear
     const titleCondition = buildSpecResearchTitleCondition(ctx.searchParams.title);
 
     if (titleCondition) conditions.push(titleCondition);
-    if (ctx.searchParams.categoryId) conditions.push(`${SpecResearchModelFields.CategoryId} HasAny ${ctx.searchParams.categoryId}`);
-    if (ctx.searchParams.tagId) conditions.push(`${SpecResearchModelFields.Tags} HasAny [${ctx.searchParams.tagId}]`);
+    if (ctx.searchParams.categoryId) conditions.push(`${SpecResearchFields.CategoryId} HasAny ${ctx.searchParams.categoryId}`);
+    if (ctx.searchParams.tagId) conditions.push(`${SpecResearchFields.Tags} HasAny [${ctx.searchParams.tagId}]`);
 
     return conditions;
 };
@@ -335,26 +335,26 @@ const buildSpecResearchTitleCondition = (title?: string): string =>
 {
     const query = title?.trim() ?? "";
     if (!query) return "";
-    let condition = LibCondition.joinConditions([
-        LibCondition.createCondition(`${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.ProjectName}`, Operator.Like, query),
-        LibCondition.createCondition(`${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.PaperTitle}`, Operator.Like, query),
-        LibCondition.createCondition(`${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.CooperationProject}`, Operator.Like, query),
-        LibCondition.createCondition(`${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Courses}`, Operator.Like, query),
+    const condition = LibCondition.joinConditions([
+        LibCondition.createCondition(`${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.ProjectName}`, Operator.Like, query),
+        LibCondition.createCondition(`${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.PaperTitle}`, Operator.Like, query),
+        LibCondition.createCondition(`${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.CooperationProject}`, Operator.Like, query),
+        LibCondition.createCondition(`${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.Courses}`, Operator.Like, query),
     ], LibCondition.JoinMode.Or);
     return condition ? `(${condition})` : "";
 };
 
 /** 建立研究計畫列表完整 QueryParam */
-const buildSpecResearchQueryParam = (ctx: { searchParams: SpecResearchSearchParams; searchCondition: string; }): QueryListParam =>
+const buildSpecResearchQueryParam = (ctx: { searchParams: SpecResearchSearchParams; searchCondition: string; pageNumber: number; }): QueryListParam =>
 {
     return {
         Fields: buildSpecResearchQueryFields(),
         Condition: LibCondition.joinConditions([
-            LibCondition.createCondition(`${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Lang}`, Operator.Equal, ctx.searchParams.lang),
+            LibCondition.createCondition(`${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.Lang}`, Operator.Equal, ctx.searchParams.lang),
             ctx.searchCondition,
         ]),
-        RankGroups: [{ Condition: `${SpecResearchModelFields.ContentStatus} & 1` }],
-        OrderBy: [{ Col: SpecResearchModelFields.CreateTime, Desc: true }],
+        RankGroups: [{ Condition: `${SpecResearchFields.ContentStatus} & 1` }],
+        OrderBy: [{ Col: SpecResearchFields.CreateTime, Desc: true }],
         PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
@@ -364,24 +364,24 @@ const buildSpecResearchQueryParam = (ctx: { searchParams: SpecResearchSearchPara
 const buildSpecResearchQueryFields = (): string[] =>
 {
     return [
-        SpecResearchModelFields.InternalId,
-        SpecResearchModelFields.ResearchId,
-        SpecResearchModelFields.CategoryId,
-        SpecResearchModelFields.Tags,
-        SpecResearchModelFields.ContentStatus,
-        SpecResearchModelFields.CreateTime,
-        SpecResearchModelFields.ModifyUserId,
-        `${SpecResearchModelFields.ModifyUser}.${AccountFields.AccountName}`,
-        SpecResearchModelFields.ModifyTime,
-        `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.RowId}`,
-        `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Lang}`,
-        `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Year}`,
-        `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.AcademicYear}`,
-        `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Semester}`,
-        `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.ProjectName}`,
-        `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.PaperTitle}`,
-        `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.CooperationProject}`,
-        `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Courses}`,
+        SpecResearchFields.InternalId,
+        SpecResearchFields.ResearchId,
+        SpecResearchFields.CategoryId,
+        SpecResearchFields.Tags,
+        SpecResearchFields.ContentStatus,
+        SpecResearchFields.CreateTime,
+        SpecResearchFields.ModifyUserId,
+        `${SpecResearchFields.ModifyUser}.${AccountFields.AccountName}`,
+        SpecResearchFields.ModifyTime,
+        `${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.RowId}`,
+        `${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.Lang}`,
+        `${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.Year}`,
+        `${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.AcademicYear}`,
+        `${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.Semester}`,
+        `${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.ProjectName}`,
+        `${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.PaperTitle}`,
+        `${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.CooperationProject}`,
+        `${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.Courses}`,
     ];
 };
 
@@ -430,7 +430,7 @@ const enhanceSpecResearchGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<SpecResearchSet>({
+    const actions = createGridCrudActions<SpecResearchFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -443,7 +443,7 @@ const enhanceSpecResearchGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.SpecResearch?.InternalId ?? "",
+        getInternalId: (set) => set.InternalId ?? "",
     });
 };
 
@@ -452,65 +452,65 @@ const buildSpecResearchVisibleColumns = (): SpecResearchVisibleColumn[] =>
 {
     return [
         {
-            key: SpecResearchModelFields.CategoryId,
-            tableId: SpecResearchSetFields.SpecResearch,
-            columnId: SpecResearchModelFields.CategoryId,
+            key: SpecResearchFields.CategoryId,
+            tableId: "",
+            columnId: SpecResearchFields.CategoryId,
             fallback: "計畫類別",
         },
-        { key: SpecResearchModelFields.Tags, tableId: SpecResearchSetFields.SpecResearch, columnId: SpecResearchModelFields.Tags, fallback: "標籤" },
+        { key: SpecResearchFields.Tags, tableId: "", columnId: SpecResearchFields.Tags, fallback: "標籤" },
         {
-            key: SpecResearchDetailModelFields.Year,
-            tableId: SpecResearchSetFields.SpecResearchDetail,
-            columnId: SpecResearchDetailModelFields.Year,
+            key: SpecResearchDetailFields.Year,
+            tableId: SpecResearchFields._SpecResearchDetail,
+            columnId: SpecResearchDetailFields.Year,
             fallback: "年度",
         },
         {
-            key: SpecResearchDetailModelFields.AcademicYear,
-            tableId: SpecResearchSetFields.SpecResearchDetail,
-            columnId: SpecResearchDetailModelFields.AcademicYear,
+            key: SpecResearchDetailFields.AcademicYear,
+            tableId: SpecResearchFields._SpecResearchDetail,
+            columnId: SpecResearchDetailFields.AcademicYear,
             fallback: "學年度",
         },
         {
-            key: SpecResearchDetailModelFields.Semester,
-            tableId: SpecResearchSetFields.SpecResearchDetail,
-            columnId: SpecResearchDetailModelFields.Semester,
+            key: SpecResearchDetailFields.Semester,
+            tableId: SpecResearchFields._SpecResearchDetail,
+            columnId: SpecResearchDetailFields.Semester,
             fallback: "學期",
         },
         {
-            key: SpecResearchDetailModelFields.ProjectName,
-            tableId: SpecResearchSetFields.SpecResearchDetail,
-            columnId: SpecResearchDetailModelFields.ProjectName,
+            key: SpecResearchDetailFields.ProjectName,
+            tableId: SpecResearchFields._SpecResearchDetail,
+            columnId: SpecResearchDetailFields.ProjectName,
             fallback: "計畫名稱",
         },
         {
-            key: SpecResearchDetailModelFields.PaperTitle,
-            tableId: SpecResearchSetFields.SpecResearchDetail,
-            columnId: SpecResearchDetailModelFields.PaperTitle,
+            key: SpecResearchDetailFields.PaperTitle,
+            tableId: SpecResearchFields._SpecResearchDetail,
+            columnId: SpecResearchDetailFields.PaperTitle,
             fallback: "論文名稱",
         },
         {
-            key: SpecResearchDetailModelFields.CooperationProject,
-            tableId: SpecResearchSetFields.SpecResearchDetail,
-            columnId: SpecResearchDetailModelFields.CooperationProject,
+            key: SpecResearchDetailFields.CooperationProject,
+            tableId: SpecResearchFields._SpecResearchDetail,
+            columnId: SpecResearchDetailFields.CooperationProject,
             fallback: "合作項目",
         },
         {
-            key: SpecResearchDetailModelFields.Courses,
-            tableId: SpecResearchSetFields.SpecResearchDetail,
-            columnId: SpecResearchDetailModelFields.Courses,
+            key: SpecResearchDetailFields.Courses,
+            tableId: SpecResearchFields._SpecResearchDetail,
+            columnId: SpecResearchDetailFields.Courses,
             fallback: "社團/課程",
         },
         {
-            key: SpecResearchModelFields.CreateTime,
-            tableId: SpecResearchSetFields.SpecResearch,
-            columnId: SpecResearchModelFields.CreateTime,
+            key: SpecResearchFields.CreateTime,
+            tableId: "",
+            columnId: SpecResearchFields.CreateTime,
             fallback: "建立時間",
         },
-        { key: AccountFields.AccountName, tableId: SpecResearchModelFields.ModifyUser, columnId: AccountFields.AccountName, fallback: "修改者" },
+        { key: AccountFields.AccountName, tableId: SpecResearchFields.ModifyUser, columnId: AccountFields.AccountName, fallback: "修改者" },
         {
-            key: SpecResearchModelFields.ModifyTime,
-            tableId: SpecResearchSetFields.SpecResearch,
-            columnId: SpecResearchModelFields.ModifyTime,
+            key: SpecResearchFields.ModifyTime,
+            tableId: "",
+            columnId: SpecResearchFields.ModifyTime,
             fallback: "修改時間",
         },
     ];
@@ -524,15 +524,15 @@ const buildSpecResearchRows = (opt: { raw: SpecResearchListRawData; lang: Lang; 
 
 /** 建立研究計畫列表單列資料 */
 const buildSpecResearchRow = (
-    opt: { set: SpecResearchSet; raw: SpecResearchListRawData; lang: Lang; columns: ColumnConfig[]; renderers: SpecResearchListRenderers; },
+    opt: { set: SpecResearchFormModel; raw: SpecResearchListRawData; lang: Lang; columns: ColumnConfig[]; renderers: SpecResearchListRenderers; },
 ): GridRow =>
 {
-    const detail = (opt.set.SpecResearchDetail ?? []).find((item) => item?.Lang === opt.lang);
+    const detail = (opt.set._SpecResearchDetail ?? []).find((item) => item?.Lang === opt.lang);
     const cells = opt.columns.map((col) => ({
         col,
         content: getSpecResearchCellContent({ key: col.key, set: opt.set, detail, raw: opt.raw, renderers: opt.renderers }),
     }));
-    const keyId = opt.set.SpecResearch?.InternalId ?? LibText.Merge("|", false, opt.set.SpecResearch?.ResearchId, detail?.RowId);
+    const keyId = opt.set.InternalId ?? LibText.Merge("|", false, opt.set.ResearchId, detail?.RowId);
 
     return { keyId, cells };
 };
@@ -541,40 +541,40 @@ const buildSpecResearchRow = (
 const getSpecResearchCellContent = (
     opt: {
         key: string;
-        set: SpecResearchSet;
-        detail: NonNullable<SpecResearchSet["SpecResearchDetail"]>[number] | undefined;
+        set: SpecResearchFormModel;
+        detail: NonNullable<SpecResearchFormModel["_SpecResearchDetail"]>[number] | undefined;
         raw: SpecResearchListRawData;
         renderers: SpecResearchListRenderers;
     },
 ): RowCell["content"] =>
 {
-    const item = opt.set.SpecResearch;
+    const item = opt.set;
 
     switch (opt.key)
     {
-        case SpecResearchModelFields.CategoryId:
+        case SpecResearchFields.CategoryId:
             return mapIdToText(item?.CategoryId, opt.raw.categoryMap);
-        case SpecResearchModelFields.Tags:
+        case SpecResearchFields.Tags:
             return opt.renderers.buildTagContentNode(item?.Tags, opt.raw.tagMap);
-        case SpecResearchDetailModelFields.Year:
+        case SpecResearchDetailFields.Year:
             return opt.detail?.Year ?? "";
-        case SpecResearchDetailModelFields.AcademicYear:
+        case SpecResearchDetailFields.AcademicYear:
             return opt.detail?.AcademicYear?.toString() ?? "";
-        case SpecResearchDetailModelFields.Semester:
+        case SpecResearchDetailFields.Semester:
             return opt.detail?.Semester?.toString() ?? "";
-        case SpecResearchDetailModelFields.ProjectName:
+        case SpecResearchDetailFields.ProjectName:
             return opt.detail?.ProjectName ?? "";
-        case SpecResearchDetailModelFields.PaperTitle:
+        case SpecResearchDetailFields.PaperTitle:
             return opt.detail?.PaperTitle ?? "";
-        case SpecResearchDetailModelFields.CooperationProject:
+        case SpecResearchDetailFields.CooperationProject:
             return opt.detail?.CooperationProject ?? "";
-        case SpecResearchDetailModelFields.Courses:
+        case SpecResearchDetailFields.Courses:
             return opt.detail?.Courses ?? "";
-        case SpecResearchModelFields.CreateTime:
+        case SpecResearchFields.CreateTime:
             return formatDateTime(item?.CreateTime);
         case AccountFields.AccountName:
             return item?.ModifyUser?.AccountName ?? "";
-        case SpecResearchModelFields.ModifyTime:
+        case SpecResearchFields.ModifyTime:
             return formatDateTime(item?.ModifyTime);
         default:
             return "";

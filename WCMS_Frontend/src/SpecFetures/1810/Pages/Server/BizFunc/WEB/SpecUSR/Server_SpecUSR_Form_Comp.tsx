@@ -4,19 +4,24 @@ import { LibPicture, useUploadPicture } from "@/Features/Pages/Server/Scaffold/I
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibUrlInput } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibUrlInput_Comp";
 import { LibCheckBox, LibDropList, LibFile, LibFileInput, LibModal, LibPicturePreview, LibTextArea, LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField, useSetTableFileField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import {
+    type FormDataLike,
+    useFormModelField,
+    useSetTableField,
+    useSetTableFileField,
+} from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFrame";
 import { buildServerPreviewToolbarButton, useServerPreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFrame_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
-import { type Lang, LangLabelMap } from "@/SysCore/i18n/lang";
+import { type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
-import { PGID, SpecUSRDetailFields, SpecUSRFileFields, SpecUSRModelFields, SpecUSRPhotoFields, SpecUSRPhotoInfoFields, SpecUSRSetFields } from "@/types/SchemaFields";
+import { PGID, SpecUSRDetailFields, SpecUSRFileFields, SpecUSRFields, SpecUSRPhotoFields, SpecUSRPhotoInfoFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -30,22 +35,28 @@ import {
 import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
 
 // #region Property
-type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+type SpecUSRFormModel = components["schemas"]["SpecUSR"];
 
 type SpecUSRPreviewPayload = {
     type: "wcms:preview";
     module: "specUSR";
     payload: {
         kind: "dto";
-        dto: SpecUSRSet;
+        dto: SpecUSRFormModel;
     };
 };
 
-type SpecUSRFile = components["schemas"]["SpecUSRFile_DTO"];
+type SpecUSRDetail = NonNullable<SpecUSRFormModel["_SpecUSRDetail"]>[number];
 
-type SpecUSRUrl = components["schemas"]["SpecUSRUrl_DTO"];
+type SpecUSRFile = NonNullable<SpecUSRDetail["_SpecUSRFile"]>[number];
 
-type SpecUSRFormBinding = ServerFormBinding<SpecUSRSet>;
+type SpecUSRUrl = NonNullable<SpecUSRDetail["_SpecUSRUrl"]>[number];
+
+type SpecUSRPhoto = NonNullable<SpecUSRFormModel["_SpecUSRPhoto"]>[number];
+
+type SpecUSRPhotoInfo = NonNullable<SpecUSRPhoto["_SpecUSRPhotoInfo"]>[number];
+
+type SpecUSRFormBinding = ServerFormBinding<SpecUSRFormModel>;
 
 type UploadPictureHandler = ReturnType<typeof useUploadPicture>["handleFileChange"];
 // #endregion
@@ -107,10 +118,10 @@ const HeaderComp = (
     },
 ) =>
 {
-    const setField = useSetTableField<SpecUSRSet>(prop.formData);
+    const setField = useFormModelField<SpecUSRFormModel>(prop.formData);
     const useUploadPic = useUploadPicture();
     const [pictureInputResetKey, setPictureInputResetKey] = useState(0);
-    const initialPicId = prop.formData.data?.SpecUSR?.PictureId;
+    const initialPicId = prop.formData.data?.PictureId;
     const hasPicture = hasSpecUSRPicture(useUploadPic.result.previewUrl, initialPicId);
     const previewSrc = buildSpecUSRPicturePreviewSrc(useUploadPic.result.previewUrl, initialPicId);
     const handleRemovePicture = useCallback(() =>
@@ -126,14 +137,14 @@ const HeaderComp = (
             <LibDropList
                 Style={prop.theme.DropList}
                 Options={prop.cateOpts}
-                {...setField(SpecUSRSetFields.SpecUSR, SpecUSRModelFields.CategoryId, "string")}
+                {...setField(SpecUSRFields.CategoryId, "string")}
             />,
         ],
         Status: [
             <LibCheckBox
                 Style={prop.theme.CheckBox}
                 options={prop.statusOpts}
-                {...setField(SpecUSRSetFields.SpecUSR, SpecUSRModelFields.ContentStatus, "number", undefined, {
+                {...setField(SpecUSRFields.ContentStatus, "number", {
                     strategy: "sum",
                     sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number),
                 })}
@@ -143,7 +154,7 @@ const HeaderComp = (
             <LibCheckBox
                 Style={prop.theme.CheckBox}
                 options={prop.tagOpts}
-                {...setField(SpecUSRSetFields.SpecUSR, SpecUSRModelFields.Tags, "string", undefined, "csv")}
+                {...setField(SpecUSRFields.Tags, "string", "csv")}
             />,
         ],
         Img: [
@@ -171,19 +182,19 @@ const HeaderComp = (
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecUSRSetFields.SpecUSR, SpecUSRModelFields.PicDescription, "string")}
+                {...setField(SpecUSRFields.PicDescription, "string")}
             />,
         ],
         Photo: [<UploadPicComp theme={prop.theme} formData={prop.formData} />, <PhotoComp theme={prop.theme} formData={prop.formData} />],
-        System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={SpecUSRSetFields.SpecUSR} />],
+        System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} />],
     };
     return <TabContentComp tabInfos={LibTabsPropA} components={componentsA}></TabContentComp>;
 };
 
 const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visibleCols: Set<string>; }) =>
 {
-    const setField = useSetTableField<SpecUSRSet>(prop.formData);
-    const rawDetails = prop.formData.data?.SpecUSRDetail ?? [];
+    const setField = useSetTableField<SpecUSRFormModel>(prop.formData);
+    const rawDetails = prop.formData.data?._SpecUSRDetail ?? [];
 
     const tabInfo: LibTabsProp = {
         Style: prop.theme.Tabs,
@@ -195,7 +206,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
         }, {}),
     };
 
-    // ★ 1) 定義欄位呈現順序（鍵名需與 ShowColumnItems 內的代碼一致）
+    /** 依類別設定定義 Detail 欄位呈現順序。 */
     const orderedKeys = [
         SpecUSRDetailFields.Year,
         SpecUSRDetailFields.AcademicYear,
@@ -221,7 +232,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
     ] as const;
     type FieldKey = typeof orderedKeys[number];
 
-    // ★ 2) 產生各欄位的 node 工廠（避免用 function 宣告）
+    /** 建立單一語系 Detail 欄位。 */
     const makeNodes = (rowKeys: Record<string, any>) =>
     {
         const nodes: Record<FieldKey, ReactNode> = {
@@ -230,7 +241,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Year, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.Year, "string", rowKeys)}
                 />
             ),
             AcademicYear: (
@@ -238,7 +249,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.AcademicYear, "number", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.AcademicYear, "number", rowKeys)}
                 />
             ),
             Courses: (
@@ -246,7 +257,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Courses, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.Courses, "string", rowKeys)}
                 />
             ),
             PracticeField: (
@@ -254,7 +265,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.PracticeField, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.PracticeField, "string", rowKeys)}
                 />
             ),
             ProjectName: (
@@ -262,7 +273,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectName, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ProjectName, "string", rowKeys)}
                 />
             ),
             ExternalCooperationUnit: (
@@ -270,7 +281,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ExternalCooperationUnit, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ExternalCooperationUnit, "string", rowKeys)}
                 />
             ),
             ProjectItem: (
@@ -278,7 +289,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectItem, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ProjectItem, "string", rowKeys)}
                 />
             ),
             Department: (
@@ -286,7 +297,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Department, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.Department, "string", rowKeys)}
                 />
             ),
             DuringExecution: (
@@ -294,7 +305,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.DuringExecution, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.DuringExecution, "string", rowKeys)}
                 />
             ),
             PlanAmount: (
@@ -302,35 +313,35 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.PlanAmount, "number", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.PlanAmount, "number", rowKeys)}
                 />
             ),
             ExecutionStrategy: (
                 <LibTextArea
                     Style={prop.theme.TextArea}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ExecutionStrategy, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ExecutionStrategy, "string", rowKeys)}
                 />
             ),
             ContentIntroduction: (
                 <LibTextArea
                     Style={prop.theme.TextArea}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ContentIntroduction, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ContentIntroduction, "string", rowKeys)}
                 />
             ),
             ProjectConcept: (
                 <LibTextArea
                     Style={prop.theme.TextArea}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectConcept, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ProjectConcept, "string", rowKeys)}
                 />
             ),
             ProjectHighlights: (
                 <LibTextArea
                     Style={prop.theme.TextArea}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectHighlights, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ProjectHighlights, "string", rowKeys)}
                 />
             ),
             ProjectLeader: (
@@ -338,7 +349,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectLeader, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ProjectLeader, "string", rowKeys)}
                 />
             ),
             ProjectSubLeader: (
@@ -346,7 +357,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectSubLeader, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ProjectSubLeader, "string", rowKeys)}
                 />
             ),
             Cohost1: (
@@ -354,7 +365,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Cohost1, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.Cohost1, "string", rowKeys)}
                 />
             ),
             Cohost2: (
@@ -362,7 +373,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Cohost2, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.Cohost2, "string", rowKeys)}
                 />
             ),
             Commissioned: (
@@ -370,7 +381,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Commissioned, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.Commissioned, "string", rowKeys)}
                 />
             ),
             AttendTeam: (
@@ -378,26 +389,24 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.AttendTeam, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.AttendTeam, "string", rowKeys)}
                 />
             ),
             Remark: (
                 <LibTextArea
                     Style={prop.theme.TextArea}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Remark, "string", rowKeys)}
+                    {...setField(SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.Remark, "string", rowKeys)}
                 />
             ),
-            // Url: <LibTextBox parentClass="col-md-6 col-12" Style={prop.theme.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Url, "string", rowKeys)} />,
-            // UrlDescription: <LibTextBox parentClass="col-md-6 col-12" Style={prop.theme.TextBox2} DefaultInputDisplay="請輸入" {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.UrlDescription, "string", rowKeys)} />,
         };
         return nodes;
     };
 
-    // ★ 3) 按可視欄位集合篩選並產生 tabContent
+    /** 依語系建立 Detail 頁籤內容。 */
     const tabContent: Record<string, ReactNode[]> = rawDetails.reduce<Record<string, ReactNode[]>>((compMap, info, idx) =>
     {
-        const detailRowId = info.RowId ?? idx;
+        const detailRowId = Number(info.RowId ?? idx + 1);
         const langKey = LibText.Merge("_", true, info.USRId, info.RowId, info.Lang);
         const rowKeys = { [SpecUSRDetailFields.USRId]: info.USRId, [SpecUSRDetailFields.RowId]: info.RowId };
         const nodes = makeNodes(rowKeys);
@@ -408,10 +417,9 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
             <DividerComp key={`${langKey}-div-1`} />,
             <SubFilesComp key={`${langKey}-files`} theme={prop.theme} formData={prop.formData} parentRowId={detailRowId} />,
             <DividerComp key={`${langKey}-div-2`} />,
-            <SubUrlComp key={`${langKey}-url`} theme={prop.theme} formData={prop.formData} parentRowId={detailRowId} />,
+            <SubUrlComp key={`${langKey}-url`} formData={prop.formData} parentRowId={detailRowId} />,
         ];
 
-        compMap[langKey] = list;
         compMap[langKey] = [...list, ...extras];
         return compMap;
     }, {});
@@ -421,100 +429,80 @@ const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visib
 
 const SubFilesComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; parentRowId: number; }) =>
 {
-    const setFileField = useSetTableFileField(prop.formData);
-    const allFiles: SpecUSRFile[] = prop.formData.data?.SpecUSRFile ?? [];
-    const getFiles = (): SpecUSRFile[] => allFiles.filter(f => f.ParentRowId === prop.parentRowId).sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
-    // 提交回整份表單（關鍵：真正更新 formData）
-    const commitFiles = (nextFiles: SpecUSRFile[]) =>
+    const detailBinding = useSpecUSRDetailBinding(prop.formData, prop.parentRowId);
+    const setFileField = useSetTableFileField(detailBinding);
+    const files = useMemo(() => [...(detailBinding.data._SpecUSRFile ?? [])].sort(compareRowId), [detailBinding.data._SpecUSRFile]);
+    const addFile = useCallback(() =>
     {
-        prop.formData.setFormData(prev => ({
-            ...(prev ?? { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] }),
-            SpecUSRFile: nextFiles,
-        }));
-    };
-    // 新增一筆附件列
-    const addFile = () =>
+        detailBinding.setFormData(prev => ({ ...prev, _SpecUSRFile: appendSpecUSRFile(prev) }));
+    }, [detailBinding.setFormData]);
+    const removeFile = useCallback((rowId: number) =>
     {
-        const list = getFiles();
-        const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
-        const newItem: SpecUSRFile = { ParentRowId: prop.parentRowId, RowId: nextRowId, FileSrcId: "", FileName: "" };
-        commitFiles([...allFiles, newItem]);
-    };
-    // 刪除第 i 筆附件列
-    const removeFileAt = (i: number) =>
-    {
-        const filtered = getFiles();
-        const target = filtered[i];
-        if (!target) return;
-        const nextAll = allFiles.filter(f => !(f.ParentRowId === target.ParentRowId && f.RowId === target.RowId));
-        commitFiles(nextAll);
-    };
+        detailBinding.setFormData(prev => ({ ...prev, _SpecUSRFile: (prev._SpecUSRFile ?? []).filter(file => file.RowId !== rowId) }));
+    }, [detailBinding.setFormData]);
     return (
-        <>
-            {"檔案上傳"}
-            <div role="group" className="mt-4">
-                {getFiles().map((f, i) =>
-                {
-                    const rowKeys = { [SpecUSRFileFields.USRId]: f.USRId, [SpecUSRFileFields.ParentRowId]: f.ParentRowId, [SpecUSRFileFields.RowId]: f.RowId };
-                    return (
-                        <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
-                            <LibFileInput
-                                DefaultInputDisplay="請輸入附件說明"
-                                Accept={SpecUSRAttachmentUploadLimit.accept}
-                                maxFileCount={SpecUSRAttachmentUploadLimit.maxFileCount}
-                                maxFileSizeMB={SpecUSRAttachmentUploadLimit.maxFileSizeMB}
-                                onDelete={() => removeFileAt(i)}
-                                {...setFileField(SpecUSRSetFields.SpecUSRFile, SpecUSRFileFields.FileSrcId, SpecUSRFileFields.FileName, rowKeys, {
-                                    fileName: f.FileSrc?.FileName ?? "",
-                                    onlyFillNameIfEmpty: false,
-                                })}
-                            />
-                        </div>
-                    );
-                })}
-                <div className="row mx-0">
-                    <div className="col form-group">
-                        <div className="row mx-0">
-                            <div className="col-sm-10 offset-sm-2 float-md-left float-sm-none">
-                                <button
-                                    data-repeater-create=""
-                                    type="button"
-                                    className="btn btn-custom btn-rounded btn-sm mr-2 my-2"
-                                    onClick={addFile}
-                                    aria-label={"新增"}
-                                >
-                                    <i className="far fa-plus mr-2"></i>
-                                    {"新增"}
-                                </button>
-                            </div>
-                        </div>
+        <div role="group" className="mt-4" aria-label="檔案上傳">
+            <div className="mb-2 font-semibold">檔案上傳</div>
+            {files.map(file =>
+            {
+                const rowKeys = buildSpecUSRFileRowKeys(file);
+                return (
+                    <div key={`${file.ParentRowId}-${file.RowId}`} className="flex items-center gap-2 mb-2">
+                        <LibFileInput
+                            DefaultInputDisplay="請輸入附件說明"
+                            Accept={SpecUSRAttachmentUploadLimit.accept}
+                            maxFileCount={SpecUSRAttachmentUploadLimit.maxFileCount}
+                            maxFileSizeMB={SpecUSRAttachmentUploadLimit.maxFileSizeMB}
+                            onDelete={() => removeFile(Number(file.RowId ?? 0))}
+                            {...setFileField(SpecUSRDetailFields._SpecUSRFile, SpecUSRFileFields.FileSrcId, SpecUSRFileFields.FileName, rowKeys, {
+                                fileName: file.FileSrc?.FileName ?? "",
+                                onlyFillNameIfEmpty: false,
+                            })}
+                        />
                     </div>
-                </div>
-            </div>
-        </>
+                );
+            })}
+            <RepeaterAddButton onClick={addFile} />
+        </div>
     );
 };
 
-const SubUrlComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; parentRowId: number; }) =>
+const SubUrlComp = (prop: { formData: SpecUSRFormBinding; parentRowId: number; }) =>
 {
-    const allUrls: SpecUSRUrl[] = prop.formData.data?.SpecUSRUrl ?? [];
-    const handleChangeAll = (nextAll: SpecUSRUrl[]) =>
+    const detailBinding = useSpecUSRDetailBinding(prop.formData, prop.parentRowId);
+    const urls = detailBinding.data._SpecUSRUrl ?? [];
+    const handleChange = useCallback((next: SpecUSRUrl[]) =>
     {
-        prop.formData.setFormData(prev => ({
-            ...(prev ?? { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] }),
-            SpecUSRUrl: nextAll,
-        }));
-    };
+        detailBinding.setFormData(prev => ({ ...prev, _SpecUSRUrl: next }));
+    }, [detailBinding.setFormData]);
     return (
         <LibUrlInput<SpecUSRUrl>
-            items={allUrls}
-            onChange={handleChangeAll}
+            items={urls}
+            onChange={handleChange}
             parentValue={prop.parentRowId}
             fields={{ parentRowId: "ParentRowId", rowId: "RowId", title: "UrlDescription", url: "Url", target: "WindowTarget" }}
             label="外部連結"
             targets={{ 0: "本頁開啟", 1: "另開分頁" }}
-            getDefault={({ rowId, parentValue }) => ({ RowId: rowId, ParentRowId: parentValue, UrlDescription: "", Url: "", WindowTarget: 0 })}
+            getDefault={({ rowId, parentValue }) => buildSpecUSRUrl(detailBinding.data, rowId, Number(parentValue ?? prop.parentRowId))}
         />
+    );
+};
+
+const RepeaterAddButton = (prop: { onClick: () => void; }) =>
+{
+    return (
+        <div className="row mx-0">
+            <div className="col form-group">
+                <div className="row mx-0">
+                    <div className="col-sm-10 offset-sm-2 float-md-left float-sm-none">
+                        <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 my-2" onClick={prop.onClick} aria-label="新增">
+                            <i className="far fa-plus mr-2"></i>
+                            新增
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 };
 
@@ -523,122 +511,30 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; })
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    /** 移除批次上傳前的單張預覽圖片。 */
     const handleRemoveSelectedFile = useCallback((removeIndex: number) =>
     {
         setSelectedFiles(prev => prev.filter((_file, index) => index !== removeIndex));
     }, []);
-
-    // 逐張打 UploadTemp，回傳 InternalId 陣列
-    const uploadAll = async (): Promise<string[]> =>
-    {
-        const results: string[] = [];
-        const url = FileManagementAPI.Server_UploadTemp;
-        // 小工具：實際送出
-        const doUpload = async (file: File, fieldName: "file" | "files") =>
-        {
-            const fd = new FormData();
-            fd.append(fieldName, file, file.name);
-            const resp = await fetch(url, {
-                method: "POST",
-                body: fd,
-                credentials: "include", // 帶上 JWT Cookie
-                mode: "cors",
-            });
-            // 若非 2xx，丟出讓外層 fallback
-            if (!resp.ok)
-            {
-                const text = await resp.text().catch(() => "");
-                const err = new Error(`Upload ${file.name} failed: ${resp.status} ${text}`);
-                (err as any).status = resp.status;
-                throw err;
-            }
-            return resp.json().catch(() => ({}));
-        };
-        // 逐檔上傳；先用 "file"，失敗 (400) 再試 "files"
-        for (const file of selectedFiles)
-        {
-            try
-            {
-                let json: any;
-                try
-                {
-                    json = await doUpload(file, "file");
-                } catch (e: any)
-                {
-                    if ((e?.status ?? 0) === 400)
-                    {
-                        // 後端可能用 List<IFormFile> files
-                        json = await doUpload(file, "files");
-                    } else
-                    {
-                        throw e;
-                    }
-                }
-                // 兼容多種回傳外觀
-                const id = json.Data[0];
-                if (!id)
-                {
-                    // 讓你在 Console 看到實際回傳
-                    console.error("Upload ok but cannot find InternalId in response:", json);
-                    throw new Error(`Upload ${file.name}: missing InternalId`);
-                }
-                results.push(String(id));
-            } catch (err)
-            {
-                console.error("upload failed:", err);
-                throw err; // 丟出去讓 LibModal 顯示失敗（不自動關閉）
-            }
-        }
-        return results;
-    };
-    const appendPhotosToForm = (picIds: string[]) =>
-    {
-        prop.formData.setFormData(prev =>
-        {
-            const draft: any = { ...(prev ?? {}) };
-            const header = draft[SpecUSRSetFields.SpecUSR] ?? {};
-            const usrId = header[SpecUSRModelFields.USRId] ?? "";
-            const list = draft[SpecUSRSetFields.SpecUSRPhoto] ?? [];
-            const base = (list as any[]).reduce(
-                (m, it) => it?.[SpecUSRPhotoFields.USRId] === usrId ? Math.max(m, Number(it?.[SpecUSRPhotoFields.RowId] || 0)) : m,
-                0,
-            );
-            const newItems = picIds.map((pid, i) => ({
-                [SpecUSRPhotoFields.USRId]: usrId,
-                [SpecUSRPhotoFields.RowId]: base + i + 1,
-                [SpecUSRPhotoFields.PicSrcId]: pid,
-                // 方便排序：預設用 RowId
-                [SpecUSRPhotoFields.Sort]: base + i + 1,
-            }));
-            draft[SpecUSRSetFields.SpecUSRPhoto] = [...list, ...newItems];
-            return draft;
-        });
-    };
-
-    // 儲存並上傳
-    const handleUpload = async () =>
+    const handleUpload = useCallback(async () =>
     {
         if (selectedFiles.length === 0 || isUploading) return;
+        setError(null);
+        setIsUploading(true);
         try
         {
-            setError(null);
-            setIsUploading(true);
-            const internalIds = await uploadAll();
-            appendPhotosToForm(internalIds);
+            const internalIds = await uploadSpecUSRPhotos(selectedFiles);
+            appendSpecUSRPhotos(prop.formData, internalIds, selectedFiles);
             setSelectedFiles([]);
-            // 成功後 LibModal 會自動關閉（因為我們沒把 confirmAutoClose 設成 false）
-        } catch (e: any)
+        } catch (errorValue: unknown)
         {
-            setError(e?.message ?? String(e));
-            // 發生錯誤時，LibModal 不會自動關閉（因為 throw 被吃掉了）；你可視需要在錯誤時 return reject
-            throw e; // 若想阻止關閉可把錯誤 rethrow 出去
+            const message = errorValue instanceof Error ? errorValue.message : String(errorValue);
+            setError(message);
+            throw errorValue;
         } finally
         {
             setIsUploading(false);
         }
-    };
-
+    }, [isUploading, prop.formData, selectedFiles]);
     return (
         <LibModal
             ModalName="上傳圖片"
@@ -649,7 +545,6 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; })
             confirmBusy={isUploading}
         >
             <div className="row mx-0">
-                {/* 選擇欲上傳的圖片(多選) */}
                 <div className="col-12">
                     <div className="row">
                         <LibFile
@@ -659,132 +554,119 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; })
                             accept={SpecUSRPhotoBatchUploadLimit.accept}
                             maxFileCount={SpecUSRPhotoBatchUploadLimit.maxFileCount}
                             maxFileSizeMB={SpecUSRPhotoBatchUploadLimit.maxFileSizeMB}
-                            onChange={(files) => setSelectedFiles(files)}
-                            InputValue={""}
+                            onChange={setSelectedFiles}
+                            InputValue=""
                         />
                     </div>
                     {error && <div className="col-12 alert alert-danger mt-2">{error}</div>}
                 </div>
-                {/* 預覽 */}
-                {selectedFiles.length > 0 && (
-                    <div className="col-12">
-                        <div className="row mt-3 mx-0">
-                            <div className="col-12 col-form-label bg-secondary mb-1">預覽圖片</div>
-                            {selectedFiles.map((file, index) =>
-                            {
-                                const url = URL.createObjectURL(file);
-                                return (
-                                    <div key={index} className="col-12 border-bottom">
-                                        <div className="d-flex align-items-center">
-                                            <LibPicturePreview
-                                                ColumnDisplayName={file.name}
-                                                PicSrc={url}
-                                                PicDescription={`選中的圖片 ${file.name}`}
-                                                onRemove={() => handleRemoveSelectedFile(index)}
-                                            />
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
+                <SelectedPhotoPreview files={selectedFiles} onRemove={handleRemoveSelectedFile} />
             </div>
         </LibModal>
     );
 };
 
+const SelectedPhotoPreview = (prop: { files: File[]; onRemove: (index: number) => void; }) =>
+{
+    if (prop.files.length === 0) return null;
+    return (
+        <div className="col-12">
+            <div className="row mt-3 mx-0">
+                <div className="col-12 col-form-label bg-secondary mb-1">預覽圖片</div>
+                {prop.files.map((file, index) => (
+                    <div key={`${file.name}-${file.lastModified}-${index}`} className="col-12 border-bottom">
+                        <div className="d-flex align-items-center">
+                            <LibPicturePreview
+                                ColumnDisplayName={file.name}
+                                PicSrc={URL.createObjectURL(file)}
+                                PicDescription={`選中的圖片 ${file.name}`}
+                                onRemove={() => prop.onRemove(index)}
+                            />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 const PhotoComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; }) =>
 {
-    const setField = useSetTableField<SpecUSRSet>(prop.formData);
-    const photos = prop.formData?.data?.SpecUSRPhoto ?? [];
-    const remover = usePhotoRemove(prop.formData);
-    const dom = (
+    const setField = useSetTableField<SpecUSRFormModel>(prop.formData);
+    const photos = prop.formData.data?._SpecUSRPhoto ?? [];
+    const removePhoto = useCallback((rowId: number) => removeSpecUSRPhoto(prop.formData, rowId), [prop.formData]);
+    return (
         <>
-            {photos.map((item) =>
+            {photos.map(photo =>
             {
-                const rowKeys = { [SpecUSRPhotoFields.USRId]: item.USRId, [SpecUSRPhotoFields.RowId]: item.RowId };
-                const picSrcUrl = FileManagementAPI.get_Server_Preview_Url(item.PicSrcId);
+                const rowKeys = { [SpecUSRPhotoFields.USRId]: photo.USRId, [SpecUSRPhotoFields.RowId]: photo.RowId };
                 return (
-                    <LibPicture parentClass="col-xl-3 col-md-4 col-12" ColumnDisplayName="" PicSrc={picSrcUrl} PicDescription="文字">
-                        <div className="row">
-                            <div className="col-6 d-flex justify-content-end">
-                                <div className="all-btn">
-                                    <a
-                                        id="trash"
-                                        className="icon"
-                                        href="#"
-                                        onClick={() =>
-                                        {
-                                            if (!window.confirm("確定要刪除這張相片嗎？"))
-                                            {
-                                                return;
-                                            }
-                                            remover.remove(String(item.USRId ?? ""), Number(item.RowId ?? 0));
-                                        }}
-                                        title=""
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#All_Delete"
-                                    >
-                                        <button
-                                            type="button"
-                                            className="Itrash btn btn-ctm btn-ctm-rounded"
-                                            title=""
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            data-bs-original-title="刪除輪播"
-                                        >
-                                            <i className="far fa-trash-alt"></i>
-                                        </button>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                    <LibPicture
+                        key={`${photo.USRId}-${photo.RowId}`}
+                        parentClass="col-xl-3 col-md-4 col-12"
+                        ColumnDisplayName=""
+                        PicSrc={FileManagementAPI.get_Server_Preview_Url(photo.PicSrcId)}
+                        PicDescription="計畫成果相片"
+                    >
+                        <PhotoRemoveButton onClick={() => removePhoto(Number(photo.RowId ?? 0))} />
                         <LibTextBox
                             Style={prop.theme.TextBox2}
-                            DefaultInputDisplay={"請輸入"}
-                            {...setField(SpecUSRSetFields.SpecUSRPhoto, SpecUSRPhotoFields.Sort, "number", rowKeys)}
+                            DefaultInputDisplay="請輸入"
+                            {...setField(SpecUSRFields._SpecUSRPhoto, SpecUSRPhotoFields.Sort, "number", rowKeys)}
                         />
-                        <PhotoInfoComp theme={prop.theme} formData={prop.formData} parentRowId={item.RowId ?? 0} />
+                        <PhotoInfoComp theme={prop.theme} formData={prop.formData} parentRowId={Number(photo.RowId ?? 0)} />
                     </LibPicture>
                 );
             })}
         </>
     );
-    return dom;
+};
+
+const PhotoRemoveButton = (prop: { onClick: () => void; }) =>
+{
+    const handleClick = useCallback(() =>
+    {
+        if (window.confirm("確定要刪除這張相片嗎？")) prop.onClick();
+    }, [prop.onClick]);
+    return (
+        <div className="row">
+            <div className="col-6 d-flex justify-content-end">
+                <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" onClick={handleClick} aria-label="刪除相片">
+                    <i className="far fa-trash-alt" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    );
 };
 
 const PhotoInfoComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; parentRowId: number; }) =>
 {
-    const setField = useSetTableField<SpecUSRSet>(prop.formData);
-    const rawDetails = prop.formData.data?.SpecUSRPhotoInfo?.filter(p => p.ParentRowId === prop.parentRowId) ?? [];
+    const photoBinding = useSpecUSRPhotoBinding(prop.formData, prop.parentRowId);
+    const setField = useSetTableField<SpecUSRPhoto>(photoBinding);
+    const infos = photoBinding.data._SpecUSRPhotoInfo ?? [];
     const tabInfo: LibTabsProp = {
         Style: prop.theme.Tabs,
-        item: rawDetails.reduce<Record<string, string>>((tabItems, info) =>
+        item: infos.reduce<Record<string, string>>((items, info) =>
         {
-            const langKey = LibText.Merge("_", true, info.USRId, info.ParentRowId, info.RowId, info.Lang);
-            tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
-            return tabItems;
+            const key = buildSpecUSRPhotoInfoTabKey(info);
+            items[key] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
+            return items;
         }, {}),
     };
-    const tabContent: Record<string, ReactNode[]> = rawDetails.reduce<Record<string, ReactNode[]>>((compMap, info) =>
+    const tabContent = infos.reduce<Record<string, ReactNode[]>>((items, info) =>
     {
-        const langKey = LibText.Merge("_", true, info.USRId, info.ParentRowId, info.RowId, info.Lang);
-        const rowKeys = {
-            [SpecUSRPhotoInfoFields.USRId]: info.USRId,
-            [SpecUSRPhotoInfoFields.ParentRowId]: info.ParentRowId,
-            [SpecUSRPhotoInfoFields.RowId]: info.RowId,
-        };
-        compMap[langKey] = [
+        const rowKeys = buildSpecUSRPhotoInfoRowKeys(info);
+        items[buildSpecUSRPhotoInfoTabKey(info)] = [
             <LibTextBox
+                key={`${info.ParentRowId}-${info.RowId}-title`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecUSRSetFields.SpecUSRPhotoInfo, SpecUSRPhotoInfoFields.Title, "string", rowKeys)}
+                {...setField(SpecUSRPhotoFields._SpecUSRPhotoInfo, SpecUSRPhotoInfoFields.Title, "string", rowKeys)}
             />,
         ];
-        return compMap;
+        return items;
     }, {});
-    return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
+    return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
 };
 // #endregion
 
@@ -836,15 +718,15 @@ const updateSpecUSRPictureInfo = (binding: SpecUSRFormBinding, internalId: strin
 };
 
 /** 建立計畫成果主圖清除後資料，避免保留舊圖片與舊圖片說明。 */
-const buildSpecUSRPictureClearData = (source: SpecUSRSet): SpecUSRSet =>
+const buildSpecUSRPictureClearData = (source: SpecUSRFormModel): SpecUSRFormModel =>
 {
-    return { ...source, SpecUSR: { ...source.SpecUSR, PictureId: "", PicDescription: "" } };
+    return { ...source, PictureId: "", PicDescription: "" };
 };
 
 /** 建立計畫成果主圖更新後資料，圖片說明跟著新檔案同步更新。 */
-const buildSpecUSRPictureData = (source: SpecUSRSet, internalId: string, pictureDescription: string): SpecUSRSet =>
+const buildSpecUSRPictureData = (source: SpecUSRFormModel, internalId: string, pictureDescription: string): SpecUSRFormModel =>
 {
-    return { ...source, SpecUSR: { ...source.SpecUSR, PictureId: internalId, PicDescription: pictureDescription } };
+    return { ...source, PictureId: internalId, PicDescription: pictureDescription };
 };
 
 /** 從圖片檔案建立預設圖片說明，去除副檔名。 */
@@ -856,30 +738,256 @@ const buildSpecUSRPictureDescription = (file?: File): string =>
 /** 依目前選取類別取得 Detail 欄位顯示集合。 */
 const getVisibleCols = (formData: SpecUSRFormBinding, categoryCols: Record<string, string[]>): Set<string> =>
 {
-    const selectedCateId = formData.data?.SpecUSR?.CategoryId ?? "";
+    const selectedCateId = formData.data?.CategoryId ?? "";
     return new Set(categoryCols?.[selectedCateId] ?? []);
 };
 
-const usePhotoRemove = (formData: SpecUSRFormBinding) =>
+/** 建立 SpecUSR Detail 子集合 Binding，讓巢狀集合沿用共用欄位 Hook。 */
+const useSpecUSRDetailBinding = (binding: SpecUSRFormBinding, rowId: number): FormDataLike<SpecUSRDetail> =>
 {
-    const remove = (usrId?: string, rowId?: number) =>
+    const detail = useMemo(() => findSpecUSRDetail(binding.data, rowId), [binding.data, rowId]);
+    const setFormData: FormDataLike<SpecUSRDetail>["setFormData"] = useCallback((action) =>
     {
-        if (!usrId || rowId == null) return;
-        formData.setFormData(prev =>
-        {
-            // 以完整結構為基礎，確保提交資料「真的」更新
-            const base: SpecUSRSet = prev ?? { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] };
-            const photos = base.SpecUSRPhoto ?? [];
-            const details = base.SpecUSRPhotoInfo ?? [];
-            const nextPhotos = photos.filter(p => !(p?.USRId === usrId && p?.RowId === rowId));
-            const nextDetails = details.filter(d => !(d?.USRId === usrId && d?.ParentRowId === rowId));
-            // 如果刪到目前封面，換成剩下第一張；沒有就清空
-            const header = base.SpecUSR ?? {};
-            const nextHeader = { ...header };
-            // 以「整份物件」方式提交，確保資料狀態一致（與 Announcement 附件刪除相同風格）
-            return { ...base, SpecUSR: nextHeader, SpecUSRPhoto: nextPhotos, SpecUSRPhotoInfo: nextDetails };
-        });
+        binding.setFormData(prev => updateSpecUSRDetail(prev, rowId, action));
+    }, [binding.setFormData, rowId]);
+    return useMemo(() => ({
+        data: detail ?? buildEmptySpecUSRDetail(binding.data, rowId),
+        setFormData,
+        displayName: binding.displayName,
+    }), [binding.data, binding.displayName, detail, rowId, setFormData]);
+};
+
+/** 建立 SpecUSR Photo 子集合 Binding，讓相片語系資訊沿用共用欄位 Hook。 */
+const useSpecUSRPhotoBinding = (binding: SpecUSRFormBinding, rowId: number): FormDataLike<SpecUSRPhoto> =>
+{
+    const photo = useMemo(() => findSpecUSRPhoto(binding.data, rowId), [binding.data, rowId]);
+    const setFormData: FormDataLike<SpecUSRPhoto>["setFormData"] = useCallback((action) =>
+    {
+        binding.setFormData(prev => updateSpecUSRPhoto(prev, rowId, action));
+    }, [binding.setFormData, rowId]);
+    return useMemo(() => ({
+        data: photo ?? buildEmptySpecUSRPhoto(binding.data, rowId),
+        setFormData,
+        displayName: binding.displayName,
+    }), [binding.data, binding.displayName, photo, rowId, setFormData]);
+};
+
+/** 依 RowId 取得指定 Detail。 */
+const findSpecUSRDetail = (model: SpecUSRFormModel, rowId: number): SpecUSRDetail | undefined =>
+{
+    return (model._SpecUSRDetail ?? []).find(detail => Number(detail.RowId ?? 0) === rowId);
+};
+
+/** 依 RowId 取得指定相片。 */
+const findSpecUSRPhoto = (model: SpecUSRFormModel, rowId: number): SpecUSRPhoto | undefined =>
+{
+    return (model._SpecUSRPhoto ?? []).find(photo => Number(photo.RowId ?? 0) === rowId);
+};
+
+/** 更新指定 Detail，找不到資料時維持原表單。 */
+const updateSpecUSRDetail = (
+    model: SpecUSRFormModel,
+    rowId: number,
+    action: SpecUSRDetail | ((prev: SpecUSRDetail) => SpecUSRDetail),
+): SpecUSRFormModel =>
+{
+    const current = findSpecUSRDetail(model, rowId);
+    if (!current) return model;
+    const next = resolveStateAction(current, action);
+    if (next === current) return model;
+    return { ...model, _SpecUSRDetail: (model._SpecUSRDetail ?? []).map(detail => detail === current ? next : detail) };
+};
+
+/** 更新指定相片，找不到資料時維持原表單。 */
+const updateSpecUSRPhoto = (
+    model: SpecUSRFormModel,
+    rowId: number,
+    action: SpecUSRPhoto | ((prev: SpecUSRPhoto) => SpecUSRPhoto),
+): SpecUSRFormModel =>
+{
+    const current = findSpecUSRPhoto(model, rowId);
+    if (!current) return model;
+    const next = resolveStateAction(current, action);
+    if (next === current) return model;
+    return { ...model, _SpecUSRPhoto: (model._SpecUSRPhoto ?? []).map(photo => photo === current ? next : photo) };
+};
+
+/** 解析 React SetStateAction。 */
+const resolveStateAction = <T,>(current: T, action: T | ((prev: T) => T)): T =>
+{
+    return typeof action === "function" ? (action as (prev: T) => T)(current) : action;
+};
+
+/** 建立 Detail Binding 尚未載入時的安全空資料。 */
+const buildEmptySpecUSRDetail = (model: SpecUSRFormModel, rowId: number): SpecUSRDetail =>
+{
+    return { USRId: model.USRId ?? "", RowId: rowId, _SpecUSRFile: [], _SpecUSRUrl: [] } as SpecUSRDetail;
+};
+
+/** 建立 Photo Binding 尚未載入時的安全空資料。 */
+const buildEmptySpecUSRPhoto = (model: SpecUSRFormModel, rowId: number): SpecUSRPhoto =>
+{
+    return { USRId: model.USRId ?? "", RowId: rowId, _SpecUSRPhotoInfo: [] } as SpecUSRPhoto;
+};
+
+/** 依 RowId 排序巢狀資料。 */
+const compareRowId = (left: { RowId?: number | null; }, right: { RowId?: number | null; }): number =>
+{
+    return Number(left.RowId ?? 0) - Number(right.RowId ?? 0);
+};
+
+/** 在指定 Detail 後方新增附件空列。 */
+const appendSpecUSRFile = (detail: SpecUSRDetail): SpecUSRFile[] =>
+{
+    const files = detail._SpecUSRFile ?? [];
+    const nextRowId = files.reduce((max, file) => Math.max(max, Number(file.RowId ?? 0)), 0) + 1;
+    const nextRowNo = files.reduce((max, file) => Math.max(max, Number(file.RowNo ?? 0)), 0) + 1;
+    const next: SpecUSRFile = {
+        USRId: detail.USRId ?? "",
+        ParentRowId: Number(detail.RowId ?? 0),
+        RowId: nextRowId,
+        RowNo: nextRowNo,
+        FileSrcId: "",
+        FileName: "",
     };
-    return { remove };
+    return [...files, next];
+};
+
+/** 建立附件欄位定位鍵。 */
+const buildSpecUSRFileRowKeys = (file: SpecUSRFile): Record<string, string | number> =>
+{
+    return {
+        [SpecUSRFileFields.USRId]: file.USRId ?? "",
+        [SpecUSRFileFields.ParentRowId]: Number(file.ParentRowId ?? 0),
+        [SpecUSRFileFields.RowId]: Number(file.RowId ?? 0),
+    };
+};
+
+/** 建立新網址資料。 */
+const buildSpecUSRUrl = (detail: SpecUSRDetail, rowId: number, parentRowId: number): SpecUSRUrl =>
+{
+    return {
+        USRId: detail.USRId ?? "",
+        ParentRowId: parentRowId,
+        RowId: rowId,
+        RowNo: rowId,
+        UrlDescription: "",
+        Url: "",
+        WindowTarget: 0,
+    } as SpecUSRUrl;
+};
+
+/** 批次上傳計畫成果相片並回傳 internalId。 */
+const uploadSpecUSRPhotos = async (files: File[]): Promise<string[]> =>
+{
+    const results: string[] = [];
+    for (const file of files)
+    {
+        const response = await uploadSpecUSRPhoto(file);
+        const internalId = response.Data?.[0];
+        if (!internalId) throw new Error(`Upload ${file.name}: missing InternalId`);
+        results.push(String(internalId));
+    }
+    return results;
+};
+
+/** 上傳單張相片；後端若使用 files 欄位則自動 fallback。 */
+const uploadSpecUSRPhoto = async (file: File): Promise<{ Data?: string[]; }> =>
+{
+    try
+    {
+        return await postSpecUSRPhoto(file, "file");
+    } catch (errorValue: unknown)
+    {
+        if (getUploadErrorStatus(errorValue) !== 400) throw errorValue;
+        return postSpecUSRPhoto(file, "files");
+    }
+};
+
+/** 呼叫暫存檔案上傳 API。 */
+const postSpecUSRPhoto = async (file: File, fieldName: "file" | "files"): Promise<{ Data?: string[]; }> =>
+{
+    const formData = new FormData();
+    formData.append(fieldName, file, file.name);
+    const response = await fetch(FileManagementAPI.Server_UploadTemp, { method: "POST", body: formData, credentials: "include", mode: "cors" });
+    if (!response.ok) throw await buildUploadError(response, file.name);
+    return response.json() as Promise<{ Data?: string[]; }>;
+};
+
+/** 建立上傳錯誤並保留 HTTP status。 */
+const buildUploadError = async (response: Response, fileName: string): Promise<Error & { status?: number; }> =>
+{
+    const text = await response.text().catch(() => "");
+    const error = new Error(`Upload ${fileName} failed: ${response.status} ${text}`) as Error & { status?: number; };
+    error.status = response.status;
+    return error;
+};
+
+/** 取得上傳錯誤 HTTP status。 */
+const getUploadErrorStatus = (errorValue: unknown): number =>
+{
+    return Number((errorValue as { status?: number; } | null)?.status ?? 0);
+};
+
+/** 將批次上傳結果追加到 FormModel 相片集合。 */
+const appendSpecUSRPhotos = (binding: SpecUSRFormBinding, internalIds: string[], files: File[]): void =>
+{
+    binding.setFormData(prev =>
+    {
+        const photos = prev._SpecUSRPhoto ?? [];
+        const nextRowId = photos.reduce((max, photo) => Math.max(max, Number(photo.RowId ?? 0)), 0) + 1;
+        const newPhotos = internalIds.map((internalId, index) => buildSpecUSRPhoto(prev, internalId, files[index], nextRowId + index));
+        return { ...prev, _SpecUSRPhoto: [...photos, ...newPhotos] };
+    });
+};
+
+/** 建立新相片與其多語系資訊。 */
+const buildSpecUSRPhoto = (model: SpecUSRFormModel, internalId: string, file: File | undefined, rowId: number): SpecUSRPhoto =>
+{
+    return {
+        USRId: model.USRId ?? "",
+        RowId: rowId,
+        RowNo: rowId,
+        PicSrcId: internalId,
+        Sort: rowId,
+        _SpecUSRPhotoInfo: buildSpecUSRPhotoInfos(model.USRId, rowId, file),
+    } as SpecUSRPhoto;
+};
+
+/** 建立新相片支援語系資訊。 */
+const buildSpecUSRPhotoInfos = (usrId: string | null | undefined, parentRowId: number, file?: File): SpecUSRPhotoInfo[] =>
+{
+    const title = buildSpecUSRPictureDescription(file);
+    return SUPPORTED_LANGS.map((lang, index) => ({
+        USRId: usrId ?? "",
+        ParentRowId: parentRowId,
+        RowId: index + 1,
+        RowNo: index + 1,
+        Lang: lang,
+        Title: title,
+    } as SpecUSRPhotoInfo));
+};
+
+/** 從 FormModel 移除指定相片，巢狀資訊會隨相片一併移除。 */
+const removeSpecUSRPhoto = (binding: SpecUSRFormBinding, rowId: number): void =>
+{
+    binding.setFormData(prev => ({ ...prev, _SpecUSRPhoto: (prev._SpecUSRPhoto ?? []).filter(photo => Number(photo.RowId ?? 0) !== rowId) }));
+};
+
+/** 建立相片資訊頁籤 key。 */
+const buildSpecUSRPhotoInfoTabKey = (info: SpecUSRPhotoInfo): string =>
+{
+    return LibText.Merge("_", true, info.USRId, info.ParentRowId, info.RowId, info.Lang);
+};
+
+/** 建立相片資訊欄位定位鍵。 */
+const buildSpecUSRPhotoInfoRowKeys = (info: SpecUSRPhotoInfo): Record<string, string | number> =>
+{
+    return {
+        [SpecUSRPhotoInfoFields.USRId]: info.USRId ?? "",
+        [SpecUSRPhotoInfoFields.ParentRowId]: Number(info.ParentRowId ?? 0),
+        [SpecUSRPhotoInfoFields.RowId]: Number(info.RowId ?? 0),
+    };
 };
 // #endregion
+

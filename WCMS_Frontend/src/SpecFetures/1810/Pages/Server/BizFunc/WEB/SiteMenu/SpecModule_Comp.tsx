@@ -10,7 +10,7 @@ import { PGID } from "@/types/SchemaFields";
 import { useMemo } from "react";
 
 // #region Property
-type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+type SpecCategoryFormModel = components["schemas"]["SpecCategory"];
 
 type TagSet = components["schemas"]["TagData"];
 
@@ -111,12 +111,12 @@ const useGetSpecCategoryOptions = (progId: PGID, lang: Lang): Map<string, string
     const options = useMemo<Map<string, string>>(() =>
     {
         // return
-        return (query.data ?? []).reduce<Map<string, string>>((acc, item: SpecCategorySet) =>
+        return (query.data ?? []).reduce<Map<string, string>>((acc, item: SpecCategoryFormModel) =>
         {
-            const key = item.SpecCategory?.CategoryId;
+            const key = item.CategoryId;
             if (!key) return acc;
 
-            const text = item.SpecCategoryDetail?.find(p => p.Lang === lang)?.CategoryName ?? key;
+            const text = item._SpecCategoryDetail?.find(p => p.Lang === lang)?.CategoryName ?? key;
             acc.set(String(key), text);
             return acc;
         }, new Map<string, string>());

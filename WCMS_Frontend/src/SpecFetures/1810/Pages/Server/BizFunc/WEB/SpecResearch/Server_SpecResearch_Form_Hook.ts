@@ -13,22 +13,22 @@ import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { PGID, SpecResearchDetailModelFields, SpecResearchSetFields } from "@/types/SchemaFields";
+import { PGID, SpecResearchDetailFields, SpecResearchFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 
 // #region Property
-type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"];
+type SpecResearchFormModel = components["schemas"]["SpecResearch"];
 
-type SpecResearchDetail = NonNullable<SpecResearchSet["SpecResearchDetail"]>[number];
+type SpecResearchDetail = NonNullable<SpecResearchFormModel["_SpecResearchDetail"]>[number];
 
-type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+type SpecCategoryFormModel = components["schemas"]["SpecCategory"];
 
 type SpecResearchCategorySource = {
     /** 類別選項 Map */
     map?: Record<string, string>;
 
     /** 類別原始資料 */
-    data?: SpecCategorySet[];
+    data?: SpecCategoryFormModel[];
 
     /** 類別查詢中 */
     isLoading?: boolean;
@@ -70,7 +70,7 @@ export interface UseSpecResearchFormTemplateOptions
     internalId: string;
 
     /** 新增模式預設資料 */
-    emptyData: SpecResearchSet;
+    emptyData: SpecResearchFormModel;
 
     /** Form Template 標準動作設定 */
     actionsOpt: SpecResearchFormActionsOpt;
@@ -79,7 +79,7 @@ export interface UseSpecResearchFormTemplateOptions
 export interface UseSpecResearchDetailTabsOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<SpecResearchSet>;
+    binding: ServerFormBinding<SpecResearchFormModel>;
 
     /** 目前語系，保留給後續語系排序擴充 */
     lang: Lang;
@@ -141,12 +141,12 @@ export type SpecResearchFormAdapter = {
 // #endregion
 
 // #region Public
-export const specResearchEmptyData: SpecResearchSet = { SpecResearch: {}, SpecResearchDetail: [] };
+export const specResearchEmptyData: SpecResearchFormModel = { _SpecResearchDetail: [] };
 
 /** 建立 SpecResearch Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useSpecResearchFormTemplate = (
     opt: UseSpecResearchFormTemplateOptions,
-): ServerFormTemplate<SpecResearchSet, SpecResearchFormAdapter, SpecResearchFormRefs, ServerFormDefaultRawData<SpecResearchSet, SpecResearchFormRefs>, SpecResearchFormActionsOpt> =>
+): ServerFormTemplate<SpecResearchFormModel, SpecResearchFormAdapter, SpecResearchFormRefs, ServerFormDefaultRawData<SpecResearchFormModel, SpecResearchFormRefs>, SpecResearchFormActionsOpt> =>
 {
     return useMemo(() =>
     {
@@ -171,7 +171,7 @@ export const useSpecResearchFormTemplate = (
 /** 建立研究計畫多語 Detail Tabs，避免 Comp 自行處理 Tab key 與 rowKeys。 */
 export const useSpecResearchDetailTabs = (opt: UseSpecResearchDetailTabsOptions): SpecResearchDetailTabsResult =>
 {
-    const details = opt.binding.data?.SpecResearchDetail;
+    const details = opt.binding.data?._SpecResearchDetail;
 
     return useMemo(() =>
     {
@@ -189,7 +189,7 @@ const buildSpecResearchFormTitle = (ctx: { mode: "new" | "edit"; displayName: Mo
 };
 
 /** 建立新增模式的 initial data，避免新增時查詢 __new__。 */
-const buildSpecResearchInitialData = (ctx: { mode: "new" | "edit"; emptyData: SpecResearchSet; }): ApiFormInitial<SpecResearchSet> | undefined =>
+const buildSpecResearchInitialData = (ctx: { mode: "new" | "edit"; emptyData: SpecResearchFormModel; }): ApiFormInitial<SpecResearchFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
@@ -203,13 +203,12 @@ const buildSpecResearchFormAdapter = (): SpecResearchFormAdapter =>
 
 /** 取得 Header / Detail 需要的參照資料。 */
 const useSpecResearchReferenceData = (
-    ctx: { adapter: SpecResearchFormAdapter; binding: ServerFormBinding<SpecResearchSet>; lang: Lang; },
+    ctx: { adapter: SpecResearchFormAdapter; binding: ServerFormBinding<SpecResearchFormModel>; lang: Lang; },
 ) =>
 {
     useEnsureLangDetails(ctx.binding, {
-        headerName: SpecResearchSetFields.SpecResearch,
-        detailName: SpecResearchSetFields.SpecResearchDetail,
-        parentKeys: [SpecResearchDetailModelFields.ResearchId],
+        detailName: SpecResearchFields._SpecResearchDetail,
+        parentKeys: [SpecResearchDetailFields.ResearchId],
         preferFirstLang: ctx.lang,
     });
 
@@ -260,13 +259,13 @@ const useContentStatusOptions = (): { data: Record<string, string>; isLoading: b
 };
 
 /** SpecCategory.ShowColumnItems 轉成 CategoryId 對顯示欄位清單。 */
-const buildCategoryCols = (rows: SpecCategorySet[]): Record<string, string[]> =>
+const buildCategoryCols = (rows: SpecCategoryFormModel[]): Record<string, string[]> =>
 {
     return rows.reduce<Record<string, string[]>>((map, set) =>
     {
-        const cateId = set.SpecCategory?.CategoryId ?? "";
+        const cateId = set.CategoryId ?? "";
         if (!cateId) return map;
-        map[cateId] = parseShowColumnItems((set.SpecCategory?.ShowColumnItems ?? "").trim());
+        map[cateId] = parseShowColumnItems((set.ShowColumnItems ?? "").trim());
         return map;
     }, {});
 };
@@ -311,7 +310,7 @@ const buildSpecResearchDetailTabItem = (detail: SpecResearchDetail): SpecResearc
 {
     const key = `${detail.ResearchId ?? ""}_${detail.RowId ?? ""}_${detail.Lang ?? ""}`;
     const label = LangLabelMap[detail.Lang as Lang] ?? detail.Lang ?? "Unknown";
-    const rowKeys = { [SpecResearchDetailModelFields.ResearchId]: detail.ResearchId, [SpecResearchDetailModelFields.RowId]: detail.RowId };
+    const rowKeys = { [SpecResearchDetailFields.ResearchId]: detail.ResearchId, [SpecResearchDetailFields.RowId]: detail.RowId };
 
     return { key, label, detail, rowKeys };
 };

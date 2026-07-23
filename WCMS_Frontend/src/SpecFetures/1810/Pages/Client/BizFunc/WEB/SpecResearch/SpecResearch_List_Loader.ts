@@ -7,7 +7,7 @@ import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
-import { PGID, SpecCategoryModelFields, SpecResearchDetailModelFields, SpecResearchModelFields } from "@/types/SchemaFields";
+import { PGID, SpecCategoryFields, SpecResearchDetailFields, SpecResearchFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 import type { ISpecResearchListOptions } from "./SpecResearch_List_Comp";
@@ -15,43 +15,43 @@ import type { ISpecResearchListOptions } from "./SpecResearch_List_Comp";
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+type SpecCategoryFormModel = components["schemas"]["SpecCategory"];
 
-type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"];
+type SpecResearchFormModel = components["schemas"]["SpecResearch"];
 
-type SpecResearchDetail = components["schemas"]["SpecResearchDetailModel_DTO"];
+type SpecResearchDetail = components["schemas"]["SpecResearchDetail"];
 
 type ShowColumnMap = Record<string, string>;
 
 const EMPTY_QUERY: QueryListParam = { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: 15 };
 
 const ORDER: string[] = [
-    SpecResearchDetailModelFields.Year,
-    SpecResearchDetailModelFields.AcademicYear,
-    SpecResearchDetailModelFields.Semester,
-    SpecResearchDetailModelFields.CooperatingUnits,
-    SpecResearchDetailModelFields.Courses,
-    SpecResearchDetailModelFields.CooperationProject,
-    SpecResearchDetailModelFields.ClassTime,
-    SpecResearchDetailModelFields.TeachingStaffOfOurSchool,
-    SpecResearchDetailModelFields.Department,
-    SpecResearchDetailModelFields.Professor,
-    SpecResearchDetailModelFields.ProjectLeader,
-    SpecResearchDetailModelFields.College,
-    SpecResearchDetailModelFields.ProjectName,
-    SpecResearchDetailModelFields.ApprovalNumber,
-    SpecResearchDetailModelFields.ApprovedAmount,
-    SpecResearchDetailModelFields.DuringExecution,
-    SpecResearchDetailModelFields.ContractPeriod,
-    SpecResearchDetailModelFields.Name,
-    SpecResearchDetailModelFields.GraduationDegree,
-    SpecResearchDetailModelFields.PaperTitle,
-    SpecResearchDetailModelFields.Cohost1,
-    SpecResearchDetailModelFields.Cohost2,
-    SpecResearchDetailModelFields.Commissioned,
-    SpecResearchDetailModelFields.PlanAmount,
-    SpecResearchDetailModelFields.PlanContent,
-    SpecResearchDetailModelFields.Remark,
+    SpecResearchDetailFields.Year,
+    SpecResearchDetailFields.AcademicYear,
+    SpecResearchDetailFields.Semester,
+    SpecResearchDetailFields.CooperatingUnits,
+    SpecResearchDetailFields.Courses,
+    SpecResearchDetailFields.CooperationProject,
+    SpecResearchDetailFields.ClassTime,
+    SpecResearchDetailFields.TeachingStaffOfOurSchool,
+    SpecResearchDetailFields.Department,
+    SpecResearchDetailFields.Professor,
+    SpecResearchDetailFields.ProjectLeader,
+    SpecResearchDetailFields.College,
+    SpecResearchDetailFields.ProjectName,
+    SpecResearchDetailFields.ApprovalNumber,
+    SpecResearchDetailFields.ApprovedAmount,
+    SpecResearchDetailFields.DuringExecution,
+    SpecResearchDetailFields.ContractPeriod,
+    SpecResearchDetailFields.Name,
+    SpecResearchDetailFields.GraduationDegree,
+    SpecResearchDetailFields.PaperTitle,
+    SpecResearchDetailFields.Cohost1,
+    SpecResearchDetailFields.Cohost2,
+    SpecResearchDetailFields.Commissioned,
+    SpecResearchDetailFields.PlanAmount,
+    SpecResearchDetailFields.PlanContent,
+    SpecResearchDetailFields.Remark,
 ];
 
 export interface SpecResearchListLoaderArgs
@@ -67,10 +67,10 @@ export interface SpecResearchListLoaderArgs
 export interface SpecResearchListLoaderRes
 {
     showColumnMapRes: ShowColumnMap;
-    categoryShowColListRes: SpecCategorySet[];
+    categoryShowColListRes: SpecCategoryFormModel[];
     visibleColumnKeysRes: string[];
     countRes: number;
-    listRes: SpecResearchSet[];
+    listRes: SpecResearchFormModel[];
 }
 
 export interface SpecResearchListLoaderData
@@ -83,7 +83,7 @@ export interface SpecResearchListRawData
 {
     showColumnMap: ShowColumnMap;
     visibleColumnKeys: string[];
-    listData: SpecResearchSet[];
+    listData: SpecResearchFormModel[];
     count: number;
     pageNumber: number;
     totalPages: number;
@@ -116,7 +116,7 @@ export const SpecResearchList_Loader = (p: { lang: Lang; opts?: ISpecResearchLis
     const showColumnMapRes = normalizeShowColumnMap(showColLD.apiRes.Data ?? {});
 
     /** category 實際勾選欄位 loader */
-    let categoryShowColListRes: SpecCategorySet[] = [];
+    let categoryShowColListRes: SpecCategoryFormModel[] = [];
     let visibleColumnKeysRes: string[] = [];
 
     if (categoryShowColParam)
@@ -170,7 +170,7 @@ export const useSpecResearchListFetchData = (p: { lang: Lang; options?: ISpecRes
     const showColumnMap = useMemo(() => normalizeShowColumnMap(useShowCols.data ?? {}), [useShowCols.data]);
     const categoryShowColParam = useMemo(() => buildCategoryShowColParam(categoryIds) ?? EMPTY_QUERY, [categoryIds]);
 
-    const categoryShowColInitial = useMemo<ApiLoaderData<QueryListParam, SpecCategorySet[]> | null>(() =>
+    const categoryShowColInitial = useMemo<ApiLoaderData<QueryListParam, SpecCategoryFormModel[]> | null>(() =>
     {
         if (!canUseCategoryShowColInitial(loaderData, categoryIds)) return null;
         return buildClientLoaderInitial(loaderData!.args.categoryShowColParam!, loaderData?.res?.categoryShowColListRes ?? []);
@@ -188,7 +188,7 @@ export const useSpecResearchListFetchData = (p: { lang: Lang; options?: ISpecRes
         return buildClientLoaderInitial(loaderData!.args.baseParam!, loaderData?.res?.countRes ?? 0);
     }, [loaderData, p.lang, categoryIds, tagIds]);
 
-    const listInitial = useMemo<ApiLoaderData<QueryListParam, SpecResearchSet[]> | null>(() =>
+    const listInitial = useMemo<ApiLoaderData<QueryListParam, SpecResearchFormModel[]> | null>(() =>
     {
         if (!canUseBaseInitial(loaderData, { lang: p.lang, categoryIds, tagIds })) return null;
         return buildClientLoaderInitial(loaderData!.args.baseParam!, loaderData?.res?.listRes ?? []);
@@ -252,9 +252,9 @@ export const useSpecResearchListFetchData = (p: { lang: Lang; options?: ISpecRes
 const buildCondition = (p: { categoryIds: string; tagIds: string; }) =>
 {
     return LibCondition.joinConditions([
-        LibCondition.createCondition(SpecResearchModelFields.CategoryId, Operator.Equal, p.categoryIds),
-        LibCondition.createCondition(SpecResearchModelFields.Tags, Operator.HasAllOf, p.tagIds),
-        LibCondition.createCondition(SpecResearchModelFields.ContentStatus, Operator.BitwiseHasNone, 4),
+        LibCondition.createCondition(SpecResearchFields.CategoryId, Operator.Equal, p.categoryIds),
+        LibCondition.createCondition(SpecResearchFields.Tags, Operator.HasAllOf, p.tagIds),
+        LibCondition.createCondition(SpecResearchFields.ContentStatus, Operator.BitwiseHasNone, 4),
     ]);
 };
 
@@ -294,9 +294,9 @@ const normalizeShowColumnItems = (raw?: string | null): string[] =>
 };
 
 /** 取得 category 實際勾選的顯示欄位 */
-const getVisibleColumnKeys = (rows?: SpecCategorySet[] | null): string[] =>
+const getVisibleColumnKeys = (rows?: SpecCategoryFormModel[] | null): string[] =>
 {
-    const showColumnItems = rows?.[0]?.SpecCategory?.ShowColumnItems ?? "";
+    const showColumnItems = rows?.[0]?.ShowColumnItems ?? "";
     return normalizeShowColumnItems(showColumnItems);
 };
 
@@ -307,12 +307,12 @@ const buildCategoryShowColParam = (categoryIds: string): QueryListParam | null =
 
     return {
         Fields: [
-            SpecCategoryModelFields.InternalId,
-            SpecCategoryModelFields.CategoryId,
-            SpecCategoryModelFields.ProgId,
-            SpecCategoryModelFields.ShowColumnItems,
+            SpecCategoryFields.InternalId,
+            SpecCategoryFields.CategoryId,
+            SpecCategoryFields.ProgId,
+            SpecCategoryFields.ShowColumnItems,
         ],
-        Condition: `${SpecCategoryModelFields.CategoryId} = ${categoryIds}`,
+        Condition: `${SpecCategoryFields.CategoryId} = ${categoryIds}`,
         PageNumber: 0,
         PageSize: 0,
     };
@@ -322,8 +322,8 @@ const buildCategoryShowColParam = (categoryIds: string): QueryListParam | null =
 const buildDetailFields = (): string[] =>
 {
     return [
-        `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Lang}`,
-        ...ORDER.map(key => `${SpecResearchModelFields._SpecResearchDetail}.${key}`),
+        `${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.Lang}`,
+        ...ORDER.map(key => `${SpecResearchFields._SpecResearchDetail}.${key}`),
     ];
 };
 
@@ -334,13 +334,13 @@ const buildBaseParam = (p: { categoryIds: string; tagIds: string; visibleColumnK
     if (p.visibleColumnKeys.length <= 0) return null;
 
     return {
-        Fields: [SpecResearchModelFields.InternalId, SpecResearchModelFields.ResearchId, ...buildDetailFields()],
+        Fields: [SpecResearchFields.InternalId, SpecResearchFields.ResearchId, ...buildDetailFields()],
         Condition: buildCondition({ categoryIds: p.categoryIds, tagIds: p.tagIds }),
-        RankGroups: [{ Condition: `${SpecResearchModelFields.ContentStatus} & 1` }],
-        OrderBy: [{ Col: `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Year}`, Desc: true }, {
-            Col: `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.AcademicYear}`,
+        RankGroups: [{ Condition: `${SpecResearchFields.ContentStatus} & 1` }],
+        OrderBy: [{ Col: `${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.Year}`, Desc: true }, {
+            Col: `${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.AcademicYear}`,
             Desc: true,
-        }, { Col: `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Semester}`, Desc: false }],
+        }, { Col: `${SpecResearchFields._SpecResearchDetail}.${SpecResearchDetailFields.Semester}`, Desc: false }],
         PageNumber: 1,
         PageSize: 15,
     };
@@ -371,7 +371,7 @@ const canUseBaseInitial = (loaderData: SpecResearchListLoaderData | null, p: { l
 };
 
 /** 取得指定語系 detail */
-const getDetail = (item: SpecResearchSet, lang: Lang) => item.SpecResearchDetail?.find(p => p.Lang === lang);
+const getDetail = (item: SpecResearchFormModel, lang: Lang) => item._SpecResearchDetail?.find(p => p.Lang === lang);
 
 /** 取得 detail 欄位文字 */
 const getDetailText = (detail: SpecResearchDetail | undefined, key: string, lang: Lang) =>
@@ -379,7 +379,7 @@ const getDetailText = (detail: SpecResearchDetail | undefined, key: string, lang
     const row = detail as Record<string, string | number | null | undefined> | undefined;
     const raw = row?.[key];
 
-    if (key === SpecResearchDetailModelFields.ApprovedAmount || key === SpecResearchDetailModelFields.PlanAmount)
+    if (key === SpecResearchDetailFields.ApprovedAmount || key === SpecResearchDetailFields.PlanAmount)
     {
         const num = typeof raw === "number" ? raw : Number(raw ?? "");
         if (!Number.isFinite(num)) return "";
@@ -401,7 +401,7 @@ const buildGridProps = (
         lang: Lang;
         showColumnMap: ShowColumnMap;
         visibleColumnKeys: string[];
-        listData: SpecResearchSet[];
+        listData: SpecResearchFormModel[];
         pageNumber: number;
         totalPages: number;
         onPageChange: (page: number) => void;
@@ -413,7 +413,7 @@ const buildGridProps = (
     {
         const detail = getDetail(item, p.lang);
         const cells: RowCell[] = columns.map(col => ({ col, content: getDetailText(detail, col.key, p.lang) }));
-        return { keyId: item.SpecResearch?.InternalId ?? "", cells };
+        return { keyId: item.InternalId ?? "", cells };
     });
 
     return { columns, rows, CurrentPage: p.pageNumber, TotalPage: p.totalPages, onPageChange: p.onPageChange };

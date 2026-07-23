@@ -11,9 +11,9 @@ import { useLocation } from "react-router-dom";
 import { type ISpecUSRListOptions, useSpecUSRListFetchData } from "./SpecUSR_List_Loader";
 
 // #region Property
-type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+type SpecUSRFormModel = components["schemas"]["SpecUSR"];
 
-type SpecUSRDetail = components["schemas"]["SpecUSRDetail_DTO"];
+type SpecUSRDetail = components["schemas"]["SpecUSRDetail"];
 
 type ColKey =
     | typeof SpecUSRDetailFields.Year
@@ -97,7 +97,7 @@ const isNonEmpty = (v: string) =>
 };
 
 
-const SpecUSRList = (p: { lang: string | Lang; rawData: SpecUSRSet[]; showColumnItems: string[]; showColTitle: ColumnConfig[]; }) =>
+const SpecUSRList = (p: { lang: string | Lang; rawData: SpecUSRFormModel[]; showColumnItems: string[]; showColTitle: ColumnConfig[]; }) =>
 {
     const dirUrl = useLocation().pathname.replace(/\/List$/, "");
 
@@ -109,20 +109,20 @@ const SpecUSRList = (p: { lang: string | Lang; rawData: SpecUSRSet[]; showColumn
                 <div className="articles_itemBoxs_2">
                     {p.rawData.map(item =>
                     {
-                        const pageLink = `${dirUrl}/${item.SpecUSR?.InternalId}`;
-                        const detail = item.SpecUSRDetail?.find(x => x.Lang?.toLowerCase() === p.lang.toLowerCase());
-                        const picUrl = FileManagementAPI.get_Public_Preview_Url(item.SpecUSR?.PictureId) ?? DefaultPic;
+                        const pageLink = `${dirUrl}/${item.InternalId}`;
+                        const detail = item._SpecUSRDetail?.find(x => x.Lang?.toLowerCase() === p.lang.toLowerCase());
+                        const picUrl = FileManagementAPI.get_Public_Preview_Url(item.PictureId) ?? DefaultPic;
                         let leaderRendered = false;
 
                         return (
-                            <div key={item.SpecUSR?.InternalId ?? pageLink} className="articles_item col-12">
+                            <div key={item.InternalId ?? pageLink} className="articles_item col-12">
                                 <article className="cardbox">
                                     <div className="card_content_2">
                                         <div className="leftBox d-flex">
                                             <figure className="card_figure w-100 h-100">
                                                 <LangLink to={pageLink} className="card_image_link">
                                                     <picture className="w-100 h-100">
-                                                        <img className="card_image" src={picUrl} alt={item.SpecUSR?.PicDescription ?? ""} />
+                                                        <img className="card_image" src={picUrl} alt={item.PicDescription ?? ""} />
                                                     </picture>
                                                 </LangLink>
                                             </figure>

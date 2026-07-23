@@ -7,26 +7,29 @@ import type {
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { SpecCategoryAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecCategory_Api";
 import { SpecUSRAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecUSR_Api";
-import type { Lang } from "@/SysCore/i18n/lang";
-import { useEnsureLangDetails } from "@/SysCore/i18n/lang";
-import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
+import { buildSupportedLangOrder, type Lang, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { PGID, SpecUSRDetailFields, SpecUSRPhotoInfoFields, SpecUSRSetFields } from "@/types/SchemaFields";
-import { useMemo } from "react";
+import { PGID, SpecUSRDetailFields, SpecUSRFields } from "@/types/SchemaFields";
+import { useEffect, useMemo } from "react";
 
 // #region Property
-type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+type SpecUSRFormModel = components["schemas"]["SpecUSR"];
 
-type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+type SpecUSRPhoto = NonNullable<SpecUSRFormModel["_SpecUSRPhoto"]>[number];
+
+type SpecUSRPhotoInfo = NonNullable<SpecUSRPhoto["_SpecUSRPhotoInfo"]>[number];
+
+type SpecCategoryFormModel = components["schemas"]["SpecCategory"];
 
 type SpecUSRCategorySource = {
     /** 類別選項 Map。 */
     map?: Record<string, string>;
 
     /** 類別原始資料。 */
-    data?: SpecCategorySet[];
+    data?: SpecCategoryFormModel[];
 
     /** 類別查詢中。 */
     isLoading?: boolean;
@@ -64,7 +67,7 @@ export interface UseSpecUSRFormTemplateOptions
     internalId: string;
 
     /** 新增模式預設資料。 */
-    emptyData: SpecUSRSet;
+    emptyData: SpecUSRFormModel;
 
     /** Form Template 標準動作設定。 */
     actionsOpt: SpecUSRFormActionsOpt;
@@ -87,6 +90,9 @@ export type SpecUSRFormRefs = {
 export type SpecUSRFormActionsOpt = {
     /** 儲存/刪除成功後要回到列表。 */
     onBackToList: () => void;
+
+    /** 以目前 FormModel 開啟預覽。 */
+    onPreviewFromDto: (dto: SpecUSRFormModel) => void;
 };
 
 export type SpecUSRFormAdapter = {
@@ -102,7 +108,7 @@ export type SpecUSRFormAdapter = {
 // #endregion
 
 // #region Public
-export const specUSREmptyData: SpecUSRSet = { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] };
+export const specUSREmptyData: SpecUSRFormModel = { _SpecUSRDetail: [], _SpecUSRPhoto: [] };
 
 /** 計畫成果主圖上傳限制。 */
 export const SpecUSRPictureUploadLimit = {
@@ -131,7 +137,7 @@ export const SpecUSRPhotoBatchUploadLimit = {
 /** 建立 SpecUSR Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useSpecUSRFormTemplate = (
     opt: UseSpecUSRFormTemplateOptions,
-): ServerFormTemplate<SpecUSRSet, SpecUSRFormAdapter, SpecUSRFormRefs, ServerFormDefaultRawData<SpecUSRSet, SpecUSRFormRefs>, SpecUSRFormActionsOpt> =>
+): ServerFormTemplate<SpecUSRFormModel, SpecUSRFormAdapter, SpecUSRFormRefs, ServerFormDefaultRawData<SpecUSRFormModel, SpecUSRFormRefs>, SpecUSRFormActionsOpt> =>
 {
     return useMemo(() =>
     {
@@ -148,6 +154,7 @@ export const useSpecUSRFormTemplate = (
                 buildTitle: buildSpecUSRFormTitle,
                 buildInitialData: buildSpecUSRInitialData,
                 useReferenceData: ctx => useSpecUSRReferenceData({ ...ctx, lang: opt.lang }),
+                buildActions: buildSpecUSRActions,
             },
         };
     }, [opt.actionsOpt, opt.emptyData, opt.internalId, opt.lang, opt.theme]);
@@ -155,6 +162,15 @@ export const useSpecUSRFormTemplate = (
 // #endregion
 
 // #region Private
+/** 建立計畫成果 Toolbar 動作，保留 FormModel 預覽流程。 */
+const buildSpecUSRActions = (
+    ctx: { binding: ServerFormBinding<SpecUSRFormModel>; actionsOpt: SpecUSRFormActionsOpt; },
+    defaultActions: ServerFormActions,
+): ServerFormActions =>
+{
+    return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromDto(ctx.binding.data) };
+};
+
 /** 建立 SpecUSR Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildSpecUSRFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {
@@ -163,7 +179,7 @@ const buildSpecUSRFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDi
 };
 
 /** 建立新增模式的 initial data，避免新增時查詢 __new__。 */
-const buildSpecUSRInitialData = (ctx: { mode: "new" | "edit"; emptyData: SpecUSRSet; }): ApiFormInitial<SpecUSRSet> | undefined =>
+const buildSpecUSRInitialData = (ctx: { mode: "new" | "edit"; emptyData: SpecUSRFormModel; }): ApiFormInitial<SpecUSRFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
@@ -177,21 +193,15 @@ const buildSpecUSRFormAdapter = (): SpecUSRFormAdapter =>
 
 /** 取得 Header / Detail 需要的參照資料。 */
 const useSpecUSRReferenceData = (
-    ctx: { adapter: SpecUSRFormAdapter; binding: ServerFormBinding<SpecUSRSet>; lang: Lang; },
+    ctx: { adapter: SpecUSRFormAdapter; binding: ServerFormBinding<SpecUSRFormModel>; lang: Lang; },
 ) =>
 {
     useEnsureLangDetails(ctx.binding, {
-        headerName: SpecUSRSetFields.SpecUSR,
-        detailName: SpecUSRSetFields.SpecUSRDetail,
+        detailName: SpecUSRFields._SpecUSRDetail,
         parentKeys: [SpecUSRDetailFields.USRId],
         preferFirstLang: ctx.lang,
     });
-    useEnsureLangDetails(ctx.binding, {
-        headerName: SpecUSRSetFields.SpecUSRPhoto,
-        detailName: SpecUSRSetFields.SpecUSRPhotoInfo,
-        parentKeys: [SpecUSRPhotoInfoFields.USRId, SpecUSRPhotoInfoFields.ParentRowId],
-        preferFirstLang: ctx.lang,
-    });
+    useEnsureSpecUSRNestedCollections(ctx.binding, ctx.lang);
 
     const category = ctx.adapter.SpecCategory.hooks.useMapByProgId({ progId: PGID.SpecUSR, lang: ctx.lang });
     const tag = ctx.adapter.Tag.hooks.useMapByProgId({ progId: PGID.SpecUSR, lang: ctx.lang });
@@ -239,14 +249,90 @@ const useContentStatusOptions = (): { data: Record<string, string>; isLoading: b
     }, [src.data, src.error, src.isLoading]);
 };
 
+
+/** 補齊 Detail 子集合與相片語系子明細。 */
+const useEnsureSpecUSRNestedCollections = (binding: ServerFormBinding<SpecUSRFormModel>, preferLang: Lang): void =>
+{
+    useEffect(() =>
+    {
+        if (!binding.data) return;
+        binding.setFormData(prev => ensureSpecUSRNestedFormModel(prev, preferLang));
+    }, [binding.data, binding.setFormData, preferLang]);
+};
+
+/** 補齊目前 FormModel 的巢狀子集合，內容未變時保留原 reference。 */
+const ensureSpecUSRNestedFormModel = (model: SpecUSRFormModel, preferLang: Lang): SpecUSRFormModel =>
+{
+    const details = ensureSpecUSRDetailCollections(model._SpecUSRDetail ?? []);
+    const photos = ensureSpecUSRPhotoCollections(model._SpecUSRPhoto ?? [], model.USRId, preferLang);
+    if (details === model._SpecUSRDetail && photos === model._SpecUSRPhoto) return model;
+    return { ...model, _SpecUSRDetail: details, _SpecUSRPhoto: photos };
+};
+
+/** 補齊 Detail 內的附件與網址集合。 */
+const ensureSpecUSRDetailCollections = (details: SpecUSRFormModel["_SpecUSRDetail"]): NonNullable<SpecUSRFormModel["_SpecUSRDetail"]> =>
+{
+    const source = details ?? [];
+    const next = source.map(detail =>
+    {
+        if (detail._SpecUSRFile && detail._SpecUSRUrl) return detail;
+        return { ...detail, _SpecUSRFile: detail._SpecUSRFile ?? [], _SpecUSRUrl: detail._SpecUSRUrl ?? [] };
+    });
+    return isSameReferenceOrder(source, next) ? source : next;
+};
+
+/** 補齊相片支援語系並依目前語系排序。 */
+const ensureSpecUSRPhotoCollections = (photos: SpecUSRPhoto[], usrId: string | null | undefined, preferLang: Lang): SpecUSRPhoto[] =>
+{
+    const langOrder = buildSupportedLangOrder(preferLang);
+    const next = photos.map(photo => ensureSpecUSRPhotoCollection(photo, usrId, langOrder));
+    return isSameReferenceOrder(photos, next) ? photos : next;
+};
+
+/** 補齊單張相片語系資訊並依目前語系排序。 */
+const ensureSpecUSRPhotoCollection = (photo: SpecUSRPhoto, usrId: string | null | undefined, langOrder: Lang[]): SpecUSRPhoto =>
+{
+    const ensured = ensureSpecUSRPhotoLanguages(photo, usrId);
+    const infos = ensured._SpecUSRPhotoInfo ?? [];
+    const ordered = [...infos].sort((a, b) => langOrder.indexOf(a.Lang as Lang) - langOrder.indexOf(b.Lang as Lang));
+    if (ensured === photo && isSameReferenceOrder(infos, ordered)) return photo;
+    return { ...ensured, _SpecUSRPhotoInfo: ordered };
+};
+
+/** 補齊單張相片缺少的支援語系。 */
+const ensureSpecUSRPhotoLanguages = (photo: SpecUSRPhoto, usrId?: string | null): SpecUSRPhoto =>
+{
+    const infos = photo._SpecUSRPhotoInfo ?? [];
+    const existLangs = new Set(infos.map(info => String(info.Lang ?? "").toLowerCase()));
+    const missingLangs = SUPPORTED_LANGS.filter(lang => !existLangs.has(lang));
+    if (missingLangs.length === 0 && photo._SpecUSRPhotoInfo) return photo;
+    const maxRowId = infos.reduce((max, info) => Math.max(max, Number(info.RowId ?? 0)), 0);
+    const maxRowNo = infos.reduce((max, info) => Math.max(max, Number(info.RowNo ?? 0)), 0);
+    const missing = missingLangs.map((lang, index): SpecUSRPhotoInfo => ({
+        USRId: photo.USRId ?? usrId ?? "",
+        ParentRowId: photo.RowId,
+        RowId: maxRowId + index + 1,
+        RowNo: maxRowNo + index + 1,
+        Lang: lang,
+        Title: "",
+    }));
+    return { ...photo, _SpecUSRPhotoInfo: [...infos, ...missing] };
+};
+
+/** 比較兩個集合的 reference 與排列是否一致。 */
+const isSameReferenceOrder = <T,>(current: T[], next: T[]): boolean =>
+{
+    return current.length === next.length && current.every((item, index) => item === next[index]);
+};
+
 /** SpecCategory.ShowColumnItems 轉成 CategoryId 對顯示欄位清單。 */
-const buildCategoryCols = (rows: SpecCategorySet[]): Record<string, string[]> =>
+const buildCategoryCols = (rows: SpecCategoryFormModel[]): Record<string, string[]> =>
 {
     return rows.reduce<Record<string, string[]>>((map, set) =>
     {
-        const cateId = set.SpecCategory?.CategoryId ?? "";
+        const cateId = set.CategoryId ?? "";
         if (!cateId) return map;
-        map[cateId] = parseShowColumnItems((set.SpecCategory?.ShowColumnItems ?? "").trim());
+        map[cateId] = parseShowColumnItems((set.ShowColumnItems ?? "").trim());
         return map;
     }, {});
 };

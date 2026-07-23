@@ -5,42 +5,41 @@ import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { SpecCategoryModelFields, SpecUSRDetailFields, SpecUSRModelFields, SpecUSRSetFields } from "@/types/SchemaFields";
+import { SpecCategoryFields, SpecUSRDetailFields, SpecUSRFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+type SpecUSRFormModel = components["schemas"]["SpecUSR"];
 
-type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+type SpecCategoryFormModel = components["schemas"]["SpecCategory"];
 
 
 const formVisibleKeys: ReadonlyArray<readonly [string, string]> = [
-    [SpecUSRSetFields.SpecUSR, SpecUSRModelFields.PictureId],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Year],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.AcademicYear],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Courses],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.PracticeField],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectName],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ExternalCooperationUnit],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Department],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.PlanAmount],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.DuringExecution],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ExecutionStrategy],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ContentIntroduction],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectConcept],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectHighlights],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectLeader],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectSubLeader],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Cohost1],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Cohost2],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Commissioned],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.AttendTeam],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Remark],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectItem],
-    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Url],
+    ["", SpecUSRFields.PictureId],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.Year],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.AcademicYear],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.Courses],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.PracticeField],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ProjectName],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ExternalCooperationUnit],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.Department],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.PlanAmount],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.DuringExecution],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ExecutionStrategy],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ContentIntroduction],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ProjectConcept],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ProjectHighlights],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ProjectLeader],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ProjectSubLeader],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.Cohost1],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.Cohost2],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.Commissioned],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.AttendTeam],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.Remark],
+    [SpecUSRFields._SpecUSRDetail, SpecUSRDetailFields.ProjectItem],
 ];
 
 
@@ -55,8 +54,8 @@ export interface SpecUSRFormLoaderArgs
 /** loader res */
 export interface SpecUSRFormLoaderRes
 {
-    dataRes: SpecUSRSet | null;
-    categoryRes: SpecCategorySet[];
+    dataRes: SpecUSRFormModel | null;
+    categoryRes: SpecCategoryFormModel[];
     displayNameRes: ModelDisplaySchema[] | null;
 }
 
@@ -71,14 +70,14 @@ export interface SpecUSRFormLoaderData
 export interface UseSpecUSRFormFetchDataArgs
 {
     internalId: string;
-    emptyData: SpecUSRSet;
+    emptyData: SpecUSRFormModel;
     loaderData?: SpecUSRFormLoaderData | null;
 }
 
 
 export interface SpecUSRFormFetchData
 {
-    formData: SpecUSRSet;
+    formData: SpecUSRFormModel;
     showColumns: string[];
     showColTitle: ColumnConfig[];
 }
@@ -109,7 +108,7 @@ export const SpecUSRForm_Loader = () => async ({ request, params }: LoaderFuncti
     ]);
 
     const dataRes = dataLD.apiRes.Data ?? null;
-    const categoryId = `${dataRes?.SpecUSR?.CategoryId ?? ""}`.trim();
+    const categoryId = `${dataRes?.CategoryId ?? ""}`.trim();
     const categoryParam = buildSpecCategoryQuery(categoryId);
 
     // 執行 function：依主資料的 categoryId 再抓顯示欄位
@@ -143,7 +142,7 @@ export const useSpecUSRFormFetchData = (opt: UseSpecUSRFormFetchDataArgs) =>
     const useData = adapter.usr.hooks.useQueryData({ internalId: internalKey, initial: initialData, deps: [internalKey] });
     const useDisplayName = adapter.usr.hooks.useModelDisplayName({ initial: initialDisplayName, deps: [] });
 
-    const categoryId = `${useData.data?.SpecUSR?.CategoryId ?? opt.loaderData?.res?.dataRes?.SpecUSR?.CategoryId ?? ""}`.trim();
+    const categoryId = `${useData.data?.CategoryId ?? opt.loaderData?.res?.dataRes?.CategoryId ?? ""}`.trim();
     const categoryParam = useMemo(() => buildSpecCategoryQuery(categoryId), [categoryId]);
     const initialCategory = useMemo(() => buildCategoryInitial({ categoryParam, loaderData: opt.loaderData }), [categoryParam, opt.loaderData]);
 
@@ -152,7 +151,7 @@ export const useSpecUSRFormFetchData = (opt: UseSpecUSRFormFetchDataArgs) =>
 
     const showColumns = useMemo(() =>
     {
-        return buildShowColumnItems(useCategory.data?.[0]?.SpecCategory?.ShowColumnItems ?? "");
+        return buildShowColumnItems(useCategory.data?.[0]?.ShowColumnItems ?? "");
     }, [useCategory.data]);
 
     const showColTitle = useMemo(() =>
@@ -186,10 +185,10 @@ const buildEmptySpecCategoryQuery = (): QueryListParam =>
     // return：避免沒 categoryId 時打出整包資料
     return {
         Fields: [
-            SpecCategoryModelFields.InternalId,
-            SpecCategoryModelFields.CategoryId,
-            SpecCategoryModelFields.ProgId,
-            SpecCategoryModelFields.ShowColumnItems,
+            SpecCategoryFields.InternalId,
+            SpecCategoryFields.CategoryId,
+            SpecCategoryFields.ProgId,
+            SpecCategoryFields.ShowColumnItems,
         ],
         Condition: "1=0",
         PageNumber: 0,
@@ -207,12 +206,12 @@ const buildSpecCategoryQuery = (categoryId: string): QueryListParam =>
     // return
     return {
         Fields: [
-            SpecCategoryModelFields.InternalId,
-            SpecCategoryModelFields.CategoryId,
-            SpecCategoryModelFields.ProgId,
-            SpecCategoryModelFields.ShowColumnItems,
+            SpecCategoryFields.InternalId,
+            SpecCategoryFields.CategoryId,
+            SpecCategoryFields.ProgId,
+            SpecCategoryFields.ShowColumnItems,
         ],
-        Condition: `${SpecCategoryModelFields.CategoryId} = ${safeCategoryId}`,
+        Condition: `${SpecCategoryFields.CategoryId} = ${safeCategoryId}`,
         PageNumber: 0,
         PageSize: 0,
     };
@@ -273,8 +272,8 @@ const buildVisibleColumns = (schema: ModelDisplaySchema | null | undefined, visi
 
 
 const buildDataInitial = (
-    p: { internalId: string; emptyData: SpecUSRSet; loaderData?: SpecUSRFormLoaderData | null; },
-): ApiLoaderData<string, SpecUSRSet> | null =>
+    p: { internalId: string; emptyData: SpecUSRFormModel; loaderData?: SpecUSRFormLoaderData | null; },
+): ApiLoaderData<string, SpecUSRFormModel> | null =>
 {
     // 宣告變數
     const safeInternalId = `${p.internalId ?? ""}`.trim();
@@ -294,7 +293,7 @@ const buildDataInitial = (
 
 const buildCategoryInitial = (
     p: { categoryParam: QueryListParam; loaderData?: SpecUSRFormLoaderData | null; },
-): ApiLoaderData<QueryListParam, SpecCategorySet[]> | null =>
+): ApiLoaderData<QueryListParam, SpecCategoryFormModel[]> | null =>
 {
     // 宣告變數
     if (!p.loaderData?.args?.categoryParam) return null;

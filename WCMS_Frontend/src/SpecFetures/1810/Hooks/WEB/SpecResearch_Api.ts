@@ -5,11 +5,11 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 
 // #region Property
-type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"];
+type SpecResearchFormModel = components["schemas"]["SpecResearch"];
 // #endregion
 
 // #region Public
-class SpecResearchService extends ApiDataService<SpecResearchSet>
+class SpecResearchService extends ApiDataService<SpecResearchFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -19,7 +19,7 @@ class SpecResearchService extends ApiDataService<SpecResearchSet>
     // #endregion
 }
 
-class SpecResearchAdapterImpl extends ApiDataAdapter<SpecResearchSet, SpecResearchService>
+class SpecResearchAdapterImpl extends ApiDataAdapter<SpecResearchFormModel, SpecResearchService>
 {}
 
 

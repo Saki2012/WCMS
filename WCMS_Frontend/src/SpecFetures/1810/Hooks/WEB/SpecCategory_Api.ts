@@ -11,15 +11,15 @@ import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
 import { LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
-import { PGID, SpecCategoryDetailModelFields, SpecCategoryModelFields } from "@/types/SchemaFields";
+import { PGID, SpecCategoryDetailFields, SpecCategoryFields } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 
 // #region Property
-type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+type SpecCategoryFormModel = components["schemas"]["SpecCategory"];
 
-type SpecCategoryDetail = components["schemas"]["SpecCategoryDetailModel_DTO"];
+type SpecCategoryDetail = components["schemas"]["SpecCategoryDetail"];
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 
@@ -29,7 +29,7 @@ type ShowColumnMapList = ShowColumnMap[];
 
 type CateMapArgs = { progId: PGID; lang: Lang; };
 
-type CateMapData = { list: SpecCategorySet[]; map: Record<string, string>; };
+type CateMapData = { list: SpecCategoryFormModel[]; map: Record<string, string>; };
 
 type ShowColumnRaw = ShowColumnMap | ShowColumnMapList;
 
@@ -62,7 +62,7 @@ type SpecExtraHooks = {
         opt: { progId: PGID; lang: Lang; initial?: ApiLoaderData<CateMapArgs, CateMapData> | null; apiInstance?: AxiosInstance; },
     ) => {
         map: Record<string, string>;
-        data: SpecCategorySet[];
+        data: SpecCategoryFormModel[];
         apiRes: ApiResponse<CateMapData> | null;
         isLoading: boolean;
         errorText: string | null;
@@ -72,7 +72,7 @@ type SpecExtraHooks = {
 // #endregion
 
 // #region Public
-class SpecCategoryService extends ApiDataService<SpecCategorySet>
+class SpecCategoryService extends ApiDataService<SpecCategoryFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -88,12 +88,12 @@ class SpecCategoryService extends ApiDataService<SpecCategorySet>
     // #endregion
 }
 
-class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCategoryService>
+class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategoryFormModel, SpecCategoryService>
 {
     // #region Property
-    declare public loader: ApiDataLoaderGroup<SpecCategorySet> & SpecExtraLoaders;
+    declare public loader: ApiDataLoaderGroup<SpecCategoryFormModel> & SpecExtraLoaders;
 
-    declare public hooks: ApiDataHookGroup<SpecCategorySet> & SpecExtraHooks;
+    declare public hooks: ApiDataHookGroup<SpecCategoryFormModel> & SpecExtraHooks;
 
     /** 載入顯示欄位 map */
     private getShowColItemsLoader: SpecExtraLoaders["getShowColItemsLoader"] = (opt) =>
@@ -163,7 +163,7 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
     // #endregion
 
     // #region Public
-    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SpecCategorySet>): ApiDataLoaderGroup<SpecCategorySet> & SpecExtraLoaders
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SpecCategoryFormModel>): ApiDataLoaderGroup<SpecCategoryFormModel> & SpecExtraLoaders
     {
         return {
             ...base,
@@ -172,7 +172,7 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
         };
     }
 
-    protected override buildExtendedHooks(base: ApiDataHookGroup<SpecCategorySet>): ApiDataHookGroup<SpecCategorySet> & SpecExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<SpecCategoryFormModel>): ApiDataHookGroup<SpecCategoryFormModel> & SpecExtraHooks
     {
         return {
             ...base,
@@ -187,31 +187,31 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
     private buildCateMapQuery(a: CateMapArgs): QueryListParam
     {
         const fields: string[] = [
-            SpecCategoryModelFields.CategoryId,
-            SpecCategoryModelFields.ShowColumnItems,
-            `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang}`,
-            `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.CategoryName}`,
+            SpecCategoryFields.CategoryId,
+            SpecCategoryFields.ShowColumnItems,
+            `${SpecCategoryFields._SpecCategoryDetail}.${SpecCategoryDetailFields.Lang}`,
+            `${SpecCategoryFields._SpecCategoryDetail}.${SpecCategoryDetailFields.CategoryName}`,
         ];
         const condition = LibCondition.joinConditions(
             [
-                LibCondition.createCondition(SpecCategoryModelFields.ProgId, Operator.Equal, a.progId),
-                LibCondition.createCondition(`${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang}`, Operator.Equal, a.lang),
+                LibCondition.createCondition(SpecCategoryFields.ProgId, Operator.Equal, a.progId),
+                LibCondition.createCondition(`${SpecCategoryFields._SpecCategoryDetail}.${SpecCategoryDetailFields.Lang}`, Operator.Equal, a.lang),
             ],
         );
-        return { Fields: fields, Condition: condition, OrderBy: [{ Col: SpecCategoryModelFields.ModifyTime, Desc: true }], PageNumber: 0, PageSize: 0 };
+        return { Fields: fields, Condition: condition, OrderBy: [{ Col: SpecCategoryFields.ModifyTime, Desc: true }], PageNumber: 0, PageSize: 0 };
     }
 
     /** 把 Category list 轉成 map */
-    private buildCateMap(rows: SpecCategorySet[], lang: Lang): Record<string, string>
+    private buildCateMap(rows: SpecCategoryFormModel[], lang: Lang): Record<string, string>
     {
         const map: Record<string, string> = {};
 
         for (const p of rows)
         {
-            const id = p.SpecCategory?.CategoryId;
+            const id = p.CategoryId;
             if (!id) continue;
 
-            const matched = (p.SpecCategoryDetail ?? []).find((d: SpecCategoryDetail) => d.Lang === lang);
+            const matched = (p._SpecCategoryDetail ?? []).find((d: SpecCategoryDetail) => d.Lang === lang);
             map[String(id)] = matched?.CategoryName ?? "";
         }
 

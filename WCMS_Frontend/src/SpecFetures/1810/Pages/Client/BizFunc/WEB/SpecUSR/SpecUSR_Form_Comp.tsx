@@ -11,16 +11,16 @@ import { useLoaderData, useParams } from "react-router-dom";
 import { type SpecUSRFormLoaderData, useSpecUSRFormFetchData } from "./SpecUSR_Form_Loader";
 
 // #region Property
-type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+type SpecUSRFormModel = components["schemas"]["SpecUSR"];
 
-type SpecUSRPhoto = components["schemas"]["SpecUSRPhoto_DTO"];
+type SpecUSRPhoto = components["schemas"]["SpecUSRPhoto"];
 
-type SpecUSRDetail = components["schemas"]["SpecUSRDetail_DTO"];
+type SpecUSRDetail = components["schemas"]["SpecUSRDetail"];
 
 type FieldValue = string | number | boolean | null | undefined;
 
 
-const emptyData: SpecUSRSet = {};
+const emptyData: SpecUSRFormModel = { _SpecUSRDetail: [], _SpecUSRPhoto: [] };
 
 const supportedDetailColumns = [
     SpecUSRDetailFields.Year,
@@ -66,7 +66,7 @@ export interface SpecUSRPreviewFormProps
     lang: string | Lang;
 
     /** SpecUSR 預覽資料。 */
-    rawData: SpecUSRSet;
+    rawData: SpecUSRFormModel;
 
     /** 依類別設定可顯示的欄位。 */
     showColumns: string[];
@@ -170,17 +170,17 @@ const isSameLang = (source: string | Lang | null | undefined, target: string | L
 
 
 const SpecUSRForm = (
-    { lang, rawData, showColumns, showColTitle }: { lang: string | Lang; rawData: SpecUSRSet; showColumns: string[]; showColTitle: ColumnConfig[]; },
+    { lang, rawData, showColumns, showColTitle }: { lang: string | Lang; rawData: SpecUSRFormModel; showColumns: string[]; showColTitle: ColumnConfig[]; },
 ) =>
 {
     // 宣告變數
     const allCols = supportedDetailColumns;
     const showColumnSet = useMemo(() => buildShowColumnSet(showColumns), [showColumns]);
 
-    const header = rawData.SpecUSR;
-    const detail = rawData.SpecUSRDetail?.find(p => isSameLang(p.Lang, lang));
-    const urlDetail = rawData.SpecUSRUrl?.filter(p => p.USRId === detail?.USRId && p.ParentRowId === detail?.RowId);
-    const fileDetail = rawData.SpecUSRFile?.filter(p => p.USRId === detail?.USRId && p.ParentRowId === detail?.RowId);
+    const header = rawData;
+    const detail = rawData._SpecUSRDetail?.find(p => isSameLang(p.Lang, lang));
+    const urlDetail = detail?._SpecUSRUrl ?? [];
+    const fileDetail = detail?._SpecUSRFile ?? [];
     const [open, setOpen] = useState(false);
 
     const images = header?.PictureId ? [{ src: FileManagementAPI.get_Public_Preview_Url(header.PictureId), title: `${header.PicDescription ?? ""}` }] : [];
@@ -188,8 +188,7 @@ const SpecUSRForm = (
     const photos = useMemo<ISpecUSRPhoto[]>(() =>
     {
         // 宣告變數
-        const list = rawData.SpecUSRPhoto ?? [];
-        const infos = rawData.SpecUSRPhotoInfo ?? [];
+        const list = rawData._SpecUSRPhoto ?? [];
         const getSort = (item: SpecUSRPhoto) => Number(item?.Sort ?? 0);
 
         // return
@@ -198,10 +197,10 @@ const SpecUSRForm = (
             const id = `${item?.PicSrcId ?? ""}`.trim();
             if (!id) return null;
 
-            const info = infos.find(p => p.USRId === item.USRId && p.ParentRowId === item.RowId && isSameLang(p.Lang, lang));
+            const info = item._SpecUSRPhotoInfo?.find(p => isSameLang(p.Lang, lang));
             return { id, alt: info?.Title ?? "" } as ISpecUSRPhoto;
         }).filter((p): p is ISpecUSRPhoto => p !== null);
-    }, [rawData.SpecUSRPhoto, rawData.SpecUSRPhotoInfo, lang]);
+    }, [rawData._SpecUSRPhoto, lang]);
 
     // return
     return (

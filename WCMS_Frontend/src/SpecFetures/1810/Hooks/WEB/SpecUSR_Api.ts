@@ -5,11 +5,11 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 
 // #region Property
-type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+type SpecUSRFormModel = components["schemas"]["SpecUSR"];
 // #endregion
 
 // #region Public
-class SpecUSRService extends ApiDataService<SpecUSRSet>
+class SpecUSRService extends ApiDataService<SpecUSRFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -20,5 +20,5 @@ class SpecUSRService extends ApiDataService<SpecUSRSet>
 }
 
 export const SpecUSRAdapter = (apiInstance?: AxiosInstance) =>
-    new ApiDataAdapter<SpecUSRSet, SpecUSRService>((api?: AxiosInstance) => new SpecUSRService(api ?? apiInstance));
+    new ApiDataAdapter<SpecUSRFormModel, SpecUSRService>((api?: AxiosInstance) => new SpecUSRService(api ?? apiInstance));
 // #endregion

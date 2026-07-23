@@ -10,19 +10,19 @@ import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { AccountFields, PGID, SpecCategoryDetailModelFields, SpecCategoryModelFields } from "@/types/SchemaFields";
+import { AccountFields, PGID, SpecCategoryDetailFields, SpecCategoryFields } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+type SpecCategoryFormModel = components["schemas"]["SpecCategory"];
 
 type SpecCategoryListFormRawData = {
-    editForm: UseFetchFormDataResult<SpecCategorySet>;
+    editForm: UseFetchFormDataResult<SpecCategoryFormModel>;
     actions: UseActionsResult;
-    list: SpecCategorySet[];
+    list: SpecCategoryFormModel[];
     param: QueryListParam;
     showCols: Record<string, string>;
 };
@@ -32,7 +32,7 @@ type SpecCategoryListFormAdapter = { SpecCategory: ReturnType<typeof SpecCategor
 
 // #region Public
 export const useSpecCategoryListFormFetchData = (
-    opt: { dirUrl: string; internalId: string; emptyData: SpecCategorySet; lang: Lang; pgId: PGID; },
+    opt: { dirUrl: string; internalId: string; emptyData: SpecCategoryFormModel; lang: Lang; pgId: PGID; },
 ): UseFetchDataResult<SpecCategoryListFormRawData, SpecCategoryListFormAdapter> =>
 {
     // 宣告變數
@@ -98,20 +98,20 @@ export const useSpecCategoryListFormFetchData = (
 const useSpecCategoryListFormDataByAdapter = (
     adapter: ReturnType<typeof SpecCategoryAdapter>,
     internalId: string,
-    empty: SpecCategorySet,
+    empty: SpecCategoryFormModel,
     onError: (e: ApiAdapterError) => void,
-): UseFetchFormDataResult<SpecCategorySet> =>
+): UseFetchFormDataResult<SpecCategoryFormModel> =>
 {
     // 宣告變數
     const internalKey = internalId || "__new__";
     const isNew = useMemo(() => !internalId, [internalId]);
 
-    const initial = useMemo<ApiLoaderData<string, SpecCategorySet> | null>(() =>
+    const initial = useMemo<ApiLoaderData<string, SpecCategoryFormModel> | null>(() =>
     {
         // 宣告變數
         if (!isNew) return null;
 
-        const apiRes: ApiResponse<SpecCategorySet> = { IsSuccess: true, Data: empty, SysMessage: [] };
+        const apiRes: ApiResponse<SpecCategoryFormModel> = { IsSuccess: true, Data: empty, SysMessage: [] };
 
         // return
         return { args: internalKey, apiRes };
@@ -121,7 +121,7 @@ const useSpecCategoryListFormDataByAdapter = (
     const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
     const query = adapter.hooks.useQueryData({ internalId: internalKey, initial, deps: [internalKey], onError });
 
-    const [data, setData] = useState<SpecCategorySet>(empty);
+    const [data, setData] = useState<SpecCategoryFormModel>(empty);
 
     useEffect(() =>
     {
@@ -153,8 +153,8 @@ const useSpecCategoryListFormActionsFromAdapter = (
     dirUrl: string,
     adapter: ReturnType<typeof SpecCategoryAdapter>,
     internalId: string,
-    formData: UseFetchFormDataResult<SpecCategorySet>,
-    emptyData: SpecCategorySet,
+    formData: UseFetchFormDataResult<SpecCategoryFormModel>,
+    emptyData: SpecCategoryFormModel,
     refetchList: () => Promise<void>,
 ): UseActionsResult =>
 {
@@ -237,21 +237,21 @@ const useSpecCategoryListQueryParam = (p: { lang: Lang; pgId: PGID; }): QueryLis
 {
     // 宣告變數
     const fields = useMemo<string[]>(() => [
-        SpecCategoryModelFields.InternalId,
-        SpecCategoryModelFields.CategoryId,
-        SpecCategoryModelFields.ModifyUserId,
-        SpecCategoryModelFields.ModifyTime,
-        `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang}`,
-        `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.CategoryName}`,
-        `${SpecCategoryModelFields.ModifyUser}.${AccountFields.AccountName}`,
+        SpecCategoryFields.InternalId,
+        SpecCategoryFields.CategoryId,
+        SpecCategoryFields.ModifyUserId,
+        SpecCategoryFields.ModifyTime,
+        `${SpecCategoryFields._SpecCategoryDetail}.${SpecCategoryDetailFields.Lang}`,
+        `${SpecCategoryFields._SpecCategoryDetail}.${SpecCategoryDetailFields.CategoryName}`,
+        `${SpecCategoryFields.ModifyUser}.${AccountFields.AccountName}`,
     ], []);
 
     const condition = useMemo(() =>
         LibCondition.joinConditions([
-            LibCondition.createCondition(`${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang}`, Operator.Equal, p.lang),
-            LibCondition.createCondition(SpecCategoryModelFields.ProgId, Operator.Equal, p.pgId),
+            LibCondition.createCondition(`${SpecCategoryFields._SpecCategoryDetail}.${SpecCategoryDetailFields.Lang}`, Operator.Equal, p.lang),
+            LibCondition.createCondition(SpecCategoryFields.ProgId, Operator.Equal, p.pgId),
         ]), [p.lang, p.pgId]);
 
-    return useMemo(() => ({ Fields: fields, Condition: condition, OrderBy: [{ Col: SpecCategoryModelFields.ModifyTime, Desc: true }] }), [fields, condition]);
+    return useMemo(() => ({ Fields: fields, Condition: condition, OrderBy: [{ Col: SpecCategoryFields.ModifyTime, Desc: true }] }), [fields, condition]);
 };
 // #endregion

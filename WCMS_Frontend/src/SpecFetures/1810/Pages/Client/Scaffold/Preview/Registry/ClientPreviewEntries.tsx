@@ -13,7 +13,7 @@ import { PGID } from "@/types/SchemaFields";
 
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
-type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+type SpecUSRFormModel = components["schemas"]["SpecUSR"];
 
 interface AnnouncementPreviewPayload
 {
@@ -33,7 +33,7 @@ interface MaterialPreviewPayload
 interface SpecUSRPreviewPayload
 {
     lang?: string;
-    formData: SpecUSRSet;
+    formData: SpecUSRFormModel;
     showColumns: string[];
     showColTitle: ColumnConfig[];
 }
@@ -303,7 +303,7 @@ const announcementEmptyPreviewData: AnnouncementSet = { Announcement: {}, Announ
 const pageManagementEmptyPreviewData: PageManagementSet = { PageManagement: {}, PageManagementDetail: [] };
 const timelineEmptyPreviewData: TimelineSet = { Timeline: {}, TimelineItem: [], TimelineLangDetail: [] };
 const materialEmptyPreviewData: MaterialFormModel = { _MaterialLangInfo: [], _MaterialPicture: [], _MaterialTags: [] };
-const specUSREmptyPreviewData: SpecUSRSet = { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] };
+const specUSREmptyPreviewData: SpecUSRFormModel = { _SpecUSRDetail: [], _SpecUSRPhoto: [] };
 const announcementPreviewNode = buildPreviewNode("公告預覽", PGID.Announcement);
 const pageManagementPreviewNode = buildPreviewNode("頁面預覽", PGID.PageManagement);
 const timelinePreviewNode = buildPreviewNode("紀事表預覽", PGID.Timeline);

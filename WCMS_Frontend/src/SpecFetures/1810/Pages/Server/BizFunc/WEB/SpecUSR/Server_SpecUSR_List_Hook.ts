@@ -23,16 +23,16 @@ import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { AccountFields, PGID, SpecUSRDetailFields, SpecUSRModelFields, SpecUSRSetFields } from "@/types/SchemaFields";
+import { AccountFields, PGID, SpecUSRDetailFields, SpecUSRFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+type SpecUSRFormModel = components["schemas"]["SpecUSR"];
 
-type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+type SpecCategoryFormModel = components["schemas"]["SpecCategory"];
 
 type SpecUSRApiAdapter = ReturnType<typeof SpecUSRAdapter>;
 
@@ -75,7 +75,7 @@ export interface SpecUSRListRawData
     count: number;
 
     /** 計畫成果列表資料 */
-    list: SpecUSRSet[];
+    list: SpecUSRFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -90,7 +90,7 @@ export interface SpecUSRListRawData
     param: QueryListParam;
 
     /** 類別原始資料 */
-    categoryData: SpecCategorySet[];
+    categoryData: SpecCategoryFormModel[];
 
     /** 類別代碼與顯示文字對照 */
     categoryMap: Record<string, string>;
@@ -174,12 +174,12 @@ const DEFAULT_SPEC_USR_LIST_PAGE_STATE: SpecUSRListPageState = {
 /** 建立計畫成果純 Spec ListGridTemplate 設定 */
 export const useSpecUSRListGridTemplate = (opt: { lang: Lang; renderers: SpecUSRListRenderers; }): SpecUSRListGridTemplate =>
 {
-        const pageState = usePageStateMemory<SpecUSRListPageState>({
+    const pageState = usePageStateMemory<SpecUSRListPageState>({
         stateKey: SPEC_USR_LIST_STATE_KEY,
         defaultState: DEFAULT_SPEC_USR_LIST_PAGE_STATE,
         scopeKeys: [opt.lang],
     });
-return useMemo<SpecUSRListGridTemplate>(() =>
+    return useMemo<SpecUSRListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.SpecUSR,
@@ -324,8 +324,8 @@ const buildSpecUSRSearchConditions = (ctx: { searchParams: SpecUSRSearchParams; 
     const titleCondition = buildSpecUSRTitleCondition(ctx.searchParams.title);
 
     if (titleCondition) conditions.push(titleCondition);
-    if (ctx.searchParams.categoryId) conditions.push(`${SpecUSRModelFields.CategoryId} HasAny ${ctx.searchParams.categoryId}`);
-    if (ctx.searchParams.tagId) conditions.push(`${SpecUSRModelFields.Tags} HasAny [${ctx.searchParams.tagId}]`);
+    if (ctx.searchParams.categoryId) conditions.push(`${SpecUSRFields.CategoryId} HasAny ${ctx.searchParams.categoryId}`);
+    if (ctx.searchParams.tagId) conditions.push(`${SpecUSRFields.Tags} HasAny [${ctx.searchParams.tagId}]`);
 
     return conditions;
 };
@@ -335,24 +335,24 @@ const buildSpecUSRTitleCondition = (title?: string): string =>
 {
     const query = LibText.safeTrim(title);
     if (!query) return "";
-    const isNumVal: Boolean = /^\d+$/.test(query);
-    let condition = LibCondition.joinConditions([
-        isNumVal ? LibCondition.createCondition(`${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Year}`, Operator.Equal, query) : null,
-        isNumVal ? LibCondition.createCondition(`${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear}`, Operator.Equal, query) : null,
-        LibCondition.createCondition(`${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectName}`, Operator.Like, query),
-        LibCondition.createCondition(`${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectConcept}`, Operator.Like, query),
+    const isNumVal = /^\d+$/.test(query);
+    const condition = LibCondition.joinConditions([
+        isNumVal ? LibCondition.createCondition(`${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.Year}`, Operator.Equal, query) : null,
+        isNumVal ? LibCondition.createCondition(`${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear}`, Operator.Equal, query) : null,
+        LibCondition.createCondition(`${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectName}`, Operator.Like, query),
+        LibCondition.createCondition(`${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectConcept}`, Operator.Like, query),
     ], LibCondition.JoinMode.Or);
     return condition ? `(${condition})` : "";
 };
 
 /** 建立計畫成果列表完整 QueryParam */
-const buildSpecUSRQueryParam = (ctx: { searchParams: SpecUSRSearchParams; searchCondition: string; }): QueryListParam =>
+const buildSpecUSRQueryParam = (ctx: { searchParams: SpecUSRSearchParams; searchCondition: string; pageNumber: number; }): QueryListParam =>
 {
     return {
         Fields: buildSpecUSRQueryFields(),
-        Condition: LibCondition.joinConditions([LibCondition.createCondition(`${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Lang}`, Operator.Equal, ctx.searchParams.lang), ctx.searchCondition]),
-        RankGroups: [{ Condition: `${SpecUSRModelFields.ContentStatus} & 1` }],
-        OrderBy: [{ Col: SpecUSRModelFields.CreateTime, Desc: true }],
+        Condition: LibCondition.joinConditions([LibCondition.createCondition(`${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.Lang}`, Operator.Equal, ctx.searchParams.lang), ctx.searchCondition]),
+        RankGroups: [{ Condition: `${SpecUSRFields.ContentStatus} & 1` }],
+        OrderBy: [{ Col: SpecUSRFields.CreateTime, Desc: true }],
         PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
@@ -362,21 +362,21 @@ const buildSpecUSRQueryParam = (ctx: { searchParams: SpecUSRSearchParams; search
 const buildSpecUSRQueryFields = (): string[] =>
 {
     return [
-        SpecUSRModelFields.InternalId,
-        SpecUSRModelFields.USRId,
-        SpecUSRModelFields.CategoryId,
-        SpecUSRModelFields.Tags,
-        SpecUSRModelFields.ContentStatus,
-        SpecUSRModelFields.CreateTime,
-        SpecUSRModelFields.ModifyUserId,
-        `${SpecUSRModelFields.ModifyUser}.${AccountFields.AccountName}`,
-        SpecUSRModelFields.ModifyTime,
-        `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.RowId}`,
-        `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Lang}`,
-        `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Year}`,
-        `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear}`,
-        `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectName}`,
-        `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectConcept}`,
+        SpecUSRFields.InternalId,
+        SpecUSRFields.USRId,
+        SpecUSRFields.CategoryId,
+        SpecUSRFields.Tags,
+        SpecUSRFields.ContentStatus,
+        SpecUSRFields.CreateTime,
+        SpecUSRFields.ModifyUserId,
+        `${SpecUSRFields.ModifyUser}.${AccountFields.AccountName}`,
+        SpecUSRFields.ModifyTime,
+        `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.RowId}`,
+        `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.Lang}`,
+        `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.Year}`,
+        `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear}`,
+        `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectName}`,
+        `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectConcept}`,
     ];
 };
 
@@ -425,7 +425,7 @@ const enhanceSpecUSRGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<SpecUSRSet>({
+    const actions = createGridCrudActions<SpecUSRFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -438,7 +438,7 @@ const enhanceSpecUSRGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.SpecUSR?.InternalId ?? "",
+        getInternalId: (set) => set.InternalId ?? "",
     });
 };
 
@@ -446,20 +446,20 @@ const enhanceSpecUSRGrid = (
 const buildSpecUSRVisibleColumns = (): SpecUSRVisibleColumn[] =>
 {
     return [
-        { key: SpecUSRModelFields.CategoryId, tableId: SpecUSRSetFields.SpecUSR, columnId: SpecUSRModelFields.CategoryId, fallback: "計畫類別" },
-        { key: SpecUSRModelFields.Tags, tableId: SpecUSRSetFields.SpecUSR, columnId: SpecUSRModelFields.Tags, fallback: "標籤" },
-        { key: SpecUSRDetailFields.Year, tableId: SpecUSRSetFields.SpecUSRDetail, columnId: SpecUSRDetailFields.Year, fallback: "年度" },
-        { key: SpecUSRDetailFields.AcademicYear, tableId: SpecUSRSetFields.SpecUSRDetail, columnId: SpecUSRDetailFields.AcademicYear, fallback: "學年度" },
-        { key: SpecUSRDetailFields.ProjectName, tableId: SpecUSRSetFields.SpecUSRDetail, columnId: SpecUSRDetailFields.ProjectName, fallback: "計畫名稱" },
+        { key: SpecUSRFields.CategoryId, tableId: "", columnId: SpecUSRFields.CategoryId, fallback: "計畫類別" },
+        { key: SpecUSRFields.Tags, tableId: "", columnId: SpecUSRFields.Tags, fallback: "標籤" },
+        { key: SpecUSRDetailFields.Year, tableId: SpecUSRFields._SpecUSRDetail, columnId: SpecUSRDetailFields.Year, fallback: "年度" },
+        { key: SpecUSRDetailFields.AcademicYear, tableId: SpecUSRFields._SpecUSRDetail, columnId: SpecUSRDetailFields.AcademicYear, fallback: "學年度" },
+        { key: SpecUSRDetailFields.ProjectName, tableId: SpecUSRFields._SpecUSRDetail, columnId: SpecUSRDetailFields.ProjectName, fallback: "計畫名稱" },
         {
             key: SpecUSRDetailFields.ProjectConcept,
-            tableId: SpecUSRSetFields.SpecUSRDetail,
+            tableId: SpecUSRFields._SpecUSRDetail,
             columnId: SpecUSRDetailFields.ProjectConcept,
             fallback: "計畫理念",
         },
-        { key: SpecUSRModelFields.CreateTime, tableId: SpecUSRSetFields.SpecUSR, columnId: SpecUSRModelFields.CreateTime, fallback: "建立時間" },
-        { key: AccountFields.AccountName, tableId: SpecUSRModelFields.ModifyUser, columnId: AccountFields.AccountName, fallback: "修改者" },
-        { key: SpecUSRModelFields.ModifyTime, tableId: SpecUSRSetFields.SpecUSR, columnId: SpecUSRModelFields.ModifyTime, fallback: "修改時間" },
+        { key: SpecUSRFields.CreateTime, tableId: "", columnId: SpecUSRFields.CreateTime, fallback: "建立時間" },
+        { key: AccountFields.AccountName, tableId: SpecUSRFields.ModifyUser, columnId: AccountFields.AccountName, fallback: "修改者" },
+        { key: SpecUSRFields.ModifyTime, tableId: "", columnId: SpecUSRFields.ModifyTime, fallback: "修改時間" },
     ];
 };
 
@@ -470,14 +470,14 @@ const buildSpecUSRRows = (opt: { raw: SpecUSRListRawData; lang: Lang; columns: C
 };
 
 /** 建立計畫成果列表單列資料 */
-const buildSpecUSRRow = (opt: { set: SpecUSRSet; raw: SpecUSRListRawData; lang: Lang; columns: ColumnConfig[]; renderers: SpecUSRListRenderers; }): GridRow =>
+const buildSpecUSRRow = (opt: { set: SpecUSRFormModel; raw: SpecUSRListRawData; lang: Lang; columns: ColumnConfig[]; renderers: SpecUSRListRenderers; }): GridRow =>
 {
-    const detail = (opt.set.SpecUSRDetail ?? []).find((item) => item?.Lang === opt.lang);
+    const detail = (opt.set._SpecUSRDetail ?? []).find((item) => item?.Lang === opt.lang);
     const cells = opt.columns.map((col) => ({
         col,
         content: getSpecUSRCellContent({ key: col.key, set: opt.set, detail, raw: opt.raw, renderers: opt.renderers }),
     }));
-    const keyId = opt.set.SpecUSR?.InternalId ?? LibText.Merge("|", false, opt.set.SpecUSR?.USRId, detail?.RowId);
+    const keyId = opt.set.InternalId ?? LibText.Merge("|", false, opt.set.USRId, detail?.RowId);
 
     return { keyId, cells };
 };
@@ -486,20 +486,20 @@ const buildSpecUSRRow = (opt: { set: SpecUSRSet; raw: SpecUSRListRawData; lang: 
 const getSpecUSRCellContent = (
     opt: {
         key: string;
-        set: SpecUSRSet;
-        detail: NonNullable<SpecUSRSet["SpecUSRDetail"]>[number] | undefined;
+        set: SpecUSRFormModel;
+        detail: NonNullable<SpecUSRFormModel["_SpecUSRDetail"]>[number] | undefined;
         raw: SpecUSRListRawData;
         renderers: SpecUSRListRenderers;
     },
 ): RowCell["content"] =>
 {
-    const item = opt.set.SpecUSR;
+    const item = opt.set;
 
     switch (opt.key)
     {
-        case SpecUSRModelFields.CategoryId:
+        case SpecUSRFields.CategoryId:
             return mapIdToText(item?.CategoryId, opt.raw.categoryMap);
-        case SpecUSRModelFields.Tags:
+        case SpecUSRFields.Tags:
             return opt.renderers.buildTagContentNode(item?.Tags, opt.raw.tagMap);
         case SpecUSRDetailFields.Year:
             return opt.detail?.Year ?? "";
@@ -509,11 +509,11 @@ const getSpecUSRCellContent = (
             return opt.detail?.ProjectName ?? "";
         case SpecUSRDetailFields.ProjectConcept:
             return opt.detail?.ProjectConcept ?? "";
-        case SpecUSRModelFields.CreateTime:
+        case SpecUSRFields.CreateTime:
             return formatDateTime(item?.CreateTime);
         case AccountFields.AccountName:
             return item?.ModifyUser?.AccountName ?? "";
-        case SpecUSRModelFields.ModifyTime:
+        case SpecUSRFields.ModifyTime:
             return formatDateTime(item?.ModifyTime);
         default:
             return "";

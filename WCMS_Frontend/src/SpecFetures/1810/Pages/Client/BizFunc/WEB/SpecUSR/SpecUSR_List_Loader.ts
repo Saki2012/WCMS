@@ -7,16 +7,16 @@ import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
-import { PGID, SpecCategoryModelFields, SpecUSRDetailFields, SpecUSRModelFields } from "@/types/SchemaFields";
+import { PGID, SpecCategoryFields, SpecUSRDetailFields, SpecUSRFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+type SpecUSRFormModel = components["schemas"]["SpecUSR"];
 
-type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+type SpecCategoryFormModel = components["schemas"]["SpecCategory"];
 
 type ShowColumnMap = Record<string, string>;
 
@@ -54,8 +54,8 @@ export interface SpecUSRListLoaderArgs
 
 export interface SpecUSRListLoaderRes
 {
-    listRes: SpecUSRSet[];
-    showColRowsRes: SpecCategorySet[];
+    listRes: SpecUSRFormModel[];
+    showColRowsRes: SpecCategoryFormModel[];
     showColumnItemsRes: string[];
     showColumnMapRes: ShowColumnMap;
 }
@@ -68,7 +68,7 @@ export interface SpecUSRListLoaderData
 
 export interface SpecUSRListRawData
 {
-    listData: SpecUSRSet[];
+    listData: SpecUSRFormModel[];
     showColumnItems: string[];
     showColTitle: ColumnConfig[];
 }
@@ -94,7 +94,7 @@ export const SpecUSRList_Loader = (p: { lang: Lang; opts?: ISpecUSRListOptions; 
     const showColParam = buildShowColParam(categoryId);
     const baseParam = buildBaseParam({ categoryId, tagIds });
 
-    let showColRowsRes: SpecCategorySet[] = [];
+    let showColRowsRes: SpecCategoryFormModel[] = [];
     let showColumnItemsRes: string[] = [];
     let showColumnMapRes: ShowColumnMap = {};
 
@@ -108,7 +108,7 @@ export const SpecUSRList_Loader = (p: { lang: Lang; opts?: ISpecUSRListOptions; 
 
         const showColLD = await showColLoader({ request } as LoaderFunctionArgs);
         showColRowsRes = showColLD.apiRes.Data ?? [];
-        showColumnItemsRes = buildShowColumnItems(showColRowsRes[0]?.SpecCategory?.ShowColumnItems ?? "");
+        showColumnItemsRes = buildShowColumnItems(showColRowsRes[0]?.ShowColumnItems ?? "");
     }
 
     if (!baseParam)
@@ -140,7 +140,7 @@ export const useSpecUSRListFetchData = (p: { lang: Lang | string; options?: ISpe
     const showColParam = useMemo(() => buildShowColParam(categoryId) ?? EMPTY_QUERY, [categoryId]);
     const baseParam = useMemo(() => buildBaseParam({ categoryId, tagIds }) ?? EMPTY_QUERY, [categoryId, tagIds]);
 
-    const showColInitial = useMemo<ApiLoaderData<QueryListParam, SpecCategorySet[]> | null>(() =>
+    const showColInitial = useMemo<ApiLoaderData<QueryListParam, SpecCategoryFormModel[]> | null>(() =>
     {
         if (!canUseShowColInitial(loaderData, categoryId)) return null;
         return buildClientLoaderInitial(loaderData!.args.showColParam!, loaderData?.res?.showColRowsRes ?? []);
@@ -152,7 +152,7 @@ export const useSpecUSRListFetchData = (p: { lang: Lang | string; options?: ISpe
         return buildClientLoaderInitial(PGID.SpecUSR, loaderData?.res?.showColumnMapRes ?? {});
     }, [loaderData]);
 
-    const listInitial = useMemo<ApiLoaderData<QueryListParam, SpecUSRSet[]> | null>(() =>
+    const listInitial = useMemo<ApiLoaderData<QueryListParam, SpecUSRFormModel[]> | null>(() =>
     {
         if (!canUseListInitial(loaderData, { lang: p.lang, categoryId, tagIds })) return null;
         return buildClientLoaderInitial(loaderData!.args.baseParam!, loaderData?.res?.listRes ?? []);
@@ -171,7 +171,7 @@ export const useSpecUSRListFetchData = (p: { lang: Lang | string; options?: ISpe
 
     const showColumnItems = useMemo(() =>
     {
-        const raw = useShowCols.data?.[0]?.SpecCategory?.ShowColumnItems ?? "";
+        const raw = useShowCols.data?.[0]?.ShowColumnItems ?? "";
         return buildShowColumnItems(raw);
     }, [useShowCols.data]);
 
@@ -199,9 +199,9 @@ export const useSpecUSRListFetchData = (p: { lang: Lang | string; options?: ISpe
 const buildCondition = (p: { categoryId: string; tagIds: string; }) =>
 {
     return LibCondition.joinConditions([
-        LibCondition.createCondition(SpecUSRModelFields.CategoryId, Operator.Equal, p.categoryId),
-        LibCondition.createCondition(SpecUSRModelFields.Tags, Operator.HasAllOf, p.tagIds),
-        LibCondition.createCondition(SpecUSRModelFields.ContentStatus, Operator.BitwiseHasNone, 4),
+        LibCondition.createCondition(SpecUSRFields.CategoryId, Operator.Equal, p.categoryId),
+        LibCondition.createCondition(SpecUSRFields.Tags, Operator.HasAllOf, p.tagIds),
+        LibCondition.createCondition(SpecUSRFields.ContentStatus, Operator.BitwiseHasNone, 4),
     ]);
 };
 
@@ -212,30 +212,30 @@ const buildBaseParam = (p: { categoryId: string; tagIds: string; }): QueryListPa
 
     return {
         Fields: [
-            SpecUSRModelFields.InternalId,
-            SpecUSRModelFields.USRId,
-            SpecUSRModelFields.PictureId,
-            SpecUSRModelFields.PicDescription,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Lang}`,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Year}`,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectName}`,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectItem}`,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ExternalCooperationUnit}`,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Department}`,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.PlanAmount}`,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.DuringExecution}`,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectLeader}`,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectSubLeader}`,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Cohost1}`,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Cohost2}`,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Commissioned}`,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectConcept}`,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ContentIntroduction}`,
+            SpecUSRFields.InternalId,
+            SpecUSRFields.USRId,
+            SpecUSRFields.PictureId,
+            SpecUSRFields.PicDescription,
+            `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.Lang}`,
+            `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.Year}`,
+            `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectName}`,
+            `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectItem}`,
+            `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.ExternalCooperationUnit}`,
+            `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.Department}`,
+            `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.PlanAmount}`,
+            `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.DuringExecution}`,
+            `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectLeader}`,
+            `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectSubLeader}`,
+            `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.Cohost1}`,
+            `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.Cohost2}`,
+            `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.Commissioned}`,
+            `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectConcept}`,
+            `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.ContentIntroduction}`,
         ],
         Condition: buildCondition({ categoryId: p.categoryId, tagIds: p.tagIds }),
-        RankGroups: [{ Condition: `${SpecUSRModelFields.ContentStatus} & 1` }],
-        OrderBy: [{ Col: `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Year}`, Desc: true }, {
-            Col: `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear}`,
+        RankGroups: [{ Condition: `${SpecUSRFields.ContentStatus} & 1` }],
+        OrderBy: [{ Col: `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.Year}`, Desc: true }, {
+            Col: `${SpecUSRFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear}`,
             Desc: true,
         }],
         PageNumber: 0,
@@ -250,12 +250,12 @@ const buildShowColParam = (categoryId: string): QueryListParam | null =>
 
     return {
         Fields: [
-            SpecCategoryModelFields.InternalId,
-            SpecCategoryModelFields.CategoryId,
-            SpecCategoryModelFields.ProgId,
-            SpecCategoryModelFields.ShowColumnItems,
+            SpecCategoryFields.InternalId,
+            SpecCategoryFields.CategoryId,
+            SpecCategoryFields.ProgId,
+            SpecCategoryFields.ShowColumnItems,
         ],
-        Condition: `${SpecCategoryModelFields.CategoryId} = ${categoryId}`,
+        Condition: `${SpecCategoryFields.CategoryId} = ${categoryId}`,
         PageNumber: 0,
         PageSize: 0,
     };
