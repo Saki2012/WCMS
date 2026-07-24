@@ -91,26 +91,30 @@ internal sealed class FormAggregateSynchronizer<TFormModel>(
     /// <summary>
     /// 刪除新資料中已不存在的 Detail。
     /// </summary>
-    private static async Task DeleteRemovedAsync(
-        dynamic repo,
-        Dictionary<string, object> oldItems,
-        Dictionary<string, object> newItems,
-        CancellationToken ct)
+    private static async Task DeleteRemovedAsync(dynamic repo, Dictionary<string, object> oldItems, Dictionary<string, object> newItems, CancellationToken ct)
     {
         foreach (string key in oldItems.Keys.Except(newItems.Keys))
-            await repo.DeleteAsync(oldItems[key], ct);
+        {
+            dynamic oldItem = oldItems[key];
+
+            await repo.DeleteAsync(oldItem, ct);
+        }
     }
     /// <summary>
     /// 新增舊資料中不存在的 Detail。
     /// </summary>
     private static async Task CreateAddedAsync(
-        dynamic repo,
-        Dictionary<string, object> oldItems,
-        Dictionary<string, object> newItems,
-        CancellationToken ct)
+    dynamic repo,
+    Dictionary<string, object> oldItems,
+    Dictionary<string, object> newItems,
+    CancellationToken ct)
     {
         foreach (string key in newItems.Keys.Except(oldItems.Keys))
-            await repo.CreateAsync(newItems[key], ct);
+        {
+            dynamic newItem = newItems[key];
+
+            await repo.CreateAsync(newItem, ct);
+        }
     }
     /// <summary>
     /// 建立 Detail 複合 Key 字串。

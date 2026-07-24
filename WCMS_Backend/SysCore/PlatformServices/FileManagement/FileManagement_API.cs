@@ -13,7 +13,7 @@ using static WCMS.SysCore.Constants.SysParam;
 namespace WCMS.SysCore.PlatformServices.FileManagement;
 
 [ApiController, Route(SysParam.ApiRoutes.Service)]
-public class FileManagementController(IWebHostEnvironment Env) : ApiDataController<FileManage>
+public class FileManagementController : ApiDataController<FileManage>
 {
     #region Public
 
@@ -218,8 +218,7 @@ public class FileManagementController(IWebHostEnvironment Env) : ApiDataControll
     /// </summary>
     private string BuildPhysicalPath(FileManage file)
     {
-        var ext = (file.FileExtension ?? string.Empty).Trim().TrimStart('.');
-        return Path.Combine(Env.ContentRootPath, file.Path ?? string.Empty, $"{file.InternalId}.{ext}");
+        return FileManagementBiz.BuildPhysicalFilePath(file);
     }
     /// <summary>
     /// 建立回傳給瀏覽器的檔名

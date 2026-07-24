@@ -10,7 +10,7 @@ using WCMS.SysCore.Library;
 using WCMS.SysCore.PlatformServices.SystemMonitor;
 namespace WCMS.SysCore.PlatformServices.FileManagement;
 
-public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> options, IWebHostEnvironment Env) : BizService<FileManage>(bizDeps)
+public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> options) : BizService<FileManage>(bizDeps)
 {
     #region Property
     private readonly FilePathOptions FilePath = options.Value;
@@ -171,6 +171,20 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     }
     #endregion
 
+    #region Internal
+    /// <summary>
+    /// 依原始上傳相對路徑規則建立實體檔案完整路徑。
+    /// </summary>
+    internal static string BuildPhysicalFilePath(FileManage filemanage)
+    {
+        string path = filemanage.Path ?? string.Empty;
+        return BuildPhysicalFilePath(
+            path,
+            filemanage.InternalId,
+            filemanage.FileExtension);
+    }
+    #endregion
+
     #region Private
 
     #region Read File
@@ -198,7 +212,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
         for (int i = filemanages.Count - 1; i >= 0; i--)
         {
             var filemanage = filemanages[i];
-            string fullPath = Path.Combine(Env.ContentRootPath, filemanage.Path, $"{filemanage.InternalId}.{filemanage.FileExtension}");
+            string fullPath = BuildPhysicalFilePath(filemanage);
             if (!File.Exists(fullPath))
             {
                 Message.AddMessage(MessageStatus.Warning, SysMessageCode.BECode00032, filemanage.InternalId, filemanage.FileName);
@@ -531,7 +545,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <returns></returns>
     private bool CheckFileExist(FileManage filemanage, FileManage_SyncInfo syncInfo)
     {
-        string fullPath = Path.Combine(filemanage.Path, $"{filemanage.InternalId}.{filemanage.FileExtension}");
+        string fullPath = BuildPhysicalFilePath(filemanage);
         if (filemanage.FileStatus.In(FileStatus.Pending, FileStatus.Success) || File.Exists(fullPath))
         {
             syncInfo.FileStatus = FileStatus.Skipped;
@@ -788,9 +802,10 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     private static async Task DoStoreFileToSystem(IFormFile file, FileManage set)
     {
         if (file == null || file.Length == 0) return;
-        if (!Directory.Exists(set.Path)) Directory.CreateDirectory(set.Path);
-        var fileName = $"{set.InternalId}.{set.FileExtension}";
-        var fullPath = Path.Combine(set.Path, fileName);
+        string fullPath = BuildPhysicalFilePath(set);
+        string directory = Path.GetDirectoryName(fullPath)
+            ?? throw new InvalidOperationException("無法取得檔案儲存目錄。");
+        Directory.CreateDirectory(directory);
         using var stream = new FileStream(fullPath, FileMode.Create);
         await file.CopyToAsync(stream);
     }
@@ -805,7 +820,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     {
         DateTime today = DateTime.UtcNow;
         string dstPath = LibData.Merge("/", false, FilePath.Root, FilePath.Permanent, today.Year, today.Month, today.Day, ProgId);
-        if (!Directory.Exists(dstPath)) Directory.CreateDirectory(dstPath);
+        Directory.CreateDirectory(BuildPhysicalDirectoryPath(dstPath));
         foreach (var set in sets)
         {
             if (set.FileStatus != FileStatus.Pending) continue;
@@ -813,12 +828,15 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
             var curSyncInfo = new FileManage_SyncInfo() { InternalId = set.InternalId, FileStatus = FileStatus.Success };
             set._FileManage_SyncInfo.Add(curSyncInfo);
             string srcPath = header.Path;
-            string srcFullPath = LibData.Merge("/", false, header.Path, $"{header.InternalId}.{header.FileExtension}");
-            string dstFullPath = LibData.Merge("/", false, dstPath, $"{header.InternalId}.{header.FileExtension}");
+            string srcFullPath = BuildPhysicalFilePath(header);
+            string dstFullPath = BuildPhysicalFilePath(
+                dstPath,
+                header.InternalId,
+                header.FileExtension);
             header.FileStatus = FileStatus.Success;
             header.Path = dstPath;
-            curSyncInfo.SrcFullPath = srcFullPath;
-            curSyncInfo.DestFullPath = dstFullPath;
+            curSyncInfo.SrcFullPath = LibData.Merge("/", false, srcPath, $"{header.InternalId}.{header.FileExtension}");
+            curSyncInfo.DestFullPath = LibData.Merge("/", false, dstPath, $"{header.InternalId}.{header.FileExtension}");
             curSyncInfo.FileStatus = FileStatus.Success;
             curSyncInfo.SrcIP = HostNetworkInfo.LocalIPv4;
             curSyncInfo.SrcNode = Environment.MachineName;
@@ -851,11 +869,11 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
             var curSyncInfo = new FileManage_SyncInfo() { InternalId = set.InternalId, FileStatus = FileStatus.Canceled };
             set._FileManage_SyncInfo.Add(curSyncInfo);
             string srcPath = header.Path;
-            string srcFullPath = LibData.Merge("/", false, header.Path, $"{header.InternalId}.{header.FileExtension}");
+            string srcFullPath = BuildPhysicalFilePath(header);
             string dstFullPath = string.Empty;
             header.FileStatus = FileStatus.Success;
             header.Path = string.Empty;
-            curSyncInfo.SrcFullPath = srcFullPath;
+            curSyncInfo.SrcFullPath = LibData.Merge("/", false, srcPath, $"{header.InternalId}.{header.FileExtension}");
             curSyncInfo.DestFullPath = dstFullPath;
             curSyncInfo.FileStatus = FileStatus.Success;
             curSyncInfo.SrcIP = HostNetworkInfo.LocalIPv4;
@@ -1054,6 +1072,30 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
             DestFullPath = LibData.Merge("/", false, file.Path, $"{file.InternalId}.{file.FileExtension}")
         };
     }
+    /// <summary>
+    /// 將相對目錄依目前執行工作目錄解析成完整路徑。
+    /// </summary>
+    private static string BuildPhysicalDirectoryPath(string path)
+    {
+        return Path.GetFullPath(path ?? string.Empty);
+    }
+    /// <summary>
+    /// 依指定目錄、識別碼與副檔名建立實體檔案完整路徑。
+    /// </summary>
+    private static string BuildPhysicalFilePath(
+        string path,
+        string internalId,
+        string fileExtension)
+    {
+        string extension = (fileExtension ?? string.Empty)
+            .Trim()
+            .TrimStart('.');
+        string fileName = string.IsNullOrWhiteSpace(extension)
+            ? internalId
+            : $"{internalId}.{extension}";
+        return Path.GetFullPath(Path.Combine(path ?? string.Empty, fileName));
+    }
+
     /// <summary>
     /// 驗證匯入標籤不可包含路徑或特殊目錄語意。
     /// </summary>
