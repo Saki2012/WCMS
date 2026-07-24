@@ -180,10 +180,7 @@ internal static class HardeningSetup
     private static async ValueTask HandleRateLimitRejectedAsync(OnRejectedContext context, CancellationToken token)
     {
         context.HttpContext.Response.ContentType = SysParam.MediaTypes.ApplicationJson;
-        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
-        {
-            context.HttpContext.Response.Headers.RetryAfter = ((int)retryAfter.TotalSeconds).ToString();
-        }
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter)) context.HttpContext.Response.Headers.RetryAfter = ((int)retryAfter.TotalSeconds).ToString();
         await context.HttpContext.Response.WriteAsync("{\"message\":\"登入嘗試過多，請稍後再試。\"}", token);
     }
     #endregion

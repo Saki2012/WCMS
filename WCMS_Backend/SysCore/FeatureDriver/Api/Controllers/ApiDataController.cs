@@ -194,9 +194,7 @@ public abstract class ApiDataController<TFormModel> : ApiDataQueryController<TFo
     /// 初始資料建立匯入。
     /// </summary>
     [HttpPost(nameof(InitialCreateData))]
-    public virtual async Task<IActionResult> InitialCreateData(
-        TFormModel[] datas,
-        CancellationToken ct)
+    public virtual async Task<IActionResult> InitialCreateData(TFormModel[] datas, CancellationToken ct)
     {
         OperateLog.AddOperateLog(
             $"{Service.ProgId}/{nameof(InitialCreateData)}",

@@ -103,22 +103,15 @@ Request: {method} {path}{query}
     /// <summary>
     /// 將字串外鍵格式錯誤轉成欄位可讀訊息。
     /// </summary>
-    private bool TryAddForeignKeyValueMessage(
-        IErrorHelper message,
-        Exception exception)
+    private bool TryAddForeignKeyValueMessage(IErrorHelper message, Exception exception)
     {
         ForeignKeyValueValidationException? validationException =
             GetInnerException<ForeignKeyValueValidationException>(exception);
         if (validationException == null) return false;
-        string label = _i18n.GetDtoFirstPropertyLabel(
-            validationException.EntityName,
-            validationException.PropertyName);
+        string label = _i18n.GetDtoFirstPropertyLabel(validationException.EntityName, validationException.PropertyName);
         if (string.IsNullOrWhiteSpace(label))
             label = validationException.PropertyName;
-        message.AddMessage(
-            MessageStatus.Error,
-            SysMessageCode.BECode00035,
-            label);
+        message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00035, label);
         return true;
     }
     /// <summary>

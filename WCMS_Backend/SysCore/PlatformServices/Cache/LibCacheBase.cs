@@ -41,11 +41,7 @@ public abstract class LibCacheBase
     /// <summary>
     /// 取得一般 Cache，未命中時執行模組提供的實體資料來源。
     /// </summary>
-    protected Task<T?> GetOrCreateAsync<T>(
-        string key,
-        CacheOptions options,
-        Func<CancellationToken, Task<T?>> sourceFactory,
-        CancellationToken ct = default)
+    protected Task<T?> GetOrCreateAsync<T>(string key, CacheOptions options, Func<CancellationToken, Task<T?>> sourceFactory, CancellationToken ct = default)
     {
         return CacheService.GetOrCreateAsync(key, options, sourceFactory, ct);
     }

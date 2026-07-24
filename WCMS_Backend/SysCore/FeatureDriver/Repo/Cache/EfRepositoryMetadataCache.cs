@@ -133,12 +133,7 @@ public sealed class EfRepositoryMetadataCache(CacheService cacheService) : LibCa
     /// <summary>
     /// 保存 Entity 欄位、關聯、Key 與更新限制索引。
     /// </summary>
-    internal sealed class EntityMap(
-        HashSet<string> scalars,
-        HashSet<string> navigations,
-        HashSet<string> primaryKeys,
-        HashSet<string> concurrencyTokens,
-        HashSet<string> blockedAfterSave)
+    internal sealed class EntityMap(HashSet<string> scalars, HashSet<string> navigations, HashSet<string> primaryKeys, HashSet<string> concurrencyTokens, HashSet<string> blockedAfterSave)
     {
         #region Property
         private readonly HashSet<string> _scalars = scalars;

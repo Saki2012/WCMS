@@ -140,8 +140,7 @@ public static class LibZipArchive
         int skippedEntryCount = 0;
         long declaredTotalLength = 0;
         foreach (ZipArchiveEntry entry in archive.Entries)
-            AddExtractPlan(entry, archivePath, destinationPath, options, relativePaths, plans,
-                ref fileEntryCount, ref skippedEntryCount, ref declaredTotalLength);
+            AddExtractPlan(entry, archivePath, destinationPath, options, relativePaths, plans, ref fileEntryCount, ref skippedEntryCount, ref declaredTotalLength);
         return new ZipPlanResult(plans, skippedEntryCount);
     }
 
@@ -218,23 +217,11 @@ public static class LibZipArchive
     /// <summary>
     /// 將 ZIP 項目內容寫入暫存檔並限制單檔與總解壓容量。
     /// </summary>
-    private static async Task<long> WriteTemporaryFileAsync(
-        ZipEntryPlan plan,
-        string temporaryPath,
-        ZipExtractOptions options,
-        long currentTotalLength,
-        CancellationToken ct)
+    private static async Task<long> WriteTemporaryFileAsync(ZipEntryPlan plan, string temporaryPath, ZipExtractOptions options, long currentTotalLength, CancellationToken ct)
     {
         await using Stream source = plan.Entry.Open();
-        await using FileStream destination = new(
-            temporaryPath,
-            FileMode.CreateNew,
-            FileAccess.Write,
-            FileShare.None,
-            CopyBufferSize,
-            FileOptions.Asynchronous | FileOptions.SequentialScan);
-        return await CopyWithLimitsAsync(source, destination, plan.Entry.FullName,
-            options, currentTotalLength, ct);
+        await using FileStream destination = new(temporaryPath, FileMode.CreateNew, FileAccess.Write, FileShare.None, CopyBufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan);
+        return await CopyWithLimitsAsync(source, destination, plan.Entry.FullName, options, currentTotalLength, ct);
     }
 
     /// <summary>

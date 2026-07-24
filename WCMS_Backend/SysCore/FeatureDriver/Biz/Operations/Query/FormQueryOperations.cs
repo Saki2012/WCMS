@@ -47,20 +47,11 @@ internal sealed class FormQueryOperations<TFormModel>(
     /// <summary>
     /// 依 InternalId 查詢完整 Form Aggregate。
     /// </summary>
-    internal async Task<TFormModel> QueryDataAsync(
-        string internalId,
-        CancellationToken ct = default)
+    internal async Task<TFormModel> QueryDataAsync(string internalId, CancellationToken ct = default)
     {
         string condition = await GetPrimaryKeyConditionAsync(internalId, ct);
         if (condition.IsNullOrEmpty()) return default!;
-        IList roots = await QueryRawListAsync(
-            RootDbModelType,
-            DefaultSelectFieldResolver.Resolve(),
-            condition,
-            default,
-            0,
-            0,
-            ct: ct);
+        IList roots = await QueryRawListAsync(RootDbModelType, DefaultSelectFieldResolver.Resolve(), condition, default, 0, 0, ct: ct);
         return BuildFormModelList(roots).FirstOrDefault()!;
     }
     /// <summary>
@@ -80,37 +71,16 @@ internal sealed class FormQueryOperations<TFormModel>(
         IReadOnlyList<OrderBySpec>? rootOrderBy = MapOrderBy(orderBy);
         IReadOnlyList<RankGroupsSpec>? rootRankGroups = MapRankGroups(rankGroups);
         if (rootRankGroups == null || rootRankGroups.Count == 0)
-            return await QueryStandardListAsync(
-                rootFields,
-                rootCondition,
-                rootOrderBy,
-                pageNumber,
-                pageSize,
-                ct);
-        return await QueryRankedListAsync(
-            rootFields,
-            rootCondition,
-            rootOrderBy,
-            rootRankGroups,
-            pageNumber,
-            pageSize,
-            ct);
+            return await QueryStandardListAsync(rootFields, rootCondition, rootOrderBy, pageNumber, pageSize, ct);
+        return await QueryRankedListAsync(rootFields, rootCondition, rootOrderBy, rootRankGroups, pageNumber, pageSize, ct);
     }
     /// <summary>
     /// 查詢符合條件的 Form Aggregate 總筆數。
     /// </summary>
-    internal async Task<int> QueryTotalCountAsync(
-        string condition,
-        CancellationToken ct = default)
+    internal async Task<int> QueryTotalCountAsync(string condition, CancellationToken ct = default)
     {
-        string rootCondition = FormModelMetadataResolver.MapExpressionToRoot(
-            typeof(TFormModel),
-            condition,
-            ModelMetadata);
-        return await QueryCountAsync(
-            RootDbModelType,
-            ApplyDataScope(rootCondition),
-            ct);
+        string rootCondition = FormModelMetadataResolver.MapExpressionToRoot(typeof(TFormModel), condition, ModelMetadata);
+        return await QueryCountAsync(RootDbModelType, ApplyDataScope(rootCondition), ct);
     }
     /// <summary>
     /// 依 Entity 型別建立 RepositoryQueryOptions 並查詢清單。
@@ -127,40 +97,21 @@ internal sealed class FormQueryOperations<TFormModel>(
         IReadOnlyList<RankGroupsSpec>? detailRankGroups = null,
         CancellationToken ct = default)
     {
-        LambdaExpression whereExpression = ConditionBuilder.Build(
-            type,
-            queryCondition);
-        LambdaExpression filterExpression = ConditionBuilder.Build(
-            type,
-            detailFilterCondition ?? queryCondition);
+        LambdaExpression whereExpression = ConditionBuilder.Build(type, queryCondition);
+        LambdaExpression filterExpression = ConditionBuilder.Build(type, detailFilterCondition ?? queryCondition);
         Dictionary<string, LambdaExpression> detailFilterMap =
-            FormProjectionExpressionBuilder.ExtractDetailPredicateMap(
-                type,
-                filterExpression);
+            FormProjectionExpressionBuilder.ExtractDetailPredicateMap(type, filterExpression);
         Dictionary<string, List<LambdaExpression>> detailRankMap =
             ProjectionBuilder.BuildDetailRankMap(type, detailRankGroups);
-        LambdaExpression? selectExpression = ProjectionBuilder.Build(
-            type,
-            selectFields,
-            detailFilterMap,
-            detailRankMap);
-        RepositoryQueryOptions options = CreateQueryOptions(
-            selectExpression,
-            whereExpression,
-            orderBy,
-            pageNumber,
-            pageSize,
-            skipCount);
+        LambdaExpression? selectExpression = ProjectionBuilder.Build(type, selectFields, detailFilterMap, detailRankMap);
+        RepositoryQueryOptions options = CreateQueryOptions(selectExpression, whereExpression, orderBy, pageNumber, pageSize, skipCount);
         dynamic repo = ResolveRepo(type);
         return await repo.QueryListAsync(options, ct);
     }
     /// <summary>
     /// 依 Entity 型別查詢總筆數。
     /// </summary>
-    internal async Task<int> QueryCountAsync(
-        Type type,
-        string condition,
-        CancellationToken ct = default)
+    internal async Task<int> QueryCountAsync(Type type, string condition, CancellationToken ct = default)
     {
         LambdaExpression whereExpression = ConditionBuilder.Build(type, condition);
         dynamic repo = ResolveRepo(type);
@@ -172,13 +123,7 @@ internal sealed class FormQueryOperations<TFormModel>(
     /// <summary>
     /// 建立 Repository 查詢設定。
     /// </summary>
-    private static RepositoryQueryOptions CreateQueryOptions(
-        LambdaExpression? selectExpression,
-        LambdaExpression whereExpression,
-        IReadOnlyList<OrderBySpec>? orderBy,
-        int pageNumber,
-        int pageSize,
-        int skipCount)
+    private static RepositoryQueryOptions CreateQueryOptions(LambdaExpression? selectExpression, LambdaExpression whereExpression, IReadOnlyList<OrderBySpec>? orderBy, int pageNumber, int pageSize, int skipCount)
     {
         return new RepositoryQueryOptions
         {
@@ -193,22 +138,9 @@ internal sealed class FormQueryOperations<TFormModel>(
     /// <summary>
     /// 執行沒有 RankGroup 的一般清單查詢。
     /// </summary>
-    private async Task<IList<TFormModel>> QueryStandardListAsync(
-        string[] fields,
-        string condition,
-        IReadOnlyList<OrderBySpec>? orderBy,
-        int pageNumber,
-        int pageSize,
-        CancellationToken ct)
+    private async Task<IList<TFormModel>> QueryStandardListAsync(string[] fields, string condition, IReadOnlyList<OrderBySpec>? orderBy, int pageNumber, int pageSize, CancellationToken ct)
     {
-        IList roots = await QueryRawListAsync(
-            RootDbModelType,
-            fields,
-            condition,
-            orderBy,
-            pageNumber,
-            pageSize,
-            ct: ct);
+        IList roots = await QueryRawListAsync(RootDbModelType, fields, condition, orderBy, pageNumber, pageSize, ct: ct);
         return BuildFormModelList(roots);
     }
     /// <summary>
@@ -226,42 +158,18 @@ internal sealed class FormQueryOperations<TFormModel>(
         IReadOnlyList<RankSegment> segments = RankGroupQueryPlanner
             .BuildSegments(condition, rankGroups, orderBy);
         if (pageNumber <= 0 || pageSize <= 0)
-            return await QuerySegmentsAsync(
-                segments,
-                fields,
-                condition,
-                rankGroups,
-                ct);
-        return await QueryPagedSegmentsAsync(
-            segments,
-            fields,
-            condition,
-            rankGroups,
-            pageNumber,
-            pageSize,
-            ct);
+            return await QuerySegmentsAsync(segments, fields, condition, rankGroups, ct);
+        return await QueryPagedSegmentsAsync(segments, fields, condition, rankGroups, pageNumber, pageSize, ct);
     }
     /// <summary>
     /// 查詢所有 RankGroup 分段資料。
     /// </summary>
-    private async Task<IList<TFormModel>> QuerySegmentsAsync(
-        IReadOnlyList<RankSegment> segments,
-        string[] fields,
-        string condition,
-        IReadOnlyList<RankGroupsSpec> rankGroups,
-        CancellationToken ct)
+    private async Task<IList<TFormModel>> QuerySegmentsAsync(IReadOnlyList<RankSegment> segments, string[] fields, string condition, IReadOnlyList<RankGroupsSpec> rankGroups, CancellationToken ct)
     {
         IList<TFormModel> result = [];
         foreach (RankSegment segment in segments)
         {
-            IList roots = await QuerySegmentAsync(
-                segment,
-                fields,
-                condition,
-                rankGroups,
-                0,
-                0,
-                ct);
+            IList roots = await QuerySegmentAsync(segment, fields, condition, rankGroups, 0, 0, ct);
             AppendFormModels(result, roots);
         }
         return result;
@@ -284,15 +192,7 @@ internal sealed class FormQueryOperations<TFormModel>(
         foreach (RankSegment segment in segments)
         {
             if (remaining <= 0) break;
-            PagedSegmentState state = await AppendPagedSegmentAsync(
-                result,
-                segment,
-                fields,
-                condition,
-                rankGroups,
-                globalSkip,
-                remaining,
-                ct);
+            PagedSegmentState state = await AppendPagedSegmentAsync(result, segment, fields, condition, rankGroups, globalSkip, remaining, ct);
             globalSkip = state.GlobalSkip;
             remaining = state.Remaining;
         }
@@ -315,47 +215,21 @@ internal sealed class FormQueryOperations<TFormModel>(
         if (globalSkip >= count)
             return new PagedSegmentState(globalSkip - count, remaining);
         int take = Math.Min(remaining, count - globalSkip);
-        IList roots = await QuerySegmentAsync(
-            segment,
-            fields,
-            condition,
-            rankGroups,
-            globalSkip,
-            take,
-            ct);
+        IList roots = await QuerySegmentAsync(segment, fields, condition, rankGroups, globalSkip, take, ct);
         AppendFormModels(result, roots);
         return new PagedSegmentState(0, remaining - take);
     }
     /// <summary>
     /// 執行單一 RankGroup 分段查詢。
     /// </summary>
-    private async Task<IList> QuerySegmentAsync(
-        RankSegment segment,
-        string[] fields,
-        string detailCondition,
-        IReadOnlyList<RankGroupsSpec> rankGroups,
-        int skip,
-        int take,
-        CancellationToken ct)
+    private async Task<IList> QuerySegmentAsync(RankSegment segment, string[] fields, string detailCondition, IReadOnlyList<RankGroupsSpec> rankGroups, int skip, int take, CancellationToken ct)
     {
-        return await QueryRawListAsync(
-            RootDbModelType,
-            fields,
-            segment.Where,
-            segment.OrderBy,
-            0,
-            take,
-            skip,
-            detailCondition,
-            rankGroups,
-            ct);
+        return await QueryRawListAsync(RootDbModelType, fields, segment.Where, segment.OrderBy, 0, take, skip, detailCondition, rankGroups, ct);
     }
     /// <summary>
     /// 將 Root Entity 清單組裝並加入 Form Model 結果。
     /// </summary>
-    private static void AppendFormModels(
-        IList<TFormModel> result,
-        IList roots)
+    private static void AppendFormModels(IList<TFormModel> result, IList roots)
     {
         foreach (TFormModel item in BuildFormModelList(roots)) result.Add(item);
     }
@@ -365,10 +239,7 @@ internal sealed class FormQueryOperations<TFormModel>(
     private string[] MapSelectFields(string[] selectFields)
     {
         string[] result = [.. (selectFields ?? [])
-            .Select(field => FormModelMetadataResolver.MapFieldPathToRoot(
-                typeof(TFormModel),
-                field,
-                ModelMetadata))
+            .Select(field => FormModelMetadataResolver.MapFieldPathToRoot(typeof(TFormModel), field, ModelMetadata))
             .Where(field => !string.IsNullOrWhiteSpace(field))];
         return result.Length == 0
             ? DefaultSelectFieldResolver.Resolve()
@@ -377,31 +248,23 @@ internal sealed class FormQueryOperations<TFormModel>(
     /// <summary>
     /// 將外部 Form 排序欄位轉成 Root Entity 欄位。
     /// </summary>
-    private IReadOnlyList<OrderBySpec>? MapOrderBy(
-        IReadOnlyList<OrderBySpec>? orderBy)
+    private IReadOnlyList<OrderBySpec>? MapOrderBy(IReadOnlyList<OrderBySpec>? orderBy)
     {
         if (orderBy == null) return null;
         return [.. orderBy.Select(item => item with
         {
-            Col = FormModelMetadataResolver.MapFieldPathToRoot(
-                typeof(TFormModel),
-                item.Col,
-                ModelMetadata)
+            Col = FormModelMetadataResolver.MapFieldPathToRoot(typeof(TFormModel), item.Col, ModelMetadata)
         })];
     }
     /// <summary>
     /// 將外部 Form RankGroup 轉成 Root Entity 查詢條件。
     /// </summary>
-    private IReadOnlyList<RankGroupsSpec>? MapRankGroups(
-        IReadOnlyList<RankGroupsSpec>? rankGroups)
+    private IReadOnlyList<RankGroupsSpec>? MapRankGroups(IReadOnlyList<RankGroupsSpec>? rankGroups)
     {
         if (rankGroups == null) return null;
         return [.. rankGroups.Select(group => group with
         {
-            Condition = FormModelMetadataResolver.MapExpressionToRoot(
-                typeof(TFormModel),
-                group.Condition,
-                ModelMetadata),
+            Condition = FormModelMetadataResolver.MapExpressionToRoot(typeof(TFormModel), group.Condition, ModelMetadata),
             OrderBy = MapOrderBy(group.OrderBy)
         })];
     }
@@ -410,10 +273,7 @@ internal sealed class FormQueryOperations<TFormModel>(
     /// </summary>
     private string MapAndScopeCondition(string condition)
     {
-        string rootCondition = FormModelMetadataResolver.MapExpressionToRoot(
-            typeof(TFormModel),
-            condition,
-            ModelMetadata);
+        string rootCondition = FormModelMetadataResolver.MapExpressionToRoot(typeof(TFormModel), condition, ModelMetadata);
         return ApplyDataScope(rootCondition);
     }
     /// <summary>
@@ -421,11 +281,7 @@ internal sealed class FormQueryOperations<TFormModel>(
     /// </summary>
     private string ApplyDataScope(string condition)
     {
-        return LibData.Merge(
-            SysParam.QueryOperators.And,
-            false,
-            condition,
-            DataScopeAccessor());
+        return LibData.Merge(SysParam.QueryOperators.And, false, condition, DataScopeAccessor());
     }
     /// <summary>
     /// 將 Root Entity 清單組裝成 Form Model 清單。
@@ -435,16 +291,13 @@ internal sealed class FormQueryOperations<TFormModel>(
         IList<TFormModel> result = [];
         foreach (object root in roots)
             if (root is DbModel rootModel)
-                result.Add(FormModelMetadataResolver
-                    .CreateFormModel<TFormModel>(rootModel));
+                result.Add(FormModelMetadataResolver.CreateFormModel<TFormModel>(rootModel));
         return result;
     }
     /// <summary>
     /// 依 InternalId 取得 Root Primary Key 條件。
     /// </summary>
-    private async Task<string> GetPrimaryKeyConditionAsync(
-        string internalId,
-        CancellationToken ct)
+    private async Task<string> GetPrimaryKeyConditionAsync(string internalId, CancellationToken ct)
     {
         PropertyInfo[] keys = ModelMetadata.GetProperties(RootDbModelType)
             .Where(property => property.IsDefined(typeof(KeyAttribute), true))
@@ -459,39 +312,22 @@ internal sealed class FormQueryOperations<TFormModel>(
     /// <summary>
     /// 依 InternalId 查詢 Root 的 Primary Key 欄位。
     /// </summary>
-    private async Task<object?> QueryPrimaryKeyFieldsAsync(
-        string internalId,
-        PropertyInfo[] keys,
-        CancellationToken ct)
+    private async Task<object?> QueryPrimaryKeyFieldsAsync(string internalId, PropertyInfo[] keys, CancellationToken ct)
     {
         string condition = ApplyDataScope(
             $"{nameof(HeaderModel.InternalId)} = \"{internalId}\"");
         string[] fields = [.. keys.Select(property => property.Name)];
-        IList rows = await QueryRawListAsync(
-            RootDbModelType,
-            fields,
-            condition,
-            default,
-            0,
-            0,
-            ct: ct);
+        IList rows = await QueryRawListAsync(RootDbModelType, fields, condition, default, 0, 0, ct: ct);
         return rows.ToDynamicList().FirstOrDefault();
     }
     /// <summary>
     /// 將單一 Primary Key 值加入查詢條件。
     /// </summary>
-    private string MergePrimaryKeyCondition(
-        string condition,
-        object root,
-        PropertyInfo key)
+    private string MergePrimaryKeyCondition(string condition, object root, PropertyInfo key)
     {
         object keyValue = PropertyAccessor.Get(root, key.Name);
         string keyCondition = $"{key.Name} = \"{keyValue}\"";
-        return LibData.Merge(
-            SysParam.QueryOperators.And,
-            false,
-            condition,
-            keyCondition);
+        return LibData.Merge(SysParam.QueryOperators.And, false, condition, keyCondition);
     }
     /// <summary>
     /// 取得目前 Graph 或全域 Entity Repository。

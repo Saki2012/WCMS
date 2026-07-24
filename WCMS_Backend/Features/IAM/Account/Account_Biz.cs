@@ -58,22 +58,14 @@ public class AccountBiz(BizDeps bizDeps, BizService<Person> biz, IPermissionCach
     /// 執行修改密碼
     /// </summary>
     /// <returns></returns>
-    public async Task ChangePassword(
-        string internalId,
-        string oldPassword,
-        string newPassword,
-        CancellationToken ct = default)
+    public async Task ChangePassword(string internalId, string oldPassword, string newPassword, CancellationToken ct = default)
     {
         await ExecTransactionAsync(
             async token =>
             {
                 if (Message.HasError) return;
                 Account oldSet = await DoQueryDataAsync(internalId, token);
-                bool isValid = PasswordHasher.Verify(
-                    oldPassword,
-                    oldSet.PasswordHash,
-                    oldSet.PasswordSalt,
-                    oldSet.PasswordAlgoVer);
+                bool isValid = PasswordHasher.Verify(oldPassword, oldSet.PasswordHash, oldSet.PasswordSalt, oldSet.PasswordAlgoVer);
                 if (!isValid) return;
                 Account newSet = oldSet.Snapshot();
                 ConvertPassword(newSet, newPassword);
@@ -85,10 +77,7 @@ public class AccountBiz(BizDeps bizDeps, BizService<Person> biz, IPermissionCach
     /// 執行重置密碼
     /// </summary>
     /// <returns></returns>
-    public async Task ResetPassword(
-        string internalId,
-        string newPassword,
-        CancellationToken ct = default)
+    public async Task ResetPassword(string internalId, string newPassword, CancellationToken ct = default)
     {
         await ExecTransactionAsync(
             async token =>

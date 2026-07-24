@@ -12,8 +12,7 @@ internal static class FormDetailRowNoAllocator
     /// <summary>
     /// 逐一整理每個明細集合缺少或重複的 RowNo。
     /// </summary>
-    internal static void AllocateMissingRowNos(
-        IEnumerable<IList> detailLists)
+    internal static void AllocateMissingRowNos(IEnumerable<IList> detailLists)
     {
         foreach (IList rows in detailLists)
             AllocateList(rows);
@@ -40,9 +39,7 @@ internal static class FormDetailRowNoAllocator
     /// <summary>
     /// 由最小可用正整數開始配置尚未確定的 RowNo。
     /// </summary>
-    private static void AssignPendingRowNos(
-        IEnumerable<FormDetailModel> pendingRows,
-        HashSet<int> usedRowNos)
+    private static void AssignPendingRowNos(IEnumerable<FormDetailModel> pendingRows, HashSet<int> usedRowNos)
     {
         int nextRowNo = 1;
         foreach (FormDetailModel row in pendingRows)

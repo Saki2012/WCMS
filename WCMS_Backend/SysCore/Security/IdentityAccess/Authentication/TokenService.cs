@@ -59,11 +59,7 @@ public sealed class TokenService(TokenStateCache tokenStateCache, IConfiguration
     /// <summary>
     /// 保存 Refresh Token 與使用者的有效關聯。
     /// </summary>
-    public Task StoreRefreshAsync(
-        string userId,
-        string tokenId,
-        DateTime expires,
-        CancellationToken ct = default)
+    public Task StoreRefreshAsync(string userId, string tokenId, DateTime expires, CancellationToken ct = default)
     {
         return TokenStateCache.StoreRefreshAsync(userId, tokenId, expires, ct);
     }

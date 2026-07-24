@@ -80,8 +80,7 @@ public sealed class LibApiFieldSchemaFilter(IOptions<JsonOptions>? jsonOptions =
         if (schema.Properties == null) return null;
         foreach (string name in GetJsonPropertyNameCandidates(property))
             if (schema.Properties.ContainsKey(name)) return name;
-        return schema.Properties.Keys.FirstOrDefault(name =>
-            string.Equals(name, property.Name, StringComparison.OrdinalIgnoreCase));
+        return schema.Properties.Keys.FirstOrDefault(name => string.Equals(name, property.Name, StringComparison.OrdinalIgnoreCase));
     }
     /// <summary>
     /// 取得可能的 JSON 欄位名稱候選。

@@ -61,9 +61,7 @@ public static partial class FormModelMetadataResolver
     public static string MapExpressionToRoot(Type formModelType, string expression, ModelTypeMetadataCache modelMetadata)
     {
         if (string.IsNullOrWhiteSpace(expression) || typeof(DbModel).IsAssignableFrom(formModelType)) return expression;
-        return FieldPathRegex().Replace(expression, match => IsInsideQuotedValue(expression, match.Index)
-            ? match.Value
-            : MapKnownFieldPath(formModelType, match.Value, modelMetadata));
+        return FieldPathRegex().Replace(expression, match => IsInsideQuotedValue(expression, match.Index) ? match.Value : MapKnownFieldPath(formModelType, match.Value, modelMetadata));
     }
     #endregion
 

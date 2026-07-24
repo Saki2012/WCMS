@@ -379,9 +379,7 @@ public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFacto
     /// </summary>
     /// <param name="internalId">資料 InternalId</param>
     /// <returns>表頭資料</returns>
-    private async Task<SpecJournal> QueryHeaderByInternalIdAsync(
-        string internalId,
-        CancellationToken ct)
+    private async Task<SpecJournal> QueryHeaderByInternalIdAsync(string internalId, CancellationToken ct)
     {
         var condition = $"{nameof(BasicDataModel.InternalId)} = \"{internalId}\"";
         var datas = await DoQueryListAsync<SpecJournal>([], condition, default, 0, 1, ct: ct);

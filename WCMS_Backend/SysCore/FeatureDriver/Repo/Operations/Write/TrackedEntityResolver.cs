@@ -18,9 +18,7 @@ public sealed class TrackedEntityResolver<TDbModel>(ApplicationDbContext dataAcc
     /// <summary>
     /// 依序從 Local、ChangeTracker、資料庫與 Attach fallback 取得 Tracked Entity。
     /// </summary>
-    internal async Task<TDbModel> ResolveAsync(
-        TDbModel oldData,
-        CancellationToken ct)
+    internal async Task<TDbModel> ResolveAsync(TDbModel oldData, CancellationToken ct)
     {
         if (DataAccess.Entry(oldData).State != EntityState.Detached) return oldData;
         IKey primaryKey = GetPrimaryKey();
@@ -67,10 +65,7 @@ public sealed class TrackedEntityResolver<TDbModel>(ApplicationDbContext dataAcc
     /// <summary>
     /// 判斷 Entity Primary Key 是否與目標值相同。
     /// </summary>
-    private static bool HasSameKey(
-        IKey primaryKey,
-        TDbModel entity,
-        object[] targetKeys)
+    private static bool HasSameKey(IKey primaryKey, TDbModel entity, object[] targetKeys)
     {
         object[] keyValues = GetKeyValues(primaryKey, entity);
         return keyValues.SequenceEqual(targetKeys);
@@ -80,8 +75,7 @@ public sealed class TrackedEntityResolver<TDbModel>(ApplicationDbContext dataAcc
     /// </summary>
     private static object[] GetKeyValues(IKey primaryKey, object entity)
     {
-        return [.. primaryKey.Properties.Select(property =>
-            property.PropertyInfo!.GetValue(entity)!)];
+        return [.. primaryKey.Properties.Select(property => property.PropertyInfo!.GetValue(entity)!)];
     }
     #endregion
 }

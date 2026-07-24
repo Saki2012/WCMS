@@ -16,9 +16,7 @@ internal static class RepositoryOrderExpressionBuilder<TDbModel> where TDbModel 
     /// <summary>
     /// 依序套用一般欄位、Navigation 與集合欄位的動態排序。
     /// </summary>
-    internal static IQueryable<TDbModel> ApplyOrderBy(
-        IQueryable<TDbModel> source,
-        IReadOnlyList<OrderBySpec>? specs)
+    internal static IQueryable<TDbModel> ApplyOrderBy(IQueryable<TDbModel> source, IReadOnlyList<OrderBySpec>? specs)
     {
         if (specs == null || specs.Count == 0) return source;
         ParameterExpression parameter = Expression.Parameter(typeof(TDbModel), "x");
@@ -38,9 +36,7 @@ internal static class RepositoryOrderExpressionBuilder<TDbModel> where TDbModel 
     /// <summary>
     /// 分頁查詢沒有指定排序時，依 EF Primary Key 建立穩定排序。
     /// </summary>
-    internal static IQueryable<TDbModel> ApplyDefaultKeyOrderBy(
-        IQueryable<TDbModel> query,
-        DbContext dataAccess)
+    internal static IQueryable<TDbModel> ApplyDefaultKeyOrderBy(IQueryable<TDbModel> query, DbContext dataAccess)
     {
         IReadOnlyList<IProperty>? keyProperties = dataAccess.Model
             .FindEntityType(typeof(TDbModel))?
@@ -58,12 +54,7 @@ internal static class RepositoryOrderExpressionBuilder<TDbModel> where TDbModel 
     /// <summary>
     /// 嘗試將同一個集合 Navigation 的連續排序欄位套用為 Top-1 Detail 排序。
     /// </summary>
-    private static bool TryApplyGroupedCollectionOrder(
-        IQueryable<TDbModel> source,
-        ParameterExpression parameter,
-        IReadOnlyList<OrderBySpec> specs,
-        ref int index,
-        ref IOrderedQueryable<TDbModel>? ordered)
+    private static bool TryApplyGroupedCollectionOrder(IQueryable<TDbModel> source, ParameterExpression parameter, IReadOnlyList<OrderBySpec> specs, ref int index, ref IOrderedQueryable<TDbModel>? ordered)
     {
         if (!TryBuildGroupedCollectionKeys(parameter, specs, index, out List<GroupKey> keys, out int consumed))
             return false;
@@ -75,12 +66,7 @@ internal static class RepositoryOrderExpressionBuilder<TDbModel> where TDbModel 
     /// <summary>
     /// 套用第一層 OrderBy 或後續 ThenBy。
     /// </summary>
-    private static IOrderedQueryable<TDbModel> ApplyOrderMethod(
-        IOrderedQueryable<TDbModel>? ordered,
-        IQueryable<TDbModel> source,
-        Expression keyExpression,
-        ParameterExpression parameter,
-        bool descending)
+    private static IOrderedQueryable<TDbModel> ApplyOrderMethod(IOrderedQueryable<TDbModel>? ordered, IQueryable<TDbModel> source, Expression keyExpression, ParameterExpression parameter, bool descending)
     {
         LambdaExpression selector = Expression.Lambda(keyExpression, parameter);
         string methodName = ResolveOrderMethodName(ordered != null, descending);
@@ -101,12 +87,7 @@ internal static class RepositoryOrderExpressionBuilder<TDbModel> where TDbModel 
     /// <summary>
     /// 建立同一集合 Navigation 多欄位排序所需的 Top-1 Key。
     /// </summary>
-    private static bool TryBuildGroupedCollectionKeys(
-        ParameterExpression root,
-        IReadOnlyList<OrderBySpec> specs,
-        int startIndex,
-        out List<GroupKey> keys,
-        out int consumed)
+    private static bool TryBuildGroupedCollectionKeys(ParameterExpression root, IReadOnlyList<OrderBySpec> specs, int startIndex, out List<GroupKey> keys, out int consumed)
     {
         keys = [];
         consumed = 0;
@@ -125,12 +106,7 @@ internal static class RepositoryOrderExpressionBuilder<TDbModel> where TDbModel 
     /// <summary>
     /// 收集連續且指向相同集合 Navigation 的排序欄位。
     /// </summary>
-    private static List<(string[] Parts, bool Desc)> CollectCollectionGroup(
-        Type rootType,
-        IReadOnlyList<OrderBySpec> specs,
-        int startIndex,
-        int collectionIndex,
-        string[] prefix)
+    private static List<(string[] Parts, bool Desc)> CollectCollectionGroup(Type rootType, IReadOnlyList<OrderBySpec> specs, int startIndex, int collectionIndex, string[] prefix)
     {
         var result = new List<(string[] Parts, bool Desc)>();
         for (int index = startIndex; index < specs.Count; index++)
@@ -145,10 +121,7 @@ internal static class RepositoryOrderExpressionBuilder<TDbModel> where TDbModel 
     /// <summary>
     /// 建立集合元素的 OrderBy／ThenBy 查詢 Expression。
     /// </summary>
-    private static Expression BuildOrderedElementQuery(
-        ParameterExpression root,
-        string[] prefix,
-        IReadOnlyList<(string[] Parts, bool Desc)> group)
+    private static Expression BuildOrderedElementQuery(ParameterExpression root, string[] prefix, IReadOnlyList<(string[] Parts, bool Desc)> group)
     {
         Expression navigation = BuildMemberPath(root, prefix);
         Type elementType = TryGetEnumerableElementType(navigation.Type)
@@ -167,13 +140,7 @@ internal static class RepositoryOrderExpressionBuilder<TDbModel> where TDbModel 
     /// <summary>
     /// 建立集合元素單一 OrderBy／ThenBy 呼叫。
     /// </summary>
-    private static Expression BuildElementOrderCall(
-        Expression source,
-        Type elementType,
-        ParameterExpression element,
-        Expression key,
-        bool isFirst,
-        bool descending)
+    private static Expression BuildElementOrderCall(Expression source, Type elementType, ParameterExpression element, Expression key, bool isFirst, bool descending)
     {
         string methodName = ResolveOrderMethodName(!isFirst, descending);
         MethodInfo method = typeof(Queryable).GetMethods()
@@ -185,10 +152,7 @@ internal static class RepositoryOrderExpressionBuilder<TDbModel> where TDbModel 
     /// <summary>
     /// 從已排序的集合取 Top-1 元素指定欄位作為 Root 排序 Key。
     /// </summary>
-    private static Expression BuildTop1ElementValueExpression(
-        Expression orderedElements,
-        string[] prefix,
-        string[] fullParts)
+    private static Expression BuildTop1ElementValueExpression(Expression orderedElements, string[] prefix, string[] fullParts)
     {
         Type elementType = orderedElements.Type.GetGenericArguments().First();
         ParameterExpression element = Expression.Parameter(elementType, "e");
@@ -214,10 +178,7 @@ internal static class RepositoryOrderExpressionBuilder<TDbModel> where TDbModel 
     /// <summary>
     /// 從集合元素建立去除集合 Prefix 後的欄位路徑。
     /// </summary>
-    private static Expression BuildElementKey(
-        ParameterExpression element,
-        string[] prefix,
-        string[] fullParts)
+    private static Expression BuildElementKey(ParameterExpression element, string[] prefix, string[] fullParts)
     {
         return BuildMemberPath(element, fullParts.Skip(prefix.Length));
     }
@@ -256,21 +217,14 @@ internal static class RepositoryOrderExpressionBuilder<TDbModel> where TDbModel 
     /// </summary>
     private static Type? ResolveMemberType(Type ownerType, string memberName)
     {
-        PropertyInfo? property = ownerType.GetProperty(
-            memberName,
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
-        FieldInfo? field = ownerType.GetField(
-            memberName,
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
+        PropertyInfo? property = ownerType.GetProperty(memberName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
+        FieldInfo? field = ownerType.GetField(memberName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
         return property?.PropertyType ?? field?.FieldType;
     }
     /// <summary>
     /// 建立單一排序欄位；集合欄位沿用升冪 Min、降冪 Max 的既有規則。
     /// </summary>
-    private static Expression BuildKeyForOrder(
-        ParameterExpression root,
-        string[] parts,
-        bool descending)
+    private static Expression BuildKeyForOrder(ParameterExpression root, string[] parts, bool descending)
     {
         Expression current = root;
         for (int index = 0; index < parts.Length; index++)
@@ -290,12 +244,7 @@ internal static class RepositoryOrderExpressionBuilder<TDbModel> where TDbModel 
     /// <summary>
     /// 將集合後續欄位投影後，以 Min 或 Max 聚合成 Root 可排序的純量。
     /// </summary>
-    private static Expression BuildCollectionAggregateKey(
-        Expression collection,
-        Type elementType,
-        string[] parts,
-        ref int index,
-        bool descending)
+    private static Expression BuildCollectionAggregateKey(Expression collection, Type elementType, string[] parts, ref int index, bool descending)
     {
         if (++index >= parts.Length)
             throw new InvalidOperationException($"排序欄位 '{string.Join(".", parts)}' 少了集合元素的後續屬性。");
@@ -329,18 +278,13 @@ internal static class RepositoryOrderExpressionBuilder<TDbModel> where TDbModel 
     /// <summary>
     /// 依 EF Key Property 建立 OrderBy 或 ThenBy。
     /// </summary>
-    private static IQueryable<TDbModel> ApplyKeyOrder(
-        IQueryable<TDbModel> query,
-        IProperty property,
-        bool useThenBy)
+    private static IQueryable<TDbModel> ApplyKeyOrder(IQueryable<TDbModel> query, IProperty property, bool useThenBy)
     {
         ParameterExpression parameter = Expression.Parameter(typeof(TDbModel), "x");
-        MethodCallExpression propertyAccess = Expression.Call(
-            typeof(EF), nameof(EF.Property), [property.ClrType], parameter, Expression.Constant(property.Name));
+        MethodCallExpression propertyAccess = Expression.Call(typeof(EF), nameof(EF.Property), [property.ClrType], parameter, Expression.Constant(property.Name));
         LambdaExpression selector = Expression.Lambda(propertyAccess, parameter);
         string methodName = useThenBy ? nameof(Queryable.ThenBy) : nameof(Queryable.OrderBy);
-        MethodCallExpression expression = Expression.Call(
-            typeof(Queryable), methodName, [typeof(TDbModel), property.ClrType], query.Expression, Expression.Quote(selector));
+        MethodCallExpression expression = Expression.Call(typeof(Queryable), methodName, [typeof(TDbModel), property.ClrType], query.Expression, Expression.Quote(selector));
         return query.Provider.CreateQuery<TDbModel>(expression);
     }
     /// <summary>

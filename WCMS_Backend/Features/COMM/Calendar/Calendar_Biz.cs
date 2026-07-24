@@ -236,10 +236,7 @@ public class CalendarBiz(BizDeps bizDeps, IHttpClientFactory httpClientFactory) 
     /// <summary>
     /// 更新年度表頭與指定日期資料。
     /// </summary>
-    private async Task DoUpdateCalendarInfo(
-        Calendar oldData,
-        Calendar newData,
-        CancellationToken ct)
+    private async Task DoUpdateCalendarInfo(Calendar oldData, Calendar newData, CancellationToken ct)
     {
         CalendarDetail oldDetail = GetSingleDetail(oldData);
         CalendarDetail newDetail = GetSingleDetail(newData);

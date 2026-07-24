@@ -44,12 +44,7 @@ public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, BizService<Calendar> calen
     /// <summary>
     /// 檢查開館與閉館時間是否成對且順序正確。
     /// </summary>
-    internal static void ValidTimeFor<TModel>(
-        TModel model,
-        Expression<Func<TModel, object>> startExpr,
-        Expression<Func<TModel, object>> endExpr,
-        IErrorHelper message,
-        I18nCache i18n)
+    internal static void ValidTimeFor<TModel>(TModel model, Expression<Func<TModel, object>> startExpr, Expression<Func<TModel, object>> endExpr, IErrorHelper message, I18nCache i18n)
     {
         TimeOnly? start = startExpr.Compile().Invoke(model) as TimeOnly?;
         TimeOnly? end = endExpr.Compile().Invoke(model) as TimeOnly?;
@@ -296,13 +291,7 @@ public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, BizService<Calendar> calen
     /// <summary>
     /// 一組平日、週六與週日的開閉館時間。
     /// </summary>
-    private readonly record struct OpenSchedule(
-        TimeOnly? WeekdayOpen,
-        TimeOnly? WeekdayClose,
-        TimeOnly? SaturdayOpen,
-        TimeOnly? SaturdayClose,
-        TimeOnly? SundayOpen,
-        TimeOnly? SundayClose);
+    private readonly record struct OpenSchedule(TimeOnly? WeekdayOpen, TimeOnly? WeekdayClose, TimeOnly? SaturdayOpen, TimeOnly? SaturdayClose, TimeOnly? SundayOpen, TimeOnly? SundayClose);
     /// <summary>
     /// 連續假日掃描結果。
     /// </summary>

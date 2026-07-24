@@ -95,20 +95,13 @@ public class BizService<TFormModel> : BizBase
     public BizService(BizDeps bizDeps) : base(bizDeps)
     {
         GraphRepo = bizDeps.formGraphRepoProvider.GetScope<TFormModel>();
-        RepoDict = GraphRepo.GraphRepos.ToDictionary(
-            pair => pair.Key,
-            pair => pair.Value,
-            StringComparer.Ordinal);
+        RepoDict = GraphRepo.GraphRepos.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         GraphCollector = CreateGraphCollector();
-        LifecycleFieldApplier = new FormLifecycleFieldApplier<TFormModel>(
-            () => OperateUser,
-            PropertyAccessor);
+        LifecycleFieldApplier = new FormLifecycleFieldApplier<TFormModel>(() => OperateUser, PropertyAccessor);
         KeyCoordinator = CreateKeyCoordinator();
         WriteOperations = CreateWriteOperations();
         QueryOperations = CreateQueryOperations();
-        TransactionExecutor = new BizTransactionExecutor(
-            GraphRepo.DataAccess,
-            Message);
+        TransactionExecutor = new BizTransactionExecutor(GraphRepo.DataAccess, Message);
     }
     #endregion
 
@@ -116,18 +109,14 @@ public class BizService<TFormModel> : BizBase
     /// <summary>
     /// 初始化多筆 Form Model。
     /// </summary>
-    public async Task BizInitCreateDatasAsync(
-        TFormModel[] datas,
-        CancellationToken ct = default)
+    public async Task BizInitCreateDatasAsync(TFormModel[] datas, CancellationToken ct = default)
     {
         await ExecTransactionAsync(
             token => CreateInitialDataBatchAsync(datas, token),
             async token =>
             {
                 await AfterSaveChanges(FuncAction.Create, token);
-                Message.AddMessage(
-                    MessageStatus.Green,
-                    SysMessageCode.BECode00002);
+                Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
             },
             ct);
     }
@@ -167,46 +156,30 @@ public class BizService<TFormModel> : BizBase
     /// <summary>
     /// 作廢或恢復 Form Aggregate。
     /// </summary>
-    public async Task<TFormModel> BizInvalidDataAsync(
-        string internalId,
-        bool status,
-        CancellationToken ct = default)
+    public async Task<TFormModel> BizInvalidDataAsync(string internalId, bool status, CancellationToken ct = default)
     {
         return await ExecTransactionAsync(
             token => InvalidInTransactionAsync(internalId, status, token),
             async (_, token) =>
             {
                 await AfterSaveChanges(FuncAction.Update, token);
-                Message.AddMessage(
-                    MessageStatus.Green,
-                    SysMessageCode.BECode00008);
+                Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00008);
             },
             ct);
     }
     /// <summary>
     /// 查詢單筆 Form Aggregate。
     /// </summary>
-    public async Task<TFormModel> BizQueryDataAsync(
-        string internalId,
-        CancellationToken ct = default)
+    public async Task<TFormModel> BizQueryDataAsync(string internalId, CancellationToken ct = default)
     {
         return await QueryOperations.QueryDataAsync(internalId, ct);
     }
     /// <summary>
     /// 依查詢參數取得 Form Aggregate 清單。
     /// </summary>
-    public async Task<IList<TFormModel>> BizQueryListAsync(
-        QueryListParam param,
-        CancellationToken ct = default)
+    public async Task<IList<TFormModel>> BizQueryListAsync(QueryListParam param, CancellationToken ct = default)
     {
-        return await BizQueryListAsync(
-            param.Fields,
-            param.Condition,
-            param.OrderBy,
-            param.RankGroups,
-            param.PageNumber,
-            param.PageSize,
-            ct);
+        return await BizQueryListAsync(param.Fields, param.Condition, param.OrderBy, param.RankGroups, param.PageNumber, param.PageSize, ct);
     }
     /// <summary>
     /// 查詢 Form Aggregate 清單。
@@ -220,21 +193,12 @@ public class BizService<TFormModel> : BizBase
         int pageSize = 0,
         CancellationToken ct = default)
     {
-        return await QueryOperations.QueryListAsync(
-            selectFields,
-            condition,
-            orderBy,
-            rankGroups,
-            pageNumber,
-            pageSize,
-            ct);
+        return await QueryOperations.QueryListAsync(selectFields, condition, orderBy, rankGroups, pageNumber, pageSize, ct);
     }
     /// <summary>
     /// 取得符合條件的總筆數。
     /// </summary>
-    public async Task<int> BizQueryTotalCounts(
-        string condition,
-        CancellationToken ct = default)
+    public async Task<int> BizQueryTotalCounts(string condition, CancellationToken ct = default)
     {
         return await QueryOperations.QueryTotalCountAsync(condition, ct);
     }
@@ -244,37 +208,28 @@ public class BizService<TFormModel> : BizBase
     /// <summary>
     /// 建立 Form Aggregate Root 與所有 Detail / SubDetail。
     /// </summary>
-    protected async Task DoCreateAsync(
-        TFormModel data,
-        CancellationToken ct = default)
+    protected async Task DoCreateAsync(TFormModel data, CancellationToken ct = default)
     {
         await WriteOperations.CreateAsync(data, ct);
     }
     /// <summary>
     /// 更新 Form Aggregate Root 與所有 Detail / SubDetail。
     /// </summary>
-    protected async Task DoUpdateAsync(
-        TFormModel oldData,
-        TFormModel newData,
-        CancellationToken ct = default)
+    protected async Task DoUpdateAsync(TFormModel oldData, TFormModel newData, CancellationToken ct = default)
     {
         await WriteOperations.UpdateAsync(oldData, newData, ct);
     }
     /// <summary>
     /// 刪除 Form Aggregate Root 與所有 Detail / SubDetail。
     /// </summary>
-    protected async Task DoDeleteAsync(
-        TFormModel oldData,
-        CancellationToken ct = default)
+    protected async Task DoDeleteAsync(TFormModel oldData, CancellationToken ct = default)
     {
         await WriteOperations.DeleteAsync(oldData, ct);
     }
     /// <summary>
     /// 查詢單筆 Form Aggregate。
     /// </summary>
-    protected async Task<TFormModel> DoQueryDataAsync(
-        string internalId,
-        CancellationToken ct = default)
+    protected async Task<TFormModel> DoQueryDataAsync(string internalId, CancellationToken ct = default)
     {
         return await QueryOperations.QueryDataAsync(internalId, ct);
     }
@@ -292,17 +247,7 @@ public class BizService<TFormModel> : BizBase
         IReadOnlyList<RankGroupsSpec>? detailRankGroups = null,
         CancellationToken ct = default)
     {
-        return await DoQueryListAsync(
-            typeof(TModel),
-            selectFields,
-            queryCondition,
-            orderBy,
-            pageCt,
-            takeCt,
-            skipCt,
-            detailFilterCondition,
-            detailRankGroups,
-            ct);
+        return await DoQueryListAsync(typeof(TModel), selectFields, queryCondition, orderBy, pageCt, takeCt, skipCt, detailFilterCondition, detailRankGroups, ct);
     }
     /// <summary>
     /// 依 Property 型別查詢清單資料。
@@ -319,17 +264,7 @@ public class BizService<TFormModel> : BizBase
         IReadOnlyList<RankGroupsSpec>? detailRankGroups = null,
         CancellationToken ct = default)
     {
-        return await DoQueryListAsync(
-            property.PropertyType,
-            selectFields,
-            queryCondition,
-            orderBy,
-            pageCt,
-            takeCt,
-            skipCt,
-            detailFilterCondition,
-            detailRankGroups,
-            ct);
+        return await DoQueryListAsync(property.PropertyType, selectFields, queryCondition, orderBy, pageCt, takeCt, skipCt, detailFilterCondition, detailRankGroups, ct);
     }
     /// <summary>
     /// 建立 RepositoryQueryOptions 並查詢清單資料。
@@ -346,34 +281,19 @@ public class BizService<TFormModel> : BizBase
         IReadOnlyList<RankGroupsSpec>? detailRankGroups = null,
         CancellationToken ct = default)
     {
-        return await QueryOperations.QueryRawListAsync(
-            type,
-            selectFields,
-            queryCondition,
-            orderBy,
-            pageCt,
-            takeCt,
-            skipCt,
-            detailFilterCondition,
-            detailRankGroups,
-            ct);
+        return await QueryOperations.QueryRawListAsync(type, selectFields, queryCondition, orderBy, pageCt, takeCt, skipCt, detailFilterCondition, detailRankGroups, ct);
     }
     /// <summary>
     /// 依 Entity 型別查詢總筆數。
     /// </summary>
-    protected async Task<int> DoQueryListCountAsync<TModel>(
-        string condition,
-        CancellationToken ct = default)
+    protected async Task<int> DoQueryListCountAsync<TModel>(string condition, CancellationToken ct = default)
     {
         return await DoQueryListCountAsync(typeof(TModel), condition, ct);
     }
     /// <summary>
     /// 查詢指定 Entity 的總筆數。
     /// </summary>
-    protected async Task<int> DoQueryListCountAsync(
-        Type type,
-        string condition,
-        CancellationToken ct = default)
+    protected async Task<int> DoQueryListCountAsync(Type type, string condition, CancellationToken ct = default)
     {
         return await QueryOperations.QueryCountAsync(type, condition, ct);
     }
@@ -394,28 +314,16 @@ public class BizService<TFormModel> : BizBase
     /// <summary>
     /// 執行統一 Biz 交易骨架。
     /// </summary>
-    protected async Task<TResult> ExecTransactionAsync<TResult>(
-        Func<CancellationToken, Task<TResult>> inTransaction,
-        Func<TResult, CancellationToken, Task>? afterCommit = null,
-        CancellationToken ct = default)
+    protected async Task<TResult> ExecTransactionAsync<TResult>(Func<CancellationToken, Task<TResult>> inTransaction, Func<TResult, CancellationToken, Task>? afterCommit = null, CancellationToken ct = default)
     {
-        return await TransactionExecutor.ExecuteAsync(
-            inTransaction,
-            afterCommit,
-            ct);
+        return await TransactionExecutor.ExecuteAsync(inTransaction, afterCommit, ct);
     }
     /// <summary>
     /// 執行不需要回傳資料的統一 Biz 交易骨架。
     /// </summary>
-    protected async Task ExecTransactionAsync(
-        Func<CancellationToken, Task> inTransaction,
-        Func<CancellationToken, Task>? afterCommit = null,
-        CancellationToken ct = default)
+    protected async Task ExecTransactionAsync(Func<CancellationToken, Task> inTransaction, Func<CancellationToken, Task>? afterCommit = null, CancellationToken ct = default)
     {
-        await TransactionExecutor.ExecuteAsync(
-            inTransaction,
-            afterCommit,
-            ct);
+        await TransactionExecutor.ExecuteAsync(inTransaction, afterCommit, ct);
     }
     #endregion
 
@@ -423,40 +331,28 @@ public class BizService<TFormModel> : BizBase
     /// <summary>
     /// 保存前 Feature Hook。
     /// </summary>
-    protected virtual Task BeforeUpdate(
-        TFormModel set,
-        FuncAction action,
-        CancellationToken ct = default)
+    protected virtual Task BeforeUpdate(TFormModel set, FuncAction action, CancellationToken ct = default)
     {
         return Task.CompletedTask;
     }
     /// <summary>
     /// Repository 寫入後、Commit 前 Feature Hook。
     /// </summary>
-    protected virtual Task AfterUpdate(
-        TFormModel? oldSet,
-        TFormModel? newSet,
-        FuncAction action,
-        TransStatus status,
-        CancellationToken ct = default)
+    protected virtual Task AfterUpdate(TFormModel? oldSet, TFormModel? newSet, FuncAction action, TransStatus status, CancellationToken ct = default)
     {
         return Task.CompletedTask;
     }
     /// <summary>
     /// SaveChanges 與 Commit 後 Feature Hook。
     /// </summary>
-    protected virtual Task AfterSaveChanges(
-        FuncAction action,
-        CancellationToken ct = default)
+    protected virtual Task AfterSaveChanges(FuncAction action, CancellationToken ct = default)
     {
         return Task.CompletedTask;
     }
     /// <summary>
     /// 檢查資料是否已被其他功能使用；不可刪除時應加入錯誤訊息。
     /// </summary>
-    protected virtual Task CheckIsUsedAsync(
-        TFormModel data,
-        CancellationToken ct = default)
+    protected virtual Task CheckIsUsedAsync(TFormModel data, CancellationToken ct = default)
     {
         return Task.CompletedTask;
     }
@@ -476,9 +372,7 @@ public class BizService<TFormModel> : BizBase
     /// <summary>
     /// 在同一交易內建立整批初始化資料。
     /// </summary>
-    private async Task CreateInitialDataBatchAsync(
-        IEnumerable<TFormModel> datas,
-        CancellationToken ct)
+    private async Task CreateInitialDataBatchAsync(IEnumerable<TFormModel> datas, CancellationToken ct)
     {
         foreach (TFormModel data in datas)
         {
@@ -506,10 +400,7 @@ public class BizService<TFormModel> : BizBase
     /// <summary>
     /// 執行修改交易內流程。
     /// </summary>
-    private async Task<TFormModel> UpdateInTransactionAsync(
-        string internalId,
-        TFormModel newData,
-        CancellationToken ct)
+    private async Task<TFormModel> UpdateInTransactionAsync(string internalId, TFormModel newData, CancellationToken ct)
     {
         TFormModel oldData = await DoQueryDataAsync(internalId, ct);
         EnsureDataExists(oldData);
@@ -519,29 +410,18 @@ public class BizService<TFormModel> : BizBase
         IReadOnlyList<IList> oldDetailLists =
             GraphCollector.CollectDetailCollections(oldData);
         SetModifyInfo(header);
-        await KeyCoordinator.PrepareAsync(
-            header,
-            newDetailLists,
-            oldDetailLists,
-            ct);
+        await KeyCoordinator.PrepareAsync(header, newDetailLists, oldDetailLists, ct);
         await BeforeUpdate(newData, FuncAction.Update, ct);
         if (Message.HasError) return newData;
         TFormModel snapshot = oldData.Snapshot();
         await DoUpdateAsync(oldData, newData, ct);
-        await AfterUpdate(
-            snapshot,
-            oldData,
-            FuncAction.Update,
-            TransStatus.Difference,
-            ct);
+        await AfterUpdate(snapshot, oldData, FuncAction.Update, TransStatus.Difference, ct);
         return Message.HasError ? newData : oldData;
     }
     /// <summary>
     /// 執行刪除交易內流程。
     /// </summary>
-    private async Task<TFormModel> DeleteInTransactionAsync(
-        string internalId,
-        CancellationToken ct)
+    private async Task<TFormModel> DeleteInTransactionAsync(string internalId, CancellationToken ct)
     {
         TFormModel oldData = await DoQueryDataAsync(internalId, ct);
         EnsureDataExists(oldData);
@@ -551,21 +431,13 @@ public class BizService<TFormModel> : BizBase
         await BeforeUpdate(oldData, FuncAction.Delete, ct);
         if (Message.HasError) return oldData;
         await DoDeleteAsync(oldData, ct);
-        await AfterUpdate(
-            snapshot,
-            oldData,
-            FuncAction.Delete,
-            TransStatus.Difference,
-            ct);
+        await AfterUpdate(snapshot, oldData, FuncAction.Delete, TransStatus.Difference, ct);
         return oldData;
     }
     /// <summary>
     /// 執行作廢或恢復交易內流程。
     /// </summary>
-    private async Task<TFormModel> InvalidInTransactionAsync(
-        string internalId,
-        bool status,
-        CancellationToken ct)
+    private async Task<TFormModel> InvalidInTransactionAsync(string internalId, bool status, CancellationToken ct)
     {
         TFormModel oldData = await DoQueryDataAsync(internalId, ct);
         EnsureDataExists(oldData);
@@ -575,12 +447,7 @@ public class BizService<TFormModel> : BizBase
         await BeforeUpdate(oldData, FuncAction.Invalid, ct);
         if (Message.HasError) return newData;
         await DoUpdateAsync(oldData, newData, ct);
-        await AfterUpdate(
-            snapshot,
-            oldData,
-            FuncAction.Invalid,
-            TransStatus.Difference,
-            ct);
+        await AfterUpdate(snapshot, oldData, FuncAction.Invalid, TransStatus.Difference, ct);
         return Message.HasError ? newData : oldData;
     }
     /// <summary>
@@ -588,42 +455,22 @@ public class BizService<TFormModel> : BizBase
     /// </summary>
     private FormGraphCollector<TFormModel> CreateGraphCollector()
     {
-        return new FormGraphCollector<TFormModel>(
-            GraphRepo,
-            ModelMetadata,
-            PropertyAccessor);
+        return new FormGraphCollector<TFormModel>(GraphRepo, ModelMetadata, PropertyAccessor);
     }
     /// <summary>
     /// 建立 Aggregate Key Coordinator。
     /// </summary>
     private FormAggregateKeyCoordinator<TFormModel> CreateKeyCoordinator()
     {
-        return new FormAggregateKeyCoordinator<TFormModel>(
-            RootDbModelType,
-            GraphCollector,
-            ModelMetadata,
-            PropertyAccessor,
-            ResolveRepo,
-            () => PrefixId,
-            () => IsAutoGenerateId);
+        return new FormAggregateKeyCoordinator<TFormModel>(RootDbModelType, GraphCollector, ModelMetadata, PropertyAccessor, ResolveRepo, () => PrefixId, () => IsAutoGenerateId);
     }
     /// <summary>
     /// 建立 Write Operations。
     /// </summary>
     private FormWriteOperations<TFormModel> CreateWriteOperations()
     {
-        FormAggregateSynchronizer<TFormModel> synchronizer = new(
-            GraphCollector,
-            ModelMetadata,
-            PropertyAccessor,
-            ResolveRepo);
-        return new FormWriteOperations<TFormModel>(
-            GraphRepo,
-            GraphCollector,
-            synchronizer,
-            KeyCoordinator,
-            LifecycleFieldApplier,
-            ResolveRepo);
+        FormAggregateSynchronizer<TFormModel> synchronizer = new(GraphCollector, ModelMetadata, PropertyAccessor, ResolveRepo);
+        return new FormWriteOperations<TFormModel>(GraphRepo, GraphCollector, synchronizer, KeyCoordinator, LifecycleFieldApplier, ResolveRepo);
     }
     /// <summary>
     /// 建立 Query Operations 與 Expression Builders。
@@ -631,12 +478,8 @@ public class BizService<TFormModel> : BizBase
     private FormQueryOperations<TFormModel> CreateQueryOperations()
     {
         FormConditionExpressionBuilder conditionBuilder = new(ModelMetadata);
-        FormProjectionExpressionBuilder projectionBuilder = new(
-            ModelMetadata,
-            conditionBuilder);
-        FormDefaultSelectFieldResolver<TFormModel> defaultSelectResolver = new(
-            GraphRepo,
-            ModelMetadata);
+        FormProjectionExpressionBuilder projectionBuilder = new(ModelMetadata, conditionBuilder);
+        FormDefaultSelectFieldResolver<TFormModel> defaultSelectResolver = new(GraphRepo, ModelMetadata);
         return new FormQueryOperations<TFormModel>(
             GraphRepo,
             DbRepositoryProvider,

@@ -7,11 +7,7 @@ namespace WCMS.SysCore.FeatureDriver.Biz.Operations.Write;
 /// <summary>
 /// 比對並同步 Form Aggregate 的 Detail / SubDetail 新增、修改與刪除。
 /// </summary>
-internal sealed class FormAggregateSynchronizer<TFormModel>(
-    FormGraphCollector<TFormModel> graphCollector,
-    ModelTypeMetadataCache modelMetadata,
-    PropertyAccessorCache propertyAccessor,
-    Func<Type, object> repoResolver)
+internal sealed class FormAggregateSynchronizer<TFormModel>(FormGraphCollector<TFormModel> graphCollector, ModelTypeMetadataCache modelMetadata, PropertyAccessorCache propertyAccessor, Func<Type, object> repoResolver)
     where TFormModel : class
 {
     #region Property
@@ -25,21 +21,14 @@ internal sealed class FormAggregateSynchronizer<TFormModel>(
     /// <summary>
     /// 同步 Aggregate 內所有 Detail / SubDetail。
     /// </summary>
-    internal async Task SyncAsync(
-        TFormModel oldData,
-        TFormModel newData,
-        CancellationToken ct)
+    internal async Task SyncAsync(TFormModel oldData, TFormModel newData, CancellationToken ct)
     {
         Dictionary<Type, List<object>> oldItems =
             GraphCollector.CollectDetailItemsByType(oldData);
         Dictionary<Type, List<object>> newItems =
             GraphCollector.CollectDetailItemsByType(newData);
         foreach (Type type in oldItems.Keys.Union(newItems.Keys))
-            await SyncTypeAsync(
-                type,
-                oldItems.GetValueOrDefault(type) ?? [],
-                newItems.GetValueOrDefault(type) ?? [],
-                ct);
+            await SyncTypeAsync(type, oldItems.GetValueOrDefault(type) ?? [], newItems.GetValueOrDefault(type) ?? [], ct);
     }
     #endregion
 
@@ -47,16 +36,10 @@ internal sealed class FormAggregateSynchronizer<TFormModel>(
     /// <summary>
     /// 同步單一 Detail 型別資料。
     /// </summary>
-    private async Task SyncTypeAsync(
-        Type type,
-        List<object> oldItems,
-        List<object> newItems,
-        CancellationToken ct)
+    private async Task SyncTypeAsync(Type type, List<object> oldItems, List<object> newItems, CancellationToken ct)
     {
         dynamic repo = RepoResolver(type);
-        PropertyInfo[] keyProperties = ModelMetadata.GetAttrProperties(
-            type,
-            typeof(System.ComponentModel.DataAnnotations.KeyAttribute));
+        PropertyInfo[] keyProperties = ModelMetadata.GetAttrProperties(type, typeof(System.ComponentModel.DataAnnotations.KeyAttribute));
         HashSet<string> keyNames = [.. keyProperties.Select(item => item.Name)];
         List<PropertyInfo> compareProperties = [.. ModelMetadata.GetProperties(type)
             .Where(property => !keyNames.Contains(property.Name))];
@@ -69,9 +52,7 @@ internal sealed class FormAggregateSynchronizer<TFormModel>(
     /// <summary>
     /// 依複合 Key 建立 Detail 對照表。
     /// </summary>
-    private Dictionary<string, object> BuildItemMap(
-        IEnumerable<object> items,
-        IEnumerable<PropertyInfo> keyProperties)
+    private Dictionary<string, object> BuildItemMap(IEnumerable<object> items, IEnumerable<PropertyInfo> keyProperties)
     {
         return items.ToDictionary(item => BuildKey(item, keyProperties));
     }
@@ -103,11 +84,7 @@ internal sealed class FormAggregateSynchronizer<TFormModel>(
     /// <summary>
     /// 新增舊資料中不存在的 Detail。
     /// </summary>
-    private static async Task CreateAddedAsync(
-    dynamic repo,
-    Dictionary<string, object> oldItems,
-    Dictionary<string, object> newItems,
-    CancellationToken ct)
+    private static async Task CreateAddedAsync(dynamic repo, Dictionary<string, object> oldItems, Dictionary<string, object> newItems, CancellationToken ct)
     {
         foreach (string key in newItems.Keys.Except(oldItems.Keys))
         {
@@ -119,27 +96,17 @@ internal sealed class FormAggregateSynchronizer<TFormModel>(
     /// <summary>
     /// 建立 Detail 複合 Key 字串。
     /// </summary>
-    private string BuildKey(
-        object item,
-        IEnumerable<PropertyInfo> keyProperties)
+    private string BuildKey(object item, IEnumerable<PropertyInfo> keyProperties)
     {
-        return string.Join(
-            "|",
-            keyProperties.Select(property =>
-                PropertyAccessor.Get(item, property.Name)?.ToString() ?? "null"));
+        return string.Join("|", keyProperties.Select(property => PropertyAccessor.Get(item, property.Name)?.ToString() ?? "null"));
     }
     /// <summary>
     /// 判斷非主鍵欄位是否有變更。
     /// </summary>
-    private bool HasDifferentValue(
-        object oldItem,
-        object newItem,
-        IEnumerable<PropertyInfo> properties)
+    private bool HasDifferentValue(object oldItem, object newItem, IEnumerable<PropertyInfo> properties)
     {
         foreach (PropertyInfo property in properties)
-            if (!Equals(
-                PropertyAccessor.Get(oldItem, property.Name),
-                PropertyAccessor.Get(newItem, property.Name)))
+            if (!Equals(PropertyAccessor.Get(oldItem, property.Name), PropertyAccessor.Get(newItem, property.Name)))
                 return true;
         return false;
     }

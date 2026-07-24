@@ -11,58 +11,40 @@ public sealed class EfSqlConsoleInterceptor : DbCommandInterceptor
     private readonly ConditionalWeakTable<DbCommand, Stopwatch> _timers = new();
 
     // ✅ 專門印 SQL + 參數（Reader / Scalar / NonQuery 都會走到）
-    public override InterceptionResult<DbDataReader> ReaderExecuting(
-        DbCommand command,
-        CommandEventData eventData,
-        InterceptionResult<DbDataReader> result)
+    public override InterceptionResult<DbDataReader> ReaderExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result)
     {
         Start(command);
         Write(command, eventData);
         return base.ReaderExecuting(command, eventData, result);
     }
 
-    public override DbDataReader ReaderExecuted(
-        DbCommand command,
-        CommandExecutedEventData eventData,
-        DbDataReader result)
+    public override DbDataReader ReaderExecuted(DbCommand command, CommandExecutedEventData eventData, DbDataReader result)
     {
         Stop(command, eventData);
         return base.ReaderExecuted(command, eventData, result);
     }
 
-    public override InterceptionResult<object> ScalarExecuting(
-        DbCommand command,
-        CommandEventData eventData,
-        InterceptionResult<object> result)
+    public override InterceptionResult<object> ScalarExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<object> result)
     {
         Start(command);
         Write(command, eventData);
         return base.ScalarExecuting(command, eventData, result);
     }
 
-    public override object ScalarExecuted(
-        DbCommand command,
-        CommandExecutedEventData eventData,
-        object result)
+    public override object ScalarExecuted(DbCommand command, CommandExecutedEventData eventData, object result)
     {
         Stop(command, eventData);
         return base.ScalarExecuted(command, eventData, result);
     }
 
-    public override InterceptionResult<int> NonQueryExecuting(
-        DbCommand command,
-        CommandEventData eventData,
-        InterceptionResult<int> result)
+    public override InterceptionResult<int> NonQueryExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<int> result)
     {
         Start(command);
         Write(command, eventData);
         return base.NonQueryExecuting(command, eventData, result);
     }
 
-    public override int NonQueryExecuted(
-        DbCommand command,
-        CommandExecutedEventData eventData,
-        int result)
+    public override int NonQueryExecuted(DbCommand command, CommandExecutedEventData eventData, int result)
     {
         Stop(command, eventData);
         return base.NonQueryExecuted(command, eventData, result);

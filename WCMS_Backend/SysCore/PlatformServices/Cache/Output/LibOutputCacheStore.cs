@@ -31,12 +31,7 @@ public sealed class LibOutputCacheStore(ICacheRoute cacheRoute, IOptions<CacheSe
     /// <summary>
     /// 保存 Response Payload，並建立所有 Tag 與 Entry 的關聯索引。
     /// </summary>
-    public async ValueTask SetAsync(
-        string key,
-        byte[] value,
-        string[]? tags,
-        TimeSpan validFor,
-        CancellationToken cancellationToken)
+    public async ValueTask SetAsync(string key, byte[] value, string[]? tags, TimeSpan validFor, CancellationToken cancellationToken)
     {
         ValidateSetArguments(key, validFor);
         string entryKey = BuildEntryKey(key);

@@ -12,9 +12,7 @@ namespace WCMS.SysCore.FeatureDriver.Repo.Operations.Query;
 /// <summary>
 /// 執行 Repository 單筆、清單、數量與 Prefix 最大值查詢。
 /// </summary>
-public sealed class RepositoryQueryOperations<TDbModel>(
-    ApplicationDbContext dataAccess,
-    EfRepositoryMetadataCache repositoryMetadata)
+public sealed class RepositoryQueryOperations<TDbModel>(ApplicationDbContext dataAccess, EfRepositoryMetadataCache repositoryMetadata)
     where TDbModel : DbModel
 {
     #region Property
@@ -26,9 +24,7 @@ public sealed class RepositoryQueryOperations<TDbModel>(
     /// <summary>
     /// 依 EF Primary Key 查詢可追蹤的單一 Entity。
     /// </summary>
-    internal async Task<TDbModel> FindByKeyAsync(
-        IReadOnlyList<object> key,
-        CancellationToken ct)
+    internal async Task<TDbModel> FindByKeyAsync(IReadOnlyList<object> key, CancellationToken ct)
     {
         object[] keyValues = [.. key];
         return await DataAccess.Set<TDbModel>().FindAsync(keyValues, ct);
@@ -36,9 +32,7 @@ public sealed class RepositoryQueryOperations<TDbModel>(
     /// <summary>
     /// 依可選查詢設定取得 Entity 清單。
     /// </summary>
-    internal async Task<IList<TDbModel>> QueryListAsync(
-        RepositoryQueryOptions? options,
-        CancellationToken ct)
+    internal async Task<IList<TDbModel>> QueryListAsync(RepositoryQueryOptions? options, CancellationToken ct)
     {
         RepositoryQueryOptions queryOptions = options ?? new RepositoryQueryOptions();
         IQueryable<TDbModel> query = BuildBaseQuery(queryOptions);
@@ -51,9 +45,7 @@ public sealed class RepositoryQueryOperations<TDbModel>(
     /// <summary>
     /// 依條件取得 Entity 總筆數。
     /// </summary>
-    internal async Task<int> QueryListCountAsync(
-        LambdaExpression? whereExpression,
-        CancellationToken ct)
+    internal async Task<int> QueryListCountAsync(LambdaExpression? whereExpression, CancellationToken ct)
     {
         IQueryable<TDbModel> query = DataAccess.Set<TDbModel>()
             .AsNoTracking()
@@ -64,10 +56,7 @@ public sealed class RepositoryQueryOperations<TDbModel>(
     /// <summary>
     /// 查詢指定字串欄位在目前前綴下的最大值。
     /// </summary>
-    internal async Task<string?> QueryMaxStringValueByPrefixAsync(
-        LambdaExpression valueSelector,
-        string prefix,
-        CancellationToken ct)
+    internal async Task<string?> QueryMaxStringValueByPrefixAsync(LambdaExpression valueSelector, string prefix, CancellationToken ct)
     {
         Expression<Func<TDbModel, string>> selector = ValidateStringSelector(valueSelector);
         Expression<Func<TDbModel, bool>> condition = BuildStartsWithExpression(selector, prefix);
@@ -92,9 +81,7 @@ public sealed class RepositoryQueryOperations<TDbModel>(
     /// <summary>
     /// 套用查詢篩選條件。
     /// </summary>
-    private static IQueryable<TDbModel> ApplyWhere(
-        IQueryable<TDbModel> query,
-        LambdaExpression? whereExpression)
+    private static IQueryable<TDbModel> ApplyWhere(IQueryable<TDbModel> query, LambdaExpression? whereExpression)
     {
         if (whereExpression.IsNullOrEmpty()) return query;
         return query.Where((Expression<Func<TDbModel, bool>>)whereExpression!);
@@ -102,9 +89,7 @@ public sealed class RepositoryQueryOperations<TDbModel>(
     /// <summary>
     /// 套用指定排序或分頁所需的主鍵保底排序。
     /// </summary>
-    private IQueryable<TDbModel> ApplyOrder(
-        IQueryable<TDbModel> query,
-        RepositoryQueryOptions options)
+    private IQueryable<TDbModel> ApplyOrder(IQueryable<TDbModel> query, RepositoryQueryOptions options)
     {
         bool hasOrder = options.OrderBy is { Count: > 0 };
         if (hasOrder)
@@ -116,9 +101,7 @@ public sealed class RepositoryQueryOperations<TDbModel>(
     /// <summary>
     /// 未使用 Projection 時套用第一層 Reference Include。
     /// </summary>
-    private IQueryable<TDbModel> ApplyIncludes(
-        IQueryable<TDbModel> query,
-        LambdaExpression? selectExpression)
+    private IQueryable<TDbModel> ApplyIncludes(IQueryable<TDbModel> query, LambdaExpression? selectExpression)
     {
         if (selectExpression != null) return query;
         string[] paths = RepositoryMetadata.GetFirstLevelReferenceIncludes(DataAccess, typeof(TDbModel));
@@ -128,9 +111,7 @@ public sealed class RepositoryQueryOperations<TDbModel>(
     /// <summary>
     /// 套用頁碼或 Skip/Take 切段。
     /// </summary>
-    private static IQueryable<TDbModel> ApplyPaging(
-        IQueryable<TDbModel> query,
-        RepositoryQueryOptions options)
+    private static IQueryable<TDbModel> ApplyPaging(IQueryable<TDbModel> query, RepositoryQueryOptions options)
     {
         if (options.PageSize <= 0) return query;
         if (options.PageNumber > 0)
@@ -142,10 +123,7 @@ public sealed class RepositoryQueryOperations<TDbModel>(
     /// <summary>
     /// 執行完整 Entity 或 Projection 清單查詢。
     /// </summary>
-    private static async Task<IList<TDbModel>> ExecuteListAsync(
-        IQueryable<TDbModel> query,
-        LambdaExpression? selectExpression,
-        CancellationToken ct)
+    private static async Task<IList<TDbModel>> ExecuteListAsync(IQueryable<TDbModel> query, LambdaExpression? selectExpression, CancellationToken ct)
     {
         if (selectExpression == null) return await query.ToListAsync(ct);
         query = query.AsSplitQuery();
@@ -156,10 +134,7 @@ public sealed class RepositoryQueryOperations<TDbModel>(
     /// <summary>
     /// 套用 Entity 第一層 Reference Navigation Include 路徑。
     /// </summary>
-    private static IQueryable<TDbModel> ApplyFirstLevelReferenceIncludes(
-        IQueryable<TDbModel> query,
-        IReadOnlyList<string> includePaths,
-        out int includeCount)
+    private static IQueryable<TDbModel> ApplyFirstLevelReferenceIncludes(IQueryable<TDbModel> query, IReadOnlyList<string> includePaths, out int includeCount)
     {
         includeCount = 0;
         foreach (string path in includePaths)
@@ -173,8 +148,7 @@ public sealed class RepositoryQueryOperations<TDbModel>(
     /// <summary>
     /// 驗證 Prefix 查詢使用的字串欄位 Selector。
     /// </summary>
-    private static Expression<Func<TDbModel, string>> ValidateStringSelector(
-        LambdaExpression valueSelector)
+    private static Expression<Func<TDbModel, string>> ValidateStringSelector(LambdaExpression valueSelector)
     {
         return valueSelector as Expression<Func<TDbModel, string>>
             ?? throw new ArgumentException(
@@ -184,9 +158,7 @@ public sealed class RepositoryQueryOperations<TDbModel>(
     /// <summary>
     /// 將字串 Selector 組成可由 EF Core 翻譯的 StartsWith 條件。
     /// </summary>
-    private static Expression<Func<TDbModel, bool>> BuildStartsWithExpression(
-        Expression<Func<TDbModel, string>> selector,
-        string prefix)
+    private static Expression<Func<TDbModel, bool>> BuildStartsWithExpression(Expression<Func<TDbModel, string>> selector, string prefix)
     {
         ParameterExpression parameter = selector.Parameters[0];
         MethodInfo startsWith = typeof(string).GetMethod(nameof(string.StartsWith), [typeof(string)])!;
@@ -196,10 +168,7 @@ public sealed class RepositoryQueryOperations<TDbModel>(
     /// <summary>
     /// 查詢資料庫內符合前綴的字串值。
     /// </summary>
-    private async Task<List<string>> QueryPersistedValuesAsync(
-        Expression<Func<TDbModel, string>> selector,
-        Expression<Func<TDbModel, bool>> condition,
-        CancellationToken ct)
+    private async Task<List<string>> QueryPersistedValuesAsync(Expression<Func<TDbModel, string>> selector, Expression<Func<TDbModel, bool>> condition, CancellationToken ct)
     {
         return await DataAccess.Set<TDbModel>()
             .AsNoTracking()
@@ -210,9 +179,7 @@ public sealed class RepositoryQueryOperations<TDbModel>(
     /// <summary>
     /// 查詢 ChangeTracker 尚未儲存且符合前綴的字串值。
     /// </summary>
-    private IEnumerable<string> QueryPendingValues(
-        Expression<Func<TDbModel, string>> selector,
-        string prefix)
+    private IEnumerable<string> QueryPendingValues(Expression<Func<TDbModel, string>> selector, string prefix)
     {
         Func<TDbModel, string> getter = selector.Compile();
         return DataAccess.ChangeTracker.Entries<TDbModel>()

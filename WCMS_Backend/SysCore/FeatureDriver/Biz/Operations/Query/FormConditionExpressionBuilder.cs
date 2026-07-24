@@ -83,9 +83,7 @@ internal sealed class FormConditionExpressionBuilder(ModelTypeMetadataCache mode
             else
             {
                 // 嘗試：同 collection nav + AND 連續子句合併
-                if (TryParseSimpleClause(seg, out var p0, out var op0, out var v0)
-                    && p0.Length >= 2
-                    && TryGetEnumerableElementType(modelType, p0[0], out var elementType))
+                if (TryParseSimpleClause(seg, out var p0, out var op0, out var v0) && p0.Length >= 2 && TryGetEnumerableElementType(modelType, p0[0], out var elementType))
                 {
                     var nav = p0[0];
 
@@ -96,8 +94,7 @@ internal sealed class FormConditionExpressionBuilder(ModelTypeMetadataCache mode
             };
 
                     int j = i;
-                    while (j < connectors.Count
-                           && connectors[j].Equals("and", StringComparison.OrdinalIgnoreCase))
+                    while (j < connectors.Count && connectors[j].Equals("and", StringComparison.OrdinalIgnoreCase))
                     {
                         var nextSeg = chunks[j + 1].Trim();
 
@@ -713,10 +710,7 @@ internal sealed class FormConditionExpressionBuilder(ModelTypeMetadataCache mode
         var array = Array.CreateInstance(targetType, values.Length);
 
         // 執行 function：逐筆轉成欄位實際型別
-        for (int i = 0; i < values.Length; i++)
-        {
-            array.SetValue(ConvertConditionValue(values[i], targetType), i);
-        }
+        for (int i = 0; i < values.Length; i++) array.SetValue(ConvertConditionValue(values[i], targetType), i);
 
         // return
         return array;

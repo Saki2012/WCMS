@@ -25,11 +25,7 @@ public sealed class TokenStateCache(CacheService cacheService) : LibCacheBase(ca
     /// <summary>
     /// 保存 Refresh Token 與使用者的有效關聯。
     /// </summary>
-    internal Task StoreRefreshAsync(
-        string userId,
-        string tokenId,
-        DateTime expires,
-        CancellationToken ct = default)
+    internal Task StoreRefreshAsync(string userId, string tokenId, DateTime expires, CancellationToken ct = default)
     {
         string key = BuildCacheKey(RefreshTokenKey, tokenId);
         CacheOptions options = BuildAbsoluteOptions(expires - DateTime.UtcNow);

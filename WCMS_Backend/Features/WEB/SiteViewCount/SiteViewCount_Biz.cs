@@ -61,61 +61,26 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
     /// <summary>
     /// 執行主站瀏覽計數。
     /// </summary>
-    private async Task<TryCountResult_DTO> TryCountSiteViewAsync(
-        string siteIndex,
-        string visitorKey,
-        string refererUrl,
-        CancellationToken ct = default)
+    private async Task<TryCountResult_DTO> TryCountSiteViewAsync(string siteIndex, string visitorKey, string refererUrl, CancellationToken ct = default)
     {
         TryCountResult_DTO result = new();
         ct.ThrowIfCancellationRequested();
         if (!ValidateSiteCountInput(visitorKey)) return result;
         DateTime now = DateTime.Now;
-        return await ExecTransactionAsync(
-            token => CountSiteViewInTransactionAsync(
-                siteIndex,
-                visitorKey,
-                refererUrl,
-                now,
-                result,
-                token),
-            ct: ct);
+        return await ExecTransactionAsync(token => CountSiteViewInTransactionAsync(siteIndex, visitorKey, refererUrl, now, result, token), ct: ct);
     }
     /// <summary>
     /// 在交易內完成主站去重與累加。
     /// </summary>
-    private async Task<TryCountResult_DTO> CountSiteViewInTransactionAsync(
-        string siteIndex,
-        string visitorKey,
-        string refererUrl,
-        DateTime now,
-        TryCountResult_DTO result,
-        CancellationToken ct)
+    private async Task<TryCountResult_DTO> CountSiteViewInTransactionAsync(string siteIndex, string visitorKey, string refererUrl, DateTime now, TryCountResult_DTO result, CancellationToken ct)
     {
-        SiteViewCountRecently? recent = await GetRecentlyInfoAsync(
-            siteIndex,
-            string.Empty,
-            string.Empty,
-            CountTargetType.Header,
-            ViewCountActionType.PageView,
-            visitorKey,
-            ct);
+        SiteViewCountRecently? recent = await GetRecentlyInfoAsync(siteIndex, string.Empty, string.Empty, CountTargetType.Header, ViewCountActionType.PageView, visitorKey, ct);
         if (recent != null && !ShouldCount(recent.LastViewTime, now))
         {
             result.CurrentCount = await GetSiteViewCountAsync(siteIndex, ct);
             return result;
         }
-        await SaveRecentlyInfoAsync(
-            recent,
-            siteIndex,
-            string.Empty,
-            string.Empty,
-            CountTargetType.Header,
-            ViewCountActionType.PageView,
-            visitorKey,
-            refererUrl,
-            now,
-            ct);
+        await SaveRecentlyInfoAsync(recent, siteIndex, string.Empty, string.Empty, CountTargetType.Header, ViewCountActionType.PageView, visitorKey, refererUrl, now, ct);
         result.CurrentCount = await IncreaseSiteViewCountAsync(siteIndex, ct);
         result.IsCounted = true;
         return result;
@@ -123,32 +88,14 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
     /// <summary>
     /// 執行功能或頁面個別計數。
     /// </summary>
-    private async Task<TryCountResult_DTO> TryCountDetailViewAsync(
-        string siteIndex,
-        string progId,
-        string internalId,
-        ViewCountActionType actionType,
-        string visitorKey,
-        string refererUrl,
-        CancellationToken ct = default)
+    private async Task<TryCountResult_DTO> TryCountDetailViewAsync(string siteIndex, string progId, string internalId, ViewCountActionType actionType, string visitorKey, string refererUrl, CancellationToken ct = default)
     {
         TryCountResult_DTO result = new();
         ct.ThrowIfCancellationRequested();
         ValidateDetailCountInput(progId, internalId, visitorKey);
         if (Message.HasError) return result;
         DateTime now = DateTime.Now;
-        return await ExecTransactionAsync(
-            token => CountDetailViewInTransactionAsync(
-                siteIndex,
-                progId,
-                internalId,
-                actionType,
-                visitorKey,
-                refererUrl,
-                now,
-                result,
-                token),
-            ct: ct);
+        return await ExecTransactionAsync(token => CountDetailViewInTransactionAsync(siteIndex, progId, internalId, actionType, visitorKey, refererUrl, now, result, token), ct: ct);
     }
     /// <summary>
     /// 在交易內完成功能頁面去重與累加。
@@ -164,41 +111,14 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
         TryCountResult_DTO result,
         CancellationToken ct)
     {
-        SiteViewCountRecently? recent = await GetRecentlyInfoAsync(
-            siteIndex,
-            progId,
-            internalId,
-            CountTargetType.Detail,
-            actionType,
-            visitorKey,
-            ct);
+        SiteViewCountRecently? recent = await GetRecentlyInfoAsync(siteIndex, progId, internalId, CountTargetType.Detail, actionType, visitorKey, ct);
         if (recent != null && !ShouldCount(recent.LastViewTime, now))
         {
-            result.CurrentCount = await GetDetailViewCountAsync(
-                siteIndex,
-                progId,
-                internalId,
-                actionType,
-                ct);
+            result.CurrentCount = await GetDetailViewCountAsync(siteIndex, progId, internalId, actionType, ct);
             return result;
         }
-        await SaveRecentlyInfoAsync(
-            recent,
-            siteIndex,
-            progId,
-            internalId,
-            CountTargetType.Detail,
-            actionType,
-            visitorKey,
-            refererUrl,
-            now,
-            ct);
-        result.CurrentCount = await IncreaseDetailViewCountAsync(
-            siteIndex,
-            progId,
-            internalId,
-            actionType,
-            ct);
+        await SaveRecentlyInfoAsync(recent, siteIndex, progId, internalId, CountTargetType.Detail, actionType, visitorKey, refererUrl, now, ct);
+        result.CurrentCount = await IncreaseDetailViewCountAsync(siteIndex, progId, internalId, actionType, ct);
         result.IsCounted = true;
         return result;
     }
@@ -208,35 +128,20 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
     private bool ValidateSiteCountInput(string visitorKey)
     {
         if (!string.IsNullOrWhiteSpace(visitorKey)) return true;
-        Message.AddMessage(
-            MessageStatus.Error,
-            SysMessageCode.BECode00012,
-            nameof(visitorKey));
+        Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, nameof(visitorKey));
         return false;
     }
     /// <summary>
     /// 驗證功能頁面計次必要參數。
     /// </summary>
-    private void ValidateDetailCountInput(
-        string progId,
-        string internalId,
-        string visitorKey)
+    private void ValidateDetailCountInput(string progId, string internalId, string visitorKey)
     {
         if (string.IsNullOrWhiteSpace(visitorKey))
-            Message.AddMessage(
-                MessageStatus.Error,
-                SysMessageCode.BECode00012,
-                nameof(visitorKey));
+            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, nameof(visitorKey));
         if (string.IsNullOrWhiteSpace(progId))
-            Message.AddMessage(
-                MessageStatus.Error,
-                SysMessageCode.BECode00012,
-                nameof(progId));
+            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, nameof(progId));
         if (string.IsNullOrWhiteSpace(internalId))
-            Message.AddMessage(
-                MessageStatus.Error,
-                SysMessageCode.BECode00012,
-                nameof(internalId));
+            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, nameof(internalId));
     }
 
     /// <summary>

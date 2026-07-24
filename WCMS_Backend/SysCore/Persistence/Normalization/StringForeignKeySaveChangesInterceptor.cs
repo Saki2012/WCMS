@@ -13,9 +13,7 @@ internal sealed class StringForeignKeySaveChangesInterceptor
     /// <summary>
     /// 同步保存前正規化所有新增與修改 Entity。
     /// </summary>
-    public override InterceptionResult<int> SavingChanges(
-        DbContextEventData eventData,
-        InterceptionResult<int> result)
+    public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         NormalizeContext(eventData.Context);
         return base.SavingChanges(eventData, result);
@@ -23,16 +21,10 @@ internal sealed class StringForeignKeySaveChangesInterceptor
     /// <summary>
     /// 非同步保存前正規化所有新增與修改 Entity。
     /// </summary>
-    public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
-        DbContextEventData eventData,
-        InterceptionResult<int> result,
-        CancellationToken cancellationToken = default)
+    public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
         NormalizeContext(eventData.Context);
-        return base.SavingChangesAsync(
-            eventData,
-            result,
-            cancellationToken);
+        return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
     #endregion
 

@@ -7,9 +7,7 @@ namespace WCMS.SysCore.FeatureDriver.Biz.Transactions;
 /// <summary>
 /// 統一處理 Biz SaveChanges、Commit、Rollback 與 afterCommit 流程。
 /// </summary>
-internal sealed class BizTransactionExecutor(
-    ApplicationDbContext dataAccess,
-    IErrorHelper message)
+internal sealed class BizTransactionExecutor(ApplicationDbContext dataAccess, IErrorHelper message)
 {
     #region Property
     private ApplicationDbContext DataAccess { get; } = dataAccess;
@@ -20,10 +18,7 @@ internal sealed class BizTransactionExecutor(
     /// <summary>
     /// 執行具有回傳值的完整 Biz 交易骨架。
     /// </summary>
-    internal async Task<TResult> ExecuteAsync<TResult>(
-        Func<CancellationToken, Task<TResult>> inTransaction,
-        Func<TResult, CancellationToken, Task>? afterCommit = null,
-        CancellationToken ct = default)
+    internal async Task<TResult> ExecuteAsync<TResult>(Func<CancellationToken, Task<TResult>> inTransaction, Func<TResult, CancellationToken, Task>? afterCommit = null, CancellationToken ct = default)
     {
         bool ownsTransaction = false;
         try
@@ -36,11 +31,7 @@ internal sealed class BizTransactionExecutor(
                 await RollbackAsync(ownsTransaction, CancellationToken.None);
                 return result;
             }
-            await CommitAndRunAfterAsync(
-                result,
-                ownsTransaction,
-                afterCommit,
-                ct);
+            await CommitAndRunAfterAsync(result, ownsTransaction, afterCommit, ct);
             return result;
         }
         catch
@@ -52,10 +43,7 @@ internal sealed class BizTransactionExecutor(
     /// <summary>
     /// 執行不需要回傳資料的完整 Biz 交易骨架。
     /// </summary>
-    internal async Task ExecuteAsync(
-        Func<CancellationToken, Task> inTransaction,
-        Func<CancellationToken, Task>? afterCommit = null,
-        CancellationToken ct = default)
+    internal async Task ExecuteAsync(Func<CancellationToken, Task> inTransaction, Func<CancellationToken, Task>? afterCommit = null, CancellationToken ct = default)
     {
         Func<bool, CancellationToken, Task>? afterCommitAdapter =
             afterCommit == null
@@ -85,9 +73,7 @@ internal sealed class BizTransactionExecutor(
     /// <summary>
     /// 只在目前流程擁有交易時執行 Rollback。
     /// </summary>
-    private async Task RollbackAsync(
-        bool ownsTransaction,
-        CancellationToken ct)
+    private async Task RollbackAsync(bool ownsTransaction, CancellationToken ct)
     {
         if (!ownsTransaction) return;
         await DataAccess.Database.RollbackTransactionAsync(ct);
@@ -95,9 +81,7 @@ internal sealed class BizTransactionExecutor(
     /// <summary>
     /// 儲存異動，並在目前流程擁有交易時 Commit。
     /// </summary>
-    private async Task CommitAsync(
-        bool ownsTransaction,
-        CancellationToken ct)
+    private async Task CommitAsync(bool ownsTransaction, CancellationToken ct)
     {
         await DataAccess.SaveChangesAsync(ct);
         if (!ownsTransaction) return;
@@ -106,11 +90,7 @@ internal sealed class BizTransactionExecutor(
     /// <summary>
     /// Commit 後只由真正持有交易的流程執行 afterCommit。
     /// </summary>
-    private async Task CommitAndRunAfterAsync<TResult>(
-        TResult result,
-        bool ownsTransaction,
-        Func<TResult, CancellationToken, Task>? afterCommit,
-        CancellationToken ct)
+    private async Task CommitAndRunAfterAsync<TResult>(TResult result, bool ownsTransaction, Func<TResult, CancellationToken, Task>? afterCommit, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         await CommitAsync(ownsTransaction, ct);

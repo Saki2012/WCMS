@@ -43,12 +43,7 @@ public class SpecCalendar_Biz(BizDeps bizDeps, IHttpClientFactory httpClientFact
     private void CheckData(Calendar set)
     {
         foreach (CalendarDetail detail in set._CalendarDetail)
-            SpecOpenScheduleRuleBiz.ValidTimeFor(
-                detail,
-                item => item.Spec_OpenTime,
-                item => item.Spec_CloseTime,
-                Message,
-                I18n);
+            SpecOpenScheduleRuleBiz.ValidTimeFor(detail, item => item.Spec_OpenTime, item => item.Spec_CloseTime, Message, I18n);
     }
     /// <summary>
     /// 補齊每日人工修改備註預設值。

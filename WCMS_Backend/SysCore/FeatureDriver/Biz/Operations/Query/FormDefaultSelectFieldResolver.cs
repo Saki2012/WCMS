@@ -11,9 +11,7 @@ namespace WCMS.SysCore.FeatureDriver.Biz.Operations.Query;
 /// <summary>
 /// 建立 Form Aggregate 查詢預設使用的 Root 與 Detail 欄位清單。
 /// </summary>
-internal sealed class FormDefaultSelectFieldResolver<TFormModel>(
-    FormGraphRepoScope<TFormModel> graphRepo,
-    ModelTypeMetadataCache modelMetadata)
+internal sealed class FormDefaultSelectFieldResolver<TFormModel>(FormGraphRepoScope<TFormModel> graphRepo, ModelTypeMetadataCache modelMetadata)
     where TFormModel : class
 {
     #region Property
@@ -37,10 +35,7 @@ internal sealed class FormDefaultSelectFieldResolver<TFormModel>(
     /// <summary>
     /// 遞迴加入目前 Entity 的 Scalar 與 InverseProperty Detail 欄位。
     /// </summary>
-    private void AddFields(
-        Type modelType,
-        string prefix,
-        List<string> result)
+    private void AddFields(Type modelType, string prefix, List<string> result)
     {
         foreach (PropertyInfo property in ModelMetadata.GetProperties(modelType))
             AddField(property, prefix, result);
@@ -48,10 +43,7 @@ internal sealed class FormDefaultSelectFieldResolver<TFormModel>(
     /// <summary>
     /// 加入單一 Scalar，或繼續展開 Detail Graph。
     /// </summary>
-    private void AddField(
-        PropertyInfo property,
-        string prefix,
-        List<string> result)
+    private void AddField(PropertyInfo property, string prefix, List<string> result)
     {
         if (!property.CanWrite) return;
         Type? childType = GetGraphPropertyType(property);
@@ -70,17 +62,14 @@ internal sealed class FormDefaultSelectFieldResolver<TFormModel>(
     private static bool IsSelectableScalar(PropertyInfo property)
     {
         bool isScalar = property.PropertyType == typeof(byte[])
-            || (!LibData.IsListPropertyType(property)
-                && !typeof(DbModel).IsAssignableFrom(property.PropertyType));
+            || (!LibData.IsListPropertyType(property) && !typeof(DbModel).IsAssignableFrom(property.PropertyType));
         return isScalar
             && !property.IsDefined(typeof(NotMappedAttribute), true);
     }
     /// <summary>
     /// 判斷 Navigation 是否為可展開的 Detail Collection。
     /// </summary>
-    private bool IsSelectableDetail(
-        PropertyInfo property,
-        Type childType)
+    private bool IsSelectableDetail(PropertyInfo property, Type childType)
     {
         bool isCollection = property.PropertyType != typeof(string)
             && typeof(IEnumerable).IsAssignableFrom(property.PropertyType);

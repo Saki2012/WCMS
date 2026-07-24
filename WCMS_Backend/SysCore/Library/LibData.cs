@@ -12,10 +12,7 @@ public static partial class LibData
     public static Exception GetInnermostException(this Exception ex)
     {
         Exception innerEx = ex;
-        while (innerEx.InnerException is Exception next)
-        {
-            innerEx = next;
-        }
+        while (innerEx.InnerException is Exception next) innerEx = next;
         return innerEx;
     }
     #endregion

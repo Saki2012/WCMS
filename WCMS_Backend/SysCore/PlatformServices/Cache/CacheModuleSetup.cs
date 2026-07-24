@@ -71,11 +71,9 @@ internal static class CacheModuleSetup
     {
         services.AddSingleton<JsonSerializationRuntimeCache>();
         services.AddOptions<Microsoft.AspNetCore.Mvc.JsonOptions>()
-            .Configure<JsonSerializationRuntimeCache>((options, cache) =>
-                options.JsonSerializerOptions.AddLibJsonNullDefaultHandling(cache));
+            .Configure<JsonSerializationRuntimeCache>((options, cache) => options.JsonSerializerOptions.AddLibJsonNullDefaultHandling(cache));
         services.AddOptions<Microsoft.AspNetCore.Http.Json.JsonOptions>()
-            .Configure<JsonSerializationRuntimeCache>((options, cache) =>
-                options.SerializerOptions.AddLibJsonNullDefaultHandling(cache));
+            .Configure<JsonSerializationRuntimeCache>((options, cache) => options.SerializerOptions.AddLibJsonNullDefaultHandling(cache));
     }
     /// <summary>
     /// 註冊 OutputCache Policy 並以 WCMS Store 取代內建 Store。

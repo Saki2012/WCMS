@@ -9,9 +9,7 @@ namespace WCMS.SysCore.FeatureDriver.Biz.Operations.Query;
 /// <summary>
 /// 建立 Form 查詢的 Root、Navigation 與 Detail Projection Expression。
 /// </summary>
-internal sealed class FormProjectionExpressionBuilder(
-    ModelTypeMetadataCache modelMetadata,
-    FormConditionExpressionBuilder conditionBuilder)
+internal sealed class FormProjectionExpressionBuilder(ModelTypeMetadataCache modelMetadata, FormConditionExpressionBuilder conditionBuilder)
 {
     #region Property
     /// <summary>
@@ -62,10 +60,7 @@ internal sealed class FormProjectionExpressionBuilder(
                 if (childType.IsArray) itemType = childType.GetElementType()!;
                 else itemType = childType.GenericTypeArguments.FirstOrDefault() ?? typeof(object);
             }
-            else
-            {
-                itemType = childType;
-            }
+            else itemType = childType;
 
             // 針對子型別再遞迴產生 λ：TChild -> TChild
             var innerSelector = Build(itemType, childFields);
@@ -78,14 +73,8 @@ internal sealed class FormProjectionExpressionBuilder(
                 var select = typeof(Queryable).GetMethods().First(m => m.Name == "Select" && m.GetParameters().Length == 2).MakeGenericMethod(itemType, ((LambdaExpression)innerSelector).ReturnType);
                 var toList = typeof(Enumerable).GetMethods().First(m => m.Name == "ToList" && m.GetParameters().Length == 1).MakeGenericMethod(((LambdaExpression)innerSelector).ReturnType);
                 var q = Expression.Call(asQueryable, collExpr);
-                if (detailFilterMap != null && detailFilterMap.TryGetValue(propName, out var filterLambda) && filterLambda != null)
-                {
-                    q = (MethodCallExpression)ApplyDetailFilter(q, itemType, filterLambda);
-                }
-                if (detailRankMap != null && detailRankMap.TryGetValue(propName, out var rankList) && rankList?.Count > 0)
-                {
-                    q = (MethodCallExpression)ApplyDetailRankOrder(q, itemType, rankList);
-                }
+                if (detailFilterMap != null && detailFilterMap.TryGetValue(propName, out var filterLambda) && filterLambda != null) q = (MethodCallExpression)ApplyDetailFilter(q, itemType, filterLambda);
+                if (detailRankMap != null && detailRankMap.TryGetValue(propName, out var rankList) && rankList?.Count > 0) q = (MethodCallExpression)ApplyDetailRankOrder(q, itemType, rankList);
                 var s = Expression.Call(select, q, innerSelector);
                 var tl = Expression.Call(toList, s);
                 bindings.Add(Expression.Bind(propInfo, tl));
@@ -281,8 +270,7 @@ internal sealed class FormProjectionExpressionBuilder(
     {
         while (true)
         {
-            if (e is UnaryExpression ue &&
-                (ue.NodeType == ExpressionType.Quote || ue.NodeType == ExpressionType.Convert))
+            if (e is UnaryExpression ue && (ue.NodeType == ExpressionType.Quote || ue.NodeType == ExpressionType.Convert))
             {
                 e = ue.Operand;
                 continue;

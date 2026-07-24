@@ -51,10 +51,7 @@ public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResource>(bizDeps)
     private static void SetData(WebResource set)
     {
         DoRemergeData(set);
-        foreach (var dt in set._WebResourceInfo)
-        {
-            SetYoutubeUrl(dt);
-        }
+        foreach (var dt in set._WebResourceInfo) SetYoutubeUrl(dt);
     }
     /// <summary>
     /// 自動轉譯Youtube短網址

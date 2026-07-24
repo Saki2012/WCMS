@@ -98,39 +98,22 @@
                     foreach (var pair in pairs)
                     {
                         var kv = pair.Split('=', 2);
-                        if (kv.Length == 2 &&
-                            kv[0].Equals("v", StringComparison.OrdinalIgnoreCase) &&
-                            !string.IsNullOrWhiteSpace(kv[1]))
-                        {
-                            return Uri.UnescapeDataString(kv[1]);
-                        }
+                        if (kv.Length == 2 && kv[0].Equals("v", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(kv[1])) return Uri.UnescapeDataString(kv[1]);
                     }
                 }
             }
 
             // 3) /embed/VIDEOID
-            if (parts[0].Equals("embed", StringComparison.OrdinalIgnoreCase) && parts.Length >= 2)
-            {
-                return parts[1];
-            }
+            if (parts[0].Equals("embed", StringComparison.OrdinalIgnoreCase) && parts.Length >= 2) return parts[1];
 
             // 4) /v/VIDEOID
-            if (parts[0].Equals("v", StringComparison.OrdinalIgnoreCase) && parts.Length >= 2)
-            {
-                return parts[1];
-            }
+            if (parts[0].Equals("v", StringComparison.OrdinalIgnoreCase) && parts.Length >= 2) return parts[1];
 
             // 5) /shorts/VIDEOID
-            if (parts[0].Equals("shorts", StringComparison.OrdinalIgnoreCase) && parts.Length >= 2)
-            {
-                return parts[1];
-            }
+            if (parts[0].Equals("shorts", StringComparison.OrdinalIgnoreCase) && parts.Length >= 2) return parts[1];
 
             // 6) /live/VIDEOID
-            if (parts[0].Equals("live", StringComparison.OrdinalIgnoreCase) && parts.Length >= 2)
-            {
-                return parts[1];
-            }
+            if (parts[0].Equals("live", StringComparison.OrdinalIgnoreCase) && parts.Length >= 2) return parts[1];
 
             return null;
         }

@@ -15,10 +15,7 @@ public static partial class LibData
     {
         int len = vals.Length;
         string[] qVals = new string[len];
-        for (int i = 0; i < len; i++)
-        {
-            qVals[i] = vals[i].Quote();
-        }
+        for (int i = 0; i < len; i++) qVals[i] = vals[i].Quote();
         return string.Format(str, qVals);
     }
     /// <summary>
@@ -117,8 +114,7 @@ public static partial class LibData
     {
         var x = s.Replace("_", "");
         if (x.Length == 0) return s;
-        x = Regex.Replace(x, "([A-Z])([A-Z]+)($|[A-Z])",
-            m => m.Groups[1].Value + m.Groups[2].Value.ToLower() + m.Groups[3].Value);
+        x = Regex.Replace(x, "([A-Z])([A-Z]+)($|[A-Z])", m => m.Groups[1].Value + m.Groups[2].Value.ToLower() + m.Groups[3].Value);
         return char.ToLower(x[0]) + x.Substring(1);
     }
     /// <summary>
@@ -148,10 +144,7 @@ public static partial class LibData
             while (c == ' ')
             {
                 int num = rd.Next(48, 122);
-                if (num >= 48 && num <= 57 || num >= 65 && num <= 90 || num >= 97 && num <= 122)
-                {
-                    c = (char)num;
-                }
+                if (num >= 48 && num <= 57 || num >= 65 && num <= 90 || num >= 97 && num <= 122) c = (char)num;
             }
             result += c.ToString();
         }

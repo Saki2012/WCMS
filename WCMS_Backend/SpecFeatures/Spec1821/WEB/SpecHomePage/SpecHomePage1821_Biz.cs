@@ -25,10 +25,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     /// <summary>
     /// 儲存前整理首頁 FormModel 並執行 1821 業務檢查。
     /// </summary>
-    protected override async Task BeforeUpdate(
-        SpecHomePage1821 data,
-        FuncAction act,
-        CancellationToken ct = default)
+    protected override async Task BeforeUpdate(SpecHomePage1821 data, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(data, act, ct);
         if (act is not (FuncAction.Create or FuncAction.Update)) return;

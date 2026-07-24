@@ -12,10 +12,7 @@ namespace WCMS.SysCore.FeatureDriver.Biz.Operations.Write;
 /// <summary>
 /// 解析與遍歷 Form Aggregate 內的 Root、Detail 與 SubDetail。
 /// </summary>
-internal sealed class FormGraphCollector<TFormModel>(
-    FormGraphRepoScope<TFormModel> graphRepo,
-    ModelTypeMetadataCache modelMetadata,
-    PropertyAccessorCache propertyAccessor)
+internal sealed class FormGraphCollector<TFormModel>(FormGraphRepoScope<TFormModel> graphRepo, ModelTypeMetadataCache modelMetadata, PropertyAccessorCache propertyAccessor)
     where TFormModel : class
 {
     #region Property
@@ -54,8 +51,7 @@ internal sealed class FormGraphCollector<TFormModel>(
     /// <summary>
     /// 依型別收集聚合內所有 Detail / SubDetail 資料。
     /// </summary>
-    internal Dictionary<Type, List<object>> CollectDetailItemsByType(
-        object source)
+    internal Dictionary<Type, List<object>> CollectDetailItemsByType(object source)
     {
         Dictionary<Type, List<object>> result = [];
         foreach (object item in CollectDetailItems(source))
@@ -82,74 +78,38 @@ internal sealed class FormGraphCollector<TFormModel>(
     /// <summary>
     /// 依 Form Model 與 InverseProperty 規則遞迴收集 Graph 集合。
     /// </summary>
-    private void CollectDetailListsCore(
-        object source,
-        List<(string Name, IList Items)> result,
-        HashSet<object> visitedModels,
-        HashSet<object> visitedLists)
+    private void CollectDetailListsCore(object source, List<(string Name, IList Items)> result, HashSet<object> visitedModels, HashSet<object> visitedLists)
     {
         if (source == null || !visitedModels.Add(source)) return;
         bool isFormContainer = source.GetType() == typeof(TFormModel)
             && source is not DbModel;
         foreach (PropertyInfo prop in ModelMetadata.GetProperties(source.GetType()))
-            CollectProperty(
-                source,
-                prop,
-                isFormContainer,
-                result,
-                visitedModels,
-                visitedLists);
+            CollectProperty(source, prop, isFormContainer, result, visitedModels, visitedLists);
     }
     /// <summary>
     /// 收集單一 Graph Property，並繼續向下遍歷。
     /// </summary>
-    private void CollectProperty(
-        object source,
-        PropertyInfo prop,
-        bool isFormContainer,
-        List<(string Name, IList Items)> result,
-        HashSet<object> visitedModels,
-        HashSet<object> visitedLists)
+    private void CollectProperty(object source, PropertyInfo prop, bool isFormContainer, List<(string Name, IList Items)> result, HashSet<object> visitedModels, HashSet<object> visitedLists)
     {
         Type? childType = GetGraphPropertyType(prop);
         if (childType == null || !GraphRepo.ContainsRepo(childType)) return;
         object? value = PropertyAccessor.Get(source, prop.Name);
-        if (value is IList list
-            && (isFormContainer
-                || prop.IsDefined(typeof(InversePropertyAttribute), true)))
+        if (value is IList list && (isFormContainer || prop.IsDefined(typeof(InversePropertyAttribute), true)))
         {
-            CollectList(
-                prop.Name,
-                list,
-                result,
-                visitedModels,
-                visitedLists);
+            CollectList(prop.Name, list, result, visitedModels, visitedLists);
             return;
         }
         if (isFormContainer && value is DbModel childModel)
-            CollectDetailListsCore(
-                childModel,
-                result,
-                visitedModels,
-                visitedLists);
+            CollectDetailListsCore(childModel, result, visitedModels, visitedLists);
     }
     /// <summary>
     /// 加入一個 Detail 集合並遞迴處理集合內容。
     /// </summary>
-    private void CollectList(
-        string name,
-        IList list,
-        List<(string Name, IList Items)> result,
-        HashSet<object> visitedModels,
-        HashSet<object> visitedLists)
+    private void CollectList(string name, IList list, List<(string Name, IList Items)> result, HashSet<object> visitedModels, HashSet<object> visitedLists)
     {
         if (visitedLists.Add(list)) result.Add((name, list));
         foreach (object item in list)
-            CollectDetailListsCore(
-                item,
-                result,
-                visitedModels,
-                visitedLists);
+            CollectDetailListsCore(item, result, visitedModels, visitedLists);
     }
     /// <summary>
     /// 取得 Property 對應的 DbModel 或集合元素型別。

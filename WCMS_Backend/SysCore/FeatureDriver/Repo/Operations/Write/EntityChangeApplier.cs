@@ -9,11 +9,7 @@ namespace WCMS.SysCore.FeatureDriver.Repo.Operations.Write;
 /// <summary>
 /// 將新 Entity 的可更新 Scalar 差異套用至目前 Tracked Entity。
 /// </summary>
-public sealed class EntityChangeApplier<TDbModel>(
-    ApplicationDbContext dataAccess,
-    PropertyAccessorCache propertyAccessor,
-    ModelTypeMetadataCache modelMetadata,
-    EfRepositoryMetadataCache repositoryMetadata)
+public sealed class EntityChangeApplier<TDbModel>(ApplicationDbContext dataAccess, PropertyAccessorCache propertyAccessor, ModelTypeMetadataCache modelMetadata, EfRepositoryMetadataCache repositoryMetadata)
     where TDbModel : DbModel
 {
     #region Property
@@ -43,9 +39,7 @@ public sealed class EntityChangeApplier<TDbModel>(
     /// <summary>
     /// 以 CLR Setter 與 EF Metadata 判斷欄位是否可由一般 Update 覆寫。
     /// </summary>
-    private static bool CanApply(
-        PropertyInfo property,
-        EfRepositoryMetadataCache.EntityMap entityMap)
+    private static bool CanApply(PropertyInfo property, EfRepositoryMetadataCache.EntityMap entityMap)
     {
         if (!property.CanWrite) return false;
         return entityMap.CanUpdateScalar(property.Name);
@@ -53,10 +47,7 @@ public sealed class EntityChangeApplier<TDbModel>(
     /// <summary>
     /// 寫入單一欄位差異並標記為已修改。
     /// </summary>
-    private void ApplyPropertyChange(
-        TDbModel oldData,
-        TDbModel newData,
-        PropertyInfo property)
+    private void ApplyPropertyChange(TDbModel oldData, TDbModel newData, PropertyInfo property)
     {
         object? oldValue = PropertyAccessor.Get(oldData, property.Name);
         object? newValue = PropertyAccessor.Get(newData, property.Name);

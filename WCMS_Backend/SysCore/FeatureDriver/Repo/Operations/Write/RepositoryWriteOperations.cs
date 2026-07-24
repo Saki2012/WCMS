@@ -39,10 +39,7 @@ public sealed class RepositoryWriteOperations<TDbModel>(
     /// <summary>
     /// 解析 Tracked Entity 並套用可更新 Scalar 差異。
     /// </summary>
-    internal async Task UpdateAsync(
-        TDbModel oldData,
-        TDbModel newData,
-        CancellationToken ct)
+    internal async Task UpdateAsync(TDbModel oldData, TDbModel newData, CancellationToken ct)
     {
         EnsureFormDetailIdentity(newData);
         TDbModel trackedData = await TrackedEntityResolver.ResolveAsync(oldData, ct);

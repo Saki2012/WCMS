@@ -14,11 +14,7 @@ public sealed class LibPermissionChecker(IPermissionCache permissionCache)
     /// <summary>
     /// 檢查使用者是否具備指定程式動作權限。
     /// </summary>
-    public async Task<bool> HasPermissionAsync(
-        string userId,
-        string progId,
-        FuncAction requiredAct,
-        CancellationToken ct)
+    public async Task<bool> HasPermissionAsync(string userId, string progId, FuncAction requiredAct, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(progId)) return false;
         if (requiredAct == FuncAction.None) return true;

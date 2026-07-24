@@ -8,10 +8,7 @@ namespace WCMS.SysCore.FeatureDriver.Repo;
 /// <summary>
 /// 提供 DB Model Repository 的統一公開入口，實際讀寫流程交由 Operations 處理。
 /// </summary>
-public class BasicRepository<TDbModel>(
-    ApplicationDbContext dataAccess,
-    RepositoryQueryOperations<TDbModel> queryOperations,
-    RepositoryWriteOperations<TDbModel> writeOperations)
+public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess, RepositoryQueryOperations<TDbModel> queryOperations, RepositoryWriteOperations<TDbModel> writeOperations)
     where TDbModel : DbModel
 {
     #region Property
@@ -33,28 +30,21 @@ public class BasicRepository<TDbModel>(
     /// <summary>
     /// 將單一 Entity 加入目前 DbContext。
     /// </summary>
-    public async Task CreateAsync(
-        TDbModel newData,
-        CancellationToken ct = default)
+    public async Task CreateAsync(TDbModel newData, CancellationToken ct = default)
     {
         await WriteOperations.CreateAsync(newData, ct);
     }
     /// <summary>
     /// 將新資料差異套用至目前 Entity。
     /// </summary>
-    public async Task UpdateAsync(
-        TDbModel oldData,
-        TDbModel newData,
-        CancellationToken ct = default)
+    public async Task UpdateAsync(TDbModel oldData, TDbModel newData, CancellationToken ct = default)
     {
         await WriteOperations.UpdateAsync(oldData, newData, ct);
     }
     /// <summary>
     /// 將單一 Entity 標記為刪除。
     /// </summary>
-    public async Task<bool> DeleteAsync(
-        TDbModel oldData,
-        CancellationToken ct = default)
+    public async Task<bool> DeleteAsync(TDbModel oldData, CancellationToken ct = default)
     {
         return await WriteOperations.DeleteAsync(oldData, ct);
     }
@@ -73,9 +63,7 @@ public class BasicRepository<TDbModel>(
     /// <summary>
     /// 依 EF Core Primary Key 與取消權杖查詢單一 Entity。
     /// </summary>
-    public async Task<TDbModel> FindByKeyAsync(
-        CancellationToken ct,
-        params object[] key)
+    public async Task<TDbModel> FindByKeyAsync(CancellationToken ct, params object[] key)
     {
         return await QueryOperations.FindByKeyAsync(key, ct);
     }
@@ -94,28 +82,21 @@ public class BasicRepository<TDbModel>(
     /// <summary>
     /// 依可選查詢設定取得 Entity 清單。
     /// </summary>
-    public async Task<IList<TDbModel>> QueryListAsync(
-        RepositoryQueryOptions? options = null,
-        CancellationToken ct = default)
+    public async Task<IList<TDbModel>> QueryListAsync(RepositoryQueryOptions? options = null, CancellationToken ct = default)
     {
         return await QueryOperations.QueryListAsync(options, ct);
     }
     /// <summary>
     /// 依條件取得 Entity 總筆數。
     /// </summary>
-    public async Task<int> QueryListCountAsync(
-        LambdaExpression? whereExpression = null,
-        CancellationToken ct = default)
+    public async Task<int> QueryListCountAsync(LambdaExpression? whereExpression = null, CancellationToken ct = default)
     {
         return await QueryOperations.QueryListCountAsync(whereExpression, ct);
     }
     /// <summary>
     /// 查詢指定字串欄位在目前前綴下的最大值。
     /// </summary>
-    public async Task<string?> QueryMaxStringValueByPrefixAsync(
-        LambdaExpression valueSelector,
-        string prefix,
-        CancellationToken ct = default)
+    public async Task<string?> QueryMaxStringValueByPrefixAsync(LambdaExpression valueSelector, string prefix, CancellationToken ct = default)
     {
         return await QueryOperations
             .QueryMaxStringValueByPrefixAsync(valueSelector, prefix, ct);

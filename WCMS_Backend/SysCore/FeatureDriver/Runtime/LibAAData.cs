@@ -553,10 +553,7 @@ public static class LibAAData
     private static string GetTextWithoutMedia(HtmlNode node)
     {
         var clone = node.CloneNode(true);
-        foreach (var item in GetNodes(clone, ".//img|.//svg|.//script|.//style"))
-        {
-            item.Remove();
-        }
+        foreach (var item in GetNodes(clone, ".//img|.//svg|.//script|.//style")) item.Remove();
         return NormalizeText(HtmlEntity.DeEntitize(clone.InnerText));
     }
     /// <summary>

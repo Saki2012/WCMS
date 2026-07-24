@@ -182,10 +182,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             var clr = et.ClrType;
 
             var navProps = clr.GetProperties()
-                .Where(p =>
-                    Attribute.IsDefined(p, typeof(ForeignKeyAttribute)) &&
-                    !IsCollectionType(p.PropertyType) &&
-                    p.PropertyType.IsClass && !p.PropertyType.IsAbstract);
+                .Where(p => Attribute.IsDefined(p, typeof(ForeignKeyAttribute)) && !IsCollectionType(p.PropertyType) && p.PropertyType.IsClass && !p.PropertyType.IsAbstract);
 
             foreach (var nav in navProps)
             {
@@ -230,10 +227,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         // 先把 FK 按 (Dependent, Principal) 分組，找出「同表多重 FK」
         var fkGroups = builder.Model.GetEntityTypes()
             .SelectMany(e => e.GetForeignKeys())
-            .Where(fk =>
-                !fk.IsOwnership &&
-                !fk.DeclaringEntityType.IsOwned() &&
-                !fk.PrincipalEntityType.IsOwned())
+            .Where(fk => !fk.IsOwnership && !fk.DeclaringEntityType.IsOwned() && !fk.PrincipalEntityType.IsOwned())
             .GroupBy(fk => new
             {
                 Dep = fk.DeclaringEntityType,   // dependent
@@ -306,10 +300,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         {
             foreach (var property in entityType.GetProperties())
             {
-                if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
-                {
-                    property.SetColumnType("datetime2(0)");
-                }
+                if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?)) property.SetColumnType("datetime2(0)");
             }
         }
     }
@@ -344,10 +335,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 if (under != null)
                 {
                     var specNullable = specs.FirstOrDefault(s => s.EnumType == under);
-                    if (specNullable != null)
-                    {
-                        ApplySpec(p, specNullable, isNullable: true);
-                    }
+                    if (specNullable != null) ApplySpec(p, specNullable, isNullable: true);
                 }
             }
         }

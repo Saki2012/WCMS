@@ -147,10 +147,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     /// </summary>
     private void CheckDynamicFields(SurveySubmitContext context)
     {
-        foreach (SurveyItem item in context.Survey._SurveyItem)
-        {
-            CheckDynamicField(context, item);
-        }
+        foreach (SurveyItem item in context.Survey._SurveyItem) CheckDynamicField(context, item);
     }
     /// <summary>
     /// 檢查單一動態欄位

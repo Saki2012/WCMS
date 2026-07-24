@@ -83,10 +83,7 @@ internal static class IdentityAccessSetup
     /// </summary>
     private static Task ResolveAccessTokenAsync(MessageReceivedContext context)
     {
-        if (string.IsNullOrEmpty(context.Token) && context.Request.Cookies.TryGetValue(SysParam.CookieNames.AccessToken, out var cookieToken))
-        {
-            context.Token = cookieToken;
-        }
+        if (string.IsNullOrEmpty(context.Token) && context.Request.Cookies.TryGetValue(SysParam.CookieNames.AccessToken, out var cookieToken)) context.Token = cookieToken;
         return Task.CompletedTask;
     }
 

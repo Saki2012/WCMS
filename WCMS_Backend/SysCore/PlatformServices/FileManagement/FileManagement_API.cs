@@ -287,10 +287,7 @@ public class FileManagementController : ApiDataController<FileManage>
         var safeFileName = BuildFileName(file, fileName);
         var contentType = ResolveContentType(file, safeFileName);
         // 執行 function：PDF 走動態改寫 title 的預覽流程
-        if (IsPdfFile(file))
-        {
-            return BuildPdfPreviewResult(physicalPath, safeFileName, isPublic);
-        }
+        if (IsPdfFile(file)) return BuildPdfPreviewResult(physicalPath, safeFileName, isPublic);
         // 執行 function：非 PDF 維持原本流程
         ApplyPreviewHeaders(file, safeFileName, isPublic);
         // return

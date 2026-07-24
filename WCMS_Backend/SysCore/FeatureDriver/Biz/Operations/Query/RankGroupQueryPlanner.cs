@@ -11,10 +11,7 @@ internal static class RankGroupQueryPlanner
     /// <summary>
     /// 建立所有 RankGroup 與 Rest 查詢分段。
     /// </summary>
-    internal static IReadOnlyList<RankSegment> BuildSegments(
-        string baseCondition,
-        IReadOnlyList<RankGroupsSpec> rankGroups,
-        IReadOnlyList<OrderBySpec>? baseOrderBy)
+    internal static IReadOnlyList<RankSegment> BuildSegments(string baseCondition, IReadOnlyList<RankGroupsSpec> rankGroups, IReadOnlyList<OrderBySpec>? baseOrderBy)
     {
         RankGroupPlan plan = BuildPlan(baseCondition, rankGroups);
         return CreateSegments(plan, rankGroups, baseOrderBy);
@@ -25,9 +22,7 @@ internal static class RankGroupQueryPlanner
     /// <summary>
     /// 建立每個 Group 與 Rest 的 Where 條件。
     /// </summary>
-    private static RankGroupPlan BuildPlan(
-        string baseCondition,
-        IReadOnlyList<RankGroupsSpec> groups)
+    private static RankGroupPlan BuildPlan(string baseCondition, IReadOnlyList<RankGroupsSpec> groups)
     {
         List<string> groupWhereList = [];
         List<string> groupOrList = [];
@@ -39,11 +34,7 @@ internal static class RankGroupQueryPlanner
     /// <summary>
     /// 加入單一 Group，並排除前面已命中的 Group。
     /// </summary>
-    private static void AppendGroupCondition(
-        string baseCondition,
-        RankGroupsSpec group,
-        List<string> previousGroups,
-        List<string> result)
+    private static void AppendGroupCondition(string baseCondition, RankGroupsSpec group, List<string> previousGroups, List<string> result)
     {
         if (string.IsNullOrWhiteSpace(group.Condition)) return;
         string where = MergeAnd(baseCondition, group.Condition);
@@ -55,9 +46,7 @@ internal static class RankGroupQueryPlanner
     /// <summary>
     /// 建立未命中任何 RankGroup 的 Rest 條件。
     /// </summary>
-    private static string BuildRestWhere(
-        string baseCondition,
-        IReadOnlyList<string> groups)
+    private static string BuildRestWhere(string baseCondition, IReadOnlyList<string> groups)
     {
         if (groups.Count == 0) return baseCondition;
         return MergeAnd(baseCondition, NotExpr(JoinOr(groups)));
@@ -65,18 +54,12 @@ internal static class RankGroupQueryPlanner
     /// <summary>
     /// 將條件計畫轉換為可執行的查詢分段。
     /// </summary>
-    private static IReadOnlyList<RankSegment> CreateSegments(
-        RankGroupPlan plan,
-        IReadOnlyList<RankGroupsSpec> rankGroups,
-        IReadOnlyList<OrderBySpec>? baseOrderBy)
+    private static IReadOnlyList<RankSegment> CreateSegments(RankGroupPlan plan, IReadOnlyList<RankGroupsSpec> rankGroups, IReadOnlyList<OrderBySpec>? baseOrderBy)
     {
-        List<RankGroupsSpec> groups = [.. rankGroups.Where(
-            item => !string.IsNullOrWhiteSpace(item.Condition))];
+        List<RankGroupsSpec> groups = [.. rankGroups.Where(item => !string.IsNullOrWhiteSpace(item.Condition))];
         List<RankSegment> result = [];
         for (int index = 0; index < plan.GroupWhereList.Count; index++)
-            result.Add(new RankSegment(
-                plan.GroupWhereList[index],
-                groups[index].OrderBy ?? baseOrderBy));
+            result.Add(new RankSegment(plan.GroupWhereList[index], groups[index].OrderBy ?? baseOrderBy));
         result.Add(new RankSegment(plan.RestWhere, baseOrderBy));
         return result;
     }
@@ -109,15 +92,11 @@ internal static class RankGroupQueryPlanner
     /// <summary>
     /// RankGroup 條件計畫。
     /// </summary>
-    private sealed record RankGroupPlan(
-        IReadOnlyList<string> GroupWhereList,
-        string RestWhere);
+    private sealed record RankGroupPlan(IReadOnlyList<string> GroupWhereList, string RestWhere);
     #endregion
 }
 
 /// <summary>
 /// 單一 RankGroup 查詢分段。
 /// </summary>
-internal sealed record RankSegment(
-    string Where,
-    IReadOnlyList<OrderBySpec>? OrderBy);
+internal sealed record RankSegment(string Where, IReadOnlyList<OrderBySpec>? OrderBy);

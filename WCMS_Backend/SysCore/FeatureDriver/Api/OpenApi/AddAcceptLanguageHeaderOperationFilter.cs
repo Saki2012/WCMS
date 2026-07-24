@@ -16,9 +16,7 @@ public sealed class AddAcceptLanguageHeaderOperationFilter : IOperationFilter
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
         operation.Parameters ??= [];
-        bool exists = operation.Parameters.Any(parameter =>
-            parameter.In == ParameterLocation.Header
-            && parameter.Name == SysParam.HttpHeaders.AcceptLanguage);
+        bool exists = operation.Parameters.Any(parameter => parameter.In == ParameterLocation.Header && parameter.Name == SysParam.HttpHeaders.AcceptLanguage);
         if (exists) return;
         operation.Parameters.Add(BuildAcceptLanguageParameter());
     }

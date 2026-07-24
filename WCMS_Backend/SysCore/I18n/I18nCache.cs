@@ -201,8 +201,7 @@ public sealed class I18nCache(CacheService cacheService, ModelTypeMetadataCache 
     private Type? FindEnumType(string enumTypeName)
     {
         string normalizedName = enumTypeName.Trim('[', ']', '"');
-        return GetDomainTypes().FirstOrDefault(type => type.IsEnum
-            && (type.Name == normalizedName || type.FullName == normalizedName));
+        return GetDomainTypes().FirstOrDefault(type => type.IsEnum && (type.Name == normalizedName || type.FullName == normalizedName));
     }
     /// <summary>
     /// 建立指定 Enum 的多語系選項。

@@ -100,9 +100,7 @@ public sealed class DistributedCacheStore(IOptions<CacheSettings> settings, ISer
     {
         try
         {
-            return JsonSerializer.Deserialize<CacheEnvelope<T>>(
-                raw,
-                _jsonOptions);
+            return JsonSerializer.Deserialize<CacheEnvelope<T>>(raw, _jsonOptions);
         }
         catch (JsonException)
         {

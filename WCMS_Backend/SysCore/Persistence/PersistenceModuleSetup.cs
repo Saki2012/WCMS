@@ -54,10 +54,7 @@ internal static class PersistenceModuleSetup
 /// <summary>
 /// 初始化資料庫 SpecCode 與 WCMS 基礎 UDF。
 /// </summary>
-internal sealed class PersistenceStartupInitializer(
-    ApplicationDbContext db,
-    IConfiguration configuration,
-    IWebHostEnvironment environment) : IApplicationStartupTask
+internal sealed class PersistenceStartupInitializer(ApplicationDbContext db, IConfiguration configuration, IWebHostEnvironment environment) : IApplicationStartupTask
 {
     #region Property
     /// <summary>

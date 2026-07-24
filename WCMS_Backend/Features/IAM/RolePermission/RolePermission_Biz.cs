@@ -4,10 +4,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 
 namespace WCMS.Features.IAM.RolePermission;
 
-public class RolePermissionBiz(
-    BizDeps bizDeps,
-    RolePermissionCatalogCache catalogCache,
-    IPermissionCache permissionCache) : BizService<RoleData>(bizDeps)
+public class RolePermissionBiz(BizDeps bizDeps, RolePermissionCatalogCache catalogCache, IPermissionCache permissionCache) : BizService<RoleData>(bizDeps)
 {
     #region Property
     private RolePermissionCatalogCache CatalogCache { get; } = catalogCache;

@@ -15,9 +15,7 @@ internal static class StringForeignKeyValueNormalizer
     /// <summary>
     /// 正規化尚未寫入 Repository 的 Aggregate Entity。
     /// </summary>
-    internal static void NormalizeEntities(
-        DbContext db,
-        IEnumerable<object> entities)
+    internal static void NormalizeEntities(DbContext db, IEnumerable<object> entities)
     {
         HashSet<object> visited = new(ReferenceEqualityComparer.Instance);
         foreach (object entity in entities)
@@ -66,10 +64,7 @@ internal static class StringForeignKeyValueNormalizer
     /// <summary>
     /// 以 CLR Property 讀寫尚未進入 ChangeTracker 的外鍵值。
     /// </summary>
-    private static void NormalizeClrProperty(
-        IEntityType entityType,
-        IProperty property,
-        object entity)
+    private static void NormalizeClrProperty(IEntityType entityType, IProperty property, object entity)
     {
         PropertyInfo? propertyInfo = property.PropertyInfo;
         if (propertyInfo?.CanRead != true || propertyInfo.CanWrite != true) return;
@@ -102,10 +97,7 @@ internal static class StringForeignKeyValueNormalizer
     /// <summary>
     /// 依 Nullable 與字元安全規則正規化單一字串外鍵。
     /// </summary>
-    private static string? NormalizeValue(
-        IEntityType entityType,
-        IProperty property,
-        string? value)
+    private static string? NormalizeValue(IEntityType entityType, IProperty property, string? value)
     {
         if (value == null)
         {
@@ -142,15 +134,9 @@ internal static class StringForeignKeyValueNormalizer
     /// <summary>
     /// 建立不含原始輸入值的安全驗證例外。
     /// </summary>
-    private static ForeignKeyValueValidationException CreateValidationException(
-        IEntityType entityType,
-        IProperty property,
-        string reason)
+    private static ForeignKeyValueValidationException CreateValidationException(IEntityType entityType, IProperty property, string reason)
     {
-        return new ForeignKeyValueValidationException(
-            entityType.ClrType.Name,
-            property.Name,
-            reason);
+        return new ForeignKeyValueValidationException(entityType.ClrType.Name, property.Name, reason);
     }
     #endregion
 }
@@ -175,10 +161,7 @@ internal sealed class ForeignKeyValueValidationException : InvalidOperationExcep
     /// <summary>
     /// 建立不攜帶原始輸入值的外鍵驗證例外。
     /// </summary>
-    internal ForeignKeyValueValidationException(
-        string entityName,
-        string propertyName,
-        string reason)
+    internal ForeignKeyValueValidationException(string entityName, string propertyName, string reason)
         : base($"Invalid string foreign key: {entityName}.{propertyName}. {reason}.")
     {
         EntityName = entityName;

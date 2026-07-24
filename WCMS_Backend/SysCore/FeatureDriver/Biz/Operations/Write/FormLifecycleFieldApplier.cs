@@ -8,9 +8,7 @@ namespace WCMS.SysCore.FeatureDriver.Biz.Operations.Write;
 /// <summary>
 /// 套用 Form Aggregate 的建立、修改、作廢與保留欄位。
 /// </summary>
-internal sealed class FormLifecycleFieldApplier<TFormModel>(
-    Func<User_DTO> operateUserAccessor,
-    PropertyAccessorCache propertyAccessor)
+internal sealed class FormLifecycleFieldApplier<TFormModel>(Func<User_DTO> operateUserAccessor, PropertyAccessorCache propertyAccessor)
     where TFormModel : class
 {
     #region Property

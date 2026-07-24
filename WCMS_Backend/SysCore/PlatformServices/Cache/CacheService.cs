@@ -36,11 +36,7 @@ public sealed class CacheService(ICacheRoute cacheRoute, IOptions<CacheSettings>
     /// <summary>
     /// 讀取 Cache，未命中時執行實體資料來源並回填。
     /// </summary>
-    public async Task<T?> GetOrCreateAsync<T>(
-        string key,
-        CacheOptions options,
-        Func<CancellationToken, Task<T?>> sourceFactory,
-        CancellationToken ct = default)
+    public async Task<T?> GetOrCreateAsync<T>(string key, CacheOptions options, Func<CancellationToken, Task<T?>> sourceFactory, CancellationToken ct = default)
     {
         string cacheKey = BuildKey(key);
         CacheReadResult<T> cached = await _cacheRoute.GetAsync<T>(cacheKey, options, ct);

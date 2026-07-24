@@ -68,25 +68,13 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 嘗試累加前台公開下載次數（含 Recent 去重）
     /// </summary>
-    public async Task TryCountPublicDownload(
-        string internalId,
-        string visitorKey,
-        string refererUrl,
-        CancellationToken ct = default)
+    public async Task TryCountPublicDownload(string internalId, string visitorKey, string refererUrl, CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
-        if (string.IsNullOrWhiteSpace(internalId)
-            || string.IsNullOrWhiteSpace(visitorKey)) return;
+        if (string.IsNullOrWhiteSpace(internalId) || string.IsNullOrWhiteSpace(visitorKey)) return;
         DateTime now = DateTime.UtcNow;
         string safeRefererUrl = refererUrl?.Trim() ?? string.Empty;
-        await ExecTransactionAsync(
-            token => CountPublicDownloadInTransactionAsync(
-                internalId,
-                visitorKey,
-                safeRefererUrl,
-                now,
-                token),
-            ct: ct);
+        await ExecTransactionAsync(token => CountPublicDownloadInTransactionAsync(internalId, visitorKey, safeRefererUrl, now, token), ct: ct);
     }
     /// <summary>
     /// 確認檔案是否可以預覽
@@ -178,10 +166,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     internal static string BuildPhysicalFilePath(FileManage filemanage)
     {
         string path = filemanage.Path ?? string.Empty;
-        return BuildPhysicalFilePath(
-            path,
-            filemanage.InternalId,
-            filemanage.FileExtension);
+        return BuildPhysicalFilePath(path, filemanage.InternalId, filemanage.FileExtension);
     }
     #endregion
 
@@ -236,26 +221,11 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 在交易內完成公開下載去重與次數累加。
     /// </summary>
-    private async Task CountPublicDownloadInTransactionAsync(
-        string internalId,
-        string visitorKey,
-        string refererUrl,
-        DateTime now,
-        CancellationToken ct)
+    private async Task CountPublicDownloadInTransactionAsync(string internalId, string visitorKey, string refererUrl, DateTime now, CancellationToken ct)
     {
-        FileManage_DownloadRecent? recent = await GetDownloadRecentAsync(
-            internalId,
-            visitorKey,
-            ct);
-        if (recent != null
-            && !ShouldCountPublicDownload(recent.LastCountTime, now)) return;
-        await SaveDownloadRecentAsync(
-            recent,
-            internalId,
-            visitorKey,
-            refererUrl,
-            now,
-            ct);
+        FileManage_DownloadRecent? recent = await GetDownloadRecentAsync(internalId, visitorKey, ct);
+        if (recent != null && !ShouldCountPublicDownload(recent.LastCountTime, now)) return;
+        await SaveDownloadRecentAsync(recent, internalId, visitorKey, refererUrl, now, ct);
         await IncreasePublicDownloadCountAsync(internalId, ct);
     }
     /// <summary>
@@ -283,13 +253,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 新增或更新 DownloadRecent
     /// </summary>
-    private async Task SaveDownloadRecentAsync(
-        FileManage_DownloadRecent? currentRecent,
-        string internalId,
-        string visitorKey,
-        string refererUrl,
-        DateTime now,
-        CancellationToken ct = default)
+    private async Task SaveDownloadRecentAsync(FileManage_DownloadRecent? currentRecent, string internalId, string visitorKey, string refererUrl, DateTime now, CancellationToken ct = default)
     {
         // 執行 function
         ct.ThrowIfCancellationRequested();
@@ -306,12 +270,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 新增 DownloadRecent
     /// </summary>
-    private async Task CreateDownloadRecentAsync(
-        string internalId,
-        string visitorKey,
-        string refererUrl,
-        DateTime now,
-        CancellationToken ct = default)
+    private async Task CreateDownloadRecentAsync(string internalId, string visitorKey, string refererUrl, DateTime now, CancellationToken ct = default)
     {
         // 宣告變數
         dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(FileManage_DownloadRecent));
@@ -333,11 +292,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 更新 DownloadRecent
     /// </summary>
-    private async Task UpdateDownloadRecentAsync(
-        FileManage_DownloadRecent currentRecent,
-        string refererUrl,
-        DateTime now,
-        CancellationToken ct = default)
+    private async Task UpdateDownloadRecentAsync(FileManage_DownloadRecent currentRecent, string refererUrl, DateTime now, CancellationToken ct = default)
     {
         // 宣告變數
         dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(FileManage_DownloadRecent));
@@ -829,10 +784,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
             set._FileManage_SyncInfo.Add(curSyncInfo);
             string srcPath = header.Path;
             string srcFullPath = BuildPhysicalFilePath(header);
-            string dstFullPath = BuildPhysicalFilePath(
-                dstPath,
-                header.InternalId,
-                header.FileExtension);
+            string dstFullPath = BuildPhysicalFilePath(dstPath, header.InternalId, header.FileExtension);
             header.FileStatus = FileStatus.Success;
             header.Path = dstPath;
             curSyncInfo.SrcFullPath = LibData.Merge("/", false, srcPath, $"{header.InternalId}.{header.FileExtension}");
@@ -931,10 +883,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 將解壓後的檔案去重、搬移並建立檔案管理資料。
     /// </summary>
-    private async Task SaveExtractedFilesAsync(
-        IReadOnlyList<ZipExtractedFile> files,
-        string destinationPath,
-        string label)
+    private async Task SaveExtractedFilesAsync(IReadOnlyList<ZipExtractedFile> files, string destinationPath, string label)
     {
         Dictionary<string, FileManage> filesByHash = [];
         foreach (ZipExtractedFile file in files)
@@ -945,11 +894,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 登記單一解壓檔案，重複內容沿用既有主檔。
     /// </summary>
-    private static void RegisterImportedFile(
-        ZipExtractedFile file,
-        string destinationPath,
-        string label,
-        Dictionary<string, FileManage> filesByHash)
+    private static void RegisterImportedFile(ZipExtractedFile file, string destinationPath, string label, Dictionary<string, FileManage> filesByHash)
     {
         string hash = LibData.GetFileSHA256(file.FullPath);
         FileStatus status = FileStatus.Skipped;
@@ -964,11 +909,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 將解壓檔案移至正式匯入路徑並建立主檔資料。
     /// </summary>
-    private static FileManage CreateImportedFile(
-        ZipExtractedFile file,
-        string destinationPath,
-        string label,
-        string hash)
+    private static FileManage CreateImportedFile(ZipExtractedFile file, string destinationPath, string label, string hash)
     {
         string internalId = Guid.NewGuid().ToString();
         (string extension, string mimeType) = ReadImportFileMeta(file);
@@ -976,8 +917,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
         Directory.CreateDirectory(directory);
         string destination = Path.Combine(directory, $"{internalId}.{extension}");
         File.Move(file.FullPath, destination);
-        return BuildImportedFile(internalId, file.EntryName, directory, extension,
-            mimeType, hash, file.Length, label);
+        return BuildImportedFile(internalId, file.EntryName, directory, extension, mimeType, hash, file.Length, label);
     }
     /// <summary>
     /// 讀取解壓檔案的實際格式與 MIME Type。
@@ -1028,15 +968,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 建立匯入檔案主檔資料。
     /// </summary>
-    private static FileManage BuildImportedFile(
-        string internalId,
-        string entryName,
-        string directory,
-        string extension,
-        string mimeType,
-        string hash,
-        long size,
-        string label)
+    private static FileManage BuildImportedFile(string internalId, string entryName, string directory, string extension, string mimeType, string hash, long size, string label)
     {
         string fileName = Path.GetFileNameWithoutExtension(entryName);
         return new FileManage
@@ -1082,10 +1014,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 依指定目錄、識別碼與副檔名建立實體檔案完整路徑。
     /// </summary>
-    private static string BuildPhysicalFilePath(
-        string path,
-        string internalId,
-        string fileExtension)
+    private static string BuildPhysicalFilePath(string path, string internalId, string fileExtension)
     {
         string extension = (fileExtension ?? string.Empty)
             .Trim()

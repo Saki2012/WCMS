@@ -39,10 +39,7 @@ public sealed class RolePermissionCatalogCache(CacheService cacheService, IActio
         string key = BuildCatalogCacheKey();
         CacheReadResult<IReadOnlyList<RolePermissionCatalogModule>> cached = CacheService.GetLocal<IReadOnlyList<RolePermissionCatalogModule>>(key, RuntimeOptions);
         if (cached.IsHit) return cached.Value ?? [];
-        lock (_catalogLock)
-        {
-            return GetOrCreateLocal(key, RuntimeOptions, BuildCatalog) ?? [];
-        }
+        lock (_catalogLock) return GetOrCreateLocal(key, RuntimeOptions, BuildCatalog) ?? [];
     }
     /// <summary>
     /// 清除目前 Spec 的角色權限功能目錄結構。
@@ -50,10 +47,7 @@ public sealed class RolePermissionCatalogCache(CacheService cacheService, IActio
     internal void Clear()
     {
         string key = BuildCatalogCacheKey();
-        lock (_catalogLock)
-        {
-            RemoveLocal(key, RuntimeOptions);
-        }
+        lock (_catalogLock) RemoveLocal(key, RuntimeOptions);
     }
     #endregion
 

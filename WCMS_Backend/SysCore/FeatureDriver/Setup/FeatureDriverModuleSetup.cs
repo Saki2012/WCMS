@@ -64,10 +64,7 @@ internal static class FeatureDriverModuleSetup
     {
         Type? service = FindClosedBizServiceType(implementation);
         if (service == null) return null;
-        return new BizRegistration(
-            service,
-            implementation,
-            implementation.Namespace ?? string.Empty);
+        return new BizRegistration(service, implementation, implementation.Namespace ?? string.Empty);
     }
     /// <summary>
     /// 從繼承鏈找出目前實作對應的封閉 BizService 型別。
@@ -75,12 +72,9 @@ internal static class FeatureDriverModuleSetup
     private static Type? FindClosedBizServiceType(Type implementation)
     {
         Type openBizType = typeof(BizService<>);
-        for (Type? current = implementation.BaseType;
-             current != null;
-             current = current.BaseType)
+        for (Type? current = implementation.BaseType; current != null; current = current.BaseType)
         {
-            if (current.IsGenericType
-                && current.GetGenericTypeDefinition() == openBizType)
+            if (current.IsGenericType && current.GetGenericTypeDefinition() == openBizType)
                 return current;
         }
         return null;
@@ -88,39 +82,27 @@ internal static class FeatureDriverModuleSetup
     /// <summary>
     /// 註冊標準 Features 內的 BizService。
     /// </summary>
-    private static void RegisterFeatureBizServices(
-        IServiceCollection services,
-        IEnumerable<BizRegistration> pairs)
+    private static void RegisterFeatureBizServices(IServiceCollection services, IEnumerable<BizRegistration> pairs)
     {
-        foreach (BizRegistration pair in pairs.Where(item =>
-            item.Namespace.StartsWith(
-                SysParam.NamespacePrefixes.Features,
-                StringComparison.Ordinal)))
+        foreach (BizRegistration pair in pairs.Where(item => item.Namespace.StartsWith(SysParam.NamespacePrefixes.Features, StringComparison.Ordinal)))
             services.AddScoped(pair.Service, pair.Implementation);
     }
     /// <summary>
     /// 註冊 SysCore 與非 Spec 範圍的 BizService。
     /// </summary>
-    private static void RegisterCoreBizServices(
-        IServiceCollection services,
-        IEnumerable<BizRegistration> pairs)
+    private static void RegisterCoreBizServices(IServiceCollection services, IEnumerable<BizRegistration> pairs)
     {
         foreach (BizRegistration pair in pairs.Where(item =>
-            !item.Namespace.StartsWith(
-                SysParam.NamespacePrefixes.Features,
-                StringComparison.Ordinal)
+            !item.Namespace.StartsWith(SysParam.NamespacePrefixes.Features, StringComparison.Ordinal)
             && !SpecSettings.IsSpecFeaturesNamespace(item.Namespace)))
             services.AddScoped(pair.Service, pair.Implementation);
     }
     /// <summary>
     /// 註冊目前啟用 Spec 內的 BizService。
     /// </summary>
-    private static void RegisterSpecBizServices(
-        IServiceCollection services,
-        IEnumerable<BizRegistration> pairs)
+    private static void RegisterSpecBizServices(IServiceCollection services, IEnumerable<BizRegistration> pairs)
     {
-        foreach (BizRegistration pair in pairs.Where(item =>
-            SpecSettings.IsCurrentSpecNamespace(item.Namespace)))
+        foreach (BizRegistration pair in pairs.Where(item => SpecSettings.IsCurrentSpecNamespace(item.Namespace)))
             services.AddScoped(pair.Service, pair.Implementation);
     }
     /// <summary>
@@ -149,9 +131,6 @@ internal static class FeatureDriverModuleSetup
     /// <summary>
     /// 保存 Biz DI 掃描結果。
     /// </summary>
-    private sealed record BizRegistration(
-        Type Service,
-        Type Implementation,
-        string Namespace);
+    private sealed record BizRegistration(Type Service, Type Implementation, string Namespace);
     #endregion
 }

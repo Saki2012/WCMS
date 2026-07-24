@@ -30,9 +30,7 @@ internal sealed class FormWriteOperations<TFormModel>(
     /// <summary>
     /// 建立 Form Aggregate Root 與所有 Detail / SubDetail。
     /// </summary>
-    internal async Task CreateAsync(
-        TFormModel data,
-        CancellationToken ct = default)
+    internal async Task CreateAsync(TFormModel data, CancellationToken ct = default)
     {
         DbModel rootModel = FormModelMetadataResolver.GetRootModel(data);
         await ((dynamic)GraphRepo.RootRepo).CreateAsync((dynamic)rootModel, ct);
@@ -43,10 +41,7 @@ internal sealed class FormWriteOperations<TFormModel>(
     /// <summary>
     /// 更新 Form Aggregate Root 與所有 Detail / SubDetail。
     /// </summary>
-    internal async Task UpdateAsync(
-        TFormModel oldData,
-        TFormModel newData,
-        CancellationToken ct = default)
+    internal async Task UpdateAsync(TFormModel oldData, TFormModel newData, CancellationToken ct = default)
     {
         KeyCoordinator.PreserveExistingKeys(oldData, newData);
         LifecycleFieldApplier.PreserveCreateInfo(oldData, newData);
@@ -59,9 +54,7 @@ internal sealed class FormWriteOperations<TFormModel>(
     /// <summary>
     /// 刪除 Form Aggregate Detail / SubDetail 與 Root。
     /// </summary>
-    internal async Task DeleteAsync(
-        TFormModel oldData,
-        CancellationToken ct = default)
+    internal async Task DeleteAsync(TFormModel oldData, CancellationToken ct = default)
     {
         IEnumerable<object> items = GraphCollector
             .CollectDetailItems(oldData)

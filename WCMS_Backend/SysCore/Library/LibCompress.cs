@@ -17,10 +17,7 @@ public static class LibCompress
 
         byte[] source = Encoding.UTF8.GetBytes(value);
         using MemoryStream output = new();
-        using (BrotliStream brotli = new(output, CompressionLevel.SmallestSize, leaveOpen: true))
-        {
-            brotli.Write(source);
-        }
+        using (BrotliStream brotli = new(output, CompressionLevel.SmallestSize, leaveOpen: true)) brotli.Write(source);
         return output.ToArray();
     }
     /// <summary>
