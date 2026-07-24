@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
-using WCMS.Features.WEB.Content;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.FeatureDriver.Biz.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Base;

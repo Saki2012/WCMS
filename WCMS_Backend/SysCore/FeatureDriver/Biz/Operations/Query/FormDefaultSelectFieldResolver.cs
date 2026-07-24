@@ -1,6 +1,7 @@
 using System.Collections;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
+using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Repo.Graph;
@@ -21,40 +22,56 @@ internal sealed class FormDefaultSelectFieldResolver<TFormModel>(FormGraphRepoSc
 
     #region Internal
     /// <summary>
-    /// 建立 Root Entity 完整 Graph 的預設查詢欄位。
+    /// 建立 QueryList 預設欄位，維持既有集合 Detail 展開規則。
     /// </summary>
     internal string[] Resolve()
     {
-        List<string> result = [];
-        AddFields(GraphRepo.RootDbModelType, string.Empty, result);
-        return [.. result.Distinct(StringComparer.Ordinal)];
+        return ResolveFields(includeReferenceDetails: false);
+    }
+    /// <summary>
+    /// 建立 QueryData 完整 Aggregate 欄位，包含一對一 Detail。
+    /// </summary>
+    internal string[] ResolveForQueryData()
+    {
+        return ResolveFields(includeReferenceDetails: true);
     }
     #endregion
 
     #region Private
     /// <summary>
-    /// 遞迴加入目前 Entity 的 Scalar 與 InverseProperty Detail 欄位。
+    /// 依查詢用途建立預設欄位並避免循環展開。
     /// </summary>
-    private void AddFields(Type modelType, string prefix, List<string> result)
+    private string[] ResolveFields(bool includeReferenceDetails)
     {
-        foreach (PropertyInfo property in ModelMetadata.GetProperties(modelType))
-            AddField(property, prefix, result);
+        List<string> result = [];
+        HashSet<Type> graphPath = [];
+        AddFields(GraphRepo.RootDbModelType, string.Empty, result, graphPath, includeReferenceDetails);
+        return [.. result.Distinct(StringComparer.Ordinal)];
     }
     /// <summary>
-    /// 加入單一 Scalar，或繼續展開 Detail Graph。
+    /// 遞迴加入目前 Entity 的 Scalar 與 Aggregate Detail 欄位。
     /// </summary>
-    private void AddField(PropertyInfo property, string prefix, List<string> result)
+    private void AddFields(Type modelType, string prefix, List<string> result, HashSet<Type> graphPath, bool includeReferenceDetails)
+    {
+        if (!graphPath.Add(modelType)) return;
+        foreach (PropertyInfo property in ModelMetadata.GetProperties(modelType))
+            AddField(property, prefix, result, graphPath, includeReferenceDetails);
+        graphPath.Remove(modelType);
+    }
+    /// <summary>
+    /// 加入單一 Scalar，或繼續展開 Aggregate Detail Graph。
+    /// </summary>
+    private void AddField(PropertyInfo property, string prefix, List<string> result, HashSet<Type> graphPath, bool includeReferenceDetails)
     {
         if (!property.CanWrite) return;
         Type? childType = GetGraphPropertyType(property);
         if (childType == null)
         {
-            if (IsSelectableScalar(property))
-                result.Add(prefix + property.Name);
+            if (IsSelectableScalar(property)) result.Add(prefix + property.Name);
             return;
         }
-        if (!IsSelectableDetail(property, childType)) return;
-        AddFields(childType, prefix + property.Name + ".", result);
+        if (!IsSelectableDetail(property, childType, includeReferenceDetails)) return;
+        AddFields(childType, prefix + property.Name + ".", result, graphPath, includeReferenceDetails);
     }
     /// <summary>
     /// 判斷 Property 是否為預設 Projection 可選取的 Scalar。
@@ -67,15 +84,23 @@ internal sealed class FormDefaultSelectFieldResolver<TFormModel>(FormGraphRepoSc
             && !property.IsDefined(typeof(NotMappedAttribute), true);
     }
     /// <summary>
-    /// 判斷 Navigation 是否為可展開的 Detail Collection。
+    /// 判斷 Navigation 是否為目前查詢可展開的 Aggregate Detail。
     /// </summary>
-    private bool IsSelectableDetail(PropertyInfo property, Type childType)
+    private bool IsSelectableDetail(PropertyInfo property, Type childType, bool includeReferenceDetails)
     {
-        bool isCollection = property.PropertyType != typeof(string)
-            && typeof(IEnumerable).IsAssignableFrom(property.PropertyType);
-        return isCollection
-            && property.IsDefined(typeof(InversePropertyAttribute), true)
-            && GraphRepo.ContainsRepo(childType);
+        if (!property.IsDefined(typeof(InversePropertyAttribute), true)) return false;
+        if (!LibApiFieldPolicyHelper.CanRead(property)) return false;
+        if (!GraphRepo.ContainsRepo(childType)) return false;
+        return includeReferenceDetails || IsCollection(property.PropertyType);
+    }
+    /// <summary>
+    /// 判斷型別是否為集合，但排除字串與位元組陣列。
+    /// </summary>
+    private static bool IsCollection(Type type)
+    {
+        return type != typeof(string)
+            && type != typeof(byte[])
+            && typeof(IEnumerable).IsAssignableFrom(type);
     }
     /// <summary>
     /// 取得 Property 對應的 DbModel 或集合元素型別。
@@ -84,8 +109,7 @@ internal sealed class FormDefaultSelectFieldResolver<TFormModel>(FormGraphRepoSc
     {
         Type propertyType = property.PropertyType;
         if (typeof(DbModel).IsAssignableFrom(propertyType)) return propertyType;
-        if (propertyType == typeof(string) || propertyType == typeof(byte[]))
-            return null;
+        if (propertyType == typeof(string) || propertyType == typeof(byte[])) return null;
         if (!typeof(IEnumerable).IsAssignableFrom(propertyType)) return null;
         Type? itemType = propertyType.IsArray
             ? propertyType.GetElementType()

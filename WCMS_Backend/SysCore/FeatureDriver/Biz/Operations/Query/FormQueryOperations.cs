@@ -51,7 +51,7 @@ internal sealed class FormQueryOperations<TFormModel>(
     {
         string condition = await GetPrimaryKeyConditionAsync(internalId, ct);
         if (condition.IsNullOrEmpty()) return default!;
-        IList roots = await QueryRawListAsync(RootDbModelType, DefaultSelectFieldResolver.Resolve(), condition, default, 0, 0, ct: ct);
+        IList roots = await QueryRawListAsync(RootDbModelType, DefaultSelectFieldResolver.ResolveForQueryData(), condition, default, 0, 0, ct: ct);
         return BuildFormModelList(roots).FirstOrDefault()!;
     }
     /// <summary>
