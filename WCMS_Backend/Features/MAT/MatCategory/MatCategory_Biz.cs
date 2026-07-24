@@ -16,9 +16,9 @@ public class MatCategoryBiz(BizDeps bizDeps) : CategoryBizBase<MatCategoryFormMo
 {
     #region Protected Virtual
     /// <summary>
-    /// 限制目前表單只管理 MAT 類別。
+    /// 限制目前表單只管理 Material 功能使用的 MAT 類別資料。
     /// </summary>
-    protected override string ManagedProgId => ProgKeys.MAT.MatCategory;
+    protected override string ManagedProgId => ProgKeys.MAT.Material;
     /// <summary>
     /// 更新前回填 MAT Graph 關聯鍵並執行欄位驗證。
     /// </summary>

@@ -19,24 +19,24 @@ public class MatCategoryController : CategoryControllerBase<MatCategoryFormModel
 {
     #region Public
     /// <summary>
-    /// 取得物件類別的動態欄位與指定語系顯示名稱。
+    /// 取得物件類別的有序動態欄位與語系顯示名稱。
     /// </summary>
     [HttpGet(nameof(GetMatCateInfoFields)), AllowAnonymous, IgnoreAntiforgeryToken]
     public async Task<IActionResult> GetMatCateInfoFields(string catId, string lang, CancellationToken ct)
     {
         LangCode langCode = LangCodeExt.Normalize(lang);
-        QueryListParam param = BuildInfoFieldQuery(catId, langCode);
+        QueryListParam param = BuildInfoFieldQuery(catId);
         MatCategoryFormModel? form = (await Service.BizQueryListAsync(param, ct)).FirstOrDefault();
-        Dictionary<string, string> result = BuildInfoFieldResult(form, langCode);
-        return Ok(new ApiResponse<Dictionary<string, string>> { Data = [result], SysMessage = Message.Messages });
+        List<MatCategoryInfoFieldItem_DTO> result = BuildInfoFieldResult(form, langCode);
+        return Ok(new ApiResponse<MatCategoryInfoFieldItem_DTO> { Data = result, SysMessage = Message.Messages });
     }
     #endregion
 
     #region Private
     /// <summary>
-    /// 建立 MAT 類別動態欄位查詢條件。
+    /// 建立 MAT 類別動態欄位查詢條件，保留全部語系供顯示名稱 fallback。
     /// </summary>
-    private static QueryListParam BuildInfoFieldQuery(string categoryId, LangCode lang)
+    private static QueryListParam BuildInfoFieldQuery(string categoryId)
     {
         string fieldPath = nameof(MatCategoryFormModel.MatCategoryInfoField);
         string displayPath = $"{fieldPath}.{nameof(MatCategoryInfoField._MatCategoryInfoFieldDisplay)}";
@@ -44,13 +44,16 @@ public class MatCategoryController : CategoryControllerBase<MatCategoryFormModel
         {
             Fields = [
                 $"{nameof(MatCategoryFormModel.Category)}.{nameof(Category.CategoryId)}",
+                $"{fieldPath}.{nameof(MatCategoryInfoField.RowId)}",
+                $"{fieldPath}.{nameof(MatCategoryInfoField.RowNo)}",
                 $"{fieldPath}.{nameof(MatCategoryInfoField.Field)}",
+                $"{displayPath}.{nameof(MatCategoryInfoFieldDisplay.ParentRowId)}",
+                $"{displayPath}.{nameof(MatCategoryInfoFieldDisplay.RowId)}",
+                $"{displayPath}.{nameof(MatCategoryInfoFieldDisplay.RowNo)}",
                 $"{displayPath}.{nameof(MatCategoryInfoFieldDisplay.Lang)}",
                 $"{displayPath}.{nameof(MatCategoryInfoFieldDisplay.FieldDisplayName)}"
             ],
-            Condition = LibData.Merge(SysParam.QueryOperators.And, false,
-                $"{nameof(MatCategoryFormModel.Category)}.{nameof(Category.CategoryId)} = \"{EscapeQueryValue(categoryId)}\"",
-                $"{displayPath}.{nameof(MatCategoryInfoFieldDisplay.Lang)} = {lang}")
+            Condition = $"{nameof(MatCategoryFormModel.Category)}.{nameof(Category.CategoryId)} = \"{EscapeQueryValue(categoryId)}\""
         };
     }
     /// <summary>
@@ -61,17 +64,65 @@ public class MatCategoryController : CategoryControllerBase<MatCategoryFormModel
         return (value ?? string.Empty).Replace("\"", "\"\"");
     }
     /// <summary>
-    /// 將 MAT 類別動態欄位整理成 Field 與顯示名稱對照。
+    /// 依後台 RowNo 將動態欄位整理成有序回傳資料。
     /// </summary>
-    private static Dictionary<string, string> BuildInfoFieldResult(MatCategoryFormModel? form, LangCode lang)
+    private static List<MatCategoryInfoFieldItem_DTO> BuildInfoFieldResult(MatCategoryFormModel? form, LangCode lang)
     {
-        Dictionary<string, string> result = [];
-        foreach (MatCategoryInfoField field in form?.MatCategoryInfoField ?? [])
-        {
-            string? displayName = field._MatCategoryInfoFieldDisplay.FirstOrDefault(item => item.Lang == lang)?.FieldDisplayName;
-            if (!string.IsNullOrWhiteSpace(field.Field) && displayName != null) result.TryAdd(field.Field, displayName);
-        }
+        List<MatCategoryInfoFieldItem_DTO> result = [];
+        HashSet<string> fieldKeys = new(StringComparer.Ordinal);
+        IEnumerable<MatCategoryInfoField> fields = (form?.MatCategoryInfoField ?? [])
+            .OrderBy(item => Convert.ToInt32(item.RowNo))
+            .ThenBy(item => Convert.ToInt32(item.RowId));
+        foreach (MatCategoryInfoField field in fields) AddInfoFieldResult(result, fieldKeys, field, lang);
         return result;
+    }
+    /// <summary>
+    /// 將單一有效欄位加入結果並避免重複 Field key。
+    /// </summary>
+    private static void AddInfoFieldResult(List<MatCategoryInfoFieldItem_DTO> result, HashSet<string> fieldKeys, MatCategoryInfoField field, LangCode lang)
+    {
+        string fieldKey = field.Field ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(fieldKey) || !fieldKeys.Add(fieldKey)) return;
+        result.Add(new MatCategoryInfoFieldItem_DTO
+        {
+            Field = fieldKey,
+            DisplayName = ResolveDisplayName(field, lang, fieldKey),
+            RowNo = Convert.ToInt32(field.RowNo)
+        });
+    }
+    /// <summary>
+    /// 依目前語系、繁中、其他語系、Field key 的順序取得顯示名稱。
+    /// </summary>
+    private static string ResolveDisplayName(MatCategoryInfoField field, LangCode lang, string fieldKey)
+    {
+        List<MatCategoryInfoFieldDisplay> displays = field._MatCategoryInfoFieldDisplay ?? [];
+        string? current = FindDisplayName(displays, lang);
+        string? zhtw = FindDisplayName(displays, LangCode.zhtw);
+        string? first = displays
+            .OrderBy(item => Convert.ToInt32(item.RowNo))
+            .ThenBy(item => Convert.ToInt32(item.RowId))
+            .Select(item => NormalizeDisplayName(item.FieldDisplayName))
+            .FirstOrDefault(item => item != null);
+        return current ?? zhtw ?? first ?? $"【{fieldKey}】";
+    }
+    /// <summary>
+    /// 取得指定語系第一個有效顯示名稱。
+    /// </summary>
+    private static string? FindDisplayName(IEnumerable<MatCategoryInfoFieldDisplay> displays, LangCode lang)
+    {
+        return displays
+            .Where(item => item.Lang == lang)
+            .OrderBy(item => Convert.ToInt32(item.RowNo))
+            .ThenBy(item => Convert.ToInt32(item.RowId))
+            .Select(item => NormalizeDisplayName(item.FieldDisplayName))
+            .FirstOrDefault(item => item != null);
+    }
+    /// <summary>
+    /// 正規化顯示名稱，空白內容視為未設定。
+    /// </summary>
+    private static string? NormalizeDisplayName(string? displayName)
+    {
+        return string.IsNullOrWhiteSpace(displayName) ? null : displayName.Trim();
     }
     #endregion
 }

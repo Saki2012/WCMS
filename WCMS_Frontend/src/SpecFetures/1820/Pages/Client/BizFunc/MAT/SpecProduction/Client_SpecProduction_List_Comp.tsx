@@ -5,16 +5,18 @@ import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
 import { type AnchorActionEvent, useAnchorButtonAction } from "@/SysCore/Utils/UI_HookFunc/useAnchorPreventDefaultClick";
 import type { components } from "@/types/api";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router";
-import { useClientSpecProductionListFetchData } from "./Client_SpecProduction_List_Loader";
+import {
+    type SpecProductionGroup,
+    type SpecProductionInfoField,
+    useClientSpecProductionListFetchData,
+} from "./Client_SpecProduction_List_Loader";
 
 // #region Property
-type MaterialSet = components["schemas"]["MaterialSet_DTO"];
-type MaterialTag = components["schemas"]["MaterialTags_DTO"];
+type MaterialFormModel = components["schemas"]["Material"];
 export interface ClientSpecProductionListProps
 {
     site: INormSite;
@@ -36,7 +38,14 @@ export const Client_SpecProduction_List_Comp = (props: ClientSpecProductionListP
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() => ({ mode: "list" }), []);
     return (
         <ModuleContent nodeTitle={props.node.title} isLoading={fetchData.isLoading} errorList={fetchData.errorList} viewCountConfig={viewCountConfig}>
-            <SpecProductionContent lang={props.lang} intro={fetchData.rawData.pageContent} catName={fetchData.rawData.catName} matDataList={fetchData.rawData.prodData} viewMoreText={"View More"} />
+            <SpecProductionContent
+                lang={props.lang}
+                intro={fetchData.rawData.pageContent}
+                catName={fetchData.rawData.catName}
+                groups={fetchData.rawData.groups}
+                infoFields={fetchData.rawData.infoFields}
+                viewMoreText="View More"
+            />
         </ModuleContent>
     );
 };
@@ -46,18 +55,15 @@ export const Client_SpecProduction_List_Comp = (props: ClientSpecProductionListP
 /// <summary>
 /// 依類別欄位設定產生動態資訊列。
 /// </summary>
-const buildMaterialInfoRows = (item: MaterialSet, lang: Lang) =>
+const buildMaterialInfoRows = (item: MaterialFormModel, lang: Lang, infoFields: SpecProductionInfoField[]) =>
 {
     const langInfo = getMaterialLangInfo(item, lang);
     const infoJson = parseMaterialInfoJson(langInfo?.MaterialInfoJson);
-    const fields = item.Material?.Category?._MatCategoryInfoField ?? [];
-    return fields.map((field) =>
+    return infoFields.map((field) =>
     {
-        const fieldKey = field.Field ?? "";
-        const displayName = field._MatCategoryInfoFieldDisplay?.find((p) => p.Lang === lang)?.FieldDisplayName ?? fieldKey;
-        const valueText = formatInfoValue(infoJson[fieldKey] ?? null);
-        return { fieldKey, displayName, valueText };
-    }).filter((p) => p.fieldKey && p.valueText);
+        const valueText = formatInfoValue(infoJson[field.field] ?? null);
+        return { fieldKey: field.field, displayName: field.label || field.field, valueText };
+    }).filter((row) => row.fieldKey && row.valueText);
 };
 // #endregion
 
@@ -65,10 +71,16 @@ const buildMaterialInfoRows = (item: MaterialSet, lang: Lang) =>
 /// <summary>
 /// 渲染情境圖文導覽主要內容。
 /// </summary>
-const SpecProductionContent = (props: { lang: Lang; intro?: string; catName?: string; matDataList: Map<MaterialTag, MaterialSet[]>; viewMoreText: string; }) =>
+const SpecProductionContent = (props: {
+    lang: Lang;
+    intro?: string;
+    catName?: string;
+    groups: SpecProductionGroup[];
+    infoFields: SpecProductionInfoField[];
+    viewMoreText: string;
+}) =>
 {
-    const tagList = useMemo<MaterialTag[]>(() => Array.from(props.matDataList.keys()).filter((tag) => Boolean(tag.TagId)), [props.matDataList]);
-    const defaultActiveTabId = tagList[0]?.TagId ?? "";
+    const defaultActiveTabId = props.groups[0]?.tagId ?? "";
     const [activeTabId, setActiveTabId] = useState<string>(defaultActiveTabId);
     const [isTabVisible, setIsTabVisible] = useState(true);
     const currentActiveTabId = activeTabId || defaultActiveTabId;
@@ -100,18 +112,14 @@ const SpecProductionContent = (props: { lang: Lang; intro?: string; catName?: st
             return;
         }
 
-        setActiveTabId((current) => tagList.some((tag) => tag.TagId === current) ? current : defaultActiveTabId);
+        setActiveTabId((current) => props.groups.some((group) => group.tagId === current) ? current : defaultActiveTabId);
         setIsTabVisible(true);
-    }, [tagList, defaultActiveTabId]);
+    }, [props.groups, defaultActiveTabId]);
 
-    const activeTab = useMemo(() => tagList.find((p) => p.TagId === currentActiveTabId), [tagList, currentActiveTabId]);
-
-    const activeItems = useMemo<MaterialSet[]>(() =>
-    {
-        if (!activeTab) return [];
-        return props.matDataList.get(activeTab) ?? [];
-    }, [props.matDataList, activeTab]);
-
+    const activeGroup = useMemo(
+        () => props.groups.find((group) => group.tagId === currentActiveTabId),
+        [props.groups, currentActiveTabId],
+    );
     const titleText = `查看${props.catName ?? ""}類型`;
 
     return (
@@ -128,11 +136,18 @@ const SpecProductionContent = (props: { lang: Lang; intro?: string; catName?: st
 
             <div className="SubInfoDivBox_Style + Layout_Padding_4_bottom + SharedCarouselDivBox owl-box">
                 <div id="Horizontal" className="H-nav-tabs-content-box">
-                    {props.matDataList.size > 0 && (
+                    {props.groups.length > 0 && (
                         <>
-                            <ProductionTabs lang={props.lang} tagList={tagList} activeTabId={currentActiveTabId} onChange={changeTab} />
+                            <ProductionTabs groups={props.groups} activeTabId={currentActiveTabId} onChange={changeTab} />
                             <div style={{ opacity: isTabVisible ? 1 : 0, transition: "opacity 220ms ease" }}>
-                                {activeTab && <ProductionTabPanel lang={props.lang} activeTab={activeTab} items={activeItems} viewMoreText={props.viewMoreText} />}
+                                {activeGroup && (
+                                    <ProductionTabPanel
+                                        lang={props.lang}
+                                        group={activeGroup}
+                                        infoFields={props.infoFields}
+                                        viewMoreText={props.viewMoreText}
+                                    />
+                                )}
                             </div>
                         </>
                     )}
@@ -143,18 +158,10 @@ const SpecProductionContent = (props: { lang: Lang; intro?: string; catName?: st
 };
 
 /// <summary>
-/// 取得 Tag 顯示名稱。
-/// </summary>
-const getTagName = (tag: MaterialTag, lang: Lang): string =>
-{
-    return findTextByKey(tag.Tag?._TagDetail, (p) => p?.Lang, lang, (p) => p?.TagName);
-};
-
-/// <summary>
 /// 渲染物件類別 Tab。
 /// </summary>
 const ProductionTabs = (
-    { lang, tagList, activeTabId, onChange }: { lang: Lang; tagList: MaterialTag[]; activeTabId: string; onChange: (id: string) => void; },
+    { groups, activeTabId, onChange }: { groups: SpecProductionGroup[]; activeTabId: string; onChange: (id: string) => void; },
 ) =>
 {
     /** 透過共用 Anchor Button Hook 切換目前 Tab。 */
@@ -168,30 +175,23 @@ const ProductionTabs = (
     return (
         <div className="Horizontal nav-tabs-list">
             <ul className="nav nav-tabs" role="tablist">
-                {tagList.map((tag) =>
-                {
-                    const id = tag.TagId ?? "";
-                    const name = getTagName(tag, lang);
-
-                    return (
-                        <li key={id} className="nav-item + me-3" role="presentation">
-                            <a
-                                href="#"
-                                type="button"
-                                className={`more-link font-wt-lg ${id === activeTabId ? "active" : ""}`}
-                                role="tab"
-                                aria-selected={id === activeTabId}
-                                aria-controls={`H-navTabs-${id}`}
-                                id={`H-Tabs__${id}`}
-                                data-tab-id={id}
-                                {...tabAction}
-                            >
-                                <span className="vm">{name}</span>
-                                <span className="ms-1">〉</span>
-                            </a>
-                        </li>
-                    );
-                })}
+                {groups.map((group) => (
+                    <li key={group.tagId} className="nav-item + me-3" role="presentation">
+                        <a
+                            href="#"
+                            className={`more-link font-wt-lg ${group.tagId === activeTabId ? "active" : ""}`}
+                            role="tab"
+                            aria-selected={group.tagId === activeTabId}
+                            aria-controls={`H-navTabs-${group.tagId}`}
+                            id={`H-Tabs__${group.tagId}`}
+                            data-tab-id={group.tagId}
+                            {...tabAction}
+                        >
+                            <span className="vm">{group.tagName}</span>
+                            <span className="ms-1">〉</span>
+                        </a>
+                    </li>
+                ))}
             </ul>
         </div>
     );
@@ -200,21 +200,29 @@ const ProductionTabs = (
 /// <summary>
 /// 渲染目前選取的 Tab 內容。
 /// </summary>
-const ProductionTabPanel = ({ lang, activeTab, items, viewMoreText }: { lang: Lang; activeTab: MaterialTag; items: MaterialSet[]; viewMoreText: string; }) =>
+const ProductionTabPanel = (props: {
+    lang: Lang;
+    group: SpecProductionGroup;
+    infoFields: SpecProductionInfoField[];
+    viewMoreText: string;
+}) =>
 {
-    const tagName = getTagName(activeTab, lang);
-
     return (
         <div className="tab-content" id="H-nav-tabContent">
-            <div id={`H-navTabs-${activeTab.TagId}`} className="tab-pane fade show active" role="tabpanel" aria-labelledby={`H-Tabs__${activeTab.TagId}`}>
+            <div id={`H-navTabs-${props.group.tagId}`} className="tab-pane fade show active" role="tabpanel" aria-labelledby={`H-Tabs__${props.group.tagId}`}>
                 <div className="SC-headerBox">
                     <div className="d-flex align-items-center">
-                        <div className="SC-header-title + me-3">{tagName}</div>
+                        <div className="SC-header-title + me-3">{props.group.tagName}</div>
                         <span className="text-muted opacity-50">...</span>
                     </div>
-                    <div className="SC-header-smalll">{`${items.length} 筆資料`}</div>
+                    <div className="SC-header-smalll">{`${props.group.items.length} 筆資料`}</div>
                 </div>
-                <ProductionCarousel lang={lang} items={items} viewMoreText={viewMoreText} />
+                <ProductionCarousel
+                    lang={props.lang}
+                    items={props.group.items}
+                    infoFields={props.infoFields}
+                    viewMoreText={props.viewMoreText}
+                />
             </div>
         </div>
     );
@@ -223,7 +231,7 @@ const ProductionTabPanel = ({ lang, activeTab, items, viewMoreText }: { lang: La
 /// <summary>
 /// 用 React 狀態模擬 Owl 結構，處理播放、暫停、自動輪播與左右滑動。
 /// </summary>
-const ProductionCarousel = (props: { lang: Lang; items: MaterialSet[]; viewMoreText: string; }) =>
+const ProductionCarousel = (props: { lang: Lang; items: MaterialFormModel[]; infoFields: SpecProductionInfoField[]; viewMoreText: string; }) =>
 {
     const [trackIndex, setTrackIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -235,7 +243,7 @@ const ProductionCarousel = (props: { lang: Lang; items: MaterialSet[]; viewMoreT
     const toggleLabel = isPlaying ? "圖片輪播播放中，點擊暫停" : "圖片輪播已暫停，點擊播放";
     const toggleIconClass = isPlaying ? "control-pause-icon" : "control-play-icon";
 
-    const carouselItems = useMemo<MaterialSet[]>(() =>
+    const carouselItems = useMemo<MaterialFormModel[]>(() =>
     {
         if (!hasMany) return props.items;
 
@@ -368,11 +376,10 @@ const ProductionCarousel = (props: { lang: Lang; items: MaterialSet[]; viewMoreT
             <div className="DIV-singleBox">
                 <div className="control-singlebox">
                     <a
-                        href="javascript:void(0);"
+                        href="#"
                         className="toggle ms-1"
                         aria-label={toggleLabel}
                         aria-pressed={isPlaying}
-                        tabIndex={0}
                         title={isPlaying ? "暫停" : "播放"}
                         onClick={togglePlay}
                     >
@@ -396,9 +403,9 @@ const ProductionCarousel = (props: { lang: Lang; items: MaterialSet[]; viewMoreT
                         onTransitionEnd={handleTransitionEnd}
                     >
                         {carouselItems.map((item, idx) => (
-                            <div key={`${item.Material?.InternalId ?? "mat"}_${idx}`} className={`owl-item ${idx === trackIndex ? "active" : ""}`} style={{ flex: "0 0 100%", width: "100%" }}>
+                            <div key={`${item.InternalId ?? item.MaterialId ?? "mat"}_${idx}`} className={`owl-item ${idx === trackIndex ? "active" : ""}`} style={{ flex: "0 0 100%", width: "100%" }}>
                                 <div className="item">
-                                    <ProductionCard lang={props.lang} item={item} viewMoreText={props.viewMoreText} />
+                                    <ProductionCard lang={props.lang} item={item} infoFields={props.infoFields} viewMoreText={props.viewMoreText} />
                                 </div>
                             </div>
                         ))}
@@ -446,9 +453,9 @@ const parseMaterialInfoJson = (source?: string | MaterialInfoJsonMap | null): Ma
 /// <summary>
 /// 取得目前語系的物件語系資料。
 /// </summary>
-const getMaterialLangInfo = (item: MaterialSet, lang: Lang) =>
+const getMaterialLangInfo = (item: MaterialFormModel, lang: Lang) =>
 {
-    return item.MaterialLangInfo?.find((p) => p.Lang === lang);
+    return item._MaterialLangInfo?.find((detail) => detail.Lang === lang) ?? item._MaterialLangInfo?.[0];
 };
 
 /// <summary>
@@ -462,14 +469,30 @@ const formatInfoValue = (value: MaterialInfoJsonValue): string =>
 };
 
 /// <summary>
+/// 依 RowNo 取得第一張物件圖片。
+/// </summary>
+const getFirstMaterialPicture = (item: MaterialFormModel) =>
+{
+    return [...(item._MaterialPicture ?? [])].sort((left, right) =>
+    {
+        return Number(left.RowNo ?? left.RowId ?? 0) - Number(right.RowNo ?? right.RowId ?? 0);
+    })[0];
+};
+
+/// <summary>
 /// 渲染單一物件資訊卡。
 /// </summary>
-const ProductionCard = (props: { lang: Lang; item: MaterialSet; viewMoreText: string; }) =>
+const ProductionCard = (props: {
+    lang: Lang;
+    item: MaterialFormModel;
+    infoFields: SpecProductionInfoField[];
+    viewMoreText: string;
+}) =>
 {
-    const image = props.item.MaterialPicture?.[0];
+    const image = getFirstMaterialPicture(props.item);
     const langInfo = getMaterialLangInfo(props.item, props.lang);
     const matName = langInfo?.MaterialName ?? "";
-    const infoRows = buildMaterialInfoRows(props.item, props.lang);
+    const infoRows = buildMaterialInfoRows(props.item, props.lang, props.infoFields);
     const imageUrl = image?.PictureId ? FileManagementAPI.get_Public_Preview_Url(image.PictureId) : "";
     const dirUrl = useLocation().pathname.replace(/\/List$/, "");
     return (
@@ -492,7 +515,7 @@ const ProductionCard = (props: { lang: Lang; item: MaterialSet; viewMoreText: st
                             <div className="d-flex justify-content-start align-items-center">
                                 <div className="more-link-box">
                                     <LangLink
-                                        to={`${dirUrl}/${props.item.Material?.InternalId}`}
+                                        to={`${dirUrl}/${props.item.InternalId ?? ""}`}
                                         className="more-link font-wt-lg"
                                         title={`查看更多：${matName}`}
                                     >

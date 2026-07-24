@@ -10,7 +10,13 @@ import type { LoaderFunctionArgs } from "react-router";
 
 // #region Property
 type MatCategoryFormModel = components["schemas"]["MatCategoryFormModel"];
-type MatCateInfoFieldsApiData = Record<string, string>[];
+interface MatCateInfoFieldApiItem
+{
+    Field?: string | null;
+    DisplayName?: string | null;
+    RowNo?: number | null;
+}
+type MatCateInfoFieldsApiData = MatCateInfoFieldApiItem[];
 const ActionGetMatCateInfoFields = "MatCategory.GetMatCateInfoFields";
 interface MatCateInfoFieldsArgs
 {
@@ -127,16 +133,40 @@ export class MatCategoryAdapterImpl extends ApiDataAdapter<MatCategoryFormModel,
     {
         return { catId: opt.catId, lang: opt.lang };
     }
-    /** 呼叫後端取得欄位 map */
+    /** 呼叫後端取得有序欄位資料並轉成 map */
     private async queryMatCateInfoFieldsAsync(svc: MatCategoryService, args: MatCateInfoFieldsArgs): Promise<ApiResponse<Map<string, string>>>
     {
         if (!args.catId) return { IsSuccess: true, Data: new Map<string, string>(), SysMessage: [] };
         const res = await svc.getMatCateInfoFieldsAsync(args);
-        const data = new Map<string, string>(Object.entries(res.Data?.[0] ?? {}));
+        const data = buildMatCateInfoFieldsMap(res.Data ?? []);
         return { ...res, Data: data };
     }
     // #endregion
 }
 export const MatCategoryAdapter = (apiInstance?: AxiosInstance) =>
     new MatCategoryAdapterImpl((api?: AxiosInstance) => new MatCategoryService(api ?? apiInstance));
+// #endregion
+
+// #region Private
+/** 將有序 API 欄位陣列轉成 Map，保留後台 RowNo 順序。 */
+const buildMatCateInfoFieldsMap = (items: MatCateInfoFieldsApiData): Map<string, string> =>
+{
+    const result = new Map<string, string>();
+    const orderedItems = [...items].sort(compareMatCateInfoFieldOrder);
+    orderedItems.forEach(item => appendMatCateInfoField(result, item));
+    return result;
+};
+/** 比較動態欄位顯示順序，RowNo 相同時保留後端陣列順序。 */
+const compareMatCateInfoFieldOrder = (left: MatCateInfoFieldApiItem, right: MatCateInfoFieldApiItem): number =>
+{
+    return Number(left.RowNo ?? 0) - Number(right.RowNo ?? 0);
+};
+/** 將單一有效欄位加入 Map，重複 key 保留第一筆。 */
+const appendMatCateInfoField = (result: Map<string, string>, item: MatCateInfoFieldApiItem): void =>
+{
+    const field = String(item.Field ?? "");
+    if (!field || result.has(field)) return;
+    const displayName = String(item.DisplayName ?? `【${field}】`);
+    result.set(field, displayName);
+};
 // #endregion
