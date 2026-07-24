@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SpecFeatures.Spec1821._Resx;
 using WCMS.SysCore.FeatureDriver.Model.Base;
@@ -86,7 +86,7 @@ public class SpecHomePage1821_Banner : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(HomePageId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecHomePage1821 _SpecHomePage1821 { get; set; }
     #endregion
 }
@@ -128,7 +128,7 @@ public class SpecHomePage1821_Shortcut : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(HomePageId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecHomePage1821 _SpecHomePage1821 { get; set; }
     [InverseProperty(nameof(SpecHomePage1821_ShortcutModuleItem._SpecHomePage1821_Shortcut))]
     [LibField(ApiFieldMode.ReadWrite)]
@@ -160,7 +160,7 @@ public class SpecHomePage1821_ShortcutModuleItem : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey($@"{nameof(HomePageId)},{nameof(ParentRowId)}")]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecHomePage1821_Shortcut _SpecHomePage1821_Shortcut { get; set; }
     #endregion
 }

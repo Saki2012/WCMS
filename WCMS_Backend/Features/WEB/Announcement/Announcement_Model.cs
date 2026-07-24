@@ -110,7 +110,7 @@ public partial class AnnouncementDetail : FormDetailModel
     public string UrlDescription { get; set; } = string.Empty;
     #region 主子表關聯
     [ForeignKey(nameof(AnnouncementId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public Announcement _Announcement { get; set; } = null!;
     [InverseProperty(nameof(AnnouncementDetailFile._AnnouncementDetail))]
     [LibField(ApiFieldMode.ReadWrite)]
@@ -151,7 +151,7 @@ public partial class AnnouncementDetailFile : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey($@"{nameof(AnnouncementId)},{nameof(ParentRowId)}")]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public AnnouncementDetail _AnnouncementDetail { get; set; }
     #endregion
 }

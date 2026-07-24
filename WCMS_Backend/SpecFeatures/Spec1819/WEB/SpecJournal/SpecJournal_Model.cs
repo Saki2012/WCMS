@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features._Resx;
 using WCMS.Features.COMM.Tag;
@@ -203,7 +203,7 @@ public class SpecJournalAuthor : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(JournalId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecJournal? _SpecJournal { get; set; }
     #endregion
 }
@@ -232,7 +232,7 @@ public class SpecJournalRefFormat : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(JournalId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecJournal? _SpecJournal { get; set; }
     #endregion
 }
@@ -263,7 +263,7 @@ public class SpecJournalOpenPointFiles : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(JournalId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecJournal? _SpecJournal { get; set; }
     #endregion
 }
@@ -294,7 +294,7 @@ public class SpecJournalRefFiles : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(JournalId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecJournal? _SpecJournal { get; set; }
     #endregion
 }
@@ -333,7 +333,7 @@ public class SpecJournalDocument : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(JournalId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecJournal? _SpecJournal { get; set; }
     #endregion
 }
@@ -361,7 +361,7 @@ public class SpecJournalTypes : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(JournalId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecJournal? _SpecJournal { get; set; }
     #endregion
 }
@@ -389,7 +389,7 @@ public class SpecJournalKeywords : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(JournalId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecJournal? _SpecJournal { get; set; }
     #endregion
 }

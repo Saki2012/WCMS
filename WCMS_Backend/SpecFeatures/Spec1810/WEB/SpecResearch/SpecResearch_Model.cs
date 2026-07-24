@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
@@ -102,7 +102,7 @@ public string Professor { get; set; } = string.Empty;
 
     #region 主子表關聯
 [ForeignKey(nameof(ResearchId))]
-[LibField(ApiFieldMode.ReadOnly)]
+[LibField(ApiFieldMode.Ignore)]
 public SpecResearch _SpecResearch { get; set; }
     #endregion
 }

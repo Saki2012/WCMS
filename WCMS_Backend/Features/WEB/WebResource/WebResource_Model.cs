@@ -94,7 +94,7 @@ public class WebResourceInfo : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(WebResourceId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public WebResource _WebResource { get; set; }
     #endregion
 }

@@ -153,7 +153,7 @@ public class SpecHomePage1820_BannerMedia : FormDetailModel
     /// 所屬首頁設定。
     /// </summary>
     [ForeignKey(nameof(HomePageId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecHomePage1820 _SpecHomePage1820 { get; set; } = null!;
     #endregion
 }
@@ -262,7 +262,7 @@ public class SpecHomePage1820_Detail : FormDetailModel
     /// 所屬首頁設定。
     /// </summary>
     [ForeignKey(nameof(HomePageId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecHomePage1820 _SpecHomePage1820 { get; set; } = null!;
     #endregion
 }
@@ -305,7 +305,7 @@ public class SpecHomePage1820_Marquee : FormDetailModel
     /// 所屬首頁設定。
     /// </summary>
     [ForeignKey(nameof(HomePageId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecHomePage1820 _SpecHomePage1820 { get; set; } = null!;
     #endregion
 }
@@ -358,7 +358,7 @@ public class SpecHomePage1820_Resource : FormDetailModel
     /// 所屬首頁設定。
     /// </summary>
     [ForeignKey(nameof(HomePageId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecHomePage1820 _SpecHomePage1820 { get; set; } = null!;
     #endregion
 }

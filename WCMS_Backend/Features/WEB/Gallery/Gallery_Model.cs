@@ -95,7 +95,7 @@ public class GalleryInfo : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(GalleryId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public Gallery _Gallery { get; set; }
     #endregion
 }
@@ -127,7 +127,7 @@ public class GalleryPhotos : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(GalleryId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public Gallery _Gallery { get; set; }
     [InverseProperty(nameof(GalleryPhotosInfo._GalleryPhotos))]
     [LibField(ApiFieldMode.ReadWrite)]
@@ -169,7 +169,7 @@ public class GalleryPhotosInfo : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey($@"{nameof(GalleryId)},{nameof(ParentRowId)}")]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public GalleryPhotos _GalleryPhotos { get; set; }
     #endregion
 }

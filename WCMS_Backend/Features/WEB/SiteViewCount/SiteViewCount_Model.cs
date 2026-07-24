@@ -84,7 +84,7 @@ public class SiteViewCountDetail : DetailModel
     /// 對應站台 Header
     /// </summary>
     [ForeignKey(nameof(SiteIndex))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SiteViewCountHeader _SiteViewCountHeader { get; set; } = null!;
     #endregion
 }

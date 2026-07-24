@@ -69,7 +69,7 @@ public class FileArchiveInfo : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(FileArchiveId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public FileArchive _FileArchive { get; set; }
     [InverseProperty(nameof(FileArchiveDetail._FileArchiveInfo))]
     [LibField(ApiFieldMode.ReadWrite)]
@@ -110,7 +110,7 @@ public class FileArchiveDetail : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey($@"{nameof(FileArchiveId)},{nameof(ParentRowId)}")]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public FileArchiveInfo _FileArchiveInfo { get; set; }
     #endregion
 }
@@ -147,7 +147,7 @@ public class FileArchiveUrlDetail : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey($@"{nameof(FileArchiveId)},{nameof(ParentRowId)}")]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public FileArchiveInfo _FileArchiveInfo { get; set; }
     #endregion
 }

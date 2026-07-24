@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.COMM.Category;
 using WCMS.SpecFeatures.Spec1817._Resx;
@@ -130,7 +130,7 @@ public class SpecMusicalSoundList : FormDetailModel
     /// 所屬樂器。
     /// </summary>
     [ForeignKey(nameof(MusicalId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecMusical? _SpecMusical { get; set; }
     #endregion
 }
@@ -172,7 +172,7 @@ public class SpecMusicalPictureList : FormDetailModel
     /// 所屬樂器。
     /// </summary>
     [ForeignKey(nameof(MusicalId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecMusical? _SpecMusical { get; set; }
     #endregion
 }

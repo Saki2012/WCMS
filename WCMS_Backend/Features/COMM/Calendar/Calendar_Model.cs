@@ -100,7 +100,7 @@ public partial class CalendarDetail : DetailModel
     /// 所屬年度行事曆。
     /// </summary>
     [ForeignKey(nameof(Year))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public Calendar? _Calendar { get; set; }
     #endregion
 }

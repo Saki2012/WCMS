@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
@@ -47,7 +47,7 @@ public class SpecCategoryDetail : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(CategoryId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecCategory _SpecCategory { get; set; }
     #endregion
 }

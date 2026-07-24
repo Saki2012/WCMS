@@ -86,7 +86,7 @@ public partial class BannerDetail : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(BannerId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public Banner _Banner { get; set; }
     [InverseProperty(nameof(BannerDetailInfo._BannerDetail))]
     [LibField(ApiFieldMode.ReadWrite)]
@@ -133,7 +133,7 @@ public partial class BannerDetailInfo : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey($@"{nameof(BannerId)},{nameof(ParentRowId)}")]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public BannerDetail _BannerDetail { get; set; }
     #endregion
 }

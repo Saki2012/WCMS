@@ -83,7 +83,7 @@ public class MaterialLangInfo : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(MaterialId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public Material _Material { get; set; } = null!;
     #endregion
 }
@@ -114,7 +114,7 @@ public class MaterialPicture : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(MaterialId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public Material _Material { get; set; }
     #endregion
 }
@@ -140,7 +140,7 @@ public class MaterialTags : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(MaterialId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public Material _Material { get; set; } = null!;
     #endregion
 }

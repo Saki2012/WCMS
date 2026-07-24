@@ -56,7 +56,7 @@ public class RolePermission : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(RoleId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public RoleData _RoleData { get; set; } = null!;
     #endregion
 }

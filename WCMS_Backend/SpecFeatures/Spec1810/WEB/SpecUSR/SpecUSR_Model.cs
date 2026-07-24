@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
@@ -123,7 +123,7 @@ public string UrlDescription { get; set; } = string.Empty;
 
     #region 主子表關聯
 [ForeignKey(nameof(USRId))]
-[LibField(ApiFieldMode.ReadOnly)]
+[LibField(ApiFieldMode.Ignore)]
 public SpecUSR _SpecUSR { get; set; }
 [InverseProperty(nameof(SpecUSRFile._SpecUSRDetail))]
 [LibField(ApiFieldMode.ReadWrite)]
@@ -164,7 +164,7 @@ public string? PicSrcId { get; set; }
 
     #region 主子表關聯
 [ForeignKey(nameof(USRId))]
-[LibField(ApiFieldMode.ReadOnly)]
+[LibField(ApiFieldMode.Ignore)]
 public SpecUSR _SpecUSR { get; set; }
 [InverseProperty(nameof(SpecUSRPhotoInfo._SpecUSRPhoto))]
 [LibField(ApiFieldMode.ReadWrite)]
@@ -204,7 +204,7 @@ public string Title { get; set; } = string.Empty;
 
     #region 主子表關聯
 [ForeignKey($@"{nameof(USRId)},{nameof(ParentRowId)}")]
-[LibField(ApiFieldMode.ReadOnly)]
+[LibField(ApiFieldMode.Ignore)]
 public SpecUSRPhoto _SpecUSRPhoto { get; set; }
     #endregion
 }
@@ -244,7 +244,7 @@ public string FileName { get; set; } = string.Empty;
 
     #region 主子表關聯
 [ForeignKey($@"{nameof(USRId)},{nameof(ParentRowId)}")]
-[LibField(ApiFieldMode.ReadOnly)]
+[LibField(ApiFieldMode.Ignore)]
 public SpecUSRDetail _SpecUSRDetail { get; set; }
     #endregion
 }
@@ -286,7 +286,7 @@ public string UrlDescription { get; set; } = string.Empty;
 
     #region 主子表關聯
 [ForeignKey($@"{nameof(USRId)},{nameof(ParentRowId)}")]
-[LibField(ApiFieldMode.ReadOnly)]
+[LibField(ApiFieldMode.Ignore)]
 public SpecUSRDetail _SpecUSRDetail { get; set; }
     #endregion
 }

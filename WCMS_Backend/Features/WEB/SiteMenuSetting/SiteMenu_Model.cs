@@ -114,7 +114,7 @@ public class SiteMenu_IndexInfo : FormDetailModel
     /// 所屬站台。
     /// </summary>
     [ForeignKey(nameof(SiteIndex))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SiteMenu_Index? _SiteMenu_Index { get; set; }
     #endregion
 }
@@ -171,7 +171,7 @@ public class SiteMenu_Item : FormDetailModel
     /// 所屬站台。
     /// </summary>
     [ForeignKey(nameof(SiteIndex))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SiteMenu_Index? _SiteMenu_Index { get; set; }
     /// <summary>
     /// 選單多語標題。
@@ -231,7 +231,7 @@ public class SiteMenu_Item_Title : FormDetailModel
     /// 所屬選單項目。
     /// </summary>
     [ForeignKey($"{nameof(SiteIndex)},{nameof(ItemRowId)}")]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SiteMenu_Item? _SiteMenu_Item { get; set; }
     #endregion
 }
@@ -268,7 +268,7 @@ public class SiteMenu_Item_Url : DetailModel
     /// 所屬選單項目。
     /// </summary>
     [ForeignKey($"{nameof(SiteIndex)},{nameof(ItemRowId)}")]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SiteMenu_Item? _SiteMenu_Item { get; set; }
     #endregion
 }
@@ -321,7 +321,7 @@ public class SiteMenu_Item_Module : DetailModel
     /// 所屬選單項目。
     /// </summary>
     [ForeignKey($"{nameof(SiteIndex)},{nameof(ItemRowId)}")]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SiteMenu_Item? _SiteMenu_Item { get; set; }
     #endregion
 }

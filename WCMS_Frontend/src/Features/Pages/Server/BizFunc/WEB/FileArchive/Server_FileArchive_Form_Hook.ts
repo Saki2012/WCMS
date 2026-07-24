@@ -29,6 +29,7 @@ import {
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
+import { getModelColumnDisplayName, getModelTableDisplayName } from "@/SysCore/Components/Grid/Grid_ModelDisplay";
 import { buildSupportedLangOrder, type Lang, LangLabelMap, normalizeSupportedLang, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -725,25 +726,13 @@ const buildFileArchiveUrlCells = (url: FileArchiveUrlDetail, displayName: ModelD
 /** 取得 Detail 子表顯示名稱，避免 Grid 標題寫死。 */
 const getFileArchiveDetailTableTitle = (displayName: ModelDisplaySchema, tableId: string, fallback: string): string =>
 {
-    const tableHit = displayName.Tables?.find(table => table.TableId === tableId);
-    return tableHit?.TableDisplayName ?? fallback;
+    return getModelTableDisplayName(displayName, tableId, fallback);
 };
 
 /** 取得 Detail 子表欄位顯示名稱，避免 EditGrid 欄位標題寫死。 */
 const getFileArchiveDetailColumnTitle = (displayName: ModelDisplaySchema, tableId: string, columnId: string, fallback: string): string =>
 {
-    return getModelColumnTitle(displayName, tableId, columnId, fallback);
-};
-
-/** 依資料表與欄位代碼取得 ModelDisplayName 顯示文字。 */
-const getModelColumnTitle = (displayName: ModelDisplaySchema, tableId: string, columnId: string, fallback: string): string =>
-{
-    const tables = displayName.Tables ?? [];
-    const tableHit = tables.find(table => table.TableId === tableId);
-    const columnHit = tableHit?.Columns?.find(column => column.ColumnId === columnId);
-    const fallbackHit = tables.flatMap(table => table.Columns ?? []).find(column => column.ColumnId === columnId);
-
-    return columnHit?.ColumnDisplayName ?? fallbackHit?.ColumnDisplayName ?? fallback;
+    return getModelColumnDisplayName(displayName, tableId, columnId, fallback);
 };
 
 /** 建立新檔案 FormModel，分開保存穩定 RowId 與顯示 RowNo。 */

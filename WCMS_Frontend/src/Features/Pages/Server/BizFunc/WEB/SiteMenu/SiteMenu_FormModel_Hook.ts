@@ -1,3 +1,4 @@
+import { getModelColumnDisplayName } from "@/SysCore/Components/Grid/Grid_ModelDisplay";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { LibJson } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -278,10 +279,7 @@ const coerceForModel = (value: unknown, mode: FieldMode): unknown =>
 /** 取得欄位顯示名稱。 */
 const resolveColumnDisplayName = (schema: ModelDisplaySchema | null | undefined, tableName: string, fieldName: string): string =>
 {
-    const normalizedTable = tableName.replace(/^_/, "");
-    const table = schema?.Tables?.find(item => item.TableId === tableName || item.TableId === normalizedTable);
-    const column = table?.Columns?.find(item => item.ColumnId === fieldName);
-    return column?.ColumnDisplayName || `【${fieldName}】`;
+    return getModelColumnDisplayName(schema, tableName, fieldName, `【${fieldName}】`);
 };
 
 /** 轉換 JSON Binder 畫面值。 */

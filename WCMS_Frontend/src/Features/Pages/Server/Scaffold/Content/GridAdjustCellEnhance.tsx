@@ -1,6 +1,8 @@
 // src/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance.tsx
+import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
+import { MessageStatus, type SysMessageModel } from "@/SysCore/Utils/API/APIBase";
 import clsx from "clsx";
 import { useCallback, useMemo } from "react";
 
@@ -33,6 +35,8 @@ export type GridAdjustActionCtx<TItem> = {
     internalId: string;
     can: (mask: number) => boolean;
     notify: (msg: string) => void;
+    /** 顯示 API 成功訊息，後端無訊息時使用前端 fallback。 */
+    publishSuccess: (env: ApiResponseLike, fallbackTitle: string) => void;
     /** 互動確認（目前預設用 window.confirm；未來可替換成客製 Modal） */
     confirm: (opt: GridConfirmOptions) => Promise<boolean>;
 };
@@ -56,7 +60,7 @@ export type GridAdjustAction<TItem> = {
 
 
 /** 只要求 IsSuccess：避免把 API 型別綁死在 Grid 元件內（ApiResponse 也可直接相容） */
-export type ApiResponseLike = { IsSuccess: boolean; };
+export type ApiResponseLike = { IsSuccess: boolean; SysMessage?: SysMessageModel[] | null; };
 
 
 /** CRUD actions 依賴（可以直接塞 adapter hooks 的 deleteAsync） */
@@ -120,6 +124,7 @@ export const GRID_CRUD_I18N = {
     delete: { "zh-tw": "刪除", en: "Delete" } as LangText,
     gotoEdit: { "zh-tw": "前往修改", en: "Go to edit" } as LangText,
     confirmDelete: { "zh-tw": "確定要刪除嗎？", en: "Are you sure you want to delete?" } as LangText,
+    deleteSuccess: { "zh-tw": "刪除成功", en: "Deleted successfully" } as LangText,
 } as const;
 
 
@@ -179,6 +184,8 @@ export const createGridCrudActions = <TItem,>(deps: GridCrudDeps): GridAdjustAct
             const env = await deps.deleteAsync(ctx.internalId);
             if (!env.IsSuccess) return;
 
+            const fallbackTitle = getLangText(ctx.lang, i18n.deleteSuccess, "刪除成功");
+            ctx.publishSuccess(env, fallbackTitle);
             if (deps.afterDelete) await deps.afterDelete();
         },
     };
@@ -291,8 +298,24 @@ const useGridAdjustActionCtx = <TItem,>(
 ): GridAdjustActionCtx<TItem> =>
 {
     // 宣告變數
+    const { publish } = useToast();
     const can = useCallback((mask: number) => props.can?.(mask) ?? true, [props.can]);
     const notify = useCallback((msg: string) => props.notifyNoPermission?.(msg), [props.notifyNoPermission]);
+    const publishSuccess = useCallback((env: ApiResponseLike, fallbackTitle: string) =>
+    {
+        const messages = env.SysMessage ?? [];
+        if (messages.length === 0)
+        {
+            publish({ level: MessageStatus.Green, title: fallbackTitle });
+            return;
+        }
+        messages.forEach((message) => publish({
+            level: message.Status ?? MessageStatus.Green,
+            code: message.MessageCode,
+            title: message.Message ?? fallbackTitle,
+            text: message.Message,
+        }));
+    }, [publish]);
     const confirm = useCallback(async (opt: GridConfirmOptions) =>
     {
         const fn = props.confirm ?? defaultGridConfirm;
@@ -300,12 +323,13 @@ const useGridAdjustActionCtx = <TItem,>(
     }, [props.confirm]);
 
     // return
-    return useMemo(() => ({ lang: props.lang, item: props.item, internalId: props.internalId, can, notify, confirm }), [
+    return useMemo(() => ({ lang: props.lang, item: props.item, internalId: props.internalId, can, notify, publishSuccess, confirm }), [
         props.lang,
         props.item,
         props.internalId,
         can,
         notify,
+        publishSuccess,
         confirm,
     ]);
 };

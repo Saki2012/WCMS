@@ -74,7 +74,7 @@ public class SurveyItem : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(SurveyId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public Survey _Survey { get; set; } = null!;
     [InverseProperty(nameof(SurveyItemLang._SurveyItem))]
     [LibField(ApiFieldMode.ReadWrite)]
@@ -111,7 +111,7 @@ public class SurveyItemLang : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey($@"{nameof(SurveyId)},{nameof(ParentRowId)}")]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SurveyItem _SurveyItem { get; set; }
     #endregion
 }

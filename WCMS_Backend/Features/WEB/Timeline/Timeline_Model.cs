@@ -49,7 +49,7 @@ public class TimelineItem : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(TimelineId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public Timeline _Timeline { get; set; } = null!;
     [InverseProperty(nameof(TimelineLangDetail._TimelineItem))]
     [LibField(ApiFieldMode.ReadWrite)]
@@ -91,7 +91,7 @@ public class TimelineLangDetail : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey($@"{nameof(TimelineId)},{nameof(ParentRowId)}")]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public TimelineItem _TimelineItem { get; set; }
     #endregion
 }

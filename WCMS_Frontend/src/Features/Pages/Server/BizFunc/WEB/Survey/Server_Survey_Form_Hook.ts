@@ -23,6 +23,7 @@ import {
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
+import { getModelColumnDisplayName, getModelTableDisplayName } from "@/SysCore/Components/Grid/Grid_ModelDisplay";
 import { buildSupportedLangOrder, DefaultLang, type Lang, LangLabelMap, normalizeSupportedLang, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
@@ -668,19 +669,13 @@ const getSurveyLangText = (value: unknown): string =>
 /** 取得子表顯示名稱，避免 Grid 標題寫死。 */
 const getSurveyTableTitle = (displayName: ModelDisplaySchema, tableId: string, fallback: string): string =>
 {
-    const tableHit = displayName.Tables?.find(table => table.TableId === tableId);
-    return tableHit?.TableDisplayName ?? fallback;
+    return getModelTableDisplayName(displayName, tableId, fallback);
 };
 
 /** 依資料表與欄位代碼取得 ModelDisplayName 顯示文字。 */
 const getSurveyColumnTitle = (displayName: ModelDisplaySchema, tableId: string, columnId: string, fallback: string): string =>
 {
-    const tables = displayName.Tables ?? [];
-    const tableHit = tables.find(table => table.TableId === tableId);
-    const columnHit = tableHit?.Columns?.find(column => column.ColumnId === columnId);
-    const fallbackHit = tables.flatMap(table => table.Columns ?? []).find(column => column.ColumnId === columnId);
-
-    return columnHit?.ColumnDisplayName ?? fallbackHit?.ColumnDisplayName ?? fallback;
+    return getModelColumnDisplayName(displayName, tableId, columnId, fallback);
 };
 
 /** 建立 SurveyItem Row key，讓 SubDetail 展開與資料列同步穩定。 */

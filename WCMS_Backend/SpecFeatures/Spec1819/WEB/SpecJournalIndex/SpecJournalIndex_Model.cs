@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1819._Resx;
@@ -82,7 +82,7 @@ public class SpecJournalIndexDetail : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(IndexId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public SpecJournalIndex? _SpecJournalIndex { get; set; }
     #endregion
 }

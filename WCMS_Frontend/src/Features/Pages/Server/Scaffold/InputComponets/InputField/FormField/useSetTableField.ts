@@ -1,5 +1,6 @@
 // hooks/useSetTableField.ts
 import type { ILibDatetimeRangeProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibDatetimeRange_Comp";
+import { getModelColumnDisplayName } from "@/SysCore/Components/Grid/Grid_ModelDisplay";
 import { LibJson, parseBitmaskToStringArray, splitTrimToArray, sumStringArrayToBitmask } from "@/SysCore/Utils/Library/LibData";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -109,7 +110,7 @@ export const useFormModelField = <T extends Record<string, any>>(form: FormDataL
         const strategy = typeof setType === "string" ? setType : (setType?.strategy ?? "default");
         const sumKeys = typeof setType === "object" ? setType.sumKeys : undefined;
         const delimiter = typeof setType === "object" ? (setType.csvDelimiter ?? ",") : ",";
-        const label = getColumnDisplayName(form.displayName ?? null, "", String(field)) || `【${String(field)}】`;
+        const label = getModelColumnDisplayName(form.displayName ?? null, "", String(field), `【${String(field)}】`);
         const inputValue = resolveInputValue(raw, mode, strategy, sumKeys, delimiter);
         ensureDefaultOnce(appliedDefaultsRef, {
             key: `${resolveFormModelIdentity(form.data)}|root|${String(field)}`,
@@ -151,7 +152,7 @@ export const useFormModelObjectField = <TFormModel extends Record<string, any>>(
         const currentObject = objectField ? form.data?.[objectField] as Record<string, unknown> | null | undefined : undefined;
         const raw = currentObject?.[field];
         const tableName = String(objectField ?? "");
-        const label = getColumnDisplayName(form.displayName ?? null, tableName, field) || `【${field}】`;
+        const label = getModelColumnDisplayName(form.displayName ?? null, tableName, field, `【${field}】`);
         const inputValue = resolveInputValue(raw, mode, "default", undefined, ",");
         const onChange = (value: unknown): void =>
         {
@@ -189,7 +190,7 @@ export const useSetTableField = <T>(form: FormDataLike<T>) =>
         const dataAny = form.data as any;
         const tableVal = dataAny?.[table];
         const raw = resolveCurrentFieldValue(tableVal, field, rowKeys);
-        const label = getColumnDisplayName(form.displayName ?? null, String(table), String(field)) || `【${String(field)}】`;
+        const label = getModelColumnDisplayName(form.displayName ?? null, String(table), String(field), `【${String(field)}】`);
         const strategy: SetStrategy = typeof setType === "string" ? setType : (setType?.strategy ?? "default");
         const sumKeys = typeof setType === "object" ? setType.sumKeys : undefined;
         const csvDelimiter = typeof setType === "object" && setType.csvDelimiter ? setType.csvDelimiter : ",";
@@ -393,7 +394,7 @@ export const useSetTableFileField = <TFormModel>(formData: FormDataLike<TFormMod
                 updateRow((row) => ({ ...row, [fileNameField]: name }));
             };
 
-            const label = getColumnDisplayName(formData.displayName ?? null, String(tableName), String(fileIdField)) || `[${String(fileIdField)}]`;
+            const label = getModelColumnDisplayName(formData.displayName ?? null, String(tableName), String(fileIdField), `[${String(fileIdField)}]`);
 
             return {
                 ColumnDisplayName: label,
@@ -653,12 +654,6 @@ const coerceDatetime = (val: unknown): string | null =>
 
     const d = new Date(val as any);
     return isNaN(d.getTime()) ? null : d.toISOString();
-};
-
-/** 取得欄位顯示名稱。 */
-const getColumnDisplayName = (schema: ModelDisplaySchema | null, tableName: string, columnId: string): string =>
-{
-    return (schema?.Tables?.find(t => t.TableId === tableName)?.Columns?.find((c: any) => c.ColumnId === columnId)?.ColumnDisplayName ?? "");
 };
 
 /** 依欄位模式與策略推導自動預設值。 */
