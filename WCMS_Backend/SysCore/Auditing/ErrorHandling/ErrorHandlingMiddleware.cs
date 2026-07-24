@@ -7,6 +7,7 @@ using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Contracts;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
 using WCMS.SysCore.I18n;
+using WCMS.SysCore.Persistence.Normalization;
 namespace WCMS.SysCore.Auditing.ErrorHandling;
 
 public class ErrorHandlingMiddleware(RequestDelegate next, I18nCache i18n)
@@ -47,15 +48,15 @@ public class ErrorHandlingMiddleware(RequestDelegate next, I18nCache i18n)
         await WriteJsonAsync(context, apiRes);
     }
     /// <summary>
-    /// 建立 ApiResponse，並補上 SysMessage
+    /// 建立 ApiResponse，並補上 SysMessage。
     /// </summary>
     private ApiResponse<string> BuildApiResponse(IErrorHelper message, Exception exception)
     {
-        // 執行：資料被使用的 FK 錯誤轉成可讀訊息
+        if (TryAddForeignKeyValueMessage(message, exception))
+            return new ApiResponse<string>() { SysMessage = message.Messages };
         if (TryAddForeignKeyUsedMessage(message, exception))
             return new ApiResponse<string>() { SysMessage = message.Messages };
 
-        // 執行：非預期錯誤維持原本系統錯誤
         message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00001);
 
 #if DEBUG
@@ -100,6 +101,27 @@ Request: {method} {path}{query}
         await context.Response.WriteAsync(JsonSerializer.Serialize(apiRes));
     }
     /// <summary>
+    /// 將字串外鍵格式錯誤轉成欄位可讀訊息。
+    /// </summary>
+    private bool TryAddForeignKeyValueMessage(
+        IErrorHelper message,
+        Exception exception)
+    {
+        ForeignKeyValueValidationException? validationException =
+            GetInnerException<ForeignKeyValueValidationException>(exception);
+        if (validationException == null) return false;
+        string label = _i18n.GetDtoFirstPropertyLabel(
+            validationException.EntityName,
+            validationException.PropertyName);
+        if (string.IsNullOrWhiteSpace(label))
+            label = validationException.PropertyName;
+        message.AddMessage(
+            MessageStatus.Error,
+            SysMessageCode.BECode00035,
+            label);
+        return true;
+    }
+    /// <summary>
     /// 嘗試將 SQL FK 使用中錯誤轉成使用者可讀訊息。
     /// </summary>
     private bool TryAddForeignKeyUsedMessage(IErrorHelper message, Exception exception)
@@ -116,10 +138,18 @@ Request: {method} {path}{query}
     /// </summary>
     private static SqlException? GetSqlException(Exception exception)
     {
+        return GetInnerException<SqlException>(exception);
+    }
+    /// <summary>
+    /// 從例外鏈中取得指定型別的 Exception。
+    /// </summary>
+    private static TException? GetInnerException<TException>(Exception exception)
+        where TException : Exception
+    {
         Exception? current = exception;
         while (current != null)
         {
-            if (current is SqlException sqlException) return sqlException;
+            if (current is TException result) return result;
             current = current.InnerException;
         }
         return null;

@@ -144,7 +144,7 @@ public class FileManage_DownloadRecent : FormDetailModel
     public DateTime LastCountTime { get; set; } = DateTime.UtcNow;
     #region 主子表關聯
     [ForeignKey(nameof(InternalId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public FileManage _FileManage { get; set; } = null!;
     #endregion
 }
@@ -220,7 +220,7 @@ public class FileManage_SyncInfo : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(InternalId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public FileManage _FileManage { get; set; } = null!;
     #endregion
 }
@@ -262,7 +262,7 @@ public class FileManage_UsedModel
 
     #region 主子表關聯
     [ForeignKey(nameof(InternalId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public FileManage _FileManage { get; set; } = null!;
     #endregion
 }

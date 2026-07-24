@@ -7,6 +7,8 @@ using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Form;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Runtime;
+using WCMS.SysCore.Persistence;
+using WCMS.SysCore.Persistence.Normalization;
 
 namespace WCMS.SysCore.FeatureDriver.Biz.Operations.Write.Keys;
 
@@ -54,6 +56,7 @@ internal sealed class FormAggregateKeyCoordinator<TFormModel>(
         IReadOnlyList<IList> existingDetailLists,
         CancellationToken ct)
     {
+        NormalizeForeignKeyValues(header, detailLists);
         await EnsureBusinessIdAsync(header, detailLists, ct);
         FormDetailKeyAllocator.AllocateMissingRowIds(
             detailLists,
@@ -76,6 +79,21 @@ internal sealed class FormAggregateKeyCoordinator<TFormModel>(
     #endregion
 
     #region Private
+    /// <summary>
+    /// 在 Feature BeforeUpdate 前正規化 Root、Detail 與 SubDetail 的字串外鍵。
+    /// </summary>
+    private void NormalizeForeignKeyValues(
+        HeaderModel header,
+        IReadOnlyList<IList> detailLists)
+    {
+        List<object> entities = [header];
+        foreach (IList rows in detailLists)
+            foreach (object? row in rows)
+                if (row != null) entities.Add(row);
+        dynamic repo = RepoResolver(header.GetType());
+        ApplicationDbContext dataAccess = (ApplicationDbContext)repo.DataAccess;
+        StringForeignKeyValueNormalizer.NormalizeEntities(dataAccess, entities);
+    }
     /// <summary>
     /// 確保 Header 業務編號存在，並同步至所有 Detail。
     /// </summary>
