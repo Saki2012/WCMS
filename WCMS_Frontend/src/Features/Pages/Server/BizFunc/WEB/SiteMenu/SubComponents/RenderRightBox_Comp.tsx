@@ -46,6 +46,8 @@ type RenderRightBoxProp = {
     timelineMap: Map<string, string>;
     surveyMap: Map<string, string>;
     action: SiteMenuActions;
+    onSave: () => Promise<boolean>;
+    onCancel: () => void;
 };
 
 type MenuInfoCompProps = {
@@ -117,17 +119,11 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
         return findSelectedModuleRow(prop.formData.data?.SiteMenu_Item_Module ?? [], selectedSiteIndex, selectedRowId);
     }, [prop.formData.data?.SiteMenu_Item_Module, selectedSiteIndex, selectedRowId]);
 
-    /** 右側保存：網站資訊走 SaveSiteInfo；選單項目走 SaveMenuItem */
+    /** 將儲存要求交由父層統一處理，成功後才提交畫面資料。 */
     const handleSave = useCallback(async () =>
     {
-        if (!prop.selectedItemEdit) return;
-        if (prop.selectedItemEdit.type === "site")
-        {
-            await prop.action.onSaveSiteInfo();
-            return;
-        }
-        await prop.action.onSaveMenuItem(prop.selectedItemEdit.item);
-    }, [prop.action, prop.selectedItemEdit]);
+        await prop.onSave();
+    }, [prop.onSave]);
 
     /** 同步目前選取項目的功能類型 / 連結類型 / 模型代碼 */
     useEffect(() =>
@@ -215,7 +211,7 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
                                 type="button"
                                 className="btn btn-custom btn-rounded btn-sm mr-2 mb-2"
                                 disabled={prop.action.isExecuting}
-                                onClick={prop.action.onCancelBack}
+                                onClick={prop.onCancel}
                             >
                                 取消
                             </button>
