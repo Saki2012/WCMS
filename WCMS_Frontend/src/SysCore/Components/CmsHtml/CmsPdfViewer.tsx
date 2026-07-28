@@ -16,15 +16,13 @@ export interface CmsPdfViewerText
     fallbackHint: string;
     loading: string;
     loadFailed: string;
+    firstPage: string;
     previousPage: string;
     nextPage: string;
-    zoomIn: string;
-    zoomOut: string;
-    fitWidth: string;
+    lastPage: string;
     download: string;
     fullscreen: string;
     exitFullscreen: string;
-    goToPage: string;
     pageInputLabel: string;
     pageInputPrefix: string;
     pageInputSuffix: (pageCount: number) => string;
@@ -35,11 +33,7 @@ type PdfDocumentProxy = import("pdfjs-dist").PDFDocumentProxy;
 
 type PdfRenderTask = { promise: Promise<unknown>; cancel: () => void; };
 
-const PDF_MIN_SCALE = 0.75;
-
-const PDF_MAX_SCALE = 2;
-
-const PDF_SCALE_STEP = 0.25;
+const PDF_RENDER_SCALE = 1;
 // #endregion
 
 // #region Public
@@ -52,7 +46,6 @@ export const CmsPdfViewer = (props: CmsPdfViewerProps): ReactElement =>
     const [pdf, setPdf] = useState<PdfDocumentProxy | null>(null);
     const [pageNumber, setPageNumber] = useState(1);
     const [pageCount, setPageCount] = useState(0);
-    const [scale, setScale] = useState(1);
     const [pageInputValue, setPageInputValue] = useState("1");
     const [containerWidth, setContainerWidth] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
@@ -64,7 +57,7 @@ export const CmsPdfViewer = (props: CmsPdfViewerProps): ReactElement =>
     usePdfFullscreenState(containerRef, setIsFullscreen, setFullscreenSupported);
     usePdfPageInputSync(pageNumber, setPageInputValue);
     usePdfDocumentLoader(props.fileUrl, props.text.loadFailed, setPdf, setPageCount, setPageNumber, setIsLoading, setErrorText);
-    usePdfPageRenderer(pdf, pageNumber, scale, containerWidth, props.text.loadFailed, canvasRef, renderTaskRef, setErrorText);
+    usePdfPageRenderer(pdf, pageNumber, containerWidth, props.text.loadFailed, canvasRef, renderTaskRef, setErrorText);
 
     const canGoPrevious = pageNumber > 1;
     const canGoNext = pageCount > 0 && pageNumber < pageCount;
@@ -74,7 +67,6 @@ export const CmsPdfViewer = (props: CmsPdfViewerProps): ReactElement =>
             <PdfToolbar
                 pageNumber={pageNumber}
                 pageCount={pageCount}
-                scale={scale}
                 pageInputValue={pageInputValue}
                 text={props.text}
                 fileUrl={props.fileUrl}
@@ -83,13 +75,12 @@ export const CmsPdfViewer = (props: CmsPdfViewerProps): ReactElement =>
                 canGoNext={canGoNext}
                 isFullscreen={isFullscreen}
                 fullscreenSupported={fullscreenSupported}
+                onFirst={() => setPageNumber(1)}
                 onPrevious={() => setPageNumber(value => Math.max(1, value - 1))}
                 onNext={() => setPageNumber(value => Math.min(pageCount, value + 1))}
+                onLast={() => setPageNumber(pageCount)}
                 onPageInputChange={setPageInputValue}
                 onPageInputCommit={() => commitPdfPageInput(pageInputValue, pageNumber, pageCount, setPageNumber, setPageInputValue)}
-                onZoomOut={() => setScale(value => Math.max(PDF_MIN_SCALE, value - PDF_SCALE_STEP))}
-                onZoomIn={() => setScale(value => Math.min(PDF_MAX_SCALE, value + PDF_SCALE_STEP))}
-                onFitWidth={() => setScale(1)}
                 onToggleFullscreen={() => void togglePdfFullscreen(containerRef.current)}
             />
             <span className="cms-pdf-viewer-canvas-wrap">
@@ -106,9 +97,11 @@ export const CmsPdfViewer = (props: CmsPdfViewerProps): ReactElement =>
 /** PDF Viewer 工具列。 */
 const PdfToolbar = (props: PdfToolbarProps): ReactElement =>
 {
+    const fullscreenLabel = props.isFullscreen ? props.text.exitFullscreen : props.text.fullscreen;
     return (
         <span className="cms-pdf-viewer-toolbar" role="toolbar" aria-label={props.text.toolbarLabel}>
-            <button type="button" aria-label={props.text.previousPage} onClick={props.onPrevious} disabled={!props.canGoPrevious}>{props.text.previousPage}</button>
+            <PdfToolbarButton label={props.text.firstPage} iconClassName="fas fa-arrow-to-left" onClick={props.onFirst} disabled={!props.canGoPrevious} />
+            <PdfToolbarButton label={props.text.previousPage} iconClassName="fas fa-long-arrow-left" onClick={props.onPrevious} disabled={!props.canGoPrevious} />
             <PageJumpControl
                 pageNumber={props.pageNumber}
                 pageCount={props.pageCount}
@@ -117,18 +110,15 @@ const PdfToolbar = (props: PdfToolbarProps): ReactElement =>
                 onPageInputChange={props.onPageInputChange}
                 onPageInputCommit={props.onPageInputCommit}
             />
-            <button type="button" aria-label={props.text.nextPage} onClick={props.onNext} disabled={!props.canGoNext}>{props.text.nextPage}</button>
-            <button type="button" aria-label={props.text.zoomOut} onClick={props.onZoomOut} disabled={props.scale <= PDF_MIN_SCALE}>{props.text.zoomOut}</button>
-            <span className="cms-pdf-viewer-page-status">{Math.round(props.scale * 100)}%</span>
-            <button type="button" aria-label={props.text.zoomIn} onClick={props.onZoomIn} disabled={props.scale >= PDF_MAX_SCALE}>{props.text.zoomIn}</button>
-            <button type="button" aria-label={props.text.fitWidth} onClick={props.onFitWidth} disabled={props.scale === 1}>{props.text.fitWidth}</button>
-            <a href={props.fileUrl} download={resolveDownloadFileName(props.title)} target="_blank" rel="noopener noreferrer" className="cms-pdf-viewer-toolbar-link" aria-label={props.text.download}>{props.text.download}</a>
-            <button type="button" aria-label={props.isFullscreen ? props.text.exitFullscreen : props.text.fullscreen} onClick={props.onToggleFullscreen} disabled={!props.fullscreenSupported}>{props.isFullscreen ? props.text.exitFullscreen : props.text.fullscreen}</button>
+            <PdfToolbarButton label={props.text.nextPage} iconClassName="fas fa-long-arrow-right" onClick={props.onNext} disabled={!props.canGoNext} />
+            <PdfToolbarButton label={props.text.lastPage} iconClassName="fas fa-arrow-to-right" onClick={props.onLast} disabled={!props.canGoNext} />
+            {props.fullscreenSupported && <PdfToolbarButton label={fullscreenLabel} iconClassName="fas fa-expand-wide" className="cms-pdf-viewer-fullscreen-action cms-pdf-viewer-divider" onClick={props.onToggleFullscreen} />}
+            <PdfDownloadLink fileUrl={props.fileUrl} fileName={resolveDownloadFileName(props.title)} label={props.text.download} />
         </span>
     );
 };
 
-/** PDF Viewer 頁碼跳頁控制項。 */
+/** PDF Viewer 頁碼輸入控制項，離開欄位或按 Enter 時直接切換頁面。 */
 const PageJumpControl = (props: PageJumpControlProps): ReactElement =>
 {
     const pageCount = props.pageCount || 1;
@@ -140,6 +130,7 @@ const PageJumpControl = (props: PageJumpControlProps): ReactElement =>
                 min={1}
                 max={pageCount}
                 value={props.pageInputValue}
+                title={props.text.pageInputLabel}
                 aria-label={props.text.pageInputLabel}
                 className="cms-pdf-viewer-page-input"
                 disabled={props.pageCount <= 0}
@@ -148,8 +139,30 @@ const PageJumpControl = (props: PageJumpControlProps): ReactElement =>
                 onKeyDown={event => handlePageInputKeyDown(event, props)}
             />
             <span aria-hidden="true">{props.text.pageInputSuffix(pageCount)}</span>
-            <button type="button" aria-label={props.text.goToPage} onClick={props.onPageInputCommit} disabled={props.pageCount <= 0}>{props.text.goToPage}</button>
         </span>
+    );
+};
+// #endregion
+
+// #region EntityComp
+/** 建立具備 title 與 aria-label 的 PDF 工具列圖示按鈕。 */
+const PdfToolbarButton = (props: PdfToolbarButtonProps): ReactElement =>
+{
+    const className = ["cms-pdf-viewer-toolbar-action", props.className].filter(Boolean).join(" ");
+    return (
+        <button type="button" title={props.label} aria-label={props.label} className={className} onClick={props.onClick} disabled={props.disabled}>
+            <i className={props.iconClassName} aria-hidden="true" />
+        </button>
+    );
+};
+
+/** 建立具備 title 與 aria-label 的 PDF 下載圖示連結。 */
+const PdfDownloadLink = (props: PdfDownloadLinkProps): ReactElement =>
+{
+    return (
+        <a href={props.fileUrl} download={props.fileName} target="_blank" rel="noopener noreferrer" title={props.label} aria-label={props.label} className="cms-pdf-viewer-toolbar-link cms-pdf-viewer-divider">
+            <i className="fas fa-download" aria-hidden="true" />
+        </a>
     );
 };
 // #endregion
@@ -159,7 +172,6 @@ interface PdfToolbarProps
 {
     pageNumber: number;
     pageCount: number;
-    scale: number;
     pageInputValue: string;
     text: CmsPdfViewerText;
     fileUrl: string;
@@ -168,13 +180,12 @@ interface PdfToolbarProps
     canGoNext: boolean;
     isFullscreen: boolean;
     fullscreenSupported: boolean;
+    onFirst: () => void;
     onPrevious: () => void;
     onNext: () => void;
+    onLast: () => void;
     onPageInputChange: (value: string) => void;
     onPageInputCommit: () => void;
-    onZoomOut: () => void;
-    onZoomIn: () => void;
-    onFitWidth: () => void;
     onToggleFullscreen: () => void;
 }
 
@@ -186,6 +197,22 @@ interface PageJumpControlProps
     text: CmsPdfViewerText;
     onPageInputChange: (value: string) => void;
     onPageInputCommit: () => void;
+}
+
+interface PdfToolbarButtonProps
+{
+    label: string;
+    iconClassName: string;
+    className?: string;
+    disabled?: boolean;
+    onClick: () => void;
+}
+
+interface PdfDownloadLinkProps
+{
+    fileUrl: string;
+    fileName: string;
+    label: string;
 }
 
 /** 監聽 PDF Viewer 容器寬度，供 canvas RWD 縮放使用。 */
@@ -261,7 +288,6 @@ const usePdfDocumentLoader = (
 const usePdfPageRenderer = (
     pdf: PdfDocumentProxy | null,
     pageNumber: number,
-    scale: number,
     containerWidth: number,
     loadFailedText: string,
     canvasRef: RefObject<HTMLCanvasElement | null>,
@@ -272,8 +298,8 @@ const usePdfPageRenderer = (
     const renderPage = useCallback(() =>
     {
         if (!pdf || containerWidth <= 0) return Promise.resolve();
-        return renderPdfPage(pdf, pageNumber, scale, containerWidth, canvasRef, renderTaskRef);
-    }, [pdf, pageNumber, scale, containerWidth, canvasRef, renderTaskRef]);
+        return renderPdfPage(pdf, pageNumber, containerWidth, canvasRef, renderTaskRef);
+    }, [pdf, pageNumber, containerWidth, canvasRef, renderTaskRef]);
 
     useEffect(() =>
     {
@@ -361,14 +387,13 @@ const handlePdfLoadFailed = (disposed: boolean, message: string, setErrorText: (
 const renderPdfPage = async (
     pdf: PdfDocumentProxy,
     pageNumber: number,
-    scale: number,
     containerWidth: number,
     canvasRef: RefObject<HTMLCanvasElement | null>,
     renderTaskRef: MutableRefObject<PdfRenderTask | null>,
 ): Promise<void> =>
 {
     const page = await pdf.getPage(pageNumber);
-    const viewport = page.getViewport({ scale: resolveCanvasScale(page, scale, containerWidth) });
+    const viewport = page.getViewport({ scale: resolveCanvasScale(page, containerWidth) });
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
     if (!canvas || !context) return;
@@ -386,11 +411,10 @@ const isPdfRenderCancelled = (error: unknown): boolean =>
 };
 
 /** 依容器寬度計算 PDF render scale。 */
-const resolveCanvasScale = (page: Awaited<ReturnType<PdfDocumentProxy["getPage"]>>, scale: number, containerWidth: number): number =>
+const resolveCanvasScale = (page: Awaited<ReturnType<PdfDocumentProxy["getPage"]>>, containerWidth: number): number =>
 {
-    const baseViewport = page.getViewport({ scale: 1 });
-    const fitScale = Math.max(0.1, (containerWidth - 24) / baseViewport.width);
-    return fitScale * scale;
+    const baseViewport = page.getViewport({ scale: PDF_RENDER_SCALE });
+    return Math.max(0.1, (containerWidth - 24) / baseViewport.width);
 };
 
 /** 依裝置解析度調整 canvas 尺寸。 */
