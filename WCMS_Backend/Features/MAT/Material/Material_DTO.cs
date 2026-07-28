@@ -94,6 +94,13 @@ public class MaterialPicture_DTO
     /// 行代碼
     /// </summary>
     [LibDesc(ModelDisplayName.Common_RowId), Key] public int? RowId { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public int? RowNo { get; set; }
+
+
     /// <summary>
     /// 照片來源
     /// </summary>

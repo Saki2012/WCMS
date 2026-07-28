@@ -1,6 +1,7 @@
 // Features/Server/Pages/LoginPage.tsx
 import { loadLoginParticles } from "@/Features/Assets/LoadFeaturesJs";
 import { LangLink } from "@/SysCore/i18n/LangLink";
+import { setAuthContextSnapshot } from "@/SysCore/Components/Auth/AuthContext";
 import { AuthAPI } from "@/SysCore/Utils/API/AuthClient";
 import { SysCurrentDate } from "@/SysCore/Utils/SystemInfo/GetServerInfo";
 import { buildSystemVersionText } from "@/SysCore/Utils/SystemInfo/SystemVersionText";
@@ -53,7 +54,8 @@ export const LoginPage = () =>
                 return;
             }
             // 這裡會真的打到後端 /Service/Auth/Login
-            await AuthAPI.login({ account, password });
+            const response = await AuthAPI.login({ account, password });
+            setAuthContextSnapshot(response.data);
 
             const locState = (loc as any).state;
             const from = locState?.from?.pathname as string | undefined;

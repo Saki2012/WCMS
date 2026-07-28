@@ -11,7 +11,7 @@ public class SystemVersion_Biz
         {
             FeatVersion = 0,
             ModelVersion = 1,
-            Patch = 9,
+            Patch = 10,
         };
         SetSpecVersion(data);
         string version = $@"1.{data.FeatVersion}.{data.ModelVersion}.{data.Patch}";

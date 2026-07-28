@@ -6,16 +6,23 @@ using System.Security.Claims;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
+using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.Features.IAM.Auth
 {
     [ApiController, Route(SysParam.ServiceRoute)]
-    public class AuthController(IMemoryCache cache, ITokenService tokenSvc, IConfiguration cfg, IAuthService authBiz) : ControllerBase
+    public class AuthController(
+        IMemoryCache cache,
+        ITokenService tokenSvc,
+        IConfiguration cfg,
+        IAuthService authBiz,
+        ILibPermissionChecker permissionChecker) : ControllerBase
     {
         #region Property
         private readonly ITokenService _tokenSvc = tokenSvc;
         private readonly IConfiguration _cfg = cfg;
         private readonly IAuthService _authBiz = authBiz;
+        private readonly ILibPermissionChecker _permissionChecker = permissionChecker;
         private readonly IMemoryCache _cache = cache;
         protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
         private IOperateLog? _OperateLog;
@@ -39,12 +46,13 @@ namespace WCMS.Features.IAM.Auth
             var attempts = _cache.Get<int>(key);
             if (attempts >= 3) return StatusCode(StatusCodes.Status429TooManyRequests, new { message = "登入嘗試過多，請稍後再試。" });
             var (ok, userInfo) = await _authBiz.CheckLoginValid(req.Account, req.Password);
-            if (!ok)
+            if (!ok || userInfo == null)
             {
                 _cache.Set(key, attempts + 1, TimeSpan.FromMinutes(5)); // 五分鐘封鎖
                 return Unauthorized(GENERIC_LOGIN_ERROR);
             }
             _cache.Remove(key); // 成功登入就清除計數
+            _permissionChecker.InvalidateUser(userInfo.UserId); // 重新登入時讀取最新權限
             // 2) 簽發 AccessToken
             var (accessToken, jti, accessExp) = _tokenSvc.IssueAccessToken(userInfo);
             // 3) 產生 Refresh 資料並寫入 HttpOnly Cookie（同源 HTTPS）
@@ -84,7 +92,8 @@ namespace WCMS.Features.IAM.Auth
                 Path = baseOpt.Path,
                 Expires = accessExp
             });
-            return Ok(userInfo);
+            var userContext = await BuildCurrentUserContextAsync(userInfo, HttpContext.RequestAborted);
+            return Ok(userContext);
         }
         /// <summary>
         /// 刷新狀態
@@ -188,34 +197,32 @@ namespace WCMS.Features.IAM.Auth
         /// <summary>
         /// 取得目前登入者（驗證 JWT；失效就 401）
         /// </summary>
-        [HttpGet(nameof(Me)), Authorize]
-        public IActionResult Me()
+        [HttpGet(nameof(Me)), Authorize, ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        public async Task<IActionResult> Me(CancellationToken ct)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
-            var userName = User.FindFirstValue(ClaimTypes.Name) ?? userId;
-            var role = User.FindFirstValue(ClaimTypes.Role) ?? "User";
-            var interanlId = User.FindFirstValue(nameof(SysCore.Model.BasicDataModel.InternalId)) ?? ""; 
-            // 回傳你前端需要的最小欄位；之後要接 DB 再補充
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+            var userInfo = await _authBiz.FindByAccountAsync(userId);
+            if (userInfo == null) return Unauthorized("User disabled.");
 
-            var dt = new
-            {
-                Id = userId,
-                Name = userName,
-                Role = role,
-                InternalId= interanlId,
-            };
-
-            //OperateLogModel followInfo = new OperateLogModel();
-            //followInfo.APIName = nameof(Me);
-            //followInfo.UserId = "SysOperator";
-            //followInfo.followingDT = JsonConvert.SerializeObject(dt);
-            //followInfo.IP = Request.Headers["HTTP_CLIENT_IP"].ToString();
-            //OperateLog.AddMoveFollow(followInfo);
-
-            return Ok(dt);
+            var userContext = await BuildCurrentUserContextAsync(userInfo, ct);
+            return Ok(userContext);
         }
         #endregion
 
-
+        #region Private
+        /// <summary>
+        /// 建立目前登入者與完整有效權限內容。
+        /// </summary>
+        private async Task<CurrentUserContext_DTO> BuildCurrentUserContextAsync(User_DTO user, CancellationToken ct)
+        {
+            var effective = await _permissionChecker.GetEffectivePermissionsAsync(user.UserId, ct);
+            return new CurrentUserContext_DTO
+            {
+                User = user,
+                IsAdmin = effective.IsAdmin,
+                Permissions = effective.Permissions.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase),
+            };
+        }
+        #endregion
     }
 }

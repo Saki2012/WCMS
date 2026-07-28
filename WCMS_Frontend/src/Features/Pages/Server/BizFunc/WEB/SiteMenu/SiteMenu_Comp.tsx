@@ -3,7 +3,7 @@ import { FormShellComp } from "@/Features/Pages/Server/Scaffold/Content/FormShel
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { type Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import "react-nestable/dist/styles/index.css";
 import { type SiteMenuEditTarget, useSiteMenuFetchData } from "./SiteMenu_Hook";
 import { RenderLeftBox } from "./SubComponents/RenderLeftBox_Comp";
@@ -37,6 +37,8 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
     const [editSnapshot, setEditSnapshot] = useState<SiteMenuSet | null>(null);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [savedRevision, setSavedRevision] = useState(0);
+    const [isSortMode, setIsSortMode] = useState(false);
+    const canUpdate = getData.rawData.permission.canUpdate;
 
     const hasUnsavedChanges = useMemo(() =>
     {
@@ -49,6 +51,13 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
         return resolveEditTitle(selectedItemEdit);
     }, [selectedItemEdit]);
 
+    /** 關閉右側編輯狀態與草稿快照。 */
+    const closeEditor = useCallback(() =>
+    {
+        setSelectedItemEdit(null);
+        setEditSnapshot(null);
+    }, []);
+
     /** 進入指定項目編輯，並保存進入當下的完整表單快照。 */
     const activateTarget = useCallback((target: SiteMenuEditTarget) =>
     {
@@ -59,18 +68,19 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
     /** 左側要求切換時，若目前有草稿則先阻擋並顯示確認視窗。 */
     const handleRequestSelect = useCallback((target: SiteMenuEditTarget) =>
     {
+        if (!canUpdate || isSortMode) return;
         if (hasUnsavedChanges)
         {
             setConfirmOpen(true);
             return;
         }
         activateTarget(target);
-    }, [activateTarget, hasUnsavedChanges]);
+    }, [activateTarget, canUpdate, hasUnsavedChanges, isSortMode]);
 
     /** 儲存目前草稿；後端成功後才更新左側並關閉右側表單。 */
     const handleSave = useCallback(async (): Promise<boolean> =>
     {
-        if (!selectedItemEdit) return false;
+        if (!canUpdate || isSortMode || !selectedItemEdit) return false;
         const isSaved = selectedItemEdit.type === "site"
             ? await getData.rawData.actions.onSaveSiteInfo()
             : await getData.rawData.actions.onSaveMenuItem(selectedItemEdit.item);
@@ -78,14 +88,14 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
         setSavedRevision((prev) => prev + 1);
         closeEditor();
         return true;
-    }, [getData.rawData.actions, selectedItemEdit]);
+    }, [canUpdate, closeEditor, getData.rawData.actions, isSortMode, selectedItemEdit]);
 
     /** 取消編輯：還原進入前快照並關閉右側，不送出後端。 */
     const handleCancelEdit = useCallback(() =>
     {
         formData.setFormData(cloneFormData(editSnapshot));
         closeEditor();
-    }, [editSnapshot, formData]);
+    }, [closeEditor, editSnapshot, formData]);
 
     /** Modal 儲存目前草稿，成功後關閉 Modal 與右側表單。 */
     const handleConfirmSave = useCallback(async () =>
@@ -94,12 +104,27 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
         if (isSaved) setConfirmOpen(false);
     }, [handleSave]);
 
-    /** 關閉右側編輯狀態與草稿快照。 */
-    const closeEditor = useCallback(() =>
+    /** 切換排序模式；有右側未儲存內容時先阻擋。 */
+    const handleSortModeChange = useCallback((active: boolean): boolean =>
     {
-        setSelectedItemEdit(null);
-        setEditSnapshot(null);
-    }, []);
+        if (!canUpdate) return false;
+        if (active && hasUnsavedChanges)
+        {
+            setConfirmOpen(true);
+            return false;
+        }
+
+        setIsSortMode(active);
+        if (active) closeEditor();
+        return true;
+    }, [canUpdate, closeEditor, hasUnsavedChanges]);
+
+    useEffect(() =>
+    {
+        if (canUpdate) return;
+        setIsSortMode(false);
+        closeEditor();
+    }, [canUpdate, closeEditor]);
 
     const formProp: FormCompProp = {
         Title: "網站功能",
@@ -121,6 +146,9 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
                     lang={prop.lang}
                     formData={formData}
                     action={getData.rawData.actions}
+                    canUpdate={canUpdate}
+                    isSortMode={isSortMode}
+                    onSortModeChange={handleSortModeChange}
                 />
                 <RenderRightBox
                     theme={prop.theme}
@@ -140,6 +168,8 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
                     action={getData.rawData.actions}
                     onSave={handleSave}
                     onCancel={handleCancelEdit}
+                    canUpdate={canUpdate}
+                    isSortMode={isSortMode}
                 />
             </div>
             {confirmOpen && (

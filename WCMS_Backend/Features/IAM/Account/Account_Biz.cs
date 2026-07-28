@@ -5,16 +5,21 @@ using WCMS.SysCore;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Library.Security;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.IAM.Account
 {
-    public class AccountBiz(BizDeps bizDeps, IBizService<PersonSet>biz) : BizService<AccountSet>(bizDeps), IBizService<AccountSet>
+    public class AccountBiz(
+        BizDeps bizDeps,
+        IBizService<PersonSet> biz,
+        ILibPermissionChecker permissionChecker) : BizService<AccountSet>(bizDeps), IBizService<AccountSet>
     {
         #region Property
         protected IBizService<PersonSet> personBiz = biz;
+        private readonly HashSet<string> _pendingPermissionUsers = new(StringComparer.OrdinalIgnoreCase);
         protected override bool IsAutoGenerateId { get => false; }
         #endregion
 
@@ -112,15 +117,28 @@ namespace WCMS.Features.IAM.Account
         protected override async Task AfterUpdate(AccountSet? oldSet, AccountSet? newSet, FuncAction act, TransStatus status, CancellationToken ct = default)
         {
             await base.AfterUpdate(oldSet, newSet, act, status, ct);
-            switch(act)
+            AddPendingPermissionUser(oldSet?.Account.AccountId);
+            AddPendingPermissionUser(newSet?.Account.AccountId);
+
+            switch (act)
             {
                 case FuncAction.Create:
-                    await AutoCreatePersonData(newSet.Account.PersonId, newSet.Account.AccountName, ct);
+                    if (newSet != null) await AutoCreatePersonData(newSet.Account.PersonId, newSet.Account.AccountName, ct);
                     break;
                 case FuncAction.Update:
-                    LetPasswordNoUpdate(oldSet,newSet);
+                    if (oldSet != null && newSet != null) LetPasswordNoUpdate(oldSet, newSet);
                     break;
             }
+        }
+
+        /// <summary>
+        /// 帳號角色異動提交後清除該使用者的權限快取。
+        /// </summary>
+        protected override async Task AfterSaveChanges(FuncAction action, CancellationToken ct = default)
+        {
+            await base.AfterSaveChanges(action, ct);
+            foreach (var userId in _pendingPermissionUsers) permissionChecker.InvalidateUser(userId);
+            _pendingPermissionUsers.Clear();
         }
         #endregion
 
@@ -139,6 +157,13 @@ namespace WCMS.Features.IAM.Account
         #endregion
 
         #region Private
+        /// <summary>
+        /// 加入待清除權限快取的帳號。
+        /// </summary>
+        private void AddPendingPermissionUser(string? userId)
+        {
+            if (!string.IsNullOrWhiteSpace(userId)) _pendingPermissionUsers.Add(userId);
+        }
 
         private async Task AutoCreatePersonData(string personId,string personName, CancellationToken ct)
         {

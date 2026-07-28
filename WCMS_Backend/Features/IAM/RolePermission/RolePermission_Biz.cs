@@ -3,15 +3,20 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using WCMS.SysCore;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library.LibAttribute;
+using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.IAM.RolePermission
 {
-    public class RolePermissionBiz(BizDeps bizDeps, IActionDescriptorCollectionProvider adcp) : BizService<RolePermissionSet>(bizDeps), IBizService<RolePermissionSet>
+    public class RolePermissionBiz(
+        BizDeps bizDeps,
+        IActionDescriptorCollectionProvider adcp,
+        ILibPermissionChecker permissionChecker) : BizService<RolePermissionSet>(bizDeps), IBizService<RolePermissionSet>
     {
         #region Cache
         // Catalog 來源是 Attribute（很少變動），用 static cache 減少每次掃描成本
         private static readonly object _catalogLock = new();
         private static IList<PermissionCatalogModuleDTO>? _catalogCache;
+        private readonly HashSet<string> _pendingRoleIds = new(StringComparer.OrdinalIgnoreCase);
         #endregion
 
         #region Public
@@ -33,7 +38,42 @@ namespace WCMS.Features.IAM.RolePermission
         }
         #endregion
 
+
+        #region Protected Virtual
+        /// <summary>
+        /// 記錄本次異動影響的角色，提交後清除其使用者權限快取。
+        /// </summary>
+        protected override async Task AfterUpdate(
+            RolePermissionSet? oldSet,
+            RolePermissionSet? newSet,
+            FuncAction act,
+            TransStatus status,
+            CancellationToken ct = default)
+        {
+            await base.AfterUpdate(oldSet, newSet, act, status, ct);
+            AddPendingRoleId(oldSet?.RoleData.RoleId);
+            AddPendingRoleId(newSet?.RoleData.RoleId);
+        }
+
+        /// <summary>
+        /// 資料提交完成後清除受影響使用者的權限快取。
+        /// </summary>
+        protected override async Task AfterSaveChanges(FuncAction action, CancellationToken ct = default)
+        {
+            await base.AfterSaveChanges(action, ct);
+            foreach (var roleId in _pendingRoleIds) await permissionChecker.InvalidateRoleAsync(roleId, ct);
+            _pendingRoleIds.Clear();
+        }
+        #endregion
+
         #region Private
+        /// <summary>
+        /// 加入待清除快取的角色代碼。
+        /// </summary>
+        private void AddPendingRoleId(string? roleId)
+        {
+            if (!string.IsNullOrWhiteSpace(roleId)) _pendingRoleIds.Add(roleId);
+        }
 
         /// <summary>
         /// 判斷此 Controller 是否允許出現在「當前 Spec 的權限目錄」
