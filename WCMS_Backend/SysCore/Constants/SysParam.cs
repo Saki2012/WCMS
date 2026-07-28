@@ -156,6 +156,13 @@ public static class SysParam
     {
         public const string AccessToken = "access";
         public const string RefreshTokenId = "rtid";
+        /// <summary>
+        /// ASP.NET Core Antiforgery 內部驗證 Cookie，不提供前端 JavaScript 讀取。
+        /// </summary>
+        public const string AntiforgeryToken = "__Host-WCMS-Antiforgery";
+        /// <summary>
+        /// 前端可讀取並回送到 X-XSRF-TOKEN Header 的 Request Token Cookie。
+        /// </summary>
         public const string XsrfToken = "XSRF-TOKEN";
         public const string VisitorKey = "wcms.visitor";
     }

@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Antiforgery;
-using WCMS.SysCore.Constants;
+﻿using WCMS.SysCore.Constants;
 namespace WCMS.SysCore.Security.Hardening;
 
 /// <summary>
-/// 管理 XSRF Cookie、寫入型請求來源驗證與本機 Swagger 例外規則。
+/// 管理寫入型請求來源驗證與本機 Swagger 例外規則。
+/// XSRF Token 僅由 SystemAPI/GetXsrfToken 專用 Endpoint 發出。
 /// </summary>
 internal static class XsrfProtectionSetup
 {
@@ -13,7 +13,7 @@ internal static class XsrfProtectionSetup
 
     #region Public
     /// <summary>
-    /// 將 XSRF 與 Origin / Referer 驗證加入 Middleware Pipeline。
+    /// 將 Origin / Referer 驗證加入 Middleware Pipeline。
     /// </summary>
     public static void Use(WebApplication app, IConfiguration configuration)
     {
@@ -24,7 +24,7 @@ internal static class XsrfProtectionSetup
 
     #region Private
     /// <summary>
-    /// 依請求條件鑄造 XSRF Cookie，並驗證正式環境寫入來源。
+    /// 依請求條件驗證正式環境寫入來源。
     /// </summary>
     private static async Task HandleRequestAsync(WebApplication app, HttpContext context, Func<Task> next, HashSet<string> frontendHosts)
     {
@@ -33,7 +33,6 @@ internal static class XsrfProtectionSetup
             await next();
             return;
         }
-        AppendXsrfCookieForHtmlGet(context);
         if (IsBlockedWriteOrigin(app, context, frontendHosts))
         {
             await RejectInvalidOriginAsync(context);
@@ -51,42 +50,6 @@ internal static class XsrfProtectionSetup
         if (path.Equals(XsrfTokenPath, StringComparison.OrdinalIgnoreCase)) return true;
         if (IsLocalHttpSwagger(context)) return true;
         return IsWriteRequest(context.Request.Method) && IsFromLocalSwagger(context);
-    }
-
-    /// <summary>
-    /// HTML GET 時鑄造前端可讀的 XSRF Token Cookie。
-    /// </summary>
-    private static void AppendXsrfCookieForHtmlGet(HttpContext context)
-    {
-        if (!ShouldAppendXsrfCookie(context)) return;
-        var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
-        var requestToken = antiforgery.GetAndStoreTokens(context).RequestToken;
-        if (string.IsNullOrEmpty(requestToken)) return;
-        context.Response.Cookies.Append(SysParam.CookieNames.XsrfToken, requestToken, BuildXsrfCookieOptions());
-    }
-
-    /// <summary>
-    /// 建立 XSRF Cookie 的安全設定。
-    /// </summary>
-    private static CookieOptions BuildXsrfCookieOptions()
-    {
-        return new CookieOptions
-        {
-            HttpOnly = false,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Path = SysParam.CookiePaths.Root
-        };
-    }
-
-    /// <summary>
-    /// 判斷是否需要在 HTML GET 回應鑄造 XSRF Cookie。
-    /// </summary>
-    private static bool ShouldAppendXsrfCookie(HttpContext context)
-    {
-        var acceptsHtml = context.Request.Headers.Accept.ToString().Contains(SysParam.MediaTypes.TextHtml, StringComparison.OrdinalIgnoreCase);
-        var isSwagger = context.Request.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase);
-        return context.Request.IsHttps && !isSwagger && acceptsHtml && HttpMethods.IsGet(context.Request.Method);
     }
 
     /// <summary>
