@@ -169,6 +169,7 @@ const buildMaterialParam = (p: { categoryId?: string; tagIds?: string; }): Query
             `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.MaterialInfoJson}`,
             `${MaterialFields._MaterialPicture}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.RowId}`,
+            `${MaterialFields._MaterialPicture}.${MaterialPictureFields.RowNo}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.PictureId}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.PictureName}`,
             `${MaterialFields._MaterialTags}.${MaterialTagsFields.TagId}`,

@@ -16,6 +16,7 @@ import { useMaterialFormData } from "./Client_Material_Form_Loader";
 
 // #region Property
 export type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+type MaterialPicture = components["schemas"]["MaterialPicture_DTO"];
 
 export interface MaterialFormViewData
 {
@@ -415,16 +416,32 @@ const MaterialInfoContent_Comp = (props: { rawData: MaterialFormViewData; lang: 
 // #endregion
 
 // #region Protected
-/** 建立圖片清單 */
+/** 建立圖片清單，顯示順序依 RowNo 決定。 */
 const buildPictures = (data: MaterialSet, title: string): Array<{ url: string; alt: string; title: string; }> =>
 {
-    const list = (data.MaterialPicture ?? []).map(pic =>
+    return sortMaterialPictures(data.MaterialPicture ?? []).map(pic =>
     {
         const alt = pic.PictureName ?? title;
         const url = FileManagementAPI.get_Public_Preview_Url(pic.PictureId, alt) ?? "";
         return url ? { url, alt, title: pic.PictureName ?? title } : null;
-    }).filter((p): p is { url: string; alt: string; title: string; } => Boolean(p));
-    return list;
+    }).filter((pic): pic is { url: string; alt: string; title: string; } => Boolean(pic));
+};
+
+/** 依 RowNo、RowId 穩定排序相片。 */
+const sortMaterialPictures = (pictures: MaterialPicture[]): MaterialPicture[] =>
+{
+    return [...pictures].sort((left, right) =>
+    {
+        return getMaterialPictureOrder(left) - getMaterialPictureOrder(right)
+            || Number(left.RowId ?? 0) - Number(right.RowId ?? 0);
+    });
+};
+
+/** 取得相片排序值，舊資料沒有 RowNo 時排在最後。 */
+const getMaterialPictureOrder = (picture: MaterialPicture): number =>
+{
+    const rowNo = Number(picture.RowNo ?? 0);
+    return rowNo > 0 ? rowNo : Number.MAX_SAFE_INTEGER;
 };
 /** 建立規格列 */
 const buildSpecRows = (rawData: MaterialFormViewData, json: MaterialInfoJson): Array<{ label: string; value: string; }> =>

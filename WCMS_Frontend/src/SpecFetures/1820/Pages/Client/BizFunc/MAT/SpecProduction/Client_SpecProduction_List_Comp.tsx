@@ -14,6 +14,7 @@ import { useClientSpecProductionListFetchData } from "./Client_SpecProduction_Li
 
 // #region Property
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+type MaterialPicture = components["schemas"]["MaterialPicture_DTO"];
 type MaterialTag = components["schemas"]["MaterialTags_DTO"];
 type MatCategoryInfoField = components["schemas"]["MatCategoryInfoField_DTO"];
 export interface ClientSpecProductionListProps
@@ -480,11 +481,32 @@ const formatInfoValue = (value: MaterialInfoJsonValue): string =>
 };
 
 /// <summary>
+/// 取得 RowNo 最前面的物件主圖。
+/// </summary>
+const getPrimaryMaterialPicture = (pictures?: MaterialPicture[] | null): MaterialPicture | undefined =>
+{
+    return [...(pictures ?? [])].sort((left, right) =>
+    {
+        return getMaterialPictureOrder(left) - getMaterialPictureOrder(right)
+            || Number(left.RowId ?? 0) - Number(right.RowId ?? 0);
+    })[0];
+};
+
+/// <summary>
+/// 取得相片排序值，舊資料沒有 RowNo 時排到最後。
+/// </summary>
+const getMaterialPictureOrder = (picture: MaterialPicture): number =>
+{
+    const rowNo = Number(picture.RowNo ?? 0);
+    return rowNo > 0 ? rowNo : Number.MAX_SAFE_INTEGER;
+};
+
+/// <summary>
 /// 渲染單一物件資訊卡。
 /// </summary>
 const ProductionCard = (props: { lang: Lang; item: MaterialSet; viewMoreText: string; }) =>
 {
-    const image = props.item.MaterialPicture?.[0];
+    const image = getPrimaryMaterialPicture(props.item.MaterialPicture);
     const langInfo = getMaterialLangInfo(props.item, props.lang);
     const matName = langInfo?.MaterialName ?? "";
     const infoRows = buildMaterialInfoRows(props.item, props.lang);

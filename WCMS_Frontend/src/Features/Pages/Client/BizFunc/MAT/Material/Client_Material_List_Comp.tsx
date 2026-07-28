@@ -17,6 +17,7 @@ import { type IMaterialListOptions, useMaterialListData } from "./Client_Materia
 
 // #region Property
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+type MaterialPicture = components["schemas"]["MaterialPicture_DTO"];
 export interface IMaterialListProps
 {
     theme: IFETheme;
@@ -305,9 +306,26 @@ const buildMaterialCardView = (item: MaterialSet, lang: Lang, dirUrl: string, ca
     const price = item.Material?.Price ?? 0;
     const title = langInfo?.MaterialName ?? "";
     const categoryName = main?.CategoryId ? categoryMap[main.CategoryId] ?? "" : "";
-    const picData = item.MaterialPicture?.[0];
+    const picData = getPrimaryMaterialPicture(item.MaterialPicture);
     const picAlt = picData?.PictureName ?? title;
     const picUrl = picData?.PictureId ? FileManagementAPI.get_Public_Preview_Url(picData.PictureId, picAlt) : defaultPic;
     return { key: internalId, linkUrl: `${dirUrl}/${internalId}`, title, price, categoryName, picUrl, picAlt };
+};
+
+/** 取得 RowNo 最前面的物件主圖。 */
+const getPrimaryMaterialPicture = (pictures?: MaterialPicture[] | null): MaterialPicture | undefined =>
+{
+    return [...(pictures ?? [])].sort((left, right) =>
+    {
+        return getMaterialPictureOrder(left) - getMaterialPictureOrder(right)
+            || Number(left.RowId ?? 0) - Number(right.RowId ?? 0);
+    })[0];
+};
+
+/** 取得相片排序值，舊資料沒有 RowNo 時排在最後。 */
+const getMaterialPictureOrder = (picture: MaterialPicture): number =>
+{
+    const rowNo = Number(picture.RowNo ?? 0);
+    return rowNo > 0 ? rowNo : Number.MAX_SAFE_INTEGER;
 };
 // #endregion

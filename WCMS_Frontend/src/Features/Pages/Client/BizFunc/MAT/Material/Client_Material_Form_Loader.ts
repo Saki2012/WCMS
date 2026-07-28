@@ -184,6 +184,7 @@ const buildMaterialFormQueryParam = (p: { internalId: string; }): QueryListParam
             `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.Memo}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.MaterialId}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.RowId}`,
+            `${MaterialFields._MaterialPicture}.${MaterialPictureFields.RowNo}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.PictureId}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.PictureName}`,
             `${MaterialFields._MaterialTags}.${MaterialTagsFields.MaterialId}`,

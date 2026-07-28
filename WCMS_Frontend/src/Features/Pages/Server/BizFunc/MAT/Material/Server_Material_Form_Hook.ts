@@ -22,6 +22,7 @@ import type {
 import {
     buildEditGridCell,
     getEditGridCellValue,
+    getEditGridRowId,
     getEditGridStringCellValue,
     getSelectedEditGridFile,
     useEditGridBinding,
@@ -354,7 +355,7 @@ export const useMaterialPictureEditGrid = (opt: UseMaterialPictureEditGridOption
         columns,
         getItemRowId: picture => picture.RowId,
         sortItems: sortMaterialPictures,
-        createItem: ctx => buildNewMaterialPictureItem(ctx.data, ctx.nextRowId),
+        createItem: ctx => buildNewMaterialPictureItem(ctx.data, ctx.nextRowId, ctx.nextRowNo),
         toRow: (picture, index) => buildMaterialPictureGridRow(picture, index, opt, handlePictureValueChange, displayName),
         toItem: (row, index, ctx) => toMaterialPictureDto(ctx.data, row, index),
         editGridProps: buildMaterialPictureGridProps(opt.style, displayName),
@@ -735,10 +736,21 @@ const buildMaterialPictureGridProps = (style: IEditGridView_Style, displayName: 
     };
 };
 
-/** 依 RowId 排序物件相片。 */
+/** 依 RowNo、RowId 穩定排序物件相片。 */
 const sortMaterialPictures = (pictures: MaterialPicture[]): MaterialPicture[] =>
 {
-    return [...pictures].sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0));
+    return [...pictures].sort((left, right) =>
+    {
+        return getMaterialPictureOrder(left) - getMaterialPictureOrder(right)
+            || Number(left.RowId ?? 0) - Number(right.RowId ?? 0);
+    });
+};
+
+/** 取得相片排序值，舊資料沒有 RowNo 時排在最後。 */
+const getMaterialPictureOrder = (picture: MaterialPicture): number =>
+{
+    const rowNo = Number(picture.RowNo ?? 0);
+    return rowNo > 0 ? rowNo : Number.MAX_SAFE_INTEGER;
 };
 
 /** 建立物件相片 Grid 欄位設定，欄位名稱優先讀 ModelDisplayName。 */
@@ -826,25 +838,31 @@ const getMaterialColumnTitle = (displayName: ModelDisplaySchema, tableId: string
     return columnHit?.ColumnDisplayName ?? fallbackHit?.ColumnDisplayName ?? fallback;
 };
 
-/** 建立新物件相片 DTO，RowId 由共用 Hook 推算。 */
-const buildNewMaterialPictureItem = (data: MaterialSet, rowId: number): MaterialPicture =>
+/** 建立新物件相片 DTO，RowId 與 RowNo 由共用 Hook 推算。 */
+const buildNewMaterialPictureItem = (data: MaterialSet, rowId: number, rowNo: number): MaterialPicture =>
 {
-    return { MaterialId: data.Material?.MaterialId, RowId: rowId, PictureId: "", PictureName: "" };
+    return { MaterialId: data.Material?.MaterialId, RowId: rowId, RowNo: rowNo, PictureId: "", PictureName: "" };
 };
 
-/** 將物件相片 Grid Row 轉回 DTO，RowId 依畫面排序重算。 */
+/** 將物件相片 Grid Row 轉回 DTO，保留 RowId 並依畫面順序寫入 RowNo。 */
 const toMaterialPictureDto = (source: MaterialSet, row: GridRow, index: number): MaterialPicture =>
 {
     const pictureValue = toMaterialPictureCellValue(getEditGridCellValue(row, MaterialPictureFields.PictureId));
-    const rowId = index + 1;
 
     return {
         MaterialId: source.Material?.MaterialId ?? (row as MaterialPictureGridRow).MaterialId,
-        RowId: rowId,
+        RowId: getEditGridRowId(row, index),
+        RowNo: getMaterialPictureRowNo(row, index),
         PictureId: pictureValue.internalId ?? "",
         PictureName: getNullableStringCellValue(row, MaterialPictureFields.PictureName) ?? LibAttachment.getDisplayFileNameWithoutExtension(pictureValue.originalFileName),
         Picture: (row as MaterialPictureGridRow).Picture ?? undefined,
     };
+};
+
+/** 取得 EditGrid 重排後的 RowNo。 */
+const getMaterialPictureRowNo = (row: GridRow, index: number): number =>
+{
+    return Number(row.RowNo ?? row.rowNo ?? row.rowno ?? index + 1);
 };
 
 /** 使用 EditGrid 內建 file 欄位選圖後，上傳並同步圖片名稱。 */
@@ -946,23 +964,42 @@ const appendMaterialUploadedPictures = (binding: ServerFormBinding<MaterialSet>,
 /** 將批次圖片寫入資料，圖片名稱預設為檔案名稱。 */
 const appendMaterialUploadedPicturesToData = (data: MaterialSet, uploaded: MaterialUploadedPicture[]): MaterialSet =>
 {
+    const pictures = normalizeMaterialPictureRowNo(data.MaterialPicture ?? []);
     const materialId = data.Material?.MaterialId;
-    const startRowId = getNextMaterialPictureRowId(data.MaterialPicture ?? []);
-    const newPictures = uploaded.map((item, index) => buildUploadedMaterialPictureDto(materialId, startRowId + index, item));
+    const startRowId = getNextMaterialPictureRowId(pictures);
+    const startRowNo = pictures.length + 1;
+    const newPictures = uploaded.map((item, index) =>
+    {
+        return buildUploadedMaterialPictureDto(materialId, startRowId + index, startRowNo + index, item);
+    });
 
-    return { ...data, MaterialPicture: [...data.MaterialPicture ?? [], ...newPictures] };
+    return { ...data, MaterialPicture: [...pictures, ...newPictures] };
 };
 
 /** 建立批次上傳後的物件相片 DTO。 */
-const buildUploadedMaterialPictureDto = (materialId: string | null | undefined, rowId: number, item: MaterialUploadedPicture): MaterialPicture =>
+const buildUploadedMaterialPictureDto = (
+    materialId: string | null | undefined,
+    rowId: number,
+    rowNo: number,
+    item: MaterialUploadedPicture,
+): MaterialPicture =>
 {
-    return { MaterialId: materialId, RowId: rowId, PictureId: item.internalId, PictureName: item.title };
+    return { MaterialId: materialId, RowId: rowId, RowNo: rowNo, PictureId: item.internalId, PictureName: item.title };
 };
 
 /** 取得下一個相片 RowId。 */
 const getNextMaterialPictureRowId = (pictures: MaterialPicture[]): number =>
 {
     return pictures.reduce((max, picture) => Math.max(max, Number(picture.RowId ?? 0)), 0) + 1;
+};
+
+/** 依目前顯示順序補成連續 RowNo，避免舊資料與新上傳資料順序交錯。 */
+const normalizeMaterialPictureRowNo = (pictures: MaterialPicture[]): MaterialPicture[] =>
+{
+    return sortMaterialPictures(pictures).map((picture, index) =>
+    {
+        return { ...picture, RowNo: index + 1 };
+    });
 };
 
 /** 取得本次選圖的原始檔名，避免上傳 callback 未帶檔名時只剩 internalId。 */
