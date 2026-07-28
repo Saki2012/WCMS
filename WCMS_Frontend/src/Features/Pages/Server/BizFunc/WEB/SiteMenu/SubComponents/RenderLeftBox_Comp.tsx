@@ -1,7 +1,7 @@
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
-import { type ComponentProps, type Dispatch, useCallback, useEffect, useMemo, useState } from "react";
+import { type ComponentProps, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Nestable from "react-nestable";
 import type { SiteMenuActions, SiteMenuEditTarget, SiteMenuItem } from "../SiteMenu_Hook";
 
@@ -20,7 +20,10 @@ type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url_DTO"];
 
 
 type RenderLeftBoxProp = {
-    setSelectedItemEdit: Dispatch<SiteMenuEditTarget>;
+    selectedItemEdit: SiteMenuEditTarget;
+    onRequestSelect: (target: SiteMenuEditTarget) => void;
+    savedRevision: number;
+    isLoading: boolean;
     siteMenuItems: SiteMenuItem[];
     lang: Lang;
     formData: UseFetchFormDataResult<SiteMenuSet>;
@@ -45,6 +48,8 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
     const [originalSnapshot, setOriginalSnapshot] = useState("");
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [candidate, setCandidate] = useState<SiteMenuItem | null>(null);
+    const [siteInfoTitle, setSiteInfoTitle] = useState("網站整體資訊");
+    const appliedRevisionRef = useRef(0);
 
     const currentSnapshot = useMemo(() =>
     {
@@ -56,25 +61,41 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
         return hasDraftItem(items);
     }, [items]);
 
+    /** 主選單資料回填後同步左側樹，本地結構有異動時不覆蓋。 */
     useEffect(() =>
     {
-        const incomingSnapshot = buildStructureSnapshot(prop.siteMenuItems);
-        const incomingHasDraft = hasDraftItem(prop.siteMenuItems);
+        const hasMenuData = Array.isArray(prop.formData.data?.SiteMenu_Item) || prop.siteMenuItems.length > 0;
+        if (!hasMenuData) return;
+
+        const incomingItems = cloneMenuItems(prop.siteMenuItems);
+        const incomingSnapshot = buildStructureSnapshot(incomingItems);
+        const incomingHasDraft = hasDraftItem(incomingItems);
         const isFirstLoad = originalSnapshot === "";
         const shouldAcceptServer = hasDraft && !incomingHasDraft;
         const isDirty = !isFirstLoad && (currentSnapshot !== originalSnapshot || deletedRowIds.length > 0 || hasDraft);
 
         if (!shouldAcceptServer && isDirty) return;
+        if (!isFirstLoad && incomingSnapshot === originalSnapshot) return;
 
-        setItems(prop.siteMenuItems);
+        setItems(incomingItems);
         setOriginalSnapshot(incomingSnapshot);
         setDeletedRowIds([]);
-    }, [prop.siteMenuItems, currentSnapshot, originalSnapshot, deletedRowIds.length, hasDraft]);
+        setSiteInfoTitle(resolveSiteInfoTitle(prop.formData.data, prop.lang));
+    }, [prop.formData.data, prop.lang, prop.siteMenuItems, currentSnapshot, deletedRowIds.length, hasDraft, originalSnapshot]);
 
-    const siteInfoTitle = useMemo(() =>
+    /** 後端儲存成功後，才將最新標題同步到左側。 */
+    useEffect(() =>
     {
-        return resolveSiteInfoTitle(prop.formData.data, prop.lang);
-    }, [prop.formData.data, prop.lang]);
+        if (prop.savedRevision === 0 || appliedRevisionRef.current === prop.savedRevision) return;
+        setItems((prev) => applySavedTitles(prev, prop.formData.data, prop.lang));
+        setSiteInfoTitle(resolveSiteInfoTitle(prop.formData.data, prop.lang));
+        appliedRevisionRef.current = prop.savedRevision;
+    }, [prop.formData.data, prop.lang, prop.savedRevision]);
+
+    const selectedMenuRowId = useMemo(() =>
+    {
+        return prop.selectedItemEdit?.type === "menu" ? prop.selectedItemEdit.item.id : null;
+    }, [prop.selectedItemEdit]);
 
     const canSaveStructure = useMemo(() =>
     {
@@ -83,13 +104,13 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
 
     const handleSelectSiteInfo = useCallback(() =>
     {
-        prop.setSelectedItemEdit({ type: "site", title: siteInfoTitle });
+        prop.onRequestSelect({ type: "site", title: siteInfoTitle });
     }, [prop, siteInfoTitle]);
 
     /** 選取左側項目，供右側編輯 */
     const handleSelectItem = useCallback((item: SiteMenuItem) =>
     {
-        prop.setSelectedItemEdit({ type: "menu", item });
+        prop.onRequestSelect({ type: "menu", item });
     }, [prop]);
 
     /** 開啟刪除確認視窗 */
@@ -156,7 +177,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
             syncTreeToForm(nextTree, prop.formData);
             setTimeout(() =>
             {
-                prop.setSelectedItemEdit({ type: "menu", item: newNode });
+                prop.onRequestSelect({ type: "menu", item: newNode });
             }, 0);
             return nextTree;
         });
@@ -192,7 +213,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
         applyRemovalToForm(prop.formData, ids);
         syncTreeToForm(newTree, prop.formData);
         handleCloseConfirm();
-        prop.setSelectedItemEdit(null);
+        prop.onRequestSelect(null);
     }, [candidate, handleCloseConfirm, items, prop]);
 
     /** 僅刪除此層，子層往上提升 */
@@ -210,7 +231,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
         applyRemovalToForm(prop.formData, idOnly);
         syncTreeToForm(newTree, prop.formData);
         handleCloseConfirm();
-        prop.setSelectedItemEdit(null);
+        prop.onRequestSelect(null);
     }, [candidate, handleCloseConfirm, items, prop]);
 
     /** 拖拉排序後同步回 formData */
@@ -231,9 +252,10 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
                 onSelect={handleSelectItem}
                 onAddChild={handleAddChildItem}
                 onDelete={handleDeleteItem}
+                selectedRowId={selectedMenuRowId}
             />
         );
-    }, [handleAddChildItem, handleDeleteItem, handleSelectItem]);
+    }, [handleAddChildItem, handleDeleteItem, handleSelectItem, selectedMenuRowId]);
 
     return (
         <>
@@ -258,7 +280,11 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
 
                         <div className="cf nestable-lists">
                             <ol className="dd-list">
-                                <SiteInfoItem_Comp title={siteInfoTitle} onSelect={handleSelectSiteInfo} />
+                                <SiteInfoItem_Comp
+                                    title={siteInfoTitle}
+                                    isActive={prop.selectedItemEdit?.type === "site"}
+                                    onSelect={handleSelectSiteInfo}
+                                />
                             </ol>
                         </div>
 
@@ -278,7 +304,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
 // #endregion
 
 // #region Section
-const SiteInfoItem_Comp = (prop: { title: string; onSelect: () => void; }) =>
+const SiteInfoItem_Comp = (prop: { title: string; isActive: boolean; onSelect: () => void; }) =>
 {
     const handleEditClick = (e: React.MouseEvent<HTMLButtonElement>) =>
     {
@@ -289,7 +315,7 @@ const SiteInfoItem_Comp = (prop: { title: string; onSelect: () => void; }) =>
     return (
         <div className="dd-item dd3-item">
             <div className="dd-handle dd3-handle" />
-            <div className="dd3-content content_bar" onClick={prop.onSelect} style={{ cursor: "pointer" }}>
+            <div className={`dd3-content content_bar${prop.isActive ? " active-edit" : ""}`} onClick={prop.onSelect} style={{ cursor: "pointer" }}>
                 <span style={{ flex: 1, padding: "0 10px 0 3px" }}>
                     <i className="fa fa-globe mr-2" title="網站整體資訊" />
                     {prop.title}
@@ -330,11 +356,13 @@ const Item_Comp = (
         onSelect: (item: SiteMenuItem) => void;
         onAddChild: (item: SiteMenuItem) => void;
         onDelete: (item: SiteMenuItem) => void;
+        selectedRowId: number | null;
     },
 ) =>
 {
-    const { item, handler, collapseIcon, onSelect, onAddChild, onDelete } = prop;
+    const { item, handler, collapseIcon, onSelect, onAddChild, onDelete, selectedRowId } = prop;
     const isDraft = item.id <= 0;
+    const isActive = selectedRowId === item.id;
     const iconClass = item.menuItem.ItemType === 1 ? "fa fa-link mr-2" : "far fa-cogs mr-2";
 
     const handleRootClick = () =>
@@ -363,7 +391,7 @@ const Item_Comp = (
     return (
         <div className="dd-item dd3-item">
             <div className="dd-handle dd3-handle"></div>
-            <div className="dd3-content content_bar" onClick={handleRootClick} style={{ cursor: "pointer", opacity: isDraft ? 0.45 : 1 }}>
+            <div className={`dd3-content content_bar${isActive ? " active-edit" : ""}`} onClick={handleRootClick} style={{ cursor: "pointer", opacity: isDraft ? 0.45 : 1 }}>
                 {handler}
                 {collapseIcon}
                 <span style={{ flex: 1, padding: "0 10px 0 3px" }}>
@@ -468,6 +496,30 @@ const buildStructureSnapshot = (nodes: SiteMenuItem[]): string =>
 // #endregion
 
 // #region Private
+/** 複製左側樹狀資料，避免與右側草稿共用物件參考。 */
+const cloneMenuItems = (nodes: SiteMenuItem[]): SiteMenuItem[] =>
+{
+    return nodes.map((node) => ({
+        ...node,
+        menuItem: { ...node.menuItem },
+        children: cloneMenuItems(node.children ?? []),
+    }));
+};
+
+
+/** 依已成功儲存的表單資料更新左側選單標題。 */
+const applySavedTitles = (nodes: SiteMenuItem[], data: SiteMenuSet | undefined, lang: Lang): SiteMenuItem[] =>
+{
+    const titles = data?.SiteMenu_Item_Title ?? [];
+    return nodes.map((node) =>
+    {
+        const title = titles.find((x) => Number(x.ItemRowId) === node.id && x.Lang === lang)?.Title;
+        const children = applySavedTitles(node.children ?? [], data, lang);
+        return { ...node, name: title ?? node.name, children };
+    });
+};
+
+
 const CheckFrontBtn = (prop: { fullPath: string; disabled?: boolean; }) =>
 {
     const toAbsolute = useCallback((path: string) =>
