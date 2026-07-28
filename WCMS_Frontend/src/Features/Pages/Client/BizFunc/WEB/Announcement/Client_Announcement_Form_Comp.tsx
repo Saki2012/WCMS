@@ -1,12 +1,12 @@
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { resolvePublicFileAction } from "@/Features/Pages/Client/Scaffold/FileManagement/Client_PublicFileAction_Helper";
 import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { ModuleContent, type ModuleViewCountConfig, type SubTitleProps } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDate, LibText } from "@/SysCore/Utils/Library/LibData";
 import { resolveSpecComponent } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
@@ -17,6 +17,7 @@ import { useAnnouncementFormData } from "./Client_Announcement_Form_Loader";
 
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"];
 const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [] };
 export interface IAnnouncementFormProps
 {
@@ -111,7 +112,6 @@ const getAnnouncementFormView = (): typeof Client_Announcement_Form_FeatureView 
 };
 
 /** 取得 Announcement FormView，有 Spec View 時使用 Spec，否則使用 Feature View。 */
-
 const Content = (props: { lang: Lang; data: AnnouncementSet; }) =>
 {
     const detail = props.data.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang);
@@ -142,28 +142,41 @@ const Content = (props: { lang: Lang; data: AnnouncementSet; }) =>
             {fileDetail && fileDetail.length > 0 && (
                 <>
                     <div className="row">
-                        {fileDetail.map(item =>
-                        {
-                            const downloadUrl = FileManagementAPI.get_Public_Download_Url(item.FileId, item.FileName);
-                            return (
-                                <div key={`${item.FileId ?? ""}`} className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
-                                    <div className="Standard_btnDiv">
-                                        <LangLink to={downloadUrl} className="btn btn_NEWS bg_urllink_NEWS" role="button" title={item.FileName ?? ""}>
-                                            <span>
-                                                <i className="fas fa-paperclip + link + ml-0 mr-2"></i>
-                                                <span className="sr-only">{item.FileName}</span>
-                                            </span>
-                                            <span className="URL_link_NEWS">{item.FileName}</span>
-                                        </LangLink>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                        {fileDetail.map(item => (
+                            <AnnouncementFileLink
+                                key={`${item.FileId ?? ""}-${item.RowId ?? ""}`}
+                                item={item}
+                            />
+                        ))}
                     </div>
                     <hr className="hr-my-4" />
                 </>
             )}
         </>
+    );
+};
+
+/** 依 FileManagement 格式資料建立公告附件的預覽或下載連結。 */
+const AnnouncementFileLink = (props: { item: AnnouncementDetailFile; }) =>
+{
+    const fileAction = resolvePublicFileAction({
+        internalId: props.item.File?.InternalId ?? props.item.FileId,
+        fileName: props.item.FileName,
+        fileExtension: props.item.File?.FileExtension,
+    });
+
+    return (
+        <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
+            <div className="Standard_btnDiv">
+                <LangLink to={fileAction.url} target={fileAction.target} rel={fileAction.rel} className="btn btn_NEWS bg_urllink_NEWS" role="button" title={props.item.FileName ?? ""}>
+                    <span>
+                        <i className="fas fa-paperclip + link + ml-0 mr-2"></i>
+                        <span className="sr-only">{props.item.FileName}</span>
+                    </span>
+                    <span className="URL_link_NEWS">{props.item.FileName}</span>
+                </LangLink>
+            </div>
+        </div>
     );
 };
 // #endregion
