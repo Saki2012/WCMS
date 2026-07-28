@@ -158,6 +158,8 @@ const buildMaterialParam = (p: { categoryId?: string; tagIds?: string; }): Query
             MaterialFields.CategoryId,
             `${MaterialFields.Category}.${CategoryFields._CategoryDetail}.${CategoryDetailFields.Lang}`,
             `${MaterialFields.Category}.${CategoryFields._CategoryDetail}.${CategoryDetailFields.CategoryName}`,
+            `${MaterialFields.Category}.${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields.RowId}`,
+            `${MaterialFields.Category}.${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields.RowNo}`,
             `${MaterialFields.Category}.${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields.Field}`,
             `${MaterialFields.Category}.${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.Lang}`,
             `${MaterialFields.Category}.${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.FieldDisplayName}`,

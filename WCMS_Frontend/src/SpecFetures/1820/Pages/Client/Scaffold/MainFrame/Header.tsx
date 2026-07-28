@@ -54,7 +54,7 @@ const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
                         <p className="small pt-2 mt-lg-2 mt-1 mb-lg-2 mb-1 mr-md-3 mr-1" style={{ color: "#bd1f1f" }}>本網站為試營運階段，如有住宿、訂餐等本場服務，請致電服務專線：06-5900022</p>
                         <ul className="nav custom_nav justify-content-xl-end justify-content-center">
                             <NavBar lang={props.lang} />
-                            <LangSwitchBtn site={props.site} />
+                            {/* <LangSwitchBtn site={props.site} /> */}
                         </ul>
                     </div>
                 </div>

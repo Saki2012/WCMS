@@ -545,6 +545,7 @@ const buildMatCategoryInfoBaseParam = (categoryId: string): QueryListParam =>
         Fields: [
             CategoryFields.CategoryId,
             `${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields.RowId}`,
+            `${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields.RowNo}`,
             `${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields.Field}`,
             `${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.ParentRowId}`,
             `${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.Lang}`,
@@ -658,11 +659,24 @@ const buildMaterialLangTabItems = (items: MaterialLangTabItem[]): Record<string,
 /** 建立動態欄位顯示項目。 */
 const buildMaterialInfoItems = (fields: InfoField[], displays: InfoFieldDisplay[], lang: Lang): MaterialInfoFieldItem[] =>
 {
-    return (fields ?? []).map(field =>
+    return sortMaterialInfoFields(fields).map(field =>
     {
         const key = getInfoFieldKey(field);
         return { field: key, title: getInfoFieldTitle(field, displays, lang) };
     }).filter(item => Boolean(item.field));
+};
+
+/** 依 RowNo、RowId 穩定排序動態欄位。 */
+const sortMaterialInfoFields = (fields: InfoField[]): InfoField[] =>
+{
+    return [...(fields ?? [])].sort((left, right) => getMaterialInfoFieldOrder(left) - getMaterialInfoFieldOrder(right) || Number(left.RowId ?? 0) - Number(right.RowId ?? 0));
+};
+
+/** 取得動態欄位排序值，未設定 RowNo 的舊資料排到最後。 */
+const getMaterialInfoFieldOrder = (field: InfoField): number =>
+{
+    const rowNo = Number(field.RowNo ?? 0);
+    return rowNo > 0 ? rowNo : Number.MAX_SAFE_INTEGER;
 };
 
 /** 取得物件資訊 JSON 欄位 key。 */

@@ -27,6 +27,10 @@ public class MatCategoryInfoField_DTO : DetailRowModel
     /// </summary>
     [Key] public int? RowId { get; set; }
     /// <summary>
+    /// 
+    /// </summary>
+    public int? RowNo { get; set; }
+    /// <summary>
     /// 動態欄位Id
     /// </summary>
     [LibDesc(ModelDisplayName.Common_Field),StringLength(SysLengthParam.ID)] public string? Field { get; set; }
@@ -46,7 +50,7 @@ public class MatCategoryInfoFieldDisplay_DTO : DetailRowModel
     /// <summary>
     /// 父行主鍵 (_FileArchiveInfo)
     /// </summary>
-    [LibDesc(ModelDisplayName.Common_ParentRowId)] public int? ParentRowId { get; set; }
+    [Key, LibDesc(ModelDisplayName.Common_ParentRowId)] public int? ParentRowId { get; set; }
     /// <summary>
     /// 行主鍵
     /// </summary>

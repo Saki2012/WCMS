@@ -194,7 +194,7 @@ export const useMatCategoryInfoFieldEditGrid = (opt: UseMatCategoryInfoFieldEdit
         columns,
         getItemRowId: field => field.RowId,
         sortItems: sortMatCategoryInfoFields,
-        createItem: ctx => buildNewMatCategoryInfoField(ctx.data, ctx.nextRowId),
+        createItem: ctx => buildNewMatCategoryInfoField(ctx.data, ctx.nextRowId, ctx.nextRowNo),
         toRow: (field, index) => buildMatCategoryInfoFieldGridRow(field, index, opt, displayName),
         toItem: (row, index, ctx) => toMatCategoryInfoFieldDto(ctx.data, row, index),
         beforeCommit: ctx => syncMatCategoryInfoFieldCommit(ctx.data, ctx.nextVisibleItems),
@@ -326,7 +326,7 @@ const buildMatCategoryInfoFieldGridProps = (style: IEditGridView_Style, displayN
         canAdd: true,
         canEdit: true,
         canDelete: true,
-        canDrag: false,
+        canDrag: true,
         showRowNo: true,
         showOperationGuide: false,
         actionColumnTitle: "操作",
@@ -423,12 +423,13 @@ const buildMatCategoryInfoFieldGridRow = (
 ): MatCategoryInfoFieldGridRow =>
 {
     const rowId = Number(field.RowId ?? index + 1);
+    const rowNo = Number(field.RowNo ?? index + 1);
 
     return {
         keyId: buildMatCategoryInfoFieldRowKey(field, index),
         rowId,
         RowId: rowId,
-        RowNo: index + 1,
+        RowNo: rowNo,
         CategoryId: field.CategoryId,
         FieldRowId: rowId,
         cells: buildMatCategoryInfoFieldCells(field, opt, displayName),
@@ -509,9 +510,9 @@ const buildMatCategoryInfoFieldDisplayCells = (display: MatCategoryInfoFieldDisp
 };
 
 /** 建立新物件欄位設定 DTO。 */
-const buildNewMatCategoryInfoField = (data: MatCategorySet, rowId: number): MatCategoryInfoField =>
+const buildNewMatCategoryInfoField = (data: MatCategorySet, rowId: number, rowNo: number): MatCategoryInfoField =>
 {
-    return { CategoryId: data.Category?.CategoryId ?? "", RowId: rowId, Field: "" };
+    return { CategoryId: data.Category?.CategoryId ?? "", RowId: rowId, RowNo: rowNo, Field: "" };
 };
 
 /** 建立新物件欄位顯示 DTO。 */
@@ -526,6 +527,7 @@ const toMatCategoryInfoFieldDto = (source: MatCategorySet, row: GridRow, index: 
     return {
         CategoryId: source.Category?.CategoryId ?? (row as MatCategoryInfoFieldGridRow).CategoryId ?? "",
         RowId: getEditGridRowId(row, index),
+        RowNo: getMatCategoryInfoFieldRowNo(row, index),
         Field: getEditGridStringCellValue(row, MatCategoryInfoFieldFields.Field).trim(),
     };
 };
@@ -648,10 +650,20 @@ const isMatCategoryInfoFieldDisplayMatched = (display: MatCategoryInfoFieldDispl
     return LibType.toSafeNumber(display.ParentRowId) === parentRowId
         && normalizeSupportedLang((display.Lang ?? undefined) as Lang | undefined) === lang;
 };
-/** 依 RowId 排序物件欄位設定。 */
+/** 依 RowNo 排序物件欄位設定，RowNo 相同時以 RowId 維持穩定順序。 */
 const sortMatCategoryInfoFields = (fields: MatCategoryInfoField[]): MatCategoryInfoField[] =>
 {
-    return [...fields].sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0));
+    return [...fields].sort((a, b) =>
+    {
+        const rowNoCompare = Number(a.RowNo ?? 0) - Number(b.RowNo ?? 0);
+        return rowNoCompare !== 0 ? rowNoCompare : Number(a.RowId ?? 0) - Number(b.RowId ?? 0);
+    });
+};
+
+/** 取得 EditGrid RowNo，拖曳後由共用 EditGrid 重新整理為連續序號。 */
+const getMatCategoryInfoFieldRowNo = (row: GridRow, index: number): number =>
+{
+    return Number(row.RowNo ?? row.rowNo ?? row.rowno ?? index + 1);
 };
 
 /** 依目前語系與支援語系順序排序欄位顯示名稱。 */

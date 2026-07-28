@@ -25,6 +25,8 @@ public class MatCategoryController : CategoryControllerBase<MatCategoryDataSet, 
         {
             Fields = [
                 nameof(MatCategoryInfoField.CategoryId),
+                $"{nameof(Category._MatCategoryInfoField)}.{nameof(MatCategoryInfoField.RowId)}",
+                $"{nameof(Category._MatCategoryInfoField)}.{nameof(MatCategoryInfoField.RowNo)}",
                 $"{nameof(Category._MatCategoryInfoField)}.{nameof(MatCategoryInfoField.Field)}",
                 $"{nameof(Category._MatCategoryInfoField)}.{nameof(MatCategoryInfoField._MatCategoryInfoFieldDisplay)}.{nameof(MatCategoryInfoFieldDisplay.Lang)}",
                 $"{nameof(Category._MatCategoryInfoField)}.{nameof(MatCategoryInfoField._MatCategoryInfoFieldDisplay)}.{nameof(MatCategoryInfoFieldDisplay.FieldDisplayName)}",
@@ -35,7 +37,12 @@ public class MatCategoryController : CategoryControllerBase<MatCategoryDataSet, 
         };
         var queryResult = (await Service.BizQueryListAsync(param,ct)).FirstOrDefault();
         var result = new Dictionary<string, string>();
-        queryResult.MatCategoryInfoField.ForEach(data => { result.TryAdd(data.Field, data._MatCategoryInfoFieldDisplay.Find(p => p.Lang == langCode).FieldDisplayName); });
+        var orderedFields = queryResult.MatCategoryInfoField.OrderBy(data => data.RowNo > 0 ? data.RowNo : int.MaxValue).ThenBy(data => data.RowId);
+        foreach (var data in orderedFields)
+        {
+            var displayName = data._MatCategoryInfoFieldDisplay.Find(p => p.Lang == langCode)?.FieldDisplayName;
+            if (!string.IsNullOrWhiteSpace(data.Field) && !string.IsNullOrWhiteSpace(displayName)) result.TryAdd(data.Field, displayName);
+        }
         // 回傳結果
         var response = new ApiResponse<Dictionary<string, string>>() { Data = [result], SysMessage = Message.Messages };
         return Ok(response);

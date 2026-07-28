@@ -15,6 +15,7 @@ import { useClientSpecProductionListFetchData } from "./Client_SpecProduction_Li
 // #region Property
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
 type MaterialTag = components["schemas"]["MaterialTags_DTO"];
+type MatCategoryInfoField = components["schemas"]["MatCategoryInfoField_DTO"];
 export interface ClientSpecProductionListProps
 {
     site: INormSite;
@@ -50,7 +51,7 @@ const buildMaterialInfoRows = (item: MaterialSet, lang: Lang) =>
 {
     const langInfo = getMaterialLangInfo(item, lang);
     const infoJson = parseMaterialInfoJson(langInfo?.MaterialInfoJson);
-    const fields = item.Material?.Category?._MatCategoryInfoField ?? [];
+    const fields = sortMaterialInfoFields(item.Material?.Category?._MatCategoryInfoField ?? []);
     return fields.map((field) =>
     {
         const fieldKey = field.Field ?? "";
@@ -58,6 +59,23 @@ const buildMaterialInfoRows = (item: MaterialSet, lang: Lang) =>
         const valueText = formatInfoValue(infoJson[fieldKey] ?? null);
         return { fieldKey, displayName, valueText };
     }).filter((p) => p.fieldKey && p.valueText);
+};
+
+/// <summary>
+/// 依 RowNo、RowId 穩定排序自定義欄位。
+/// </summary>
+const sortMaterialInfoFields = (fields: MatCategoryInfoField[]): MatCategoryInfoField[] =>
+{
+    return [...fields].sort((left, right) => getMaterialInfoFieldOrder(left) - getMaterialInfoFieldOrder(right) || Number(left.RowId ?? 0) - Number(right.RowId ?? 0));
+};
+
+/// <summary>
+/// 取得排序值，未設定 RowNo 的舊資料排到最後。
+/// </summary>
+const getMaterialInfoFieldOrder = (field: MatCategoryInfoField): number =>
+{
+    const rowNo = Number(field.RowNo ?? 0);
+    return rowNo > 0 ? rowNo : Number.MAX_SAFE_INTEGER;
 };
 // #endregion
 
