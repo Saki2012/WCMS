@@ -1,4 +1,4 @@
-﻿using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.Security.IdentityAccess;
 using WCMS.SysCore.Security.IdentityAccess.Authentication;
 using WCMS.SysCore.Security.IdentityAccess.Authentication.CurrentUser;
@@ -23,17 +23,17 @@ public class AuthBiz(BizService<AccountData> accountBiz)
         string[] fields = GetLoginFields();
         IList<AccountData> users = await AccountBiz.BizQueryListAsync(fields, $"{nameof(AccountData.AccountId)} = {account}", default, default, 0, 0);
         AccountData? user = users.FirstOrDefault();
-        return user == null ? null : BuildUserInfo(user);
+        if (user?.AccountStatus != AccountStatus.Enable) return null;
+        return BuildUserInfo(user);
     }
     /// <summary>
     /// 檢查輸入資料並驗證登入資訊。
     /// </summary>
-    public async Task<(bool ok, User_DTO userInfo)> CheckLoginValid(string account, string password)
+    public async Task<(bool ok, User_DTO? userInfo)> CheckLoginValid(string account, string password)
     {
         await Task.Delay(300);
-        if (IsLoginEmpty(account, password) || account.Length > 20 || IsAllNumber(account)) return (false, default!);
-        (bool ok, User_DTO userInfo) = await SignInAsync(account, password);
-        return (ok, ok ? userInfo : default!);
+        if (IsLoginEmpty(account, password) || account.Length > 20 || IsAllNumber(account)) return (false, null);
+        return await SignInAsync(account, password);
     }
     #endregion
 
@@ -49,14 +49,14 @@ public class AuthBiz(BizService<AccountData> accountBiz)
     /// <summary>
     /// 查詢帳號並驗證密碼雜湊與帳號狀態。
     /// </summary>
-    private async Task<(bool ok, User_DTO userInfo)> SignInAsync(string account, string password)
+    private async Task<(bool ok, User_DTO? userInfo)> SignInAsync(string account, string password)
     {
         string[] fields = GetLoginFields();
-        IList<AccountData> users = await AccountBiz.BizQueryListAsync(fields, $"{nameof(AccountData.AccountId)} = {account}", default, default, 0, 0);
+        IList<AccountData> users = await AccountBiz.BizQueryListAsync(fields, $"{nameof(AccountData.AccountId)} = {account}", default, default, 0, 1);
         AccountData? user = users.FirstOrDefault();
-        if (user == null || !PasswordHasher.Verify(password, user.PasswordHash, user.PasswordSalt, user.PasswordAlgoVer)) return (false, default!);
-        if (user.AccountStatus != AccountStatus.Enable) return (false, default!);
-        return (true, BuildUserInfo(user));
+        if (user == null || user.AccountStatus != AccountStatus.Enable) return (false, null);
+        bool isValid = PasswordHasher.Verify(password, user.PasswordHash, user.PasswordSalt, user.PasswordAlgoVer);
+        return isValid ? (true, BuildUserInfo(user)) : (false, null);
     }
     /// <summary>
     /// 取得登入驗證需要查詢的欄位。

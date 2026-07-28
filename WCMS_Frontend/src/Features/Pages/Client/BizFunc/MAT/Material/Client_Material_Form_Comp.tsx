@@ -16,6 +16,7 @@ import { useMaterialFormData } from "./Client_Material_Form_Loader";
 
 // #region Property
 export type MaterialFormModel = components["schemas"]["Material"];
+type MaterialPicture = NonNullable<MaterialFormModel["_MaterialPicture"]>[number];
 
 export interface MaterialFormViewData
 {
@@ -414,25 +415,32 @@ const MaterialInfoContent_Comp = (props: { rawData: MaterialFormViewData; lang: 
 // #endregion
 
 // #region Protected
-/** 建立圖片清單 */
+/** 建立圖片清單，顯示順序依 RowNo 決定。 */
 const buildPictures = (data: MaterialFormModel, title: string): Array<{ url: string; alt: string; title: string; }> =>
 {
-    const pictures = [...(data._MaterialPicture ?? [])].sort(compareMaterialPictureOrder);
-    const list = pictures.map(pic =>
+    return sortMaterialPictures(data._MaterialPicture ?? []).map(pic =>
     {
         const alt = pic.PictureName ?? title;
         const url = FileManagementAPI.get_Public_Preview_Url(pic.PictureId, alt) ?? "";
         return url ? { url, alt, title: pic.PictureName ?? title } : null;
-    }).filter((p): p is { url: string; alt: string; title: string; } => Boolean(p));
-    return list;
+    }).filter((pic): pic is { url: string; alt: string; title: string; } => Boolean(pic));
 };
-/** 依 RowNo 與 RowId 穩定排序物件圖片。 */
-const compareMaterialPictureOrder = (
-    left: NonNullable<MaterialFormModel["_MaterialPicture"]>[number],
-    right: NonNullable<MaterialFormModel["_MaterialPicture"]>[number],
-): number =>
+
+/** 依 RowNo、RowId 穩定排序相片。 */
+const sortMaterialPictures = (pictures: MaterialPicture[]): MaterialPicture[] =>
 {
-    return Number(left.RowNo ?? left.RowId ?? 0) - Number(right.RowNo ?? right.RowId ?? 0);
+    return [...pictures].sort((left, right) =>
+    {
+        return getMaterialPictureOrder(left) - getMaterialPictureOrder(right)
+            || Number(left.RowId ?? 0) - Number(right.RowId ?? 0);
+    });
+};
+
+/** 取得相片排序值，舊資料沒有 RowNo 時排在最後。 */
+const getMaterialPictureOrder = (picture: MaterialPicture): number =>
+{
+    const rowNo = Number(picture.RowNo ?? 0);
+    return rowNo > 0 ? rowNo : Number.MAX_SAFE_INTEGER;
 };
 
 /** 建立規格列 */

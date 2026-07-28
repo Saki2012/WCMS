@@ -40,6 +40,10 @@ type RenderRightBoxProp = {
     timelineMap: Map<string, string>;
     surveyMap: Map<string, string>;
     action: SiteMenuActions;
+    onSave: () => Promise<boolean>;
+    onCancel: () => void;
+    canUpdate: boolean;
+    isSortMode: boolean;
 };
 
 type MenuInfoCompProps = {
@@ -77,6 +81,7 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
     const [linkType, setLinkType] = useState<MenuUrlType>(1);
     const [modelKey, setModelKey] = useState<ModelKey>("");
     const [navType, setNavType] = useState<MenuUrlType>(1);
+    const isEditable = prop.canUpdate && !prop.isSortMode;
 
     const selectedMenuNode = useMemo(() =>
     {
@@ -102,17 +107,12 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
     const selectedUrlRow = selectedMenuItem?._SiteMenu_Item_Url;
     const selectedModuleRow = selectedMenuItem?._SiteMenu_Item_Module;
 
-    /** 右側保存：網站資訊走 SaveSiteInfo；選單項目走 SaveMenuItem */
+    /** 將儲存要求交由父層統一處理，成功後才提交畫面資料。 */
     const handleSave = useCallback(async () =>
     {
-        if (!prop.selectedItemEdit) return;
-        if (prop.selectedItemEdit.type === "site")
-        {
-            await prop.action.onSaveSiteInfo();
-            return;
-        }
-        await prop.action.onSaveMenuItem(prop.selectedItemEdit.item);
-    }, [prop.action, prop.selectedItemEdit]);
+        if (!isEditable || !prop.selectedItemEdit) return;
+        await prop.onSave();
+    }, [isEditable, prop.onSave, prop.selectedItemEdit]);
 
     /** 同步目前選取項目的功能類型 / 連結類型 / 模型代碼 */
     useEffect(() =>
@@ -135,11 +135,19 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
         setTabResetSeed((prev) => prev + 1);
     }, [selectedRowId, linkType]);
 
-    if (!prop.selectedItemEdit)
+    if (!prop.selectedItemEdit || !isEditable)
     {
+        const statusText = !prop.canUpdate
+            ? "目前帳號沒有網站導覽修改權限。"
+            : prop.isSortMode
+                ? "目前為排序模式，請先儲存或取消排序。"
+                : "";
+
         return (
             <div className="col-xxl-7 col-12 right-box">
-                <div className="default-box"></div>
+                <div className="default-box">
+                    {statusText && <p role="status" className="text-muted p-3">{statusText}</p>}
+                </div>
             </div>
         );
     }
@@ -191,7 +199,7 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
                             <button
                                 type="button"
                                 className="btn btn-custom btn-rounded btn-sm mr-2 mb-2"
-                                disabled={prop.action.isExecuting}
+                                disabled={!isEditable || prop.action.isExecuting}
                                 onClick={() => void handleSave()}
                             >
                                 儲存
@@ -199,8 +207,8 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
                             <button
                                 type="button"
                                 className="btn btn-custom btn-rounded btn-sm mr-2 mb-2"
-                                disabled={prop.action.isExecuting}
-                                onClick={prop.action.onCancelBack}
+                                disabled={!isEditable || prop.action.isExecuting}
+                                onClick={prop.onCancel}
                             >
                                 取消
                             </button>

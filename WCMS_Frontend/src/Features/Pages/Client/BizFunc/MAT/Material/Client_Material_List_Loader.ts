@@ -189,6 +189,7 @@ const buildMaterialQuery = (p: { condition: string; pageNumber: number; pageSize
             `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.Lang}`,
             `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.MaterialName}`,
             `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.MaterialInfoJson}`,
+            `${MaterialFields._MaterialPicture}.${MaterialPictureFields.RowId}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.RowNo}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.PictureId}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.PictureName}`,

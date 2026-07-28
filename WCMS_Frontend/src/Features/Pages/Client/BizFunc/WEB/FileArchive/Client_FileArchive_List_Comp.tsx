@@ -1,5 +1,6 @@
 /** 檔案下載清單 */
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { resolvePublicFileAction } from "@/Features/Pages/Client/Scaffold/FileManagement/Client_PublicFileAction_Helper";
 import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
@@ -10,7 +11,6 @@ import { getModelColumnDisplayName } from "@/SysCore/Components/Grid/Grid_ModelD
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
 import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
@@ -268,7 +268,7 @@ const buildDownloadContent = (fileRows: FileArchiveDetail[], urlRows: FileArchiv
     let content = <></>;
     fileRows.forEach(item =>
     {
-        content = <>{content} {SetDownloadIcon(item.FileSrcId ?? "", item.FileSrc?.FileExtension ?? "docx", item.FileName ?? "")}</>;
+        content = <>{content} {SetFileActionIcon(item.FileSrc?.InternalId ?? item.FileSrcId ?? "", item.FileSrc?.FileExtension ?? "", item.FileName ?? "")}</>;
     });
     urlRows.forEach(item =>
     {
@@ -347,21 +347,23 @@ const sortFileArchiveRows = <TRow extends { RowId?: number; RowNo?: number | nul
     });
 };
 
-/** 建立檔案下載按鈕。 */
-const SetDownloadIcon = (internalId: string, extension: string, fileName: string): JSX.Element =>
+/** 依 FileManagement 格式資料建立附件預覽或下載按鈕。 */
+const SetFileActionIcon = (internalId: string, extension: string, fileName: string): JSX.Element =>
 {
     const safeExtension = extension || "file";
     const label = fileName || `下載 ${safeExtension} 檔案`;
-    const href = safeExtension.toLowerCase() === "pdf"
-        ? FileManagementAPI.get_Public_Preview_Url(internalId, fileName)
-        : FileManagementAPI.get_Public_Download_Url(internalId, fileName);
+    const fileAction = resolvePublicFileAction({
+        internalId,
+        fileName,
+        fileExtension: extension,
+    });
 
     return (
         <LangLink
-            to={href}
+            to={fileAction.url}
             className={`btn btn-default + bg_${safeExtension}`}
-            target="_blank"
-            rel="noopener noreferrer"
+            target={fileAction.target}
+            rel={fileAction.rel}
             role="button"
             title={label}
             aria-label={label}

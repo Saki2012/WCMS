@@ -1,4 +1,4 @@
-﻿namespace WCMS.Features.MAT.MatCategory;
+namespace WCMS.Features.MAT.MatCategory;
 
 /// <summary>
 /// 物件類別動態欄位的前台顯示資料。

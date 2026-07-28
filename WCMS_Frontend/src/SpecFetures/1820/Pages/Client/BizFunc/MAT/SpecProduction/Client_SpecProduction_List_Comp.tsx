@@ -65,6 +65,7 @@ const buildMaterialInfoRows = (item: MaterialFormModel, lang: Lang, infoFields: 
         return { fieldKey: field.field, displayName: field.label || field.field, valueText };
     }).filter((row) => row.fieldKey && row.valueText);
 };
+
 // #endregion
 
 // #region Private
@@ -469,13 +470,15 @@ const formatInfoValue = (value: MaterialInfoJsonValue): string =>
 };
 
 /// <summary>
-/// 依 RowNo 取得第一張物件圖片。
+/// 依 RowNo、RowId 穩定取得第一張物件圖片。
 /// </summary>
 const getFirstMaterialPicture = (item: MaterialFormModel) =>
 {
     return [...(item._MaterialPicture ?? [])].sort((left, right) =>
     {
-        return Number(left.RowNo ?? left.RowId ?? 0) - Number(right.RowNo ?? right.RowId ?? 0);
+        const leftOrder = Number(left.RowNo ?? 0) > 0 ? Number(left.RowNo) : Number.MAX_SAFE_INTEGER;
+        const rightOrder = Number(right.RowNo ?? 0) > 0 ? Number(right.RowNo) : Number.MAX_SAFE_INTEGER;
+        return leftOrder - rightOrder || Number(left.RowId ?? 0) - Number(right.RowId ?? 0);
     })[0];
 };
 

@@ -7,8 +7,9 @@ import { SurveyAdapter } from "@/Features/Hooks/BizFunc/WEB/Survey_Api";
 import { TimelineAdapter } from "@/Features/Hooks/BizFunc/WEB/Timeline_Api";
 import type { UseActionsResult } from "@/Features/Hooks/Common/useActions";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
+import { type ProgPermissionResult, useProgPermission } from "@/SysCore/Components/Auth/useProgPermission";
 import { DefaultLang, type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
-import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { emitApiMessages, type ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { type ApiResponse, MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
@@ -20,6 +21,7 @@ import {
     CategoryFields,
     PageManagementDetailFields,
     PageManagementFields,
+    PGID,
     SiteMenu_IndexFields,
     SiteMenu_IndexInfoFields,
     SurveyFields,
@@ -72,6 +74,7 @@ export type SiteMenuActions = UseActionsResult & {
     onSaveSiteInfo: () => Promise<boolean>;
     onSaveMenuItem: (item: SiteMenuItem) => Promise<boolean>;
     onSaveMenuStructure: (tree: SiteMenuItem[], deletedRowIds: number[]) => Promise<boolean>;
+    onCancelStructure: () => Promise<void>;
 };
 
 
@@ -80,6 +83,7 @@ export type SiteMenuFetchRawData = {
     formData: UseFetchFormDataResult<SiteMenuFormModel>;
     siteMenuItems: SiteMenuItem[];
     actions: SiteMenuActions;
+    permission: ProgPermissionResult;
     windowTarget: Record<string, string>;
     menuUrlType: Record<string, string>;
     modulePageType: Record<string, string>;
@@ -138,6 +142,7 @@ const GUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-
 export const useSiteMenuFetchData = (opt: { lang: Lang; }): UseFetchDataResult<SiteMenuFetchRawData, SiteMenuFetchAdapter> =>
 {
     const { publish } = useToast();
+    const permission = useProgPermission(PGID.SiteMenu);
 
     const onError = useCallback((e: ApiAdapterError) =>
     {
@@ -159,7 +164,13 @@ export const useSiteMenuFetchData = (opt: { lang: Lang; }): UseFetchDataResult<S
 
     const main = useSiteMenuMainDataByAdapter(adapter.SiteMenu, onError);
     const ref = useSiteMenuRefDataByAdapter(adapter, opt.lang, onError);
-    const actions = useSiteMenuActionsByAdapter(adapter.SiteMenu, main.internalId, main.formData, main.refetchData);
+    const actions = useSiteMenuActionsByAdapter(
+        adapter.SiteMenu,
+        main.internalId,
+        main.formData,
+        main.refetchData,
+        permission.canUpdate,
+    );
 
     useEnsureLangDetails(main.formData, {
         detailName: SiteMenu_IndexFields._SiteMenu_IndexInfo,
@@ -170,13 +181,13 @@ export const useSiteMenuFetchData = (opt: { lang: Lang; }): UseFetchDataResult<S
 
     const isLoading = useMemo(() =>
     {
-        return Boolean(main.isLoading || ref.isLoading);
-    }, [main.isLoading, ref.isLoading]);
+        return Boolean(main.isLoading || ref.isLoading || permission.isLoading);
+    }, [main.isLoading, permission.isLoading, ref.isLoading]);
 
     const errors = useMemo(() =>
     {
-        return [...main.errors, ...ref.errors].filter((x): x is string => Boolean(x));
-    }, [main.errors, ref.errors]);
+        return [...main.errors, ...ref.errors, permission.error].filter((x): x is string => Boolean(x));
+    }, [main.errors, permission.error, ref.errors]);
 
     const siteMenuItems = useMemo(() =>
     {
@@ -189,6 +200,7 @@ export const useSiteMenuFetchData = (opt: { lang: Lang; }): UseFetchDataResult<S
             internalId: main.internalId,
             formData: main.formData,
             actions,
+            permission,
             windowTarget: ref.windowTarget,
             menuUrlType: ref.menuUrlType,
             modulePageType: ref.modulePageType,
@@ -201,7 +213,7 @@ export const useSiteMenuFetchData = (opt: { lang: Lang; }): UseFetchDataResult<S
             surveyMap: ref.surveyMap,
             siteMenuItems,
         };
-    }, [actions, main.formData, main.internalId, ref, siteMenuItems]);
+    }, [actions, main.formData, main.internalId, permission, ref, siteMenuItems]);
 
     const refetchData = useCallback(async () =>
     {
@@ -310,6 +322,7 @@ const useSiteMenuActionsByAdapter = (
     internalId: string | null,
     formData: UseFetchFormDataResult<SiteMenuFormModel>,
     refetchData: () => Promise<void>,
+    canUpdate: boolean,
 ): SiteMenuActions =>
 {
     const { publish } = useToast();
@@ -317,13 +330,29 @@ const useSiteMenuActionsByAdapter = (
     const saveMenuItem = adapter.hooks.useSaveMenuItem();
     const saveMenuStructure = adapter.hooks.useSaveMenuStructure();
 
+    /** 確認目前使用者可執行 SiteMenu 寫入操作。 */
+    const ensureCanUpdate = useCallback((): boolean =>
+    {
+        if (canUpdate) return true;
+
+        publish({ level: MessageStatus.Error, title: "無修改權限", text: "您沒有網站導覽的修改權限。" });
+        return false;
+    }, [canUpdate, publish]);
+
     const onCancelBack = useCallback(() =>
     {
         void refetchData();
     }, [refetchData]);
 
+    /** 取消結構異動並重新取得伺服器資料。 */
+    const onCancelStructure = useCallback(async (): Promise<void> =>
+    {
+        await refetchData();
+    }, [refetchData]);
+
     const onSaveSiteInfo = useCallback(async (): Promise<boolean> =>
     {
+        if (!ensureCanUpdate()) return false;
         if (!internalId || !formData.data)
         {
             publish({ level: MessageStatus.Error, title: "保存失敗", text: "找不到站台資料" });
@@ -332,11 +361,12 @@ const useSiteMenuActionsByAdapter = (
 
         const req = buildSaveSiteInfoRequest(internalId, formData.data);
         const res = await saveSiteInfo.saveAsync(req);
-        return await handleSaveResult(res, refetchData);
-    }, [formData.data, internalId, publish, refetchData, saveSiteInfo]);
+        return await handleSaveResult(res, refetchData, publish, "網站資訊儲存成功");
+    }, [ensureCanUpdate, formData.data, internalId, publish, refetchData, saveSiteInfo]);
 
     const onSaveMenuStructure = useCallback(async (tree: SiteMenuItem[], deletedRowIds: number[]): Promise<boolean> =>
     {
+        if (!ensureCanUpdate()) return false;
         if (!internalId)
         {
             publish({ level: MessageStatus.Error, title: "保存失敗", text: "找不到站台 InternalId" });
@@ -345,11 +375,12 @@ const useSiteMenuActionsByAdapter = (
 
         const req = buildSaveMenuStructureRequest(internalId, tree, deletedRowIds);
         const res = await saveMenuStructure.saveAsync(req);
-        return await handleSaveResult(res, refetchData);
-    }, [internalId, publish, refetchData, saveMenuStructure]);
+        return await handleSaveResult(res, refetchData, publish, "網站導覽排序儲存成功");
+    }, [ensureCanUpdate, internalId, publish, refetchData, saveMenuStructure]);
 
     const onSaveMenuItem = useCallback(async (item: SiteMenuItem): Promise<boolean> =>
     {
+        if (!ensureCanUpdate()) return false;
         if (!internalId || !formData.data)
         {
             publish({ level: MessageStatus.Error, title: "保存失敗", text: "找不到站台資料" });
@@ -358,8 +389,8 @@ const useSiteMenuActionsByAdapter = (
 
         const req = buildSaveMenuItemRequest(internalId, formData.data, item);
         const res = await saveMenuItem.saveAsync(req);
-        return await handleSaveResult(res, refetchData);
-    }, [formData.data, internalId, publish, refetchData, saveMenuItem]);
+        return await handleSaveResult(res, refetchData, publish, "網站導覽項目儲存成功");
+    }, [ensureCanUpdate, formData.data, internalId, publish, refetchData, saveMenuItem]);
 
     return useMemo<SiteMenuActions>(() =>
     {
@@ -371,6 +402,7 @@ const useSiteMenuActionsByAdapter = (
             onSaveSiteInfo,
             onSaveMenuItem,
             onSaveMenuStructure,
+            onCancelStructure,
             onCancelBack,
             onAddNew: () =>
             {},
@@ -389,7 +421,16 @@ const useSiteMenuActionsByAdapter = (
             onPreview: () =>
             {},
         };
-    }, [onCancelBack, onSaveMenuItem, onSaveMenuStructure, onSaveSiteInfo, saveMenuItem.isSaving, saveMenuStructure.isSaving, saveSiteInfo.isSaving]);
+    }, [
+        onCancelBack,
+        onCancelStructure,
+        onSaveMenuItem,
+        onSaveMenuStructure,
+        onSaveSiteInfo,
+        saveMenuItem.isSaving,
+        saveMenuStructure.isSaving,
+        saveSiteInfo.isSaving,
+    ]);
 };
 
 
@@ -497,10 +538,15 @@ const toNullableNumber = (value: unknown): number | null =>
 };
 
 
-const handleSaveResult = async <T>(res: ApiResponse<T>, refetchData: () => Promise<void>): Promise<boolean> =>
+const handleSaveResult = async <T>(
+    res: ApiResponse<T>,
+    refetchData: () => Promise<void>,
+    publish: ReturnType<typeof useToast>["publish"],
+    fallbackTitle: string,
+): Promise<boolean> =>
 {
-    const ok = Boolean(res?.IsSuccess);
-    if (!ok) return false;
+    emitApiMessages(publish, res, fallbackTitle, "儲存失敗");
+    if (!res?.IsSuccess) return false;
 
     await refetchData();
     return true;

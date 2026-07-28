@@ -547,8 +547,11 @@ const buildMatCategoryInfoBaseParam = (categoryId: string): QueryListParam =>
         Fields: [
             `${categoryPath}.${CategoryFields.CategoryId}`,
             `${fieldPath}.${MatCategoryInfoFieldFields.RowId}`,
+            `${fieldPath}.${MatCategoryInfoFieldFields.RowNo}`,
             `${fieldPath}.${MatCategoryInfoFieldFields.Field}`,
             `${fieldPath}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.ParentRowId}`,
+            `${fieldPath}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.RowId}`,
+            `${fieldPath}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.RowNo}`,
             `${fieldPath}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.Lang}`,
             `${fieldPath}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.FieldDisplayName}`,
         ],
@@ -656,11 +659,24 @@ const buildMaterialLangTabItems = (items: MaterialLangTabItem[]): Record<string,
 /** 建立動態欄位顯示項目。 */
 const buildMaterialInfoItems = (fields: InfoField[], displays: InfoFieldDisplay[], lang: Lang): MaterialInfoFieldItem[] =>
 {
-    return (fields ?? []).map(field =>
+    return sortMaterialInfoFields(fields).map(field =>
     {
         const key = getInfoFieldKey(field);
         return { field: key, title: getInfoFieldTitle(field, displays, lang) };
     }).filter(item => Boolean(item.field));
+};
+
+/** 依 RowNo、RowId 穩定排序動態欄位。 */
+const sortMaterialInfoFields = (fields: InfoField[]): InfoField[] =>
+{
+    return [...(fields ?? [])].sort((left, right) => getMaterialInfoFieldOrder(left) - getMaterialInfoFieldOrder(right) || Number(left.RowId ?? 0) - Number(right.RowId ?? 0));
+};
+
+/** 取得動態欄位排序值，未設定 RowNo 的舊資料排到最後。 */
+const getMaterialInfoFieldOrder = (field: InfoField): number =>
+{
+    const rowNo = Number(field.RowNo ?? 0);
+    return rowNo > 0 ? rowNo : Number.MAX_SAFE_INTEGER;
 };
 
 /** 取得物件資訊 JSON 欄位 key。 */
@@ -719,10 +735,17 @@ const buildMaterialPictureGridProps = (style: IEditGridView_Style, displayName: 
     };
 };
 
-/** 依 RowNo、RowId 排序物件相片。 */
+/** 依 RowNo、RowId 穩定排序物件相片。 */
 const sortMaterialPictures = (pictures: MaterialPicture[]): MaterialPicture[] =>
 {
-    return [...pictures].sort((a, b) => Number(a.RowNo ?? a.RowId ?? 0) - Number(b.RowNo ?? b.RowId ?? 0));
+    return [...pictures].sort((left, right) => getMaterialPictureOrder(left) - getMaterialPictureOrder(right) || Number(left.RowId ?? 0) - Number(right.RowId ?? 0));
+};
+
+/** 取得相片排序值，未設定 RowNo 的舊資料排到最後。 */
+const getMaterialPictureOrder = (picture: MaterialPicture): number =>
+{
+    const rowNo = Number(picture.RowNo ?? 0);
+    return rowNo > 0 ? rowNo : Number.MAX_SAFE_INTEGER;
 };
 
 /** 建立物件相片 Grid 欄位設定，欄位名稱優先讀 ModelDisplayName。 */
@@ -819,11 +842,17 @@ const toMaterialPictureModel = (source: MaterialFormModel, row: GridRow, index: 
     return {
         MaterialId: source.MaterialId ?? (row as MaterialPictureGridRow).MaterialId,
         RowId: rowId,
-        RowNo: index + 1,
+        RowNo: getMaterialPictureRowNo(row, index),
         PictureId: pictureValue.internalId ?? "",
         PictureName: getNullableStringCellValue(row, MaterialPictureFields.PictureName) ?? LibAttachment.getDisplayFileNameWithoutExtension(pictureValue.originalFileName),
         Picture: (row as MaterialPictureGridRow).Picture ?? undefined,
     };
+};
+
+/** 取得 EditGrid 重排後的 RowNo。 */
+const getMaterialPictureRowNo = (row: GridRow, index: number): number =>
+{
+    return Number(row.RowNo ?? row.rowNo ?? row.rowno ?? index + 1);
 };
 
 /** 使用 EditGrid 內建 file 欄位選圖後，上傳並同步圖片名稱。 */
@@ -926,12 +955,11 @@ const appendMaterialUploadedPictures = (binding: ServerFormBinding<MaterialFormM
 const appendMaterialUploadedPicturesToData = (data: MaterialFormModel, uploaded: MaterialUploadedPicture[]): MaterialFormModel =>
 {
     const materialId = data.MaterialId;
-    const pictures = data._MaterialPicture ?? [];
+    const pictures = normalizeMaterialPictureRowNo(data._MaterialPicture ?? []);
     const startRowId = getNextMaterialPictureRowId(pictures);
-    const startRowNo = getNextMaterialPictureRowNo(pictures);
+    const startRowNo = pictures.length + 1;
     const newPictures = uploaded.map((item, index) =>
         buildUploadedMaterialPicture(materialId, startRowId + index, startRowNo + index, item));
-
     return { ...data, _MaterialPicture: [...pictures, ...newPictures] };
 };
 
@@ -952,10 +980,10 @@ const getNextMaterialPictureRowId = (pictures: MaterialPicture[]): number =>
     return pictures.reduce((max, picture) => Math.max(max, Number(picture.RowId ?? 0)), 0) + 1;
 };
 
-/** 取得下一個相片 RowNo。 */
-const getNextMaterialPictureRowNo = (pictures: MaterialPicture[]): number =>
+/** 保留 RowId，並將既有相片依目前順序正規化為連續 RowNo。 */
+const normalizeMaterialPictureRowNo = (pictures: MaterialPicture[]): MaterialPicture[] =>
 {
-    return pictures.reduce((max, picture) => Math.max(max, Number(picture.RowNo ?? 0)), 0) + 1;
+    return sortMaterialPictures(pictures).map((picture, index) => ({ ...picture, RowNo: index + 1 }));
 };
 
 /** 取得本次選圖的原始檔名，避免上傳 callback 未帶檔名時只剩 internalId。 */

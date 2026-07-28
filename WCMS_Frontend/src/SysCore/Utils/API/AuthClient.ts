@@ -40,12 +40,27 @@ export interface ICreateUserResult
 {
     ok?: boolean; // 你若有回應格式可補強；先保留最小回傳
 }
+
+export interface ICurrentUserDto
+{
+    UserId: string;
+    UserName: string;
+    InternalId: string;
+    AccountStatus: number;
+}
+
+export interface ICurrentUserContextDto
+{
+    User: ICurrentUserDto;
+    IsAdmin: boolean;
+    Permissions: Record<string, number>;
+}
 // #endregion
 
 // #region Public
 export const AuthAPI = {
-    me: () => api.get("/Auth/Me"),
-    login: (p: { account: string; password: string; }) => api.post("/Auth/Login", p),
+    me: () => api.get<ICurrentUserContextDto>("/Auth/Me"),
+    login: (p: { account: string; password: string; }) => api.post<ICurrentUserContextDto>("/Auth/Login", p),
     logout: () => postWithXsrf("/Auth/Logout"), // ✅ 建議帶 XSRF
     refresh: () => postWithXsrf("/Auth/Refresh"), // ✅ 建議帶 XSRF
 } as const;

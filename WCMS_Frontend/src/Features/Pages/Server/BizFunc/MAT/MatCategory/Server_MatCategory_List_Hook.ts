@@ -298,7 +298,12 @@ const buildMatCategoryQueryFields = (): string[] =>
         `${MatCategoryCategoryPath}.${CategoryFields.ModifyUser}.${AccountFields.AccountName}`,
         `${MatCategoryDetailPath}.${CategoryDetailFields.Lang}`,
         `${MatCategoryDetailPath}.${CategoryDetailFields.CategoryName}`,
+        `${MatCategoryInfoFieldPath}.${MatCategoryInfoFieldFields.RowId}`,
+        `${MatCategoryInfoFieldPath}.${MatCategoryInfoFieldFields.RowNo}`,
         `${MatCategoryInfoFieldPath}.${MatCategoryInfoFieldFields.Field}`,
+        `${MatCategoryDisplayPath}.${MatCategoryInfoFieldDisplayFields.ParentRowId}`,
+        `${MatCategoryDisplayPath}.${MatCategoryInfoFieldDisplayFields.RowId}`,
+        `${MatCategoryDisplayPath}.${MatCategoryInfoFieldDisplayFields.RowNo}`,
         `${MatCategoryDisplayPath}.${MatCategoryInfoFieldDisplayFields.Lang}`,
         `${MatCategoryDisplayPath}.${MatCategoryInfoFieldDisplayFields.FieldDisplayName}`,
     ];

@@ -237,6 +237,10 @@
     background-color: var(--FFFcolor);
 }
 
+.dd3-content.active-edit {
+    color: var(--bs-red);
+}
+
 .dd-dragel>.dd3-item>.dd3-content {
     margin: 0;
 }

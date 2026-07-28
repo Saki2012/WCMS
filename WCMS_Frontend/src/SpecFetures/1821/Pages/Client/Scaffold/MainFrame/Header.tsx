@@ -228,7 +228,7 @@ const TopNavList = (props: HeaderSectionProp & { text: HeaderText; }) =>
                 <li className="nav-item">
                     <a className="nav-link" href={NTUA_HOME_URL} tabIndex={0} target="_blank" rel="noopener noreferrer" title={props.text.ntuaHome}>{props.text.ntuaHome}</a>
                 </li>
-                <LangSwitchBtn site={props.site} />
+                {/* <LangSwitchBtn site={props.site} /> */}
                 <li className="nav-item">
                     <LangNavLink to={`/${SITEMAP_SEGMENT}`} className="nav-link" tabIndex={0} target="_self" title={props.text.sitemap}>{props.text.sitemap}</LangNavLink>
                 </li>

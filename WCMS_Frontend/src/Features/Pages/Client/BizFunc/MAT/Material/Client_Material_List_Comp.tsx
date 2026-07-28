@@ -17,6 +17,7 @@ import { type IMaterialListOptions, useMaterialListData } from "./Client_Materia
 
 // #region Property
 type MaterialFormModel = components["schemas"]["Material"];
+type MaterialPicture = NonNullable<MaterialFormModel["_MaterialPicture"]>[number];
 export interface IMaterialListProps
 {
     theme: IFETheme;
@@ -296,26 +297,33 @@ const getMaterialListView = (): typeof Client_Material_List_FeatureView =>
 // #endregion
 
 // #region Private
-/** 依 RowNo 與 RowId 穩定排序物件圖片。 */
-const compareMaterialPictureOrder = (
-    left: NonNullable<MaterialFormModel["_MaterialPicture"]>[number],
-    right: NonNullable<MaterialFormModel["_MaterialPicture"]>[number],
-): number =>
-{
-    return Number(left.RowNo ?? left.RowId ?? 0) - Number(right.RowNo ?? right.RowId ?? 0);
-};
-
-/** 組成卡片顯示資料 */
+/** 組成卡片顯示資料。 */
 const buildMaterialCardView = (item: MaterialFormModel, lang: Lang, dirUrl: string, categoryMap: Record<string, string>, defaultPic: string): MaterialCardView =>
 {
     const langInfo = item._MaterialLangInfo?.find(p => p.Lang === lang) ?? item._MaterialLangInfo?.[0];
     const internalId = item.InternalId ?? "";
-    const price = item.Price ?? 0;
     const title = langInfo?.MaterialName ?? "";
     const categoryName = item.CategoryId ? categoryMap[item.CategoryId] ?? "" : "";
-    const picData = [...(item._MaterialPicture ?? [])].sort(compareMaterialPictureOrder)[0];
+    const picData = getPrimaryMaterialPicture(item._MaterialPicture);
     const picAlt = picData?.PictureName ?? title;
     const picUrl = picData?.PictureId ? FileManagementAPI.get_Public_Preview_Url(picData.PictureId, picAlt) : defaultPic;
-    return { key: internalId, linkUrl: `${dirUrl}/${internalId}`, title, price, categoryName, picUrl, picAlt };
+    return { key: internalId, linkUrl: `${dirUrl}/${internalId}`, title, price: item.Price ?? 0, categoryName, picUrl, picAlt };
+};
+
+/** 取得 RowNo 最前面的物件主圖。 */
+const getPrimaryMaterialPicture = (pictures?: MaterialPicture[] | null): MaterialPicture | undefined =>
+{
+    return [...(pictures ?? [])].sort((left, right) =>
+    {
+        return getMaterialPictureOrder(left) - getMaterialPictureOrder(right)
+            || Number(left.RowId ?? 0) - Number(right.RowId ?? 0);
+    })[0];
+};
+
+/** 取得相片排序值，舊資料沒有 RowNo 時排在最後。 */
+const getMaterialPictureOrder = (picture: MaterialPicture): number =>
+{
+    const rowNo = Number(picture.RowNo ?? 0);
+    return rowNo > 0 ? rowNo : Number.MAX_SAFE_INTEGER;
 };
 // #endregion

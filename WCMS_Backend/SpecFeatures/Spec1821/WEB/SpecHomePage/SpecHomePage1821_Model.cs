@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SpecFeatures.Spec1821._Resx;
 using WCMS.SysCore.FeatureDriver.Model.Base;

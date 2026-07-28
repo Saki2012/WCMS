@@ -27,6 +27,7 @@ public class MatCategoryBiz(BizDeps bizDeps) : CategoryBizBase<MatCategoryFormMo
         await base.BeforeUpdate(data, act, ct);
         if (act is not FuncAction.Create and not FuncAction.Update) return;
         PrepareInfoFields(GetCategory(data), data.MatCategoryInfoField);
+        NormalizeInfoFieldRowNo(data.MatCategoryInfoField);
         CheckInfoFields(data.MatCategoryInfoField);
     }
     /// <summary>
@@ -67,6 +68,16 @@ public class MatCategoryBiz(BizDeps bizDeps) : CategoryBizBase<MatCategoryFormMo
             display.ParentRowId = field.RowId;
         }
         return nextRowId;
+    }
+    /// <summary>
+    /// 保留欄位 RowId，並依 RowNo、RowId 穩定排序後重排連續 RowNo。
+    /// </summary>
+    private static void NormalizeInfoFieldRowNo(IList<MatCategoryInfoField> fields)
+    {
+        List<MatCategoryInfoField> ordered = [.. fields
+            .OrderBy(field => field.RowNo > 0 ? field.RowNo : int.MaxValue)
+            .ThenBy(field => field.RowId)];
+        for (int index = 0; index < ordered.Count; index++) ordered[index].RowNo = index + 1;
     }
     /// <summary>
     /// 驗證自訂欄位代號與預設語系顯示名稱。

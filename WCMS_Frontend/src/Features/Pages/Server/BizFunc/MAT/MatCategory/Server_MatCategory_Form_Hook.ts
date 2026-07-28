@@ -363,7 +363,7 @@ const buildMatCategoryInfoFieldGridProps = (style: IEditGridView_Style, displayN
         canAdd: true,
         canEdit: true,
         canDelete: true,
-        canDrag: false,
+        canDrag: true,
         showRowNo: true,
         showOperationGuide: false,
         actionColumnTitle: "操作",
@@ -460,12 +460,13 @@ const buildMatCategoryInfoFieldGridRow = (
 ): MatCategoryInfoFieldGridRow =>
 {
     const rowId = Number(field.RowId ?? index + 1);
+    const rowNo = Number(field.RowNo ?? index + 1);
 
     return {
         keyId: buildMatCategoryInfoFieldRowKey(field, index),
         rowId,
         RowId: rowId,
-        RowNo: index + 1,
+        RowNo: rowNo,
         CategoryId: field.CategoryId,
         FieldRowId: rowId,
         InfoFieldDisplays: field._MatCategoryInfoFieldDisplay ?? [],
@@ -786,10 +787,17 @@ const findMatCategoryInfoFieldDisplayName = (displays: MatCategoryInfoFieldDispl
     return LibText.safeTrim(display?.FieldDisplayName);
 };
 
-/** 依 RowNo 與 RowId 排序物件欄位設定。 */
+/** 依 RowNo 與 RowId 穩定排序物件欄位設定。 */
 const sortMatCategoryInfoFields = (fields: MatCategoryInfoField[]): MatCategoryInfoField[] =>
 {
-    return [...fields].sort((a, b) => Number(a.RowNo ?? a.RowId ?? 0) - Number(b.RowNo ?? b.RowId ?? 0));
+    return [...fields].sort((left, right) => getMatCategoryInfoFieldOrder(left) - getMatCategoryInfoFieldOrder(right) || Number(left.RowId ?? 0) - Number(right.RowId ?? 0));
+};
+
+/** 取得欄位排序值，未設定 RowNo 的舊資料排到最後。 */
+const getMatCategoryInfoFieldOrder = (field: MatCategoryInfoField): number =>
+{
+    const rowNo = Number(field.RowNo ?? 0);
+    return rowNo > 0 ? rowNo : Number.MAX_SAFE_INTEGER;
 };
 
 /** 依目前語系與支援語系順序排序欄位顯示名稱。 */

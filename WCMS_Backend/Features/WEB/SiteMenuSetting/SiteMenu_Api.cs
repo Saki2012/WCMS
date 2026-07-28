@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using WCMS.Features._Resx;
 using WCMS.SysCore.Auditing.OperateLog;

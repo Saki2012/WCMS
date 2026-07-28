@@ -1,4 +1,4 @@
-﻿using WCMS.SysCore.Library;
+using WCMS.SysCore.Library;
 namespace WCMS.SysCore.Configuration;
 
 public class SystemVersion_DTO

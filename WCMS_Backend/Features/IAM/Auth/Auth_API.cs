@@ -7,16 +7,23 @@ using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.Security.IdentityAccess.Authentication;
 using WCMS.SysCore.Security.IdentityAccess.Authentication.CurrentUser;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.IAM.Auth;
 
 [ApiController, Route(SysParam.ApiRoutes.Service)]
-public class AuthController(LoginAttemptCache loginAttemptCache, TokenService tokenSvc, IConfiguration cfg, AuthBiz authBiz) : ControllerBase
+public class AuthController(
+    LoginAttemptCache loginAttemptCache,
+    TokenService tokenSvc,
+    IConfiguration cfg,
+    AuthBiz authBiz,
+    IPermissionCache permissionCache) : ControllerBase
 {
     #region Property
     private readonly TokenService _tokenSvc = tokenSvc;
     private readonly IConfiguration _cfg = cfg;
     private readonly AuthBiz _authBiz = authBiz;
     private readonly LoginAttemptCache _loginAttemptCache = loginAttemptCache;
+    private readonly IPermissionCache _permissionCache = permissionCache;
     protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
     private IOperateLog? _OperateLog;
     private ICurrentUserAccessor _Current;
@@ -39,7 +46,7 @@ public class AuthController(LoginAttemptCache loginAttemptCache, TokenService to
         int attempts = await _loginAttemptCache.GetAttemptsAsync(req.Account, ct);
         if (attempts >= 3) return StatusCode(StatusCodes.Status429TooManyRequests, new { message = "登入嘗試過多，請稍後再試。" });
         var (ok, userInfo) = await _authBiz.CheckLoginValid(req.Account, req.Password);
-        if (!ok)
+        if (!ok || userInfo == null)
         {
             await _loginAttemptCache.SetAttemptsAsync(req.Account, attempts + 1, ct);
             return Unauthorized(GENERIC_LOGIN_ERROR);
@@ -79,7 +86,9 @@ public class AuthController(LoginAttemptCache loginAttemptCache, TokenService to
             Path = baseOpt.Path,
             Expires = accessExp
         });
-        return Ok(userInfo);
+        await _permissionCache.InvalidateUsersAsync([userInfo.UserId], ct);
+        CurrentUserContext_DTO context = await BuildCurrentUserContextAsync(userInfo, ct);
+        return Ok(context);
     }
     /// <summary>
     /// 刷新狀態
@@ -176,22 +185,25 @@ public class AuthController(LoginAttemptCache loginAttemptCache, TokenService to
     /// <summary>
     /// 取得目前登入者（驗證 JWT；失效就 401）
     /// </summary>
-    [HttpGet(nameof(Me)), Authorize]
-    public IActionResult Me()
+    [HttpGet(nameof(Me)), Authorize, ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public async Task<IActionResult> Me(CancellationToken ct)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
-        var userName = User.FindFirstValue(ClaimTypes.Name) ?? userId;
-        var role = User.FindFirstValue(ClaimTypes.Role) ?? "User";
-        var interanlId = User.FindFirstValue(nameof(HeaderModel.InternalId)) ?? "";
-        // 回傳你前端需要的最小欄位；之後要接 DB 再補充
-        var dt = new
-        {
-            Id = userId,
-            Name = userName,
-            Role = role,
-            InternalId = interanlId,
-        };
-        return Ok(dt);
+        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        User_DTO? user = await _authBiz.FindByAccountAsync(userId);
+        if (user == null) return Unauthorized("User disabled.");
+        CurrentUserContext_DTO context = await BuildCurrentUserContextAsync(user, ct);
+        return Ok(context);
+    }
+    #endregion
+
+    #region Private
+    /// <summary>
+    /// 建立目前登入者與完整有效權限內容。
+    /// </summary>
+    private async Task<CurrentUserContext_DTO> BuildCurrentUserContextAsync(User_DTO user, CancellationToken ct)
+    {
+        EffectivePermissionSet effective = await _permissionCache.GetEffectivePermissionsAsync(user.UserId, ct);
+        return new CurrentUserContext_DTO { User = user, IsAdmin = effective.IsAdmin, Permissions = effective.Permissions };
     }
     #endregion
 }

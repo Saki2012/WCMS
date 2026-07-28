@@ -918,9 +918,6 @@
   <data name="Prog_Dashboard" xml:space="preserve">
     <value>Dashboard</value>
   </data>
-  <data name="Prog_HomePageSetting" xml:space="preserve">
-    <value>Home Page Setting</value>
-  </data>
   <data name="Prog_Announcement" xml:space="preserve">
     <value>Announcement Management</value>
   </data>
@@ -1028,5 +1025,11 @@
   </data>
   <data name="SiteMenu_Keyword" xml:space="preserve">
     <value>Key words</value>
+  </data>
+  <data name="Prog_HomePageSetting" xml:space="preserve">
+    <value>Home Page Setting</value>
+  </data>
+  <data name="HomePageSetting" xml:space="preserve">
+    <value>Home Page Setting</value>
   </data>
 </root>
