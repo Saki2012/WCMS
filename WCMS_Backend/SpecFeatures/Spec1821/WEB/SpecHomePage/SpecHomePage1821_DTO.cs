@@ -11,7 +11,7 @@ namespace WCMS.SpecFeatures.Spec1821.WEB.SpecHomePage;
 /// <summary>
 /// 1821 招生首頁設定 DTO
 /// </summary>
-public class SpecHomePage1821Set_DTO : ITSet_DTO
+[LibDesc(SpecModelDisplayName.SpecHomePage1821)] public class SpecHomePage1821Set_DTO : ITSet_DTO
 {
     [LibDesc(SpecModelDisplayName.SpecHomePage1821)] public SpecHomePage1821Model_DTO? SpecHomePage1821 { get; set; }
     [LibDesc(SpecModelDisplayName.SpecHomePage1821_Banner)] public List<SpecHomePage1821_Banner_DTO>? SpecHomePage1821_Banner { get; set; } = [];
@@ -22,7 +22,7 @@ public class SpecHomePage1821Set_DTO : ITSet_DTO
 /// <summary>
 /// 1821 招生首頁基礎設定 DTO
 /// </summary>
-public class SpecHomePage1821Model_DTO : DTOBasicDataModel
+[LibDesc(SpecModelDisplayName.SpecHomePage1821)] public class SpecHomePage1821Model_DTO : DTOBasicDataModel
 {
     [LibDesc(SpecModelDisplayName.HomePageId), Key, StringLength(SysLengthParam.ID)] public string? HomePageId { get; set; }
     [LibDesc(ModelDisplayName.Common_Lang), StringLength(SysLengthParam.Lang)] public string? Lang { get; set; }

@@ -6,6 +6,7 @@ import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
+import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import { type CSSProperties, type Dispatch, type SetStateAction, useCallback, useEffect, useId, useMemo, useState } from "react";
 
 // #region Property
@@ -16,6 +17,9 @@ type RolePermissionRow = { PermissionKey?: string | null; GrantMask?: number | s
 type PermissionCatalogModule = components["schemas"]["PermissionCatalogModuleDTO"];
 
 type PermissionCatalogProg = components["schemas"]["PermissionCatalogProgDTO"];
+
+type PermissionCatalogFilter = (modules: PermissionCatalogModuleDTO[]) => PermissionCatalogModuleDTO[];
+
 
 export interface PermissionCatalogProgDTO
 {
@@ -160,6 +164,16 @@ const actionBase: { key: string; value: FuncAction; fallbackLabel: string; }[] =
     { key: "delete", value: FuncAction.Delete, fallbackLabel: "刪除" },
     { key: "invalid", value: FuncAction.Invalid, fallbackLabel: "停用" },
 ];
+
+/** 預設不過濾權限目錄，只有目前 Spec 提供擴充時才套用。 */
+const filterPermissionCatalogBase: PermissionCatalogFilter = modules => modules;
+
+/** 讀取目前 Spec 的後台功能可見性規則，讓角色權限畫面同步隱藏。 */
+const filterPermissionCatalogBySpec = resolveSpecFunc<PermissionCatalogFilter>(
+    "Pages/Server/Scaffold/ServerModuleRoutesExtData.tsx",
+    filterPermissionCatalogBase,
+    ["filterRolePermissionCatalog"],
+);
 // #endregion
 
 // #region Public
@@ -282,7 +296,7 @@ const useRolePermissionReferenceData = (ctx: { adapter: RolePermissionFormAdapte
     {
         return {
             refs: {
-                modules: normalizePermissionModules(catalog.data),
+                modules: buildVisiblePermissionModules(catalog.data),
                 actionNameMap: funcAction.data ?? {},
             },
             isLoading: Boolean(catalog.isLoading || funcAction.isLoading),
@@ -310,6 +324,16 @@ const normalizePermissionModules = (modules: PermissionCatalogModule[] | undefin
         ModuleTitle: String(module.ModuleTitle ?? module.ModuleCode ?? ""),
         Progs: normalizePermissionProgs(module.Progs),
     }));
+};
+
+/** 正規化後套用目前 Spec 的角色權限顯示規則。 */
+const buildVisiblePermissionModules = (modules: PermissionCatalogModule[] | undefined): PermissionCatalogModuleDTO[] =>
+{
+    // 宣告變數
+    const normalized = normalizePermissionModules(modules);
+
+    // 執行 function / return
+    return filterPermissionCatalogBySpec(normalized);
 };
 
 /** 將模組底下功能清單轉成畫面需要的乾淨 DTO。 */

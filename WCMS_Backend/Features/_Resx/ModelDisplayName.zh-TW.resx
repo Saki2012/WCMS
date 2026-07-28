@@ -918,9 +918,6 @@
   <data name="Prog_Dashboard" xml:space="preserve">
     <value>儀表板</value>
   </data>
-  <data name="Prog_HomePageSetting" xml:space="preserve">
-    <value>首頁設定</value>
-  </data>
   <data name="Prog_Announcement" xml:space="preserve">
     <value>公告管理</value>
   </data>
@@ -1026,7 +1023,6 @@
   <data name="AACheck_MailtoTitle" xml:space="preserve">
     <value>電子郵件連結title不足，請使用姓名加電子郵件作為title</value>
   </data>
-  <!-- #region FileManagement / SiteViewCount -->
   <data name="FileManageSet" xml:space="preserve">
     <value>檔案管理</value>
   </data>
@@ -1171,5 +1167,10 @@
   <data name="SiteViewCount_RefererUrl" xml:space="preserve">
     <value>來源頁面網址</value>
   </data>
-  <!-- #endregion -->
+  <data name="Prog_HomePageSetting" xml:space="preserve">
+    <value>首頁設定</value>
+  </data>
+  <data name="HomePageSetting" xml:space="preserve">
+    <value>首頁設定</value>
+  </data>
 </root>
