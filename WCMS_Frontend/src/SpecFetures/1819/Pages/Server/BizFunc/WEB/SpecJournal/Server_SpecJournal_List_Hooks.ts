@@ -20,7 +20,7 @@ import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { AccountFields, PGID, SpecJournalAuthorFields, SpecJournalIndexDetailFields, SpecJournalModelFields } from "@/types/SchemaFields";
+import { AccountFields, PGID, SpecJournalAuthorFields, SpecJournalIndexDetailFields, SpecJournalFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 import type { SpecJournalMode } from "./Server_SpecJournal_Form_Hook";
@@ -250,7 +250,7 @@ const buildSpecJournalSearchFields = (rawData: SpecJournalListRawData, mode: Spe
 {
     const fields: SearchFieldConfig[] = [{
         key: SPEC_JOURNAL_TITLE_SEARCH_KEY,
-        title: getColumnTitle(rawData.modelDisplayName, SpecJournalModelFields.Title, "標題"),
+        title: getColumnTitle(rawData.modelDisplayName, SpecJournalFields.Title, "標題"),
         type: "text",
         placeholder: "請輸入標題",
     }];
@@ -301,15 +301,15 @@ const buildSpecJournalSearchConditions = (ctx: { searchParams: SpecJournalSearch
 const buildSpecJournalModeConditions = (mode: SpecJournalMode): string[] =>
 {
     const indexCondition = mode === "preprint" ? "Is Null" : "Is Not Null";
-    return [`${SpecJournalModelFields.JournalIndexId} ${indexCondition}`, `${SpecJournalModelFields.JournalIndexRowId} ${indexCondition}`];
+    return [`${SpecJournalFields.JournalIndexId} ${indexCondition}`, `${SpecJournalFields.JournalIndexRowId} ${indexCondition}`];
 };
 
 /** 建立中英文標題搜尋條件 */
 const buildSpecJournalTitleCondition = (title: string): string =>
 {
     const orCondition = LibCondition.joinConditions([
-        LibCondition.createCondition(SpecJournalModelFields.Title, Operator.Like, title),
-        LibCondition.createCondition(SpecJournalModelFields.Title_en, Operator.Like, title),
+        LibCondition.createCondition(SpecJournalFields.Title, Operator.Like, title),
+        LibCondition.createCondition(SpecJournalFields.Title_en, Operator.Like, title),
     ], LibCondition.JoinMode.Or);
     return `(${orCondition})`;
 };
@@ -317,15 +317,15 @@ const buildSpecJournalTitleCondition = (title: string): string =>
 /** 建立期刊卷數搜尋條件 */
 const buildSpecJournalVolumeCondition = (volume: string): string =>
 {
-    return `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume} = ${volume}`;
+    return `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume} = ${volume}`;
 };
 
 /** 建立中英文作者搜尋條件 */
 const buildSpecJournalAuthorCondition = (author: string): string =>
 {
     const orCondition = LibCondition.joinConditions([
-        LibCondition.createCondition(`${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName}`, Operator.Like, author),
-        LibCondition.createCondition(`${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en}`, Operator.Like, author),
+        LibCondition.createCondition(`${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName}`, Operator.Like, author),
+        LibCondition.createCondition(`${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en}`, Operator.Like, author),
     ], LibCondition.JoinMode.Or);
     return `(${orCondition})`;
 };
@@ -346,28 +346,28 @@ const buildSpecJournalQueryParam = (ctx: ServerListGridQueryContext<SpecJournalS
 const buildSpecJournalQueryFields = (): string[] =>
 {
     return [
-        SpecJournalModelFields.JournalId,
-        SpecJournalModelFields.Title,
-        SpecJournalModelFields.Title_en,
-        SpecJournalModelFields.ModifyUserId,
-        `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
-        `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
-        `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName}`,
-        `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en}`,
-        `${SpecJournalModelFields.ModifyUser}.${AccountFields.AccountName}`,
-        SpecJournalModelFields.CreateTime,
-        SpecJournalModelFields.ModifyTime,
-        SpecJournalModelFields.InternalId,
+        SpecJournalFields.JournalId,
+        SpecJournalFields.Title,
+        SpecJournalFields.Title_en,
+        SpecJournalFields.ModifyUserId,
+        `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
+        `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
+        `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName}`,
+        `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en}`,
+        `${SpecJournalFields.ModifyUser}.${AccountFields.AccountName}`,
+        SpecJournalFields.CreateTime,
+        SpecJournalFields.ModifyTime,
+        SpecJournalFields.InternalId,
     ];
 };
 
 /** 建立期刊排序條件 */
 const buildSpecJournalOrderBy = (mode: SpecJournalMode): QueryListParam["OrderBy"] =>
 {
-    if (mode === "preprint") return [{ Col: SpecJournalModelFields.ModifyTime, Desc: true }];
+    if (mode === "preprint") return [{ Col: SpecJournalFields.ModifyTime, Desc: true }];
 
-    return [{ Col: `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`, Desc: true }, {
-        Col: `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
+    return [{ Col: `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`, Desc: true }, {
+        Col: `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
         Desc: true,
     }];
 };
@@ -438,11 +438,11 @@ const enhanceSpecJournalGrid = (
 const buildColumns = (raw: SpecJournalListRawData, mode: SpecJournalMode): ColumnConfig[] =>
 {
     const base: ColumnConfig[] = [
-        buildSchemaColumn(SpecJournalModelFields.Title, raw),
+        buildSchemaColumn(SpecJournalFields.Title, raw),
         buildSchemaColumn(SpecJournalAuthorFields.AuthorName, raw),
-        buildSchemaColumn(SpecJournalModelFields.CreateTime, raw),
-        buildSchemaColumn(SpecJournalModelFields.ModifyUserId, raw),
-        buildSchemaColumn(SpecJournalModelFields.ModifyTime, raw),
+        buildSchemaColumn(SpecJournalFields.CreateTime, raw),
+        buildSchemaColumn(SpecJournalFields.ModifyUserId, raw),
+        buildSchemaColumn(SpecJournalFields.ModifyTime, raw),
     ];
 
     if (mode === "preprint") return base;

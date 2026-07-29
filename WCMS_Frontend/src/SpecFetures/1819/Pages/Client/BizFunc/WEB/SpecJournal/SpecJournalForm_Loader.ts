@@ -14,15 +14,15 @@ import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import {
-    FileManageModelFields,
+    FileManageFields,
     PGID,
-    SiteViewCountDetailModelFields,
-    SiteViewCountHeaderModelFields,
+    SiteViewCountDetailFields,
+    SiteViewCountHeaderFields,
     SpecJournalAuthorFields,
     SpecJournalDocumentFields,
     SpecJournalIndexDetailFields,
     SpecJournalKeywordsFields,
-    SpecJournalModelFields,
+    SpecJournalFields,
     SpecJournalOpenPointFilesFields,
     SpecJournalRefFilesFields,
     SpecJournalRefFormatFields,
@@ -39,18 +39,9 @@ type SpecJournalFormModel = components["schemas"]["SpecJournal"];
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type SiteViewCountSet = components["schemas"]["SiteViewCountSet_DTO"];
+type SiteViewCountFormModel = components["schemas"]["SiteViewCountHeader"];
 
-type SiteViewCountDetailRow = {
-    ProgId?: string | null;
-    TargetInternalId?: string | null;
-    PageViewCount?: number | null;
-    FilePreviewCount?: number | null;
-    FileDownloadCount?: number | null;
-    LinkClickCount?: number | null;
-};
-
-type SiteViewCountSetLike = SiteViewCountSet & { SiteViewCountDetail?: SiteViewCountDetailRow[] | null; };
+type SiteViewCountDetailRow = components["schemas"]["SiteViewCountDetail"];
 
 export interface SpecJournalFormLoaderArgs
 {
@@ -65,7 +56,7 @@ export interface SpecJournalFormLoaderRes
 {
     countRes: number;
     listRes: SpecJournalFormModel[];
-    viewCountRes: SiteViewCountSet[];
+    viewCountRes: SiteViewCountFormModel[];
 }
 
 export interface SpecJournalFormLoaderData
@@ -170,92 +161,92 @@ export const useSpecJournalFormData = (): UseSpecJournalFormDataResult =>
 
 const buildBaseParam = (journalId: string): QueryListParam =>
 {
-    const condition = `${SpecJournalModelFields.JournalId} = ${journalId}`;
+    const condition = `${SpecJournalFields.JournalId} = ${journalId}`;
 
     // return
     return {
         Fields: [
             // Header
-            SpecJournalModelFields.InternalId,
-            SpecJournalModelFields.Title,
-            SpecJournalModelFields.Title_en,
-            SpecJournalModelFields.PageStart,
-            SpecJournalModelFields.PageEnd,
-            SpecJournalModelFields.DOIUrl,
-            SpecJournalModelFields.ArticleLang,
-            SpecJournalModelFields.Memo,
-            SpecJournalModelFields.Memo_en,
-            SpecJournalModelFields.Bibliography,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileId}`,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFile}.${FileManageModelFields.PublicDownloadCount}`,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFile}.${FileManageModelFields.FileExtension}`,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.PublishDate}`,
+            SpecJournalFields.InternalId,
+            SpecJournalFields.Title,
+            SpecJournalFields.Title_en,
+            SpecJournalFields.PageStart,
+            SpecJournalFields.PageEnd,
+            SpecJournalFields.DOIUrl,
+            SpecJournalFields.ArticleLang,
+            SpecJournalFields.Memo,
+            SpecJournalFields.Memo_en,
+            SpecJournalFields.Bibliography,
+            `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
+            `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
+            `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileId}`,
+            `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
+            `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFile}.${FileManageFields.PublicDownloadCount}`,
+            `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFile}.${FileManageFields.FileExtension}`,
+            `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.PublishDate}`,
 
             // Header File
-            SpecJournalModelFields.JournalFileId,
-            SpecJournalModelFields.JournalFileName,
-            `${SpecJournalModelFields.JournalFile}.${FileManageModelFields.PublicDownloadCount}`,
-            `${SpecJournalModelFields.JournalFile}.${FileManageModelFields.FileExtension}`,
-            SpecJournalModelFields.InsightPointFileId,
-            SpecJournalModelFields.InsightPointFileName,
-            `${SpecJournalModelFields.InsightPointFile}.${FileManageModelFields.PublicDownloadCount}`,
-            `${SpecJournalModelFields.InsightPointFile}.${FileManageModelFields.FileExtension}`,
+            SpecJournalFields.JournalFileId,
+            SpecJournalFields.JournalFileName,
+            `${SpecJournalFields.JournalFile}.${FileManageFields.PublicDownloadCount}`,
+            `${SpecJournalFields.JournalFile}.${FileManageFields.FileExtension}`,
+            SpecJournalFields.InsightPointFileId,
+            SpecJournalFields.InsightPointFileName,
+            `${SpecJournalFields.InsightPointFile}.${FileManageFields.PublicDownloadCount}`,
+            `${SpecJournalFields.InsightPointFile}.${FileManageFields.FileExtension}`,
 
             // Author
-            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.RowId}`,
-            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorType}`,
-            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName}`,
-            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en}`,
-            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.JobTitle}`,
-            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.Unit}`,
-            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.Unit_en}`,
-            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.Email}`,
-            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.Country}`,
-            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.ORCID}`,
+            `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.RowId}`,
+            `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorType}`,
+            `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName}`,
+            `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en}`,
+            `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.JobTitle}`,
+            `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.Unit}`,
+            `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.Unit_en}`,
+            `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.Email}`,
+            `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.Country}`,
+            `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.ORCID}`,
 
             // RefFormat
-            `${SpecJournalModelFields._SpecJournalRefFormat}.${SpecJournalRefFormatFields.RowId}`,
-            `${SpecJournalModelFields._SpecJournalRefFormat}.${SpecJournalRefFormatFields.Title}`,
-            `${SpecJournalModelFields._SpecJournalRefFormat}.${SpecJournalRefFormatFields.Content}`,
+            `${SpecJournalFields._SpecJournalRefFormat}.${SpecJournalRefFormatFields.RowId}`,
+            `${SpecJournalFields._SpecJournalRefFormat}.${SpecJournalRefFormatFields.Title}`,
+            `${SpecJournalFields._SpecJournalRefFormat}.${SpecJournalRefFormatFields.Content}`,
 
             // OpenPoint
-            `${SpecJournalModelFields._SpecJournalOpenPointFiles}.${SpecJournalOpenPointFilesFields.RowId}`,
-            `${SpecJournalModelFields._SpecJournalOpenPointFiles}.${SpecJournalOpenPointFilesFields.OpenPointFileId}`,
-            `${SpecJournalModelFields._SpecJournalOpenPointFiles}.${SpecJournalOpenPointFilesFields.OpenPointFileName}`,
-            `${SpecJournalModelFields._SpecJournalOpenPointFiles}.${SpecJournalOpenPointFilesFields.OpenPointFile}.${FileManageModelFields.PublicDownloadCount}`,
-            `${SpecJournalModelFields._SpecJournalOpenPointFiles}.${SpecJournalOpenPointFilesFields.OpenPointFile}.${FileManageModelFields.FileExtension}`,
+            `${SpecJournalFields._SpecJournalOpenPointFiles}.${SpecJournalOpenPointFilesFields.RowId}`,
+            `${SpecJournalFields._SpecJournalOpenPointFiles}.${SpecJournalOpenPointFilesFields.OpenPointFileId}`,
+            `${SpecJournalFields._SpecJournalOpenPointFiles}.${SpecJournalOpenPointFilesFields.OpenPointFileName}`,
+            `${SpecJournalFields._SpecJournalOpenPointFiles}.${SpecJournalOpenPointFilesFields.OpenPointFile}.${FileManageFields.PublicDownloadCount}`,
+            `${SpecJournalFields._SpecJournalOpenPointFiles}.${SpecJournalOpenPointFilesFields.OpenPointFile}.${FileManageFields.FileExtension}`,
 
             // RefFiles
-            `${SpecJournalModelFields._SpecJournalRefFiles}.${SpecJournalRefFilesFields.RowId}`,
-            `${SpecJournalModelFields._SpecJournalRefFiles}.${SpecJournalRefFilesFields.RefFileId}`,
-            `${SpecJournalModelFields._SpecJournalRefFiles}.${SpecJournalRefFilesFields.RefFileName}`,
-            `${SpecJournalModelFields._SpecJournalRefFiles}.${SpecJournalRefFilesFields.RefFile}.${FileManageModelFields.PublicDownloadCount}`,
-            `${SpecJournalModelFields._SpecJournalRefFiles}.${SpecJournalRefFilesFields.RefFile}.${FileManageModelFields.FileExtension}`,
+            `${SpecJournalFields._SpecJournalRefFiles}.${SpecJournalRefFilesFields.RowId}`,
+            `${SpecJournalFields._SpecJournalRefFiles}.${SpecJournalRefFilesFields.RefFileId}`,
+            `${SpecJournalFields._SpecJournalRefFiles}.${SpecJournalRefFilesFields.RefFileName}`,
+            `${SpecJournalFields._SpecJournalRefFiles}.${SpecJournalRefFilesFields.RefFile}.${FileManageFields.PublicDownloadCount}`,
+            `${SpecJournalFields._SpecJournalRefFiles}.${SpecJournalRefFilesFields.RefFile}.${FileManageFields.FileExtension}`,
 
             // Types
-            `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.RowId}`,
-            `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.TagId}`,
-            `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}.${TagDataFields._TagDetail}.${TagDetailFields.Lang}`,
-            `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}.${TagDataFields._TagDetail}.${TagDetailFields.TagName}`,
+            `${SpecJournalFields._SpecJournalTypes}.${SpecJournalTypesFields.RowId}`,
+            `${SpecJournalFields._SpecJournalTypes}.${SpecJournalTypesFields.TagId}`,
+            `${SpecJournalFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}.${TagDataFields._TagDetail}.${TagDetailFields.Lang}`,
+            `${SpecJournalFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}.${TagDataFields._TagDetail}.${TagDetailFields.TagName}`,
 
             // Keywords
-            `${SpecJournalModelFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.RowId}`,
-            `${SpecJournalModelFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.LangCode}`,
-            `${SpecJournalModelFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.Keyword}`,
+            `${SpecJournalFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.RowId}`,
+            `${SpecJournalFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.LangCode}`,
+            `${SpecJournalFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.Keyword}`,
 
             // Documents
-            `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.RowId}`,
-            `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentId}`,
-            `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentName}`,
-            `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.Document}.${FileManageModelFields.PublicDownloadCount}`,
-            `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.Document}.${FileManageModelFields.FileExtension}`,
-            `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentType}`,
+            `${SpecJournalFields._SpecJournalDocument}.${SpecJournalDocumentFields.RowId}`,
+            `${SpecJournalFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentId}`,
+            `${SpecJournalFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentName}`,
+            `${SpecJournalFields._SpecJournalDocument}.${SpecJournalDocumentFields.Document}.${FileManageFields.PublicDownloadCount}`,
+            `${SpecJournalFields._SpecJournalDocument}.${SpecJournalDocumentFields.Document}.${FileManageFields.FileExtension}`,
+            `${SpecJournalFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentType}`,
         ],
         Condition: condition,
-        RankGroups: [{ Condition: `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorType} = 0` }],
+        RankGroups: [{ Condition: `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorType} = 0` }],
         PageNumber: 1,
         PageSize: 1,
     };
@@ -274,7 +265,7 @@ const buildViewCountCondition = (internalId: string): string =>
     const value = `${internalId ?? ""}`.trim();
     if (!value) return "1=0";
     // return
-    return `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.ProgId} = ${PGID.SpecJournal} And ${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.TargetInternalId} = ${value}`;
+    return `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.ProgId} = ${PGID.SpecJournal} And ${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.TargetInternalId} = ${value}`;
 };
 
 /** 建立 site view count 查詢參數 */
@@ -283,12 +274,12 @@ const buildViewCountQuery = (internalId: string): QueryListParam =>
     // return
     return {
         Fields: [
-            `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.ProgId}`,
-            `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.TargetInternalId}`,
-            `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.PageViewCount}`,
-            `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.FilePreviewCount}`,
-            `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.FileDownloadCount}`,
-            `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.LinkClickCount}`,
+            `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.ProgId}`,
+            `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.TargetInternalId}`,
+            `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.PageViewCount}`,
+            `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.FilePreviewCount}`,
+            `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.FileDownloadCount}`,
+            `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.LinkClickCount}`,
         ],
         Condition: buildViewCountCondition(internalId),
         PageNumber: 0,
@@ -306,18 +297,15 @@ const matchInitialArgs = <TArgs, TData>(currentArgs: TArgs, initialArgs: TArgs, 
 };
 
 /** 取得 site view detail rows */
-const getSiteViewCountDetails = (item: SiteViewCountSet): SiteViewCountDetailRow[] =>
+const getSiteViewCountDetails = (item: SiteViewCountFormModel): SiteViewCountDetailRow[] =>
 {
-    const detailRows = (item as SiteViewCountSetLike).SiteViewCountDetail;
-
+    const detailRows = item._SiteViewCountDetail;
     if (!Array.isArray(detailRows)) return [];
-
-    // return
     return detailRows;
 };
 
 /** 彙整瀏覽相關統計 */
-const buildViewCountData = (rows: SiteViewCountSet[]): SpecJournalViewCountData =>
+const buildViewCountData = (rows: SiteViewCountFormModel[]): SpecJournalViewCountData =>
 {
     const result: SpecJournalViewCountData = { pageViewCount: 0, filePreviewCount: 0, fileDownloadCount: 0, linkClickCount: 0 };
 

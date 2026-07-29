@@ -5,6 +5,7 @@ using WCMS.SysCore.Auditing.OperateLog;
 using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Contracts;
 using WCMS.SysCore.FeatureDriver.Api.Controllers;
+using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 
 namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
@@ -30,12 +31,11 @@ public class SpecJournalController : ApiDataController<SpecJournal>
     /// <param name="ct"></param>
     /// <returns></returns>
     [HttpPut(nameof(PublishJournal)), LibRequireFuncAct(FuncAction.Use)]
-    public async Task<IActionResult> PublishJournal([FromBody] PublishReq data, CancellationToken ct) 
+    public async Task<IActionResult> PublishJournal([FromBody] PublishReq data, CancellationToken ct)
     {
         OperateLog opLog = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(PublishJournal)}", OperateUser.UserId, JsonConvert.SerializeObject(data), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
-        await ((SpecJournal_Biz)Service).UpdatePublishedStatusAsync(data.InternalId,data.JournalIndexId, data.JournalIndexRowId, ct);
-        await EvictForSetAsync(ct, data.InternalId);
-        if (ct == CancellationToken.None) { opLog.ExcStatus = ExcStatus.CancelExc; }
+        await ((SpecJournal_Biz)Service).UpdatePublishedStatusAsync(data.InternalId, data.JournalIndexId, data.JournalIndexRowId, ct);
+        await EvictForDataAsync(ct, data.InternalId);
         var response = new ApiResponse() { SysMessage = Message.Messages };
         if (!response.IsSuccess) opLog.ExcStatus = ExcStatus.Fail;
         else opLog.ExcStatus = ExcStatus.OK;
@@ -48,12 +48,11 @@ public class SpecJournalController : ApiDataController<SpecJournal>
     /// <param name="ct"></param>
     /// <returns></returns>
     [HttpPut(nameof(UnpublishJournal)), LibRequireFuncAct(FuncAction.Use)]
-    public async Task<IActionResult> UnpublishJournal([FromBody] string internalId, CancellationToken ct) 
+    public async Task<IActionResult> UnpublishJournal([FromBody] string internalId, CancellationToken ct)
     {
         OperateLog opLog = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(UnpublishJournal)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
-        await ((SpecJournal_Biz)Service).UpdatePublishedStatusAsync(internalId,ct:ct);
-        await EvictForSetAsync(ct, internalId);
-        if (ct == CancellationToken.None) { opLog.ExcStatus = ExcStatus.CancelExc; }
+        await ((SpecJournal_Biz)Service).UpdatePublishedStatusAsync(internalId, ct: ct);
+        await EvictForDataAsync(ct, internalId);
         var response = new ApiResponse() { SysMessage = Message.Messages };
         if (!response.IsSuccess) opLog.ExcStatus = ExcStatus.Fail;
         else opLog.ExcStatus = ExcStatus.OK;

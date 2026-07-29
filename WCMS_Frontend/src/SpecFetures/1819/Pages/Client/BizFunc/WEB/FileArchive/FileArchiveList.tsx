@@ -25,7 +25,7 @@ export const extendFileArchiveListGridAdjust: FileArchiveListGridAdjustSlot = (c
     const rows = ctx.result.rows.map((row, index) =>
     {
         const item = ctx.rawData[index];
-        const modifyCell: RowCell = { col: modifyCol, content: formatDate(item?.FileArchive?.ModifyTime) };
+        const modifyCell: RowCell = { col: modifyCol, content: formatDate(item?.ModifyTime) };
         const mixedCells = [...row.cells.filter(cell => cell.col.key !== modifyColKey), modifyCell];
         const cells = columns.map(col => mixedCells.find(cell => cell.col.key === col.key) ?? ({ col, content: "" } as RowCell));
         return { ...row, cells };

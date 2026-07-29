@@ -14,7 +14,7 @@ import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang } from "@/SysCore/i18n/lang";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
-import { SpecJournalIndexModelFields } from "@/types/SchemaFields";
+import { SpecJournalIndexFields } from "@/types/SchemaFields";
 import { useSpecJournalIndexDetailEditGrid, useSpecJournalIndexFormTemplate } from "./Server_SpecJournalIndex_Form_Hook";
 
 // #region Property
@@ -87,7 +87,7 @@ const BasicComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJou
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalIndexModelFields.IndexName, "string")}
+                    {...setField(SpecJournalIndexFields.IndexName, "string")}
                 />
             </div>
             <DetailComp theme={props.theme} formData={props.formData} />

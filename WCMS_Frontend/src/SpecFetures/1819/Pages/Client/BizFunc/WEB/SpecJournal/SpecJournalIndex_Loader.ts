@@ -13,7 +13,7 @@ import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
-import { SpecJournalIndexDetailFields, SpecJournalIndexModelFields } from "@/types/SchemaFields";
+import { SpecJournalIndexDetailFields, SpecJournalIndexFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 
@@ -115,16 +115,16 @@ const buildBaseParam = (pageSize: number, pageNumber = 1): QueryListParam =>
     // return
     return {
         Fields: [
-            SpecJournalIndexModelFields.IndexId,
-            SpecJournalIndexModelFields.IndexName,
-            SpecJournalIndexModelFields.InternalId,
-            `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
-            `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
-            `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
-            `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileId}`,
-            `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
+            SpecJournalIndexFields.IndexId,
+            SpecJournalIndexFields.IndexName,
+            SpecJournalIndexFields.InternalId,
+            `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
+            `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
+            `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
+            `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileId}`,
+            `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
         ],
-        OrderBy: [{ Col: SpecJournalIndexModelFields.IndexName, Desc: true }],
+        OrderBy: [{ Col: SpecJournalIndexFields.IndexName, Desc: true }],
         PageNumber: pageNumber,
         PageSize: pageSize,
     };

@@ -21,7 +21,7 @@ import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDateTime, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { AccountFields, PGID, SpecJournalIndexDetailFields, SpecJournalIndexModelFields } from "@/types/SchemaFields";
+import { AccountFields, PGID, SpecJournalIndexDetailFields, SpecJournalIndexFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
@@ -245,7 +245,7 @@ const useSpecJournalIndexListGridDataSource = (
 /** 建立期刊目次搜尋欄位設定 */
 const buildSpecJournalIndexSearchFields = (rawData: SpecJournalIndexListRawData): SearchFieldConfig[] =>
 {
-    const indexNameTitle = getColumnTitle(rawData.modelDisplayName, SpecJournalIndexModelFields.IndexName, "期刊目次名稱");
+    const indexNameTitle = getColumnTitle(rawData.modelDisplayName, SpecJournalIndexFields.IndexName, "期刊目次名稱");
 
     return [{ key: SPEC_JOURNAL_INDEX_NAME_SEARCH_KEY, title: indexNameTitle, type: "text", placeholder: `請輸入${indexNameTitle}` }];
 };
@@ -266,7 +266,7 @@ const buildSpecJournalIndexSearchConditions = (ctx: { searchParams: SpecJournalI
 
     if (ctx.searchParams.indexName)
     {
-        conditions.push(`${SpecJournalIndexModelFields.IndexName} Like ${ctx.searchParams.indexName}`);
+        conditions.push(`${SpecJournalIndexFields.IndexName} Like ${ctx.searchParams.indexName}`);
     }
 
     return conditions;
@@ -278,7 +278,7 @@ const buildSpecJournalIndexQueryParam = (ctx: ServerListGridQueryContext<SpecJou
     return {
         Fields: buildSpecJournalIndexQueryFields(),
         Condition: LibCondition.joinConditions([ctx.searchCondition]),
-        OrderBy: [{ Col: SpecJournalIndexModelFields.CreateTime, Desc: true }],
+        OrderBy: [{ Col: SpecJournalIndexFields.CreateTime, Desc: true }],
         PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
@@ -288,15 +288,15 @@ const buildSpecJournalIndexQueryParam = (ctx: ServerListGridQueryContext<SpecJou
 const buildSpecJournalIndexQueryFields = (): string[] =>
 {
     return [
-        SpecJournalIndexModelFields.IndexId,
-        SpecJournalIndexModelFields.IndexName,
-        SpecJournalIndexModelFields.ModifyUserId,
-        `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
-        `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
-        `${SpecJournalIndexModelFields.ModifyUser}.${AccountFields.AccountName}`,
-        SpecJournalIndexModelFields.CreateTime,
-        SpecJournalIndexModelFields.ModifyTime,
-        SpecJournalIndexModelFields.InternalId,
+        SpecJournalIndexFields.IndexId,
+        SpecJournalIndexFields.IndexName,
+        SpecJournalIndexFields.ModifyUserId,
+        `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
+        `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
+        `${SpecJournalIndexFields.ModifyUser}.${AccountFields.AccountName}`,
+        SpecJournalIndexFields.CreateTime,
+        SpecJournalIndexFields.ModifyTime,
+        SpecJournalIndexFields.InternalId,
     ];
 };
 
@@ -367,29 +367,29 @@ const buildSpecJournalIndexVisibleColumns = (): SpecJournalIndexVisibleColumn[] 
 {
     return [
         {
-            key: SpecJournalIndexModelFields.IndexName,
-            columnId: SpecJournalIndexModelFields.IndexName,
+            key: SpecJournalIndexFields.IndexName,
+            columnId: SpecJournalIndexFields.IndexName,
             fallback: "期刊目次名稱",
         },
         {
             key: "__volIssue__",
-            tableId: SpecJournalIndexModelFields._SpecJournalIndexDetail,
+            tableId: SpecJournalIndexFields._SpecJournalIndexDetail,
             columnId: SpecJournalIndexDetailFields.Volume,
             fallback: "卷期",
         },
         {
-            key: SpecJournalIndexModelFields.CreateTime,
-            columnId: SpecJournalIndexModelFields.CreateTime,
+            key: SpecJournalIndexFields.CreateTime,
+            columnId: SpecJournalIndexFields.CreateTime,
             fallback: "建立時間",
         },
         {
-            key: SpecJournalIndexModelFields.ModifyUserId,
-            columnId: SpecJournalIndexModelFields.ModifyUserId,
+            key: SpecJournalIndexFields.ModifyUserId,
+            columnId: SpecJournalIndexFields.ModifyUserId,
             fallback: "修改者",
         },
         {
-            key: SpecJournalIndexModelFields.ModifyTime,
-            columnId: SpecJournalIndexModelFields.ModifyTime,
+            key: SpecJournalIndexFields.ModifyTime,
+            columnId: SpecJournalIndexFields.ModifyTime,
             fallback: "修改時間",
         },
     ];
@@ -426,10 +426,10 @@ const resolveSpecJournalIndexCellContent = (set: SpecJournalIndexFormModel, key:
     {
         case "__volIssue__":
             return renderers.buildVolumeIssueContentNode(set);
-        case SpecJournalIndexModelFields.CreateTime:
-        case SpecJournalIndexModelFields.ModifyTime:
+        case SpecJournalIndexFields.CreateTime:
+        case SpecJournalIndexFields.ModifyTime:
             return formatDateTime(String((data as Record<string, unknown>)[key] ?? ""));
-        case SpecJournalIndexModelFields.ModifyUserId:
+        case SpecJournalIndexFields.ModifyUserId:
             return set.ModifyUser?.AccountName ?? "";
         default:
             return String((data as Record<string, unknown>)[key] ?? "");

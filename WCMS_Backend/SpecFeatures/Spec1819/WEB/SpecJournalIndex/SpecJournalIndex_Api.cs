@@ -1,6 +1,6 @@
 ﻿using WCMS.Features._Resx;
-using WCMS.SpecFeatures.Spec1819.WEB.SpecJournalIndex;
 using WCMS.SysCore.FeatureDriver.Api.Controllers;
+using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 
 namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournalIndex;

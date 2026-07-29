@@ -17,12 +17,12 @@ import { LibText } from "@/SysCore/Utils/Library/LibData";
 import * as LibRouteLang from "@/SysCore/Utils/Route/LibRoute/LibRouteLang";
 import type { components } from "@/types/api";
 import {
-    FileManageModelFields,
+    FileManageFields,
     SpecJournalAuthorFields,
     SpecJournalDocumentFields,
     SpecJournalIndexDetailFields,
     SpecJournalKeywordsFields,
-    SpecJournalModelFields,
+    SpecJournalFields,
     SpecJournalTypesFields,
     TagDataFields,
     TagDetailFields,
@@ -254,24 +254,24 @@ const buildCondition = (p: BuildConditionArgs): string =>
             LibText.Merge(
                 " Or ",
                 false,
-                `${SpecJournalModelFields.Title} like '${kw}'`,
-                `${SpecJournalModelFields.Title_en} like '${kw}'`,
-                `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName} like '${kw}'`,
-                `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en} like '${kw}'`,
+                `${SpecJournalFields.Title} like '${kw}'`,
+                `${SpecJournalFields.Title_en} like '${kw}'`,
+                `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName} like '${kw}'`,
+                `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en} like '${kw}'`,
             )
         })`;
         const includeRef = f.includeRef === "1" || f.includeRef.toLowerCase() === "true";
         if (!includeRef) condition = LibText.Merge(" And ", false, condition, baseCond);
         else
         {
-            const bibCond = `(${SpecJournalModelFields.Bibliography} like '${kw}')`;
+            const bibCond = `(${SpecJournalFields.Bibliography} like '${kw}')`;
             condition = LibText.Merge(" And ", false, condition, `(${baseCond} Or ${bibCond})`);
         }
     }
 
     if (f.articleLang)
     {
-        condition = LibText.Merge(" And ", false, condition, `${SpecJournalModelFields.ArticleLang} = '${escapeSqlValue(f.articleLang)}'`);
+        condition = LibText.Merge(" And ", false, condition, `${SpecJournalFields.ArticleLang} = '${escapeSqlValue(f.articleLang)}'`);
     }
 
     if (f.tagId)
@@ -280,7 +280,7 @@ const buildCondition = (p: BuildConditionArgs): string =>
             " And ",
             false,
             condition,
-            `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.TagId} = '${escapeSqlValue(f.tagId)}'`,
+            `${SpecJournalFields._SpecJournalTypes}.${SpecJournalTypesFields.TagId} = '${escapeSqlValue(f.tagId)}'`,
         );
     }
 
@@ -290,7 +290,7 @@ const buildCondition = (p: BuildConditionArgs): string =>
             " And ",
             false,
             condition,
-            `(${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName} = '${escapeSqlValue(f.author)}' Or ${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en} = '${escapeSqlValue(f.author)}')`,
+            `(${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName} = '${escapeSqlValue(f.author)}' Or ${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en} = '${escapeSqlValue(f.author)}')`,
         );
     }
 
@@ -300,7 +300,7 @@ const buildCondition = (p: BuildConditionArgs): string =>
             " And ",
             false,
             condition,
-            `${SpecJournalModelFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.Keyword} = '${escapeSqlValue(f.keyword)}'`,
+            `${SpecJournalFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.Keyword} = '${escapeSqlValue(f.keyword)}'`,
         );
     }
 
@@ -316,34 +316,34 @@ const buildBaseParam = (p: BuildBaseParamArgs): QueryListParam =>
     const condition = buildCondition(p);
     return {
         Fields: [
-            SpecJournalModelFields.InternalId,
-            SpecJournalModelFields.JournalId,
-            SpecJournalModelFields.Title,
-            SpecJournalModelFields.Title_en,
-            SpecJournalModelFields.ArticleLang,
-            SpecJournalModelFields.PageStart,
-            SpecJournalModelFields.PageEnd,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.IndexId}`,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileId}`,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFile}.${FileManageModelFields.PublicDownloadCount}`,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFile}.${FileManageModelFields.FileExtension}`,
-            `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.TagId}`,
-            `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}`,
-            `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}.${TagDataFields._TagDetail}.${TagDetailFields.Lang}`,
-            `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}.${TagDataFields._TagDetail}.${TagDetailFields.TagName}`,
-            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName}`,
-            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en}`,
-            `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentId}`,
-            `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentName}`,
-            `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentType}`,
+            SpecJournalFields.InternalId,
+            SpecJournalFields.JournalId,
+            SpecJournalFields.Title,
+            SpecJournalFields.Title_en,
+            SpecJournalFields.ArticleLang,
+            SpecJournalFields.PageStart,
+            SpecJournalFields.PageEnd,
+            `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.IndexId}`,
+            `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
+            `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
+            `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
+            `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileId}`,
+            `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
+            `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFile}.${FileManageFields.PublicDownloadCount}`,
+            `${SpecJournalFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFile}.${FileManageFields.FileExtension}`,
+            `${SpecJournalFields._SpecJournalTypes}.${SpecJournalTypesFields.TagId}`,
+            `${SpecJournalFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}`,
+            `${SpecJournalFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}.${TagDataFields._TagDetail}.${TagDetailFields.Lang}`,
+            `${SpecJournalFields._SpecJournalTypes}.${SpecJournalTypesFields.Tag}.${TagDataFields._TagDetail}.${TagDetailFields.TagName}`,
+            `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName}`,
+            `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en}`,
+            `${SpecJournalFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentId}`,
+            `${SpecJournalFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentName}`,
+            `${SpecJournalFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentType}`,
         ],
         Condition: condition,
-        OrderBy: [{ Col: SpecJournalModelFields.PageStart, Desc: false }],
-        RankGroups: [{ Condition: `${SpecJournalModelFields.PageStart} != 0`, OrderBy: [{ Col: SpecJournalModelFields.PageStart, Desc: false }] }],
+        OrderBy: [{ Col: SpecJournalFields.PageStart, Desc: false }],
+        RankGroups: [{ Condition: `${SpecJournalFields.PageStart} != 0`, OrderBy: [{ Col: SpecJournalFields.PageStart, Desc: false }] }],
         PageNumber: 1,
         PageSize: p.pageSize,
     };
@@ -362,14 +362,14 @@ const buildScopeCondition = (p: BuildConditionArgs): string =>
     // 執行 function：預刊本
     if (p.isPreprint)
     {
-        return LibText.Merge(" And ", false, `${SpecJournalModelFields.JournalIndexId} is null`, `${SpecJournalModelFields.JournalIndexRowId} is null`);
+        return LibText.Merge(" And ", false, `${SpecJournalFields.JournalIndexId} is null`, `${SpecJournalFields.JournalIndexRowId} is null`);
     }
 
     // 執行 function：正式卷期
     if (!indexId || !hasValidRowId) return "";
 
     // return
-    return LibText.Merge(" And ", false, `${SpecJournalModelFields.JournalIndexId} = '${indexId}'`, `${SpecJournalModelFields.JournalIndexRowId} = ${rowId}`);
+    return LibText.Merge(" And ", false, `${SpecJournalFields.JournalIndexId} = '${indexId}'`, `${SpecJournalFields.JournalIndexRowId} = ${rowId}`);
 };
 
 const hasSearchFilters = (f: SpecJournalListFilters): boolean =>

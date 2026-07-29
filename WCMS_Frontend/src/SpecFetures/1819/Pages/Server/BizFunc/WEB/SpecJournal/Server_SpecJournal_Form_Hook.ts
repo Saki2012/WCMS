@@ -37,9 +37,9 @@ import {
     SpecJournalAuthorFields,
     SpecJournalDocumentFields,
     SpecJournalIndexDetailFields,
-    SpecJournalIndexModelFields,
+    SpecJournalIndexFields,
     SpecJournalKeywordsFields,
-    SpecJournalModelFields,
+    SpecJournalFields,
     SpecJournalOpenPointFilesFields,
     SpecJournalRefFilesFields,
 } from "@/types/SchemaFields";
@@ -220,7 +220,7 @@ export const useSpecJournalOpenPointFileEditGrid = (opt: UseSpecJournalFileEditG
     return useEditGridBinding<SpecJournalFormModel, SpecJournalOpenPointFiles>({
         binding: opt.binding,
         emptyData: buildEmptySpecJournalFormModel(),
-        collectionName: SpecJournalModelFields._SpecJournalOpenPointFiles,
+        collectionName: SpecJournalFields._SpecJournalOpenPointFiles,
         columns,
         getItemRowId: item => item.RowId,
         sortItems: sortSpecJournalRows,
@@ -244,7 +244,7 @@ export const useSpecJournalRefFileEditGrid = (opt: UseSpecJournalFileEditGridOpt
     return useEditGridBinding<SpecJournalFormModel, SpecJournalRefFiles>({
         binding: opt.binding,
         emptyData: buildEmptySpecJournalFormModel(),
-        collectionName: SpecJournalModelFields._SpecJournalRefFiles,
+        collectionName: SpecJournalFields._SpecJournalRefFiles,
         columns,
         getItemRowId: item => item.RowId,
         sortItems: sortSpecJournalRows,
@@ -269,7 +269,7 @@ export const useSpecJournalDocumentEditGrid = (opt: UseSpecJournalDocumentEditGr
     return useEditGridBinding<SpecJournalFormModel, SpecJournalDocument>({
         binding: opt.binding,
         emptyData: buildEmptySpecJournalFormModel(),
-        collectionName: SpecJournalModelFields._SpecJournalDocument,
+        collectionName: SpecJournalFields._SpecJournalDocument,
         columns,
         getItemRowId: item => item.RowId,
         sortItems: sortSpecJournalRows,
@@ -358,14 +358,14 @@ const useSpecJournalIndexListByAdapter = (
     const q = adapter.hooks.useQueryList({
         condition: {
             Fields: [
-                SpecJournalIndexModelFields.IndexId,
-                SpecJournalIndexModelFields.IndexName,
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
-                `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
+                SpecJournalIndexFields.IndexId,
+                SpecJournalIndexFields.IndexName,
+                `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
+                `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
+                `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
             ],
             Condition: "",
-            OrderBy: [{ Col: SpecJournalIndexModelFields.IndexName, Desc: true }],
+            OrderBy: [{ Col: SpecJournalIndexFields.IndexName, Desc: true }],
             PageNumber: 0,
             PageSize: 0,
         },
@@ -388,11 +388,11 @@ const useSpecJournalKeywordsByAdapter = (
     const q = adapter.hooks.useQueryList({
         condition: {
             Fields: [
-                `${SpecJournalModelFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.LangCode}`,
-                `${SpecJournalModelFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.Keyword}`,
+                `${SpecJournalFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.LangCode}`,
+                `${SpecJournalFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.Keyword}`,
             ],
             Condition: "",
-            OrderBy: [{ Col: SpecJournalIndexModelFields.CreateTime, Desc: true }],
+            OrderBy: [{ Col: SpecJournalIndexFields.CreateTime, Desc: true }],
             PageNumber: 0,
             PageSize: 0,
         },

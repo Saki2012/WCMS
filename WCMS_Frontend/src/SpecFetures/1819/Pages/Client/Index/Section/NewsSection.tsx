@@ -9,7 +9,7 @@ import type { HomePageRawData } from "../HomePage_Loader";
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
 
 interface NewsSectionProps
 {
@@ -80,13 +80,13 @@ export const NewsSection = (props: NewsSectionProps) =>
                                                     <ul className="ListNews">
                                                         {merged.map((data) =>
                                                         {
-                                                            const internalId = data.Announcement?.InternalId;
-                                                            const startRaw = data.Announcement?.Validate_Start;
+                                                            const internalId = data.InternalId;
+                                                            const startRaw = data.Validate_Start;
                                                             const startDt = startRaw ? new Date(startRaw) : null;
                                                             const year = startDt ? String(startDt.getFullYear()) : "";
                                                             const month = startDt ? String(startDt.getMonth() + 1).padStart(2, "0") : "";
                                                             const day = startDt ? String(startDt.getDate()).padStart(2, "0") : "";
-                                                            const detail = data.AnnouncementDetail?.find(p => p.Lang === props.lang);
+                                                            const detail = data._AnnouncementDetail?.find(p => p.Lang === props.lang);
 
                                                             return (
                                                                 <li key={internalId} className="News_item">
@@ -113,10 +113,10 @@ export const NewsSection = (props: NewsSectionProps) =>
                                                                                                 最新
                                                                                             </div>
                                                                                         )}
-                                                                                        {data.Announcement?.ContentStatus != 0 && (
+                                                                                        {data.ContentStatus != 0 && (
                                                                                             <>
-                                                                                                {Boolean((data.Announcement?.ContentStatus ?? 0) & 1) && <div className="icon-small top-bg">置頂</div>}
-                                                                                                {Boolean((data.Announcement?.ContentStatus ?? 0) & 2) && <div className="icon-small hot-bg">熱門</div>}
+                                                                                                {Boolean((data.ContentStatus ?? 0) & 1) && <div className="icon-small top-bg">置頂</div>}
+                                                                                                {Boolean((data.ContentStatus ?? 0) & 2) && <div className="icon-small hot-bg">熱門</div>}
                                                                                             </>
                                                                                         )}
                                                                                     </div>
@@ -169,12 +169,12 @@ const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]): InitialListCom
     return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
 };
 
-const takeTopThenFill = (top: AnnouncementSet[] | undefined, rest: AnnouncementSet[] | undefined, limit: number = 5): AnnouncementSet[] =>
+const takeTopThenFill = (top: AnnouncementFormModel[] | undefined, rest: AnnouncementFormModel[] | undefined, limit: number = 5): AnnouncementFormModel[] =>
 {
     // 宣告變數
-    const getKey = (x: AnnouncementSet) => x.Announcement?.InternalId ?? String(x.Announcement?.AnnouncementId ?? "");
+    const getKey = (x: AnnouncementFormModel) => x.InternalId ?? String(x.AnnouncementId ?? "");
     const seen = new Set<string>();
-    const out: AnnouncementSet[] = [];
+    const out: AnnouncementFormModel[] = [];
 
     // 執行 function：先放置頂
     for (const it of top ?? [])

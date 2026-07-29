@@ -29,7 +29,7 @@ public class SpecJournal : HeaderModel
     /// </summary>
     [ForeignKey(nameof(JournalIndexId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public SpecJournalIndex? _JournalIndex { get; set; }
+    public SpecJournalIndex.SpecJournalIndex? _JournalIndex { get; set; }
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, SpecModelDisplayName.Spec_JournalIndexId)]
     public string? JournalIndexId { get; set; }
     /// <summary>

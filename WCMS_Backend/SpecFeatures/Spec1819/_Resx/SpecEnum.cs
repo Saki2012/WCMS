@@ -1,4 +1,6 @@
 ﻿using WCMS.Features._Resx;
+using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.SpecFeatures.Spec1819._Resx;
 
 /// <summary>
@@ -9,7 +11,7 @@ public enum SpecDocumentType:byte
     /// <summary>
     /// 無
     /// </summary>
-    [LibDesc(ModelDisplayName.Common_None)] None = 0,
+    [LibDesc(DisplayName.Common_None)] None = 0,
     /// <summary>
     /// 勘誤
     /// </summary>

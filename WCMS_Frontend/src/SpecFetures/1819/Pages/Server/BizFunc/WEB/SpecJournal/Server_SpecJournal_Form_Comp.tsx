@@ -18,7 +18,7 @@ import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageSt
 import type { components } from "@/types/api";
 import {
     SpecJournalAuthorFields,
-    SpecJournalModelFields,
+    SpecJournalFields,
     SpecJournalRefFormatFields,
 } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -177,7 +177,7 @@ const MainFormComp = (
             <LibTinyMCE
                 key="bibliography"
                 Style={props.theme.TinyMCE}
-                {...setField(SpecJournalModelFields.Bibliography, "string")}
+                {...setField(SpecJournalFields.Bibliography, "string")}
                 ColumnDisplayName={""}
             />,
         ],
@@ -205,14 +205,14 @@ const BasicComp = (
     const setField = useFormModelField<SpecJournalFormModel>(props.formData);
     const journalFileField = useSpecJournalFileFieldBinding(
         props.formData,
-        SpecJournalModelFields.JournalFileId,
-        SpecJournalModelFields.JournalFileName,
+        SpecJournalFields.JournalFileId,
+        SpecJournalFields.JournalFileName,
         props.formData.data?.JournalFile?.FileName,
     );
     const insightPointFileField = useSpecJournalFileFieldBinding(
         props.formData,
-        SpecJournalModelFields.InsightPointFileId,
-        SpecJournalModelFields.InsightPointFileName,
+        SpecJournalFields.InsightPointFileId,
+        SpecJournalFields.InsightPointFileName,
         props.formData.data?.InsightPointFile?.FileName,
     );
     const indexOptions = useMemo(() =>
@@ -291,8 +291,8 @@ const BasicComp = (
             if (!prev) return prev;
             return {
                 ...prev,
-                [SpecJournalModelFields.JournalIndexId]: null,
-                [SpecJournalModelFields.JournalIndexRowId]: null,
+                [SpecJournalFields.JournalIndexId]: null,
+                [SpecJournalFields.JournalIndexRowId]: null,
             };
         });
     }, [props.mode, props.formData, props.formData.data?.JournalIndexId, props.formData.data?.JournalIndexRowId]);
@@ -327,7 +327,7 @@ const BasicComp = (
         {
             if (!prevData) return prevData;
 
-            return { ...prevData, [SpecJournalModelFields.JournalIndexRowId]: null };
+            return { ...prevData, [SpecJournalFields.JournalIndexRowId]: null };
         });
     }, [props.mode, props.formData, props.formData.data?.JournalIndexId]);
 
@@ -341,7 +341,7 @@ const BasicComp = (
         props.formData.setFormData(prev =>
         {
             if (!prev) return prev;
-            return { ...prev, [SpecJournalModelFields.ArticleLang]: DefaultLang };
+            return { ...prev, [SpecJournalFields.ArticleLang]: DefaultLang };
         });
     }, [props.formData.data, props.formData]);
 
@@ -353,13 +353,13 @@ const BasicComp = (
                         Style={props.theme.DropList2}
                         Options={indexOptions}
                         AutoDefaultFirst={false}
-                        {...setField(SpecJournalModelFields.JournalIndexId, "string")}
+                        {...setField(SpecJournalFields.JournalIndexId, "string")}
                     />
                     <LibDropList
                         Style={props.theme.DropList2}
                         Options={indexRowOptions}
                         AutoDefaultFirst={false}
-                        {...setField(SpecJournalModelFields.JournalIndexRowId, "number")}
+                        {...setField(SpecJournalFields.JournalIndexRowId, "number")}
                     />
                 </div>
             )}
@@ -367,7 +367,7 @@ const BasicComp = (
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalModelFields.Title, "string")}
+                    {...setField(SpecJournalFields.Title, "string")}
                 />
             </div>
 
@@ -375,7 +375,7 @@ const BasicComp = (
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalModelFields.Title_en, "string")}
+                    {...setField(SpecJournalFields.Title_en, "string")}
                 />
             </div>
 
@@ -383,12 +383,12 @@ const BasicComp = (
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalModelFields.PageStart, "number")}
+                    {...setField(SpecJournalFields.PageStart, "number")}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalModelFields.PageEnd, "number")}
+                    {...setField(SpecJournalFields.PageEnd, "number")}
                 />
             </div>
 
@@ -396,7 +396,7 @@ const BasicComp = (
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalModelFields.DOIUrl, "string")}
+                    {...setField(SpecJournalFields.DOIUrl, "string")}
                 />
             </div>
 
@@ -408,7 +408,7 @@ const BasicComp = (
                             InputColClassName="col-sm-8"
                             {...journalFileField}
                             Accept="application/pdf"
-                            onDelete={() => clearMainFileField(SpecJournalModelFields.JournalFileId, SpecJournalModelFields.JournalFileName)}
+                            onDelete={() => clearMainFileField(SpecJournalFields.JournalFileId, SpecJournalFields.JournalFileName)}
                         />
                     </div>
                     <div className="col-12 col-lg-6">
@@ -417,7 +417,7 @@ const BasicComp = (
                             InputColClassName="col-sm-8"
                             {...insightPointFileField}
                             Accept="application/pdf"
-                            onDelete={() => clearMainFileField(SpecJournalModelFields.InsightPointFileId, SpecJournalModelFields.InsightPointFileName)}
+                            onDelete={() => clearMainFileField(SpecJournalFields.InsightPointFileId, SpecJournalFields.InsightPointFileName)}
                         />
                     </div>
                 </div>
@@ -427,7 +427,7 @@ const BasicComp = (
                 <LibDropList
                     Style={props.theme.DropList2}
                     Options={articleLangOptions}
-                    {...setField(SpecJournalModelFields.ArticleLang, "string")}
+                    {...setField(SpecJournalFields.ArticleLang, "string")}
                 />
             </div>
 
@@ -450,11 +450,11 @@ const BasicComp = (
             </div>
 
             <div className="col-12 form-group">
-                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalModelFields.Memo, "string")} />
+                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalFields.Memo, "string")} />
             </div>
 
             <div className="col-12 form-group">
-                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalModelFields.Memo_en, "string")} />
+                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalFields.Memo_en, "string")} />
             </div>
         </>
     );
@@ -617,7 +617,7 @@ const AuthorComp = (
                 <LibCheckBox
                     Style={props.theme.RadioBox}
                     options={specAuthorTypeOptions}
-                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.AuthorType, "number", rowKeys, {
+                    {...setField(SpecJournalFields._SpecJournalAuthor, SpecJournalAuthorFields.AuthorType, "number", rowKeys, {
                         defaultValue: defaultAuthorType,
                         defaultWhen: "nullish",
                     })}
@@ -627,7 +627,7 @@ const AuthorComp = (
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.ORCID, "string", rowKeys)}
+                    {...setField(SpecJournalFields._SpecJournalAuthor, SpecJournalAuthorFields.ORCID, "string", rowKeys)}
                     onBlur={(v) => void handleOrcidBlur(rowKeys, v)}
                 />
             </div>,
@@ -635,43 +635,43 @@ const AuthorComp = (
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.AuthorName, "string", rowKeys)}
+                    {...setField(SpecJournalFields._SpecJournalAuthor, SpecJournalAuthorFields.AuthorName, "string", rowKeys)}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.AuthorName_en, "string", rowKeys)}
+                    {...setField(SpecJournalFields._SpecJournalAuthor, SpecJournalAuthorFields.AuthorName_en, "string", rowKeys)}
                 />
             </div>,
             <div className="col-12 form-group" key="jobCountry">
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.JobTitle, "string", rowKeys)}
+                    {...setField(SpecJournalFields._SpecJournalAuthor, SpecJournalAuthorFields.JobTitle, "string", rowKeys)}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.Country, "string", rowKeys)}
+                    {...setField(SpecJournalFields._SpecJournalAuthor, SpecJournalAuthorFields.Country, "string", rowKeys)}
                 />
             </div>,
             <div className="col-12 form-group" key="unit">
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.Unit, "string", rowKeys)}
+                    {...setField(SpecJournalFields._SpecJournalAuthor, SpecJournalAuthorFields.Unit, "string", rowKeys)}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.Unit_en, "string", rowKeys)}
+                    {...setField(SpecJournalFields._SpecJournalAuthor, SpecJournalAuthorFields.Unit_en, "string", rowKeys)}
                 />
             </div>,
             <div className="col-12 form-group" key="email">
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.Email, "string", rowKeys)}
+                    {...setField(SpecJournalFields._SpecJournalAuthor, SpecJournalAuthorFields.Email, "string", rowKeys)}
                 />
             </div>,
         ];
@@ -854,11 +854,11 @@ const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<Spe
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalModelFields._SpecJournalRefFormat, SpecJournalRefFormatFields.Title, "string", rowKeys)}
+                    {...setField(SpecJournalFields._SpecJournalRefFormat, SpecJournalRefFormatFields.Title, "string", rowKeys)}
                 />
                 <LibTinyMCE
                     Style={props.theme.TinyMCE}
-                    {...setField(SpecJournalModelFields._SpecJournalRefFormat, SpecJournalRefFormatFields.Content, "string", rowKeys)}
+                    {...setField(SpecJournalFields._SpecJournalRefFormat, SpecJournalRefFormatFields.Content, "string", rowKeys)}
                 />
             </div>,
         ];

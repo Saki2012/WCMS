@@ -17,7 +17,7 @@ import {
     BannerFields,
     PGID,
     SpecJournalIndexDetailFields,
-    SpecJournalIndexModelFields,
+    SpecJournalIndexFields,
     WebResourceFields,
     WebResourceInfoFields,
 } from "@/types/SchemaFields";
@@ -31,11 +31,11 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 
 type BannerFormModel = components["schemas"]["Banner"];
 
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
 
 type SpecJournalIndexFormModel = components["schemas"]["SpecJournalIndex"];
 
-type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+type WebResourceFormModel = components["schemas"]["WebResource"];
 
 type ApiLoaderDataCompat<TArgs, TData> = { args: TArgs; env: ApiResponse<TData>; } | { args: TArgs; apiRes: ApiResponse<TData>; };
 
@@ -46,12 +46,12 @@ export interface HomePageRawData
     latestIssuePublishedList: SpecJournalIndexFormModel[];
     latestIssueUnpublishedList: SpecJournalIndexFormModel[];
     indexedBanner: BannerFormModel | null;
-    newsTopList: AnnouncementSet[];
-    newsList: AnnouncementSet[];
-    newsMergedList: AnnouncementSet[];
+    newsTopList: AnnouncementFormModel[];
+    newsList: AnnouncementFormModel[];
+    newsMergedList: AnnouncementFormModel[];
     newsCategoryMap: Record<string, string>;
     aboutPublicationBanner: BannerFormModel | null;
-    relatedLinksList: WebResourceSet[];
+    relatedLinksList: WebResourceFormModel[];
 }
 
 export interface HomePageLoaderArgs
@@ -205,7 +205,7 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
         newsTopList,
         newsList,
         args.newsTake,
-        (item) => item.Announcement?.InternalId ?? String(item.Announcement?.AnnouncementId ?? ""),
+        (item) => item.InternalId ?? String(item.AnnouncementId ?? ""),
     );
     const aboutPublicationBanner = takeFirstOrNull<BannerFormModel>(getEnv(aboutPublicationLD).Data);
     const relatedLinksList = getEnv(relatedLinksLD).Data ?? [];
@@ -357,20 +357,20 @@ const buildSpecJournalIndexParam = (): QueryListParam =>
     // return
     return {
         Fields: [
-            SpecJournalIndexModelFields.IndexId,
-            SpecJournalIndexModelFields.IndexName,
-            SpecJournalIndexModelFields.InternalId,
-            `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.IndexId}`,
-            `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
-            `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
-            `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
-            `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileId}`,
-            `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
-            `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishDate}`,
-            `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.IsSpecial}`,
+            SpecJournalIndexFields.IndexId,
+            SpecJournalIndexFields.IndexName,
+            SpecJournalIndexFields.InternalId,
+            `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.IndexId}`,
+            `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.RowId}`,
+            `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
+            `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
+            `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileId}`,
+            `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.SummaryFileName}`,
+            `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishDate}`,
+            `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.IsSpecial}`,
         ],
         Condition: condition,
-        OrderBy: [{ Col: `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishDate}`, Desc: true }],
+        OrderBy: [{ Col: `${SpecJournalIndexFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishDate}`, Desc: true }],
         PageNumber: 1,
         PageSize: 5,
     };
@@ -695,7 +695,7 @@ const useHomePageDataLegacy = (props: UseHomePageDataProps): UseHomePageDataResu
             newsList,
             newsMergedList: takeTopThenFill(newsTopList, newsList, args.newsTake, item =>
             {
-                return item.Announcement?.InternalId ?? String(item.Announcement?.AnnouncementId ?? "");
+                return item.InternalId ?? String(item.AnnouncementId ?? "");
             }),
             newsCategoryMap: newsCategoryQuery.map,
             aboutPublicationBanner: takeFirstOrNull<BannerFormModel>(aboutPublicationQuery.data),

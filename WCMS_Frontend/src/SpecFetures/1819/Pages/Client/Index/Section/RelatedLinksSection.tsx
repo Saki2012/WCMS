@@ -44,10 +44,10 @@ export const RelatedLinksSection = (props: RelatedLinksSectionProps) =>
                                     <div className="row mx-0">
                                         {useWebSrc.data.map((data) =>
                                         {
-                                            const id = data.WebResource?.WebResourceId;
-                                            const picTitle = data.WebResource?.PicDescription ?? "";
-                                            const picSrc = FileManagementAPI.get_Public_Preview_Url(data.WebResource?.PicId, picTitle);
-                                            const dt = data.WebResourceInfo?.find(p => p.Lang === props.lang);
+                                            const id = data.WebResourceId;
+                                            const picTitle = data.PicDescription ?? "";
+                                            const picSrc = FileManagementAPI.get_Public_Preview_Url(data.PicId, picTitle);
+                                            const dt = data._WebResourceInfo?.find(p => p.Lang === props.lang);
                                             const title = dt?.Title ?? "";
                                             const url = dt?.ResUrl ?? "";
                                             const tar = dt?.Url_OpenType === 0 ? "_self" : "_blank";

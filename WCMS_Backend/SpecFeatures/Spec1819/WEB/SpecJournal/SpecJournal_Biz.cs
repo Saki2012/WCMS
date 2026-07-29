@@ -5,11 +5,12 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1819._Resx;
-using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library;
 using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.SysCore.FeatureDriver.Biz.Metadata;
+using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.Library;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 
 namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
@@ -381,7 +382,7 @@ public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFacto
     /// <returns>表頭資料</returns>
     private async Task<SpecJournal> QueryHeaderByInternalIdAsync(string internalId, CancellationToken ct)
     {
-        var condition = $"{nameof(BasicDataModel.InternalId)} = \"{internalId}\"";
+        var condition = $"{nameof(HeaderModel.InternalId)} = \"{internalId}\"";
         var datas = await DoQueryListAsync<SpecJournal>([], condition, default, 0, 1, ct: ct);
         return datas.Cast<SpecJournal>().FirstOrDefault();
     }

@@ -30,7 +30,7 @@ import { LibAttachment } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_Hooks/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { PGID, SpecJournalIndexDetailFields, SpecJournalIndexModelFields } from "@/types/SchemaFields";
+import { PGID, SpecJournalIndexDetailFields, SpecJournalIndexFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 
 // #region Property
@@ -107,7 +107,7 @@ export const useSpecJournalIndexDetailEditGrid = (opt: UseSpecJournalIndexDetail
     return useEditGridBinding<SpecJournalIndexFormModel, SpecJournalIndexDetail>({
         binding: opt.binding,
         emptyData: { _SpecJournalIndexDetail: [] },
-        collectionName: SpecJournalIndexModelFields._SpecJournalIndexDetail,
+        collectionName: SpecJournalIndexFields._SpecJournalIndexDetail,
         columns,
         getItemRowId: item => item.RowId,
         sortItems: items => [...items].sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0)),

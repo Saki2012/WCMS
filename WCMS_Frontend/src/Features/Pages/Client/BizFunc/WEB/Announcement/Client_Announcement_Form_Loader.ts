@@ -18,7 +18,7 @@ import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import { LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
-import { AnnouncementDetailFields, AnnouncementDetailFileFields, AnnouncementFields, FileManageModelFields, PGID } from "@/types/SchemaFields";
+import { AnnouncementDetailFields, AnnouncementDetailFileFields, AnnouncementFields, FileManageFields, PGID } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { redirectClientNotFound } from "../../../Route/ClientRouteRedirect_Helper";
@@ -228,8 +228,8 @@ const buildAnnouncementFormQueryParam = (p: { internalId: string; }): QueryListP
             `${detailFilePrefix}.${AnnouncementDetailFileFields.RowNo}`,
             `${detailFilePrefix}.${AnnouncementDetailFileFields.FileId}`,
             `${detailFilePrefix}.${AnnouncementDetailFileFields.FileName}`,
-            `${fileManagePrefix}.${FileManageModelFields.InternalId}`,
-            `${fileManagePrefix}.${FileManageModelFields.FileExtension}`,
+            `${fileManagePrefix}.${FileManageFields.InternalId}`,
+            `${fileManagePrefix}.${FileManageFields.FileExtension}`,
         ],
         Condition: condition,
         PageNumber: 1,
