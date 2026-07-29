@@ -393,6 +393,7 @@ public class BizService<TFormModel> : BizBase
         await KeyCoordinator.PrepareAsync(header, detailLists, ct);
         await BeforeUpdate(data, FuncAction.Create, ct);
         if (Message.HasError) return data;
+        FormDetailRowNoAllocator.NormalizeRowNos(GraphCollector.CollectDetailCollections(data));
         await DoCreateAsync(data, ct);
         await AfterUpdate(default, data, FuncAction.Create, TransStatus.Increase, ct);
         return data;
@@ -413,6 +414,7 @@ public class BizService<TFormModel> : BizBase
         await KeyCoordinator.PrepareAsync(header, newDetailLists, oldDetailLists, ct);
         await BeforeUpdate(newData, FuncAction.Update, ct);
         if (Message.HasError) return newData;
+        FormDetailRowNoAllocator.NormalizeRowNos(GraphCollector.CollectDetailCollections(newData));
         TFormModel snapshot = oldData.Snapshot();
         await DoUpdateAsync(oldData, newData, ct);
         await AfterUpdate(snapshot, oldData, FuncAction.Update, TransStatus.Difference, ct);

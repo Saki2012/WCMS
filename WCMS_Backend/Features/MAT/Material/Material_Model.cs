@@ -99,10 +99,6 @@ public class MaterialPicture : FormDetailModel
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.MaterialId)]
     public string MaterialId { get; set; } = string.Empty;
     /// <summary>
-    /// 
-    /// </summary>
-    public int RowNo { get; set; }
-    /// <summary>
     /// 照片來源
     /// </summary>
     [ForeignKey(nameof(PictureId))]

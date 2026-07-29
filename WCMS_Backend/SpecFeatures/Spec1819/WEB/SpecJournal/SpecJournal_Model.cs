@@ -1,14 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.Features._Resx;
 using WCMS.Features.COMM.Tag;
 using WCMS.SpecFeatures.Spec1819._Resx;
 using WCMS.SpecFeatures.Spec1819.WEB.SpecJournalIndex;
-using WCMS.SysCore.I18n;
-using WCMS.SysCore.PlatformServices.FileManagement;
-using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
+using WCMS.SysCore.FeatureDriver.Model.Validation;
+using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.SysCore.I18n;
+using WCMS.SysCore.PlatformServices.FileManagement;
 
 namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
 

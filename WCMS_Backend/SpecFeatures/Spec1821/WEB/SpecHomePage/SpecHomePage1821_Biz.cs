@@ -52,7 +52,6 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     protected static void NormalizeData(SpecHomePage1821 data)
     {
         data.LinkOptions = NormalizeOptionsJson(data.LinkOptions);
-        NormalizeBanner(data._SpecHomePage1821_Banner);
         NormalizeShortcut(data._SpecHomePage1821_Shortcut);
     }
     #endregion
@@ -143,25 +142,12 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     }
 
     /// <summary>
-    /// 補齊 Banner 排序預設值。
+    /// 整理 Shortcut 的 Link／Module 專屬欄位。
     /// </summary>
-    private static void NormalizeBanner(IReadOnlyList<SpecHomePage1821_Banner> rows)
+    private static void NormalizeShortcut(IEnumerable<SpecHomePage1821_Shortcut> rows)
     {
-        for (int index = 0; index < rows.Count; index++)
-            if (rows[index].RowNo <= 0) rows[index].RowNo = index + 1;
-    }
-
-    /// <summary>
-    /// 整理 Shortcut 排序及其 Link／Module 專屬欄位。
-    /// </summary>
-    private static void NormalizeShortcut(IReadOnlyList<SpecHomePage1821_Shortcut> rows)
-    {
-        for (int index = 0; index < rows.Count; index++)
-        {
-            SpecHomePage1821_Shortcut row = rows[index];
-            if (row.RowNo <= 0) row.RowNo = index + 1;
+        foreach (SpecHomePage1821_Shortcut row in rows)
             NormalizeShortcutAction(row);
-        }
     }
 
     /// <summary>
@@ -180,16 +166,12 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     }
 
     /// <summary>
-    /// 整理單一 Shortcut 底下的模組 SubDetail 排序與查詢條件。
+    /// 整理單一 Shortcut 底下的模組 SubDetail 查詢條件。
     /// </summary>
-    private static void NormalizeShortcutModuleItems(IReadOnlyList<SpecHomePage1821_ShortcutModuleItem> rows)
+    private static void NormalizeShortcutModuleItems(IEnumerable<SpecHomePage1821_ShortcutModuleItem> rows)
     {
-        for (int index = 0; index < rows.Count; index++)
-        {
-            SpecHomePage1821_ShortcutModuleItem row = rows[index];
+        foreach (SpecHomePage1821_ShortcutModuleItem row in rows)
             row.ModuleOptions = NormalizeOptionsJson(row.ModuleOptions);
-            if (row.RowNo <= 0) row.RowNo = index + 1;
-        }
     }
 
     /// <summary>
