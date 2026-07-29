@@ -1,7 +1,7 @@
 import {
-    MaterialBatchPictureUploadLimit,
     buildMaterialInfoJsonDefaults,
     getMaterialPicturePreviewUrl,
+    MaterialBatchPictureUploadLimit,
     materialEmptyData,
     type MaterialFormRefs,
     type MaterialInfoFieldItem,
@@ -18,17 +18,17 @@ import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Conte
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
 import type { EditGridCellRenderArgs, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
+import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
+import { LibCheckBox, LibDropList, LibFile, LibModal, LibPicturePreview, LibTextBox, LibTinyMCE } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useSetJsonField, useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFrame";
 import { buildServerPreviewToolbarButton, useServerPreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFrame_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
-import { LibCheckBox, LibDropList, LibFile, LibModal, LibPicturePreview, LibTextBox, LibTinyMCE }  from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetJsonField, useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
-import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
 import { MaterialFields, MaterialLangInfoFields, MaterialPictureFields, MaterialSetFields, PGID } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
@@ -264,9 +264,7 @@ const MaterialLangComp = (props: MaterialLangProps) =>
 /** 物件相片區塊，批次上傳按鈕與 EditGrid 單筆新增按鈕分離。 */
 const MaterialPictureGridComp = (props: MaterialPictureProps) =>
 {
-    const renderPicturePreview = useCallback((args: EditGridCellRenderArgs) => (
-        <MaterialPicturePreview value={args.value} onRemove={() => clearMaterialPictureCell(args)} />
-    ), []);
+    const renderPicturePreview = useCallback((args: EditGridCellRenderArgs) => <MaterialPicturePreview value={args.value} onRemove={() => clearMaterialPictureCell(args)} />, []);
     const pictureGrid = useMaterialPictureEditGrid({ binding: props.binding, style: editGridStyle, renderPicturePreview });
 
     return (
@@ -471,7 +469,7 @@ const buildMaterialInfoField = (
             key={`MaterialInfo_${item.field}`}
             Style={theme.TextBox3}
             ColumnDisplayName={item.title}
-            DefaultInputDisplay={`請輸入${item.title}`}
+            DefaultInputDisplay="請輸入"
             InputValue={String(bind.value ?? "")}
             OnChange={bind.onChange}
         />
