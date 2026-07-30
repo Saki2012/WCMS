@@ -26,6 +26,21 @@ export interface ClientSpecProductionListProps
 }
 type MaterialInfoJsonValue = string | number | boolean | null;
 type MaterialInfoJsonMap = Record<string, MaterialInfoJsonValue>;
+
+interface ProductionTabsProps
+{
+    lang: Lang;
+    tagList: MaterialTag[];
+    activeTabId: string;
+    onChange: (id: string) => void;
+}
+
+interface ProductionTabKeyboardHandlers
+{
+    registerTab: (id: string, element: HTMLAnchorElement | null) => void;
+    onClick: React.MouseEventHandler<HTMLAnchorElement>;
+    onKeyDown: React.KeyboardEventHandler<HTMLAnchorElement>;
+}
 // #endregion
 
 // #region Public
@@ -170,23 +185,65 @@ const getTagName = (tag: MaterialTag, lang: Lang): string =>
 };
 
 /// <summary>
-/// 渲染物件類別 Tab。
+/// 依方向鍵、Home、End 計算下一個應聚焦的頁籤位置。
 /// </summary>
-const ProductionTabs = (
-    { lang, tagList, activeTabId, onChange }: { lang: Lang; tagList: MaterialTag[]; activeTabId: string; onChange: (id: string) => void; },
-) =>
+const getProductionTabTargetIndex = (key: string, currentIndex: number, tabCount: number): number | null =>
 {
-    /** 透過共用 Anchor Button Hook 切換目前 Tab。 */
+    if (currentIndex < 0 || tabCount <= 0) return null;
+    if (key === "ArrowRight") return (currentIndex + 1) % tabCount;
+    if (key === "ArrowLeft") return (currentIndex - 1 + tabCount) % tabCount;
+    if (key === "Home") return 0;
+    if (key === "End") return tabCount - 1;
+    return null;
+};
+
+/// <summary>
+/// 管理頁籤方向鍵焦點，以及 Enter、Space 手動切換內容。
+/// </summary>
+const useProductionTabKeyboard = (tabIds: string[], onChange: (id: string) => void): ProductionTabKeyboardHandlers =>
+{
+    const tabRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
     const handleTabAction = useCallback((event: AnchorActionEvent) =>
     {
-        const id = event.currentTarget.dataset.tabId ?? "";
-        onChange(id);
+        onChange(event.currentTarget.dataset.tabId ?? "");
     }, [onChange]);
     const tabAction = useAnchorButtonAction(handleTabAction);
 
+    const registerTab = useCallback((id: string, element: HTMLAnchorElement | null) =>
+    {
+        tabRefs.current[id] = element;
+    }, []);
+
+    const onKeyDown = useCallback<React.KeyboardEventHandler<HTMLAnchorElement>>((event) =>
+    {
+        tabAction.onKeyDown(event);
+
+        const currentId = event.currentTarget.dataset.tabId ?? "";
+        const currentIndex = tabIds.indexOf(currentId);
+        const targetIndex = getProductionTabTargetIndex(event.key, currentIndex, tabIds.length);
+        if (targetIndex === null) return;
+
+        event.preventDefault();
+        const targetId = tabIds[targetIndex] ?? "";
+        tabRefs.current[targetId]?.focus();
+    }, [tabAction, tabIds]);
+
+    return { registerTab, onClick: tabAction.onClick, onKeyDown };
+};
+
+/// <summary>
+/// 渲染物件類別 Tab。
+/// </summary>
+const ProductionTabs = (
+    { lang, tagList, activeTabId, onChange }: ProductionTabsProps,
+) =>
+{
+    const tabIds = useMemo(() => tagList.map((tag) => tag.TagId ?? "").filter(Boolean), [tagList]);
+    const keyboard = useProductionTabKeyboard(tabIds, onChange);
+
     return (
         <div className="Horizontal nav-tabs-list">
-            <ul className="nav nav-tabs" role="tablist">
+            <ul className="nav nav-tabs" role="tablist" aria-orientation="horizontal">
                 {tagList.map((tag) =>
                 {
                     const id = tag.TagId ?? "";
@@ -203,7 +260,10 @@ const ProductionTabs = (
                                 aria-controls={`H-navTabs-${id}`}
                                 id={`H-Tabs__${id}`}
                                 data-tab-id={id}
-                                {...tabAction}
+                                tabIndex={id === activeTabId ? 0 : -1}
+                                ref={(element) => keyboard.registerTab(id, element)}
+                                onClick={keyboard.onClick}
+                                onKeyDown={keyboard.onKeyDown}
                             >
                                 <span className="vm">{name}</span>
                                 <span className="ms-1">〉</span>
