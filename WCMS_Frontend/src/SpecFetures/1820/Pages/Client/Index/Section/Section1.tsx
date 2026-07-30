@@ -3,7 +3,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibNumber } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { useMotionValueEvent, useReducedMotion, useScroll, useSpring } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 // #region Property
 type HomePageFormModel = components["schemas"]["SpecHomePage1820"];
@@ -23,6 +23,7 @@ export const Section1 = (props: { homePage: HomePageFormModel; banners: BannerMo
     const [activeIndex, setActiveIndex] = useState(0);
     const [isCarouselPaused, setIsCarouselPaused] = useState(false);
     const [isVideoPaused, setIsVideoPaused] = useState(false);
+    const [carouselAnnouncement, setCarouselAnnouncement] = useState("");
     const prefersReducedMotion = useReducedMotion();
 
     /** 宣告變數：scroll 進度 */
@@ -49,24 +50,37 @@ export const Section1 = (props: { homePage: HomePageFormModel; banners: BannerMo
         applySectionVars(sectionRef.current, 0, !!prefersReducedMotion);
     }, [prefersReducedMotion]);
 
-    /** 執行：切到指定張 */
-    const goToSlide = (nextIndex: number) =>
+    /** 執行：切到指定張並視需要通知螢幕閱讀器 */
+    const goToSlide = useCallback((nextIndex: number, shouldAnnounce = false) =>
     {
-        if (bannerItems.length === 0) return;
+        const nextBanner = bannerItems[nextIndex];
+        if (!nextBanner) return;
+
         setActiveIndex(nextIndex);
         setIsVideoPaused(false);
-    };
+        if (!shouldAnnounce) return;
+
+        setCarouselAnnouncement(buildSlideAnnouncement(nextBanner, nextIndex, bannerItems.length));
+    }, [bannerItems]);
 
     /** 執行：上一張 */
     const handlePrev = () =>
     {
-        goToSlide(getPrevIndex(activeIndex, bannerItems.length));
+        const nextIndex = getPrevIndex(activeIndex, bannerItems.length);
+        goToSlide(nextIndex, true);
     };
 
     /** 執行：下一張 */
     const handleNext = () =>
     {
-        goToSlide(getNextIndex(activeIndex, bannerItems.length));
+        const nextIndex = getNextIndex(activeIndex, bannerItems.length);
+        goToSlide(nextIndex, true);
+    };
+
+    /** 執行：輪播取得焦點時停止自動輪播 */
+    const handleCarouselFocus = () =>
+    {
+        setIsCarouselPaused(true);
     };
 
     /** 執行：切換輪播播放 */
@@ -138,7 +152,7 @@ export const Section1 = (props: { homePage: HomePageFormModel; banners: BannerMo
             window.clearTimeout(autoplayTimerRef.current);
             autoplayTimerRef.current = null;
         };
-    }, [activeIndex, activeBanner, bannerItems.length, isCarouselPaused, prefersReducedMotion]);
+    }, [activeIndex, activeBanner, bannerItems.length, goToSlide, isCarouselPaused, prefersReducedMotion]);
 
     /** 執行：減少動態時停用自動播放 */
     useEffect(() =>
@@ -180,7 +194,6 @@ export const Section1 = (props: { homePage: HomePageFormModel; banners: BannerMo
                         id="videoCustomControl"
                         className="video-bottom-control"
                         type="button"
-                        role="button"
                         style={{ display: activeBanner?.kind === "video" ? "inline-flex" : "none" }}
                         aria-label={isVideoPaused ? "播放影片" : "暫停影片"}
                         title={isVideoPaused ? "播放影片" : "暫停影片"}
@@ -189,45 +202,70 @@ export const Section1 = (props: { homePage: HomePageFormModel; banners: BannerMo
                         <i className={`fas ${isVideoPaused ? "fa-play" : "fa-pause"}`} id="videoTopIcon" aria-hidden="true" />
                     </button>
 
-                    <div id="mainCarousel" className="carousel slide" data-bs-ride="carousel">
-                        <div className="carousel-inner">
-                            {bannerItems.map((item, index) => (
-                                <div
-                                    key={item.keyId}
-                                    className={`carousel-item${index === activeIndex ? " active" : ""}`}
-                                    data-type={item.kind}
-                                    data-bs-interval={item.delayMs}
-                                    aria-hidden={index !== activeIndex}
-                                >
-                                    {item.kind === "video"
-                                        ? (
-                                            <video
-                                                id={index === activeIndex ? "itemVideo" : undefined}
-                                                ref={(el) =>
-                                                {
-                                                    videoRefs.current[item.rowId] = el;
-                                                }}
-                                                className="media-content"
-                                                playsInline
-                                                muted
-                                                loop
-                                                preload="metadata"
-                                                aria-label={item.alt}
-                                            >
-                                                <source src={item.src} />
-                                            </video>
-                                        )
-                                        : <img src={item.src} className="media-content" alt={item.alt} />}
-                                </div>
-                            ))}
+                    <div
+                        id="mainCarousel"
+                        className="carousel slide"
+                        role="region"
+                        aria-roledescription="輪播"
+                        aria-label="首頁輪播圖"
+                        onFocusCapture={handleCarouselFocus}
+                    >
+                        <div id="mainCarouselSlides" className="carousel-inner">
+                            {bannerItems.map((item, index) =>
+                            {
+                                const isActive = index === activeIndex;
+                                const slideLabel = buildSlideLabel(item, index, bannerItems.length);
+
+                                return (
+                                    <div
+                                        key={item.keyId}
+                                        className={`carousel-item${isActive ? " active" : ""}`}
+                                        data-type={item.kind}
+                                        role="group"
+                                        aria-roledescription="投影片"
+                                        aria-label={slideLabel}
+                                        aria-hidden={!isActive}
+                                        tabIndex={isActive ? 0 : -1}
+                                    >
+                                        {item.kind === "video"
+                                            ? (
+                                                <video
+                                                    id={isActive ? "itemVideo" : undefined}
+                                                    ref={(el) =>
+                                                    {
+                                                        videoRefs.current[item.rowId] = el;
+                                                    }}
+                                                    className="media-content"
+                                                    playsInline
+                                                    muted
+                                                    loop
+                                                    preload="metadata"
+                                                    aria-label={item.alt}
+                                                >
+                                                    <source src={item.src} />
+                                                </video>
+                                            )
+                                            : <img src={item.src} className="media-content" alt={item.alt} />}
+                                    </div>
+                                );
+                            })}
                         </div>
+
+                        <p
+                            className="visually-hidden"
+                            role="status"
+                            aria-live="polite"
+                            aria-atomic="true"
+                        >
+                            {carouselAnnouncement}
+                        </p>
 
                         <div className="controls-overlay">
                             <button
                                 id="carouselToggle"
                                 type="button"
-                                role="button"
                                 className="btn-custom"
+                                aria-controls="mainCarouselSlides"
                                 aria-label={isCarouselPaused ? "播放輪播" : "暫停輪播"}
                                 title={isCarouselPaused ? "播放輪播" : "暫停輪播"}
                                 onClick={handleToggleCarousel}
@@ -237,10 +275,8 @@ export const Section1 = (props: { homePage: HomePageFormModel; banners: BannerMo
 
                             <button
                                 type="button"
-                                role="button"
                                 className="btn-custom"
-                                data-bs-target="#mainCarousel"
-                                data-bs-slide="prev"
+                                aria-controls="mainCarouselSlides"
                                 aria-label="上一張"
                                 title="上一張"
                                 onClick={handlePrev}
@@ -250,10 +286,8 @@ export const Section1 = (props: { homePage: HomePageFormModel; banners: BannerMo
 
                             <button
                                 type="button"
-                                role="button"
                                 className="btn-custom"
-                                data-bs-target="#mainCarousel"
-                                data-bs-slide="next"
+                                aria-controls="mainCarouselSlides"
                                 aria-label="下一張"
                                 title="下一張"
                                 onClick={handleNext}
@@ -316,14 +350,14 @@ const applySectionVars = (section: HTMLElement | null, progress: number, prefers
 /** 整理 banner 顯示資料 */
 const buildBannerItems = (banners: BannerModel[]): BannerItem[] =>
 {
-    return [...banners].filter((item) => !!item.BannerFileId).map((item) =>
+    return [...banners].filter((item) => !!item.BannerFileId).map((item, index) =>
     {
         const kind = getBannerKind(item);
         return {
             keyId: `${item.HomePageId}_${item.RowId}`,
             rowId: item.RowId ?? 0,
             src: FileManagementAPI.get_Public_Preview_Url(item.BannerFileId),
-            alt: item.BannerFileDescription || `banner-${item.RowId}`,
+            alt: resolveBannerAlt(item, index),
             kind,
             delayMs: getBannerDelay(kind),
         };
@@ -344,6 +378,25 @@ const getBannerKind = (item: BannerModel): BannerKind =>
     const fileName = (item.BannerFileDescription ?? "").toLowerCase();
     if (fileName.endsWith(".mp4") || fileName.endsWith(".webm") || fileName.endsWith(".mov")) return "video";
     return "image";
+};
+
+/** 取得輪播圖片替代文字 */
+const resolveBannerAlt = (item: BannerModel, index: number) =>
+{
+    const description = item.BannerFileDescription?.trim();
+    return description || `首頁輪播圖第 ${index + 1} 張`;
+};
+
+/** 建立投影片無障礙名稱 */
+const buildSlideLabel = (item: BannerItem, index: number, count: number) =>
+{
+    return `第 ${index + 1} 張，共 ${count} 張：${item.alt}`;
+};
+
+/** 建立手動切換後的報讀內容 */
+const buildSlideAnnouncement = (item: BannerItem, index: number, count: number) =>
+{
+    return `已切換至${buildSlideLabel(item, index, count)}`;
 };
 
 /** 取得輪播停留秒數 */

@@ -88,7 +88,7 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
             "input:not([disabled])",
             "select:not([disabled])",
             "textarea:not([disabled])",
-            "[tabindex]:not([tabindex=\"-1\"])"
+            "[tabindex]:not([tabindex=\"-1\"])",
         ].join(",");
         let triggerFocusEl: HTMLElement | null = null;
         // 宣告變數：DOM
@@ -121,7 +121,6 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
             togglerEl.classList.toggle("collapsed", !open);
             togglerEl.setAttribute("aria-expanded", open ? "true" : "false");
             togglerEl.setAttribute("aria-label", label);
-            togglerEl.setAttribute("title", label);
         };
         // function：判斷元素是否可被鍵盤聚焦
         const isVisibleFocusable = (el: HTMLElement) =>

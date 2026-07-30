@@ -5,6 +5,6 @@ import type { SpecManifestInfo } from "@/SysCore/Interface/ISpecManifest_Types";
 export const SpecManifest: SpecManifestInfo = {
     specCode: "1820",
     specTitle: "新化林場",
-    specVersion: "R02",
+    specVersion: "R03",
 };
 // #endregion

@@ -3,6 +3,7 @@ import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Ro
 import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import { LibLightBox_Comp, type LibLightBoxSlide } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -10,7 +11,7 @@ import { getFirstNonEmptyText } from "@/SysCore/Utils/Library/LibData";
 import { resolveSpecComponent } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
-import { type KeyboardEvent, type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
+import { type KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMaterialFormData } from "./Client_Material_Form_Loader";
 
@@ -34,35 +35,40 @@ export interface MaterialFormViewData
 }
 
 type MaterialInfoJson = Record<string, string | number | boolean | null | undefined>;
-interface VenoBoxOption
+
+interface IMaterialFormA11yText
 {
-    selector?: string;
-    autoplay?: boolean;
-    maxWidth?: string;
-    border?: string;
-    titleattr?: string;
-    titlePosition?: string;
-    numeration?: boolean;
-    infinigall?: boolean;
-    share?: boolean;
-    spinner?: string;
+    zoomImage: string;
+    previousImage: string;
+    nextImage: string;
+    switchImage: (imageTitle: string) => string;
+    expandFullText: string;
 }
-interface VenoBoxInstance
-{
-    destroy?: () => void;
-}
-interface VenoBoxConstructor
-{
-    new(option: VenoBoxOption): VenoBoxInstance;
-}
-declare global
-{
-    interface Window
-    {
-        VenoBox?: VenoBoxConstructor;
-        __materialVenoBox?: VenoBoxInstance;
-    }
-}
+
+const MATERIAL_FORM_A11Y_TEXT_MAP: Partial<Record<Lang, IMaterialFormA11yText>> = {
+    "zh-tw": {
+        zoomImage: "放大圖片",
+        previousImage: "上一張",
+        nextImage: "下一張",
+        switchImage: imageTitle => `切換圖片：${imageTitle}`,
+        expandFullText: "全文展開",
+    },
+    "zh-cn": {
+        zoomImage: "放大图片",
+        previousImage: "上一张",
+        nextImage: "下一张",
+        switchImage: imageTitle => `切换图片：${imageTitle}`,
+        expandFullText: "展开全文",
+    },
+    en: {
+        zoomImage: "Enlarge image",
+        previousImage: "Previous image",
+        nextImage: "Next image",
+        switchImage: imageTitle => `Switch image: ${imageTitle}`,
+        expandFullText: "Expand full text",
+    },
+};
+
 export interface IMaterialFormProps
 {
     theme: IFETheme;
@@ -171,10 +177,10 @@ const MaterialDetailContent_Comp = (props: { rawData: MaterialFormViewData; lang
             <div className="commodity_details_content + Layout_Padding_2_bottom">
                 <div className="row">
                     <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
-                        <MaterialImageGallery_Comp title={title} pictures={pictures} />
+                        <MaterialImageGallery_Comp title={title} pictures={pictures} lang={props.lang} />
                     </div>
                     <div className="col-xxl-5 col-xl-5 col-lg-5 col-md-5 col-sm-12 col-12 + offset-xxl-1 offset-xl-1 offset-lg-1">
-                        <MaterialRightContent_Comp title={title} price={price} description={description} specRows={specRows} />
+                        <MaterialRightContent_Comp title={title} price={price} description={description} specRows={specRows} lang={props.lang} />
                     </div>
                 </div>
             </div>
@@ -182,17 +188,19 @@ const MaterialDetailContent_Comp = (props: { rawData: MaterialFormViewData; lang
     );
 };
 /** 左側圖片區 */
-const MaterialImageGallery_Comp = (props: { title: string; pictures: Array<{ url: string; alt: string; title: string; }>; }) =>
+const MaterialImageGallery_Comp = (props: { title: string; pictures: Array<{ url: string; alt: string; title: string; }>; lang: Lang; }) =>
 {
+    const a11yText = getMaterialFormA11yText(props.lang);
     const mainOuterRef = useRef<HTMLDivElement | null>(null);
     const thumbOuterRef = useRef<HTMLDivElement | null>(null);
-    const lightboxRefs = useRef<Array<HTMLAnchorElement | null>>([]);
     const [activeIndex, setActiveIndex] = useState(0);
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [lightboxIndex, setLightboxIndex] = useState(0);
     const [mainWidth, setMainWidth] = useState(0);
     const [thumbOuterWidth, setThumbOuterWidth] = useState(0);
     const safePictures = props.pictures;
+    const slides = useMemo(() => buildMaterialSlides(safePictures, props.title), [safePictures, props.title]);
     const count = Math.max(safePictures.length, 1);
-    const activePic = safePictures[activeIndex] ?? safePictures[0];
     const thumbGap = 10;
     const thumbVisibleCount = 3;
     const thumbItemWidth = Math.max((thumbOuterWidth - (thumbGap * (thumbVisibleCount - 1))) / thumbVisibleCount, 0);
@@ -220,45 +228,29 @@ const MaterialImageGallery_Comp = (props: { title: string; pictures: Array<{ url
         setActiveIndex(0);
     }, [activeIndex, safePictures.length]);
 
-    useEffect(() =>
+    const openMaterialLightbox = useCallback((index: number) =>
     {
-        initMaterialVenoBox();
-        return () => window.__materialVenoBox?.destroy?.();
-    }, [safePictures.length]);
+        setLightboxIndex(index);
+        setLightboxOpen(true);
+    }, []);
+    const closeMaterialLightbox = useCallback(() => setLightboxOpen(false), []);
 
     return (
         <div className="Commodity_Change_Image_Area">
             <div className="commodity_wrapper">
                 <div className="commodity_big_image_box + owl-box">
                     <div className="ZoomIn commodity_ZoomIn_btn">
-                        <a
-                            href={activePic?.url ?? "#"}
-                            className="Btn_zm1"
-                            role="button"
-                            title="放大圖片"
-                            onClick={(e) => openMaterialLightbox(e, activeIndex, lightboxRefs.current)}
+                        <button
+                            type="button"
+                            className="Btn_zm1 border-0 bg-transparent p-0"
+                            title={a11yText.zoomImage}
+                            aria-label={a11yText.zoomImage}
+                            disabled={safePictures.length === 0}
+                            onClick={() => openMaterialLightbox(activeIndex)}
                         >
                             <i className="fas fa-expand-alt"></i>
-                            <span className="sr-only">放大圖片</span>
-                        </a>
-
-                        <div style={{ display: "none" }}>
-                            {safePictures.map((pic, index) => (
-                                <a
-                                    key={`lightbox_${pic.url}_${index}`}
-                                    ref={(el) =>
-                                    {
-                                        lightboxRefs.current[index] = el;
-                                    }}
-                                    href={pic.url}
-                                    className="material-venobox venobox"
-                                    data-gall="materialGallery"
-                                    title={pic.title || props.title}
-                                >
-                                    {pic.title || props.title}
-                                </a>
-                            ))}
-                        </div>
+                            <span className="sr-only">{a11yText.zoomImage}</span>
+                        </button>
                     </div>
                     <div className="owl-carousel + main-carousel owl-loaded owl-drag">
                         <div ref={mainOuterRef} className="owl-stage-outer">
@@ -282,10 +274,10 @@ const MaterialImageGallery_Comp = (props: { title: string; pictures: Array<{ url
                         </div>
                         <div className="owl-nav disabled">
                             <button type="button" role="presentation" className="owl-prev disabled">
-                                <span aria-label="上一張">‹</span>
+                                <span aria-label={a11yText.previousImage}>‹</span>
                             </button>
                             <button type="button" role="presentation" className="owl-next disabled">
-                                <span aria-label="下一張">›</span>
+                                <span aria-label={a11yText.nextImage}>›</span>
                             </button>
                         </div>
                         <div className="owl-dots disabled"></div>
@@ -305,7 +297,7 @@ const MaterialImageGallery_Comp = (props: { title: string; pictures: Array<{ url
                                             className={`item ${index === activeIndex ? "active" : ""}`}
                                             role="button"
                                             tabIndex={0}
-                                            aria-label={`切換圖片：${pic.title || props.title}`}
+                                            aria-label={a11yText.switchImage(pic.title || props.title)}
                                             onClick={() => setActiveIndex(index)}
                                             onKeyDown={(e) => handleThumbKeyDown(e, index, setActiveIndex)}
                                         >
@@ -322,7 +314,7 @@ const MaterialImageGallery_Comp = (props: { title: string; pictures: Array<{ url
                                 className={`owl-prev ${safePictures.length <= 1 ? "disabled" : ""}`}
                                 onClick={() => setActiveIndex(p => getLoopPictureIndex(p - 1, safePictures.length))}
                             >
-                                <span aria-label="Previous">‹</span>
+                                <span aria-label={a11yText.previousImage}>‹</span>
                             </button>
                             <button
                                 type="button"
@@ -330,19 +322,22 @@ const MaterialImageGallery_Comp = (props: { title: string; pictures: Array<{ url
                                 className={`owl-next ${safePictures.length <= 1 ? "disabled" : ""}`}
                                 onClick={() => setActiveIndex(p => getLoopPictureIndex(p + 1, safePictures.length))}
                             >
-                                <span aria-label="Next">›</span>
+                                <span aria-label={a11yText.nextImage}>›</span>
                             </button>
                         </div>
                         <div className="owl-dots disabled"></div>
                     </div>
                 </div>
             </div>
+            <LibLightBox_Comp open={lightboxOpen} index={lightboxIndex} slides={slides} lang={props.lang} onClose={closeMaterialLightbox} />
         </div>
     );
 };
 /** 右側價格與規格區 */
-const MaterialRightContent_Comp = (props: { title: string; price: string; description: string; specRows: Array<{ label: string; value: string; }>; }) =>
+const MaterialRightContent_Comp = (props: { title: string; price: string; description: string; specRows: Array<{ label: string; value: string; }>; lang: Lang; }) =>
 {
+    const a11yText = getMaterialFormA11yText(props.lang);
+
     return (
         <div className="details_RightContent">
             <div className="commodity_title">
@@ -377,7 +372,7 @@ const MaterialRightContent_Comp = (props: { title: string; price: string; descri
                     <div className="message_text">
                         <span>{props.description}</span>
                     </div>
-                    <a href="#more-content" className="label_btn + + d-none" role="button" aria-label="[全文展開]" title="[ 全文展開 ]"></a>
+                    <a href="#more-content" className="label_btn + + d-none" role="button" aria-label={a11yText.expandFullText} title={a11yText.expandFullText}></a>
                 </div>
             </div>
 
@@ -426,6 +421,17 @@ const buildPictures = (data: MaterialFormModel, title: string): Array<{ url: str
     }).filter((pic): pic is { url: string; alt: string; title: string; } => Boolean(pic));
 };
 
+/** 將物件圖片資料轉成共用 Lightbox 可使用的格式。 */
+const buildMaterialSlides = (pictures: Array<{ url: string; alt: string; title: string; }>, fallbackTitle: string): LibLightBoxSlide[] =>
+{
+    return pictures.map(pic => ({
+        src: pic.url,
+        title: pic.title || fallbackTitle,
+        description: "",
+        download: pic.url,
+    }));
+};
+
 /** 依 RowNo、RowId 穩定排序相片。 */
 const sortMaterialPictures = (pictures: MaterialPicture[]): MaterialPicture[] =>
 {
@@ -466,6 +472,12 @@ const buildDynamicSpecRows = (
 // #endregion
 
 // #region Private
+/** 取得物件明細頁的無障礙文字。 */
+const getMaterialFormA11yText = (lang: Lang): IMaterialFormA11yText =>
+{
+    return MATERIAL_FORM_A11Y_TEXT_MAP[lang] ?? MATERIAL_FORM_A11Y_TEXT_MAP["zh-tw"]!;
+};
+
 /** 建立正式物件瀏覽次數設定，預覽模式不會呼叫。 */
 const buildMaterialViewCountConfig = (siteIndex: string, internalId: string): ModuleViewCountConfig =>
 {
@@ -473,30 +485,6 @@ const buildMaterialViewCountConfig = (siteIndex: string, internalId: string): Mo
     return { mode: "form", contentKey: internalId, request };
 };
 
-/** 初始化 Material 圖片燈箱 */
-const initMaterialVenoBox = (): void =>
-{
-    if (typeof window === "undefined" || !window.VenoBox) return;
-    window.__materialVenoBox?.destroy?.();
-    window.__materialVenoBox = new window.VenoBox({
-        selector: ".material-venobox",
-        autoplay: false,
-        maxWidth: "1200px",
-        border: "0px",
-        titleattr: "title",
-        titlePosition: "top",
-        numeration: true,
-        infinigall: true,
-        share: true,
-        spinner: "rotating-bounce",
-    });
-};
-/** 開啟指定圖片燈箱 */
-const openMaterialLightbox = (e: MouseEvent<HTMLAnchorElement>, index: number, refs: Array<HTMLAnchorElement | null>): void =>
-{
-    e.preventDefault();
-    refs[index]?.click();
-};
 /** 取得循環圖片索引 */
 const getLoopPictureIndex = (index: number, total: number): number =>
 {
