@@ -16,6 +16,7 @@ type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title"];
 
 type RenderLeftBoxProp = {
     selectedItemEdit: SiteMenuEditTarget;
+    hasUnsavedChanges: boolean;
     onRequestSelect: (target: SiteMenuEditTarget) => void;
     savedRevision: number;
     isLoading: boolean;
@@ -52,6 +53,11 @@ type SyncIncomingOptions = {
     setSiteInfoTitle: Dispatch<SetStateAction<string>>;
 };
 
+type StructureBaseline = {
+    items: SiteMenuItem[];
+    formData: SiteMenuFormModel;
+};
+
 const STICKY_TOOLBAR_STYLE: CSSProperties = {
     position: "sticky",
     top: 132,
@@ -70,11 +76,12 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
     const [items, setItems] = useState<SiteMenuItem[]>([]);
     const [deletedRowIds, setDeletedRowIds] = useState<number[]>([]);
     const [originalSnapshot, setOriginalSnapshot] = useState("");
-    const [sortBaseline, setSortBaseline] = useState<SiteMenuItem[] | null>(null);
+    const [structureBaseline, setStructureBaseline] = useState<StructureBaseline | null>(null);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [candidate, setCandidate] = useState<SiteMenuItem | null>(null);
     const [siteInfoTitle, setSiteInfoTitle] = useState("網站整體資訊");
     const appliedRevisionRef = useRef(0);
+    const previousSortModeRef = useRef(false);
 
     const currentSnapshot = useMemo(() => buildStructureSnapshot(items), [items]);
     const hasDraft = useMemo(() => hasDraftItem(items), [items]);
@@ -108,12 +115,22 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
         appliedRevisionRef.current = prop.savedRevision;
     }, [prop.formData.data, prop.lang, prop.savedRevision]);
 
+    /** 排序模式啟用時保存結構與 FormModel，供取消時完整還原。 */
+    useEffect(() =>
+    {
+        const wasSortMode = previousSortModeRef.current;
+        if (!wasSortMode && prop.isSortMode) setStructureBaseline(createStructureBaseline(items, prop.formData.data));
+        if (wasSortMode && !prop.isSortMode && !structureDirty) setStructureBaseline(null);
+        previousSortModeRef.current = prop.isSortMode;
+    }, [items, prop.formData.data, prop.isSortMode, structureDirty]);
+
     const selectedMenuRowId = useMemo(() =>
     {
         return prop.selectedItemEdit?.type === "menu" ? prop.selectedItemEdit.item.id : null;
     }, [prop.selectedItemEdit]);
 
     const canModify = prop.canUpdate && !prop.isSortMode && !prop.action.isExecuting;
+    const canUseItemActions = canModify && !prop.hasUnsavedChanges;
     const canSort = prop.canUpdate && prop.isSortMode && !prop.action.isExecuting;
     const canSaveStructure = prop.canUpdate && structureDirty && !hasDraft && !prop.action.isExecuting;
     const canCancelStructure = canSaveStructure;
@@ -141,25 +158,16 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
     const handleToggleSortMode = useCallback(() =>
     {
         if (!canToggleSort) return;
-
-        if (prop.isSortMode)
-        {
-            const isChanged = prop.onSortModeChange(false);
-            if (isChanged) setSortBaseline(null);
-            return;
-        }
-
-        const isChanged = prop.onSortModeChange(true);
-        if (isChanged) setSortBaseline(cloneSiteMenuTree(items));
-    }, [canToggleSort, items, prop.isSortMode, prop.onSortModeChange]);
+        prop.onSortModeChange(!prop.isSortMode);
+    }, [canToggleSort, prop.isSortMode, prop.onSortModeChange]);
 
     /** 開啟刪除確認視窗。 */
     const handleDeleteItem = useCallback((item: SiteMenuItem) =>
     {
-        if (!canModify) return;
+        if (!canUseItemActions) return;
         setCandidate(item);
         setConfirmOpen(true);
-    }, [canModify]);
+    }, [canUseItemActions]);
 
     /** 關閉刪除確認視窗。 */
     const handleCloseConfirm = useCallback(() =>
@@ -219,9 +227,9 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
     /** 已儲存的選單項目才可新增子層，避免送出無效的負數 ParentRowId。 */
     const handleAddChildItem = useCallback((item: SiteMenuItem) =>
     {
-        if (item.id <= 0) return;
+        if (!canUseItemActions || item.id <= 0) return;
         handleAddMenuItem(item);
-    }, [handleAddMenuItem]);
+    }, [canUseItemActions, handleAddMenuItem]);
 
     /** 保存目前排序或刪除造成的結構異動。 */
     const handleSaveStructure = useCallback(async () =>
@@ -233,7 +241,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
 
         setOriginalSnapshot(buildStructureSnapshot(items));
         setDeletedRowIds([]);
-        setSortBaseline(null);
+        setStructureBaseline(null);
         if (prop.isSortMode) prop.onSortModeChange(false);
     }, [canSaveStructure, deletedRowIds, items, prop.action, prop.isSortMode, prop.onSortModeChange]);
 
@@ -242,13 +250,13 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
     {
         if (!canCancelStructure) return;
 
-        restoreStructureDraft(sortBaseline, prop.formData, setItems, setOriginalSnapshot);
+        restoreStructureDraft(structureBaseline, prop.formData, setItems, setOriginalSnapshot);
         setDeletedRowIds([]);
-        setSortBaseline(null);
+        setStructureBaseline(null);
         prop.onRequestSelect(null);
         prop.onSortModeChange(false);
         await prop.action.onCancelStructure();
-    }, [canCancelStructure, prop, sortBaseline]);
+    }, [canCancelStructure, prop, structureBaseline]);
 
     /** 刪除此項目與全部子層。 */
     const handleDeleteAll = useCallback(() =>
@@ -259,6 +267,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
         const realIds = Array.from(ids).filter(x => x > 0);
         const newTree = removeNodeAndSubtree(items, candidate.id);
 
+        setStructureBaseline(prev => prev ?? createStructureBaseline(items, prop.formData.data));
         applyDeletedTree(newTree, ids, realIds, prop.formData, setItems, setDeletedRowIds);
         handleCloseConfirm();
         prop.onRequestSelect(null);
@@ -274,6 +283,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
         const ids = new Set<number>([rowId]);
         const realIds = rowId > 0 ? [rowId] : [];
 
+        setStructureBaseline(prev => prev ?? createStructureBaseline(items, prop.formData.data));
         applyDeletedTree(newTree, ids, realIds, prop.formData, setItems, setDeletedRowIds);
         handleCloseConfirm();
         prop.onRequestSelect(null);
@@ -297,6 +307,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
                 handler={handler}
                 collapseIcon={collapseIcon}
                 canModify={canModify}
+                canUseActions={canUseItemActions}
                 canSort={canSort}
                 onSelect={handleSelectItem}
                 onAddChild={handleAddChildItem}
@@ -304,7 +315,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
                 selectedRowId={selectedMenuRowId}
             />
         );
-    }, [canModify, canSort, handleAddChildItem, handleDeleteItem, handleSelectItem, selectedMenuRowId]);
+    }, [canModify, canSort, canUseItemActions, handleAddChildItem, handleDeleteItem, handleSelectItem, selectedMenuRowId]);
 
     return (
         <>
@@ -452,6 +463,7 @@ const Item_Comp = (
         handler?: React.ReactNode;
         collapseIcon?: React.ReactNode;
         canModify: boolean;
+        canUseActions: boolean;
         canSort: boolean;
         onSelect: (item: SiteMenuItem) => void;
         onAddChild: (item: SiteMenuItem) => void;
@@ -460,8 +472,9 @@ const Item_Comp = (
     },
 ) =>
 {
-    const { item, handler, collapseIcon, canModify, canSort, onSelect, onAddChild, onDelete, selectedRowId } = prop;
+    const { item, handler, collapseIcon, canModify, canUseActions, canSort, onSelect, onAddChild, onDelete, selectedRowId } = prop;
     const isDraft = item.id <= 0;
+    const isActionLocked = canModify && !canUseActions;
     const isActive = selectedRowId === item.id;
     const iconClass = item.menuItem.ItemType === 1 ? "fa fa-link mr-2" : "far fa-cogs mr-2";
 
@@ -473,19 +486,19 @@ const Item_Comp = (
     const handleAddChildClick = (e: React.MouseEvent<HTMLButtonElement>) =>
     {
         e.stopPropagation();
-        if (canModify) onAddChild(item);
+        if (canUseActions) onAddChild(item);
     };
 
     const handleEditClick = (e: React.MouseEvent<HTMLButtonElement>) =>
     {
         e.stopPropagation();
-        if (canModify) onSelect(item);
+        if (canUseActions) onSelect(item);
     };
 
     const handleDeleteClick = (e: React.MouseEvent<HTMLButtonElement>) =>
     {
         e.stopPropagation();
-        if (canModify) onDelete(item);
+        if (canUseActions) onDelete(item);
     };
 
     return (
@@ -512,9 +525,9 @@ const Item_Comp = (
                     <div className="icon">
                         <button
                             type="button"
-                            title={!canModify ? "目前不可新增子層" : isDraft ? "請先儲存此項目後再新增子層" : "新增子層"}
+                            title={!canModify ? "目前不可新增子層" : isActionLocked ? "請先處理目前未儲存修改" : isDraft ? "請先儲存此項目後再新增子層" : "新增子層"}
                             className="Icogs btn btn-ctm btn-ctm-rounded"
-                            disabled={!canModify || isDraft}
+                            disabled={!canUseActions || isDraft}
                             onClick={handleAddChildClick}
                         >
                             <i className="far fa-plus" />
@@ -523,9 +536,9 @@ const Item_Comp = (
                     <div className="icon">
                         <button
                             type="button"
-                            title={canModify ? "編輯" : "目前不可編輯"}
+                            title={!canModify ? "目前不可編輯" : isActionLocked ? "請先處理目前未儲存修改" : "編輯"}
                             className="Ipencil btn btn-ctm btn-ctm-rounded"
-                            disabled={!canModify}
+                            disabled={!canUseActions}
                             onClick={handleEditClick}
                         >
                             <i className="far fa-edit" />
@@ -534,9 +547,9 @@ const Item_Comp = (
                     <div className="icon">
                         <button
                             type="button"
-                            title={canModify ? "刪除" : "目前不可刪除"}
+                            title={!canModify ? "目前不可刪除" : isActionLocked ? "請先處理目前未儲存修改" : "刪除"}
                             className="Itrash btn btn-ctm btn-ctm-rounded"
-                            disabled={!canModify}
+                            disabled={!canUseActions}
                             onClick={handleDeleteClick}
                         >
                             <i className="far fa-trash-alt" />
@@ -630,10 +643,26 @@ const applySavedTitles = (nodes: SiteMenuItem[], data: SiteMenuFormModel | undef
     const sourceItems = data?._SiteMenu_Item ?? [];
     return nodes.map(node =>
     {
-        const source = sourceItems.find(item => Number(item.RowId) === node.id);
-        const title = source?._SiteMenu_Item_Title?.find(item => item.Lang === lang)?.Title;
+        const title = resolveMenuItemTitle(sourceItems, node.id, lang);
         return { ...node, name: title ?? node.name, children: applySavedTitles(node.children ?? [], data, lang) };
     });
+};
+
+/** 取得指定語系有內容的選單標題，缺少時使用其他語系內容。 */
+const resolveMenuItemTitle = (items: SiteMenu_Item[], itemRowId: number, lang: Lang): string | undefined =>
+{
+    const titles = items.flatMap(item => item._SiteMenu_Item_Title ?? [])
+        .filter(title => Number(title.ItemRowId ?? 0) === Number(itemRowId));
+    const langKey = String(lang).toLowerCase();
+    const exact = titles.find(title => String(title.Lang ?? "").toLowerCase() === langKey && hasTitleText(title));
+    const fallback = titles.find(hasTitleText);
+    return exact?.Title ?? fallback?.Title ?? undefined;
+};
+
+/** 判斷選單標題資料列是否有可顯示內容。 */
+const hasTitleText = (title: SiteMenu_Item_Title): boolean =>
+{
+    return Boolean(String(title.Title ?? "").trim());
 };
 
 
@@ -728,9 +757,17 @@ const applyDeletedTree = (
 };
 
 
-/** 取消結構異動時先還原排序基準，再重新向後端取資料。 */
+/** 建立結構異動前的 Tree 與 FormModel 快照。 */
+const createStructureBaseline = (items: SiteMenuItem[], data?: SiteMenuFormModel): StructureBaseline | null =>
+{
+    if (!data) return null;
+    return { items: cloneSiteMenuTree(items), formData: structuredClone(data) };
+};
+
+
+/** 取消結構異動時完整還原 Tree 與 FormModel。 */
 const restoreStructureDraft = (
-    baseline: SiteMenuItem[] | null,
+    baseline: StructureBaseline | null,
     formData: UseFetchFormDataResult<SiteMenuFormModel>,
     setItems: Dispatch<SetStateAction<SiteMenuItem[]>>,
     setOriginalSnapshot: Dispatch<SetStateAction<string>>,
@@ -742,10 +779,10 @@ const restoreStructureDraft = (
         return;
     }
 
-    const restored = cloneSiteMenuTree(baseline);
-    setItems(restored);
-    setOriginalSnapshot(buildStructureSnapshot(restored));
-    syncTreeToForm(restored, formData);
+    const restoredItems = cloneSiteMenuTree(baseline.items);
+    setItems(restoredItems);
+    setOriginalSnapshot(buildStructureSnapshot(restoredItems));
+    formData.setFormData(structuredClone(baseline.formData));
 };
 
 

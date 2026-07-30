@@ -9,7 +9,13 @@ import type { components } from "@/types/api";
 import { SiteMenu_IndexFields, SiteMenu_Item_TitleFields, SiteMenu_ItemFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import type { SiteMenuItem } from "../../SiteMenu_Hook";
-import { type SiteMenuFormModel, type SiteMenuGraphField, type SiteMenuItemModel, type SiteMenuItemTitle } from "../../SiteMenu_FormModel_Hook";
+import {
+    getSiteMenuItemTitleRows,
+    type SiteMenuFormModel,
+    type SiteMenuGraphField,
+    type SiteMenuItemModel,
+    type SiteMenuItemTitle,
+} from "../../SiteMenu_FormModel_Hook";
 
 // #region Property
 type MenuUrlType = components["schemas"]["MenuUrlType"];
@@ -29,6 +35,7 @@ type MenuTitleCompProps = BasicSettingTab_Props & { selectedMenuItem?: SiteMenuI
 // #endregion
 
 // #region Public
+/** 基本設定頁籤：綁定選單資訊與各語系標題。 */
 export const BasicSettingTab = (prop: BasicSettingTab_Props) =>
 {
     const selectedMenuItem = useSelectedMenuItem(prop.formData.data, prop.selectedItemEdit);
@@ -75,51 +82,36 @@ export const BasicSettingTab = (prop: BasicSettingTab_Props) =>
 // #endregion
 
 // #region Section
+/** 選單多語系標題與顯示設定。 */
 const MenuTitle_Comp = (prop: MenuTitleCompProps) =>
 {
-    const rawDetails = useMemo(() =>
+    const titleDetails = useMemo(() =>
     {
         return getSelectedTitleRows(prop.formData.data, prop.selectedMenuItem);
     }, [prop.formData.data, prop.selectedMenuItem]);
-
-    const dedupDetails = useMemo(() =>
-    {
-        const seen = new Set<string>();
-        const out: SiteMenuItemTitle[] = [];
-
-        for (const d of rawDetails)
-        {
-            const langKey = String(d?.Lang ?? "").toLowerCase();
-            if (seen.has(langKey)) continue;
-            seen.add(langKey);
-            out.push(d);
-        }
-
-        return out;
-    }, [rawDetails]);
 
     const tabInfo = useMemo<LibTabsProp>(() =>
     {
         return {
             Style: prop.theme.Tabs,
-            item: dedupDetails.reduce<Record<string, string>>((tabItems, info) =>
+            item: titleDetails.reduce<Record<string, string>>((tabItems, info) =>
             {
                 const langKey = buildTitleTabKey(info);
                 tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
                 return tabItems;
             }, {}),
         };
-    }, [dedupDetails, prop.theme.Tabs]);
+    }, [prop.theme.Tabs, titleDetails]);
 
     const tabContent = useMemo<Record<string, React.ReactNode[]>>(() =>
     {
-        return dedupDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
+        return titleDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
         {
             const langKey = buildTitleTabKey(info);
             const rowKeys = {
-                [SiteMenu_Item_TitleFields.SiteIndex]: info.SiteIndex,
-                [SiteMenu_Item_TitleFields.ItemRowId]: info.ItemRowId,
+                [SiteMenu_Item_TitleFields.ItemRowId]: prop.selectedMenuItem?.RowId,
                 [SiteMenu_Item_TitleFields.RowId]: info.RowId,
+                [SiteMenu_Item_TitleFields.Lang]: info.Lang,
             };
 
             compMap[langKey] = [
@@ -139,7 +131,7 @@ const MenuTitle_Comp = (prop: MenuTitleCompProps) =>
 
             return compMap;
         }, {});
-    }, [dedupDetails, prop]);
+    }, [prop.selectedMenuItem?.RowId, prop.setField, prop.theme.CheckBox, prop.theme.TextBox, titleDetails]);
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
 };
@@ -172,7 +164,28 @@ const getSelectedTitleRows = (data: SiteMenuFormModel, selected?: SiteMenuItemMo
 {
     const itemRowId = Number(selected?.RowId ?? 0);
     if (!itemRowId) return [];
-    const item = (data._SiteMenu_Item ?? []).find(row => Number(row.RowId) === itemRowId);
-    return item?._SiteMenu_Item_Title ?? [];
+    return dedupeTitleRows(getSiteMenuItemTitleRows(data, itemRowId));
+};
+
+/** 同語系重複時優先使用已有標題內容的資料列。 */
+const dedupeTitleRows = (rows: SiteMenuItemTitle[]): SiteMenuItemTitle[] =>
+{
+    const rowMap = new Map<string, SiteMenuItemTitle>();
+    for (const row of rows)
+    {
+        const langKey = String(row.Lang ?? "").toLowerCase();
+        const current = rowMap.get(langKey);
+        rowMap.set(langKey, preferTitleRow(current, row));
+    }
+    return Array.from(rowMap.values());
+};
+
+/** 空白標題資料列不得取代同語系已有內容的資料列。 */
+const preferTitleRow = (current: SiteMenuItemTitle | undefined, candidate: SiteMenuItemTitle): SiteMenuItemTitle =>
+{
+    if (!current) return candidate;
+    const currentHasTitle = Boolean(String(current.Title ?? "").trim());
+    const candidateHasTitle = Boolean(String(candidate.Title ?? "").trim());
+    return !currentHasTitle && candidateHasTitle ? candidate : current;
 };
 // #endregion

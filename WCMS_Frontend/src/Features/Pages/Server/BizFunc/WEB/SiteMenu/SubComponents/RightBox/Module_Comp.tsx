@@ -8,13 +8,12 @@ import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
 import { PGID, SiteMenu_ItemFields, SiteMenu_Item_ModuleFields, TimelineFields } from "@/types/SchemaFields";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import type { SiteMenuItem } from "../../SiteMenu_Hook";
 import {
     type SiteMenuFormModel,
     type SiteMenuGraphField,
     type SiteMenuItemModel,
-    type SiteMenuItemModule,
     useSiteMenuGraphField,
     useSiteMenuModuleJsonField,
 } from "../../SiteMenu_FormModel_Hook";
@@ -120,22 +119,6 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
     {
         return { [SiteMenu_Item_ModuleFields.SiteIndex]: siteIndex, [SiteMenu_Item_ModuleFields.ItemRowId]: rowId };
     }, [siteIndex, rowId]);
-
-    useEffect(() =>
-    {
-        if (siteIndex == null || rowId == null) return;
-
-        prop.formData.setFormData(prev =>
-        {
-            const items = (prev._SiteMenu_Item ?? []).map(item =>
-            {
-                if (Number(item.RowId) !== Number(rowId) || item._SiteMenu_Item_Module) return item;
-                const module = { SiteIndex: siteIndex, ItemRowId: Number(rowId), PageType: 0, ModuleProgId: "", ModuleOptions: "" } as SiteMenuItemModule;
-                return { ...item, _SiteMenu_Item_Module: module };
-            });
-            return { ...prev, _SiteMenu_Item: items };
-        });
-    }, [siteIndex, rowId, prop.formData]);
 
     const moduleKeyBind = prop.setField(SiteMenu_ItemFields._SiteMenu_Item_Module, SiteMenu_Item_ModuleFields.ModuleProgId, "string", curRowKeys);
 

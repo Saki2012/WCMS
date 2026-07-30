@@ -30,11 +30,23 @@ import {
     TimelineFields,
 } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+    getSiteMenuItemModuleRow,
+    getSiteMenuItemUrlRow,
+    normalizeSiteMenuModuleGraph,
+    normalizeSiteMenuUrlGraph,
+} from "./SiteMenu_FormModel_Hook";
 
 // #region Property
 type SiteMenuFormModel = components["schemas"]["SiteMenu_Index"];
 
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item"];
+
+type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title"];
+
+type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url"];
+
+type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module"];
 
 type SaveSiteInfoDTO = components["schemas"]["SaveSiteInfo_DTO"];
 
@@ -53,6 +65,11 @@ type BannerFormModel = components["schemas"]["Banner"];
 type TimelineFormModel = components["schemas"]["Timeline"];
 
 type SurveyFormModel = components["schemas"]["Survey"];
+
+const MenuItemType = {
+    Url: 1,
+    Module: 2,
+} as const;
 
 
 const emptyData: SiteMenuFormModel = {};
@@ -265,7 +282,8 @@ const useSiteMenuMainDataByAdapter = (adapter: ReturnType<typeof SiteMenuAdapter
             return;
         }
 
-        setData(query.data ?? emptyData);
+        const normalizedModule = normalizeSiteMenuModuleGraph(query.data ?? emptyData);
+        setData(normalizeSiteMenuUrlGraph(normalizedModule));
     }, [validInternalId, query.data]);
 
     const refetchQuery = useCallback(async () =>
@@ -483,8 +501,10 @@ const buildSaveMenuItemRequest = (internalId: string, data: SiteMenuFormModel, n
     const itemRowId = isNew ? rowId : Number(sourceItem.RowId ?? rowId);
     const titles = buildSaveMenuItemTitles(sourceItem);
     const itemType = Number(sourceItem.ItemType ?? 0);
-    const url = itemType === 1 ? buildSaveMenuItemUrl(sourceItem) : null;
-    const module = itemType === 0 ? buildSaveMenuItemModule(sourceItem) : null;
+    const urlRow = getSiteMenuItemUrlRow(data, itemRowId);
+    const url = itemType === MenuItemType.Url ? buildSaveMenuItemUrl(urlRow) : null;
+    const moduleRow = getSiteMenuItemModuleRow(data, itemRowId);
+    const module = itemType === MenuItemType.Module ? buildSaveMenuItemModule(moduleRow) : null;
 
     return {
         InternalId: internalId,
@@ -510,17 +530,15 @@ const buildSaveMenuItemTitles = (item: SiteMenu_Item) =>
 };
 
 
-const buildSaveMenuItemUrl = (item: SiteMenu_Item) =>
+const buildSaveMenuItemUrl = (src?: SiteMenu_Item_Url) =>
 {
-    const src = item._SiteMenu_Item_Url;
     if (!src) return null;
     return { RedirectType: src.RedirectType, RedirectUrl: src.RedirectUrl };
 };
 
 
-const buildSaveMenuItemModule = (item: SiteMenu_Item) =>
+const buildSaveMenuItemModule = (src?: SiteMenu_Item_Module) =>
 {
-    const src = item._SiteMenu_Item_Module;
     if (!src) return null;
     return { BannerId: src.BannerId, PageType: src.PageType, ModuleProgId: src.ModuleProgId, ModuleOptions: src.ModuleOptions };
 };
@@ -561,11 +579,12 @@ const useEnsureSiteMenuItemTitles = (formData: UseFetchFormDataResult<SiteMenuFo
         const items = formData.data?._SiteMenu_Item ?? [];
         if (items.length === 0) return;
         const langs = resolveSiteMenuLangs(formData.data, preferLang);
-        const nextItems = items.map(item => ensureItemTitles(item, langs, preferLang));
+        const titleRows = items.flatMap(item => item._SiteMenu_Item_Title ?? []);
+        const nextItems = items.map(item => ensureItemTitles(item, titleRows, langs));
         const changed = nextItems.some((item, index) => item !== items[index]);
         if (!changed) return;
         formData.setFormData(prev => ({ ...prev, _SiteMenu_Item: nextItems }));
-    }, [formData.data?._SiteMenu_Item, formData.setFormData, preferLang]);
+    }, [formData.data?._SiteMenu_Item, formData.data?.SupportLangs, formData.setFormData, preferLang]);
 };
 
 
@@ -606,14 +625,59 @@ const isLangCode = (value: unknown): value is Lang =>
 };
 
 
-/** 補齊單一選單項目的語系標題並依目前語系排序。 */
-const ensureItemTitles = (item: SiteMenu_Item, langs: Lang[], preferLang: Lang): SiteMenu_Item =>
+/** 依 ItemRowId 收斂單一選單的標題資料並補齊缺少語系。 */
+const ensureItemTitles = (item: SiteMenu_Item, titleRows: SiteMenu_Item_Title[], langs: Lang[]): SiteMenu_Item =>
 {
     const current = item._SiteMenu_Item_Title ?? [];
-    const existing = new Set(current.map(title => String(title.Lang ?? "").toLowerCase()));
-    const maxRowId = current.reduce((max, title) => Math.max(max, Number(title.RowId ?? 0)), 0);
-    const maxRowNo = current.reduce((max, title) => Math.max(max, Number(title.RowNo ?? 0)), 0);
-    const missing = langs.filter(lang => !existing.has(String(lang).toLowerCase())).map((lang, index) => ({
+    const related = titleRows.filter(title => isItemTitleOf(title, item.RowId));
+    const deduped = dedupeItemTitles(related);
+    const merged = appendMissingItemTitles(item, deduped, langs);
+    return isSameTitleRows(current, merged) ? item : { ...item, _SiteMenu_Item_Title: merged } as SiteMenu_Item;
+};
+
+/** 判斷標題資料是否屬於指定選單項目。 */
+const isItemTitleOf = (title: SiteMenu_Item_Title, itemRowId: unknown): boolean =>
+{
+    return Number(title.ItemRowId ?? 0) === Number(itemRowId ?? 0);
+};
+
+/** 同語系重複時保留有標題內容的資料列。 */
+const dedupeItemTitles = (titles: SiteMenu_Item_Title[]): SiteMenu_Item_Title[] =>
+{
+    const titleMap = new Map<string, SiteMenu_Item_Title>();
+    for (const title of titles)
+    {
+        const langKey = String(title.Lang ?? "").toLowerCase();
+        const current = titleMap.get(langKey);
+        titleMap.set(langKey, choosePreferredTitle(current, title));
+    }
+    return Array.from(titleMap.values());
+};
+
+/** 空白列不得覆蓋同語系已有內容的資料列。 */
+const choosePreferredTitle = (current: SiteMenu_Item_Title | undefined, candidate: SiteMenu_Item_Title): SiteMenu_Item_Title =>
+{
+    if (!current) return candidate;
+    const currentHasTitle = Boolean(String(current.Title ?? "").trim());
+    const candidateHasTitle = Boolean(String(candidate.Title ?? "").trim());
+    return !currentHasTitle && candidateHasTitle ? candidate : current;
+};
+
+/** 為單一選單補上真正缺少的語系資料列。 */
+const appendMissingItemTitles = (item: SiteMenu_Item, titles: SiteMenu_Item_Title[], langs: Lang[]): SiteMenu_Item_Title[] =>
+{
+    const existing = new Set(titles.map(title => String(title.Lang ?? "").toLowerCase()));
+    const missingLangs = langs.filter(lang => !existing.has(String(lang).toLowerCase()));
+    if (missingLangs.length === 0) return titles;
+    const maxRowId = getMaxTitleNumber(titles, "RowId");
+    const maxRowNo = getMaxTitleNumber(titles, "RowNo");
+    return [...titles, ...missingLangs.map((lang, index) => buildMissingItemTitle(item, lang, maxRowId, maxRowNo, index))];
+};
+
+/** 建立指定選單與語系的空白標題資料列。 */
+const buildMissingItemTitle = (item: SiteMenu_Item, lang: Lang, maxRowId: number, maxRowNo: number, index: number): SiteMenu_Item_Title =>
+{
+    return {
         SiteIndex: item.SiteIndex,
         ItemRowId: item.RowId,
         RowId: maxRowId + index + 1,
@@ -621,20 +685,19 @@ const ensureItemTitles = (item: SiteMenu_Item, langs: Lang[], preferLang: Lang):
         Lang: lang,
         Title: "",
         IsShowOnMenu: true,
-    }));
-    const merged = [...current, ...missing].sort((left, right) => compareItemTitleLang(left.Lang, right.Lang, preferLang));
-    const changed = missing.length > 0 || merged.some((title, index) => title !== current[index]);
-    return changed ? { ...item, _SiteMenu_Item_Title: merged } as SiteMenu_Item : item;
+    } as SiteMenu_Item_Title;
 };
 
-
-/** 將目前語系標題排在同一選單項目的第一筆。 */
-const compareItemTitleLang = (left: unknown, right: unknown, preferLang: Lang): number =>
+/** 取得標題集合指定數字欄位最大值。 */
+const getMaxTitleNumber = (titles: SiteMenu_Item_Title[], field: "RowId" | "RowNo"): number =>
 {
-    const prefer = String(preferLang).toLowerCase();
-    const leftRank = String(left ?? "").toLowerCase() === prefer ? 0 : 1;
-    const rightRank = String(right ?? "").toLowerCase() === prefer ? 0 : 1;
-    return leftRank - rightRank;
+    return titles.reduce((max, title) => Math.max(max, Number(title[field] ?? 0)), 0);
+};
+
+/** 比較標題資料列參考與順序是否相同。 */
+const isSameTitleRows = (current: SiteMenu_Item_Title[], next: SiteMenu_Item_Title[]): boolean =>
+{
+    return current.length === next.length && current.every((title, index) => title === next[index]);
 };
 
 
@@ -829,13 +892,15 @@ const useEnumOptions = (enumName: string): { data: Record<string, string>; isLoa
 const transSetToItem = (data: SiteMenuFormModel, lang: Lang): SiteMenuItem[] =>
 {
     const items = data?._SiteMenu_Item ?? [];
+    const titleRows = items.flatMap(item => item._SiteMenu_Item_Title ?? []);
     const titleDict = new Map<number, Map<string, string>>();
     for (const item of items)
     {
         const itemRowId = Number(item.RowId ?? 0);
         if (!itemRowId) continue;
         const langMap = new Map<string, string>();
-        for (const title of item._SiteMenu_Item_Title ?? [])
+        const titles = dedupeItemTitles(titleRows.filter(title => isItemTitleOf(title, itemRowId)));
+        for (const title of titles)
         {
             langMap.set(String(title.Lang ?? "").toLowerCase(), String(title.Title ?? ""));
         }
