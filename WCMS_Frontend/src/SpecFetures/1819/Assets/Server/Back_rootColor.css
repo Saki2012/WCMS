@@ -1,0 +1,26 @@
+:root {
+	--Customize_color: #c1cc5e;
+	--Customize_HRcolor: #2579CC;
+	--Customize_ACcolor: #EEEEEE;
+	--Customize_FCcolor: #F2F2F2;
+	--Customize_Footercolor: #F4F4F4;
+
+	--Customize_TXTcolor: #000000;
+	--Customize_TXTHRcolor: #000000;				
+
+	--Customize_Btn_color: #c1cc5e;
+	--Customize_Btn_HRcolor: #2579CC;
+	--Customize_border_color: #000000;
+} 
+
+:root {
+	--a_linkcolor: #0b5ed7;
+	--a_linkHRcolor: #0a58ca;
+	--a_focuscolor: #FFBD40;
+	--a_focusbordercolor: #43B5FC;
+}
+
+/* 登入 + 註冊 */
+:root {
+	--Customize__shape_color: #b0b54e; /*#906323 - HSB-(B減10%)*/
+}

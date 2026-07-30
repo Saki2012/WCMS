@@ -1,0 +1,33 @@
+@charset "utf-8";
+/* CSS Document */
+/* 16px = 1rem = 1em = 100% */ 
+
+/* ------ 首頁內容 index content ----------------------- */
+@import url("css_import/style_index_content/index_content.css");
+
+:root {
+	--Customize_color: #403420;
+	--Customize_HRcolor: #403420;
+	--Customize_ACcolor: #906323;
+	--Customize_FCcolor: #906323;
+	--Customize_Footercolor: #00305c;
+	
+	/* =================================== */
+	
+	--Customize_TXTcolor: #8a433b;
+	--Customize_TXTHRcolor: #873900;
+	--Customize_SUB_TITLEcolor: #ffb250;
+	
+	/* =================================== */
+	
+	--Customize_Btn_color: #dac25a;
+	--Customize_Btn_HRcolor: #ffe95c;
+	--Customize_border_color: #00305c;
+
+	/* =================================== */
+	
+	--a_linkcolor: #0b5ed7;
+	--a_linkHRcolor: #0a58ca;
+	--a_focuscolor: #FFBD40;
+	--a_focusbordercolor: #43B5FC;
+}
