@@ -110,21 +110,6 @@
 		<None Remove="Publish\**" />
 		<None Remove="SysCore\PlatformServices\UserRolePermission\**" />
 	</ItemGroup>
-	<ItemGroup Condition="'$(EnableSpecCompileFilter)' == 'true'">
-		<!-- 實際編譯時先移除所有 SpecFeatures，避免不同 Spec 的 partial / 資源互相污染 -->
-		<Compile Remove="SpecFeatures\**\*.cs" />
-		<EmbeddedResource Remove="SpecFeatures\**\*.resx" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(EnableSpecCompileFilter)' == 'true' and '$(HasCurrentSpecFeatureDir)' == 'true'">
-		<!-- 依 SpecCode 只編譯目前開發 / 發佈指定的 Spec -->
-		<Compile Include="SpecFeatures\$(SpecCode)\**\*.cs" />
-		<EmbeddedResource Include="SpecFeatures\$(SpecCode)\**\*.resx" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(EnableSpecCompileFilter)' == 'true'">
-		<!-- 其他 Spec 仍保留在 IDE 可見，但不參與目前 Spec 編譯 -->
-		<None Include="SpecFeatures\**\*.cs" Exclude="SpecFeatures\$(SpecCode)\**\*.cs" />
-		<None Include="SpecFeatures\**\*.resx" Exclude="SpecFeatures\$(SpecCode)\**\*.resx" />
-	</ItemGroup>
 	<ItemGroup>
 		<Content Include="Scripts\Zip-PublishedBackend.ps1" />
 	</ItemGroup>
