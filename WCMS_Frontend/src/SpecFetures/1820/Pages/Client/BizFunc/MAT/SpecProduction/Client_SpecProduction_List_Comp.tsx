@@ -26,6 +26,20 @@ export interface ClientSpecProductionListProps
 }
 type MaterialInfoJsonValue = string | number | boolean | null;
 type MaterialInfoJsonMap = Record<string, MaterialInfoJsonValue>;
+
+interface ProductionTabsProps
+{
+    groups: SpecProductionGroup[];
+    activeTabId: string;
+    onChange: (id: string) => void;
+}
+
+interface ProductionTabKeyboardHandlers
+{
+    registerTab: (id: string, element: HTMLAnchorElement | null) => void;
+    onClick: React.MouseEventHandler<HTMLAnchorElement>;
+    onKeyDown: React.KeyboardEventHandler<HTMLAnchorElement>;
+}
 // #endregion
 
 // #region Public
@@ -159,40 +173,94 @@ const SpecProductionContent = (props: {
 };
 
 /// <summary>
-/// 渲染物件類別 Tab。
+/// 依方向鍵、Home、End 計算下一個應聚焦的頁籤位置。
 /// </summary>
-const ProductionTabs = (
-    { groups, activeTabId, onChange }: { groups: SpecProductionGroup[]; activeTabId: string; onChange: (id: string) => void; },
-) =>
+const getProductionTabTargetIndex = (key: string, currentIndex: number, tabCount: number): number | null =>
 {
-    /** 透過共用 Anchor Button Hook 切換目前 Tab。 */
+    if (currentIndex < 0 || tabCount <= 0) return null;
+    if (key === "ArrowRight") return (currentIndex + 1) % tabCount;
+    if (key === "ArrowLeft") return (currentIndex - 1 + tabCount) % tabCount;
+    if (key === "Home") return 0;
+    if (key === "End") return tabCount - 1;
+    return null;
+};
+
+/// <summary>
+/// 管理頁籤方向鍵焦點，以及 Enter、Space 手動切換內容。
+/// </summary>
+const useProductionTabKeyboard = (tabIds: string[], onChange: (id: string) => void): ProductionTabKeyboardHandlers =>
+{
+    const tabRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
     const handleTabAction = useCallback((event: AnchorActionEvent) =>
     {
-        const id = event.currentTarget.dataset.tabId ?? "";
-        onChange(id);
+        onChange(event.currentTarget.dataset.tabId ?? "");
     }, [onChange]);
     const tabAction = useAnchorButtonAction(handleTabAction);
 
+    /// <summary>
+    /// 登記頁籤元素，供方向鍵移動焦點使用。
+    /// </summary>
+    const registerTab = useCallback((id: string, element: HTMLAnchorElement | null) =>
+    {
+        tabRefs.current[id] = element;
+    }, []);
+
+    /// <summary>
+    /// 保留 Enter、Space 啟用行為，並處理頁籤群組內的方向鍵焦點。
+    /// </summary>
+    const onKeyDown = useCallback<React.KeyboardEventHandler<HTMLAnchorElement>>((event) =>
+    {
+        tabAction.onKeyDown(event);
+
+        const currentId = event.currentTarget.dataset.tabId ?? "";
+        const currentIndex = tabIds.indexOf(currentId);
+        const targetIndex = getProductionTabTargetIndex(event.key, currentIndex, tabIds.length);
+        if (targetIndex === null) return;
+
+        event.preventDefault();
+        const targetId = tabIds[targetIndex] ?? "";
+        tabRefs.current[targetId]?.focus();
+    }, [tabAction, tabIds]);
+
+    return { registerTab, onClick: tabAction.onClick, onKeyDown };
+};
+
+/// <summary>
+/// 渲染物件類別 Tab，Tab 鍵進出群組，方向鍵在群組內移動。
+/// </summary>
+const ProductionTabs = ({ groups, activeTabId, onChange }: ProductionTabsProps) =>
+{
+    const tabIds = useMemo(() => groups.map((group) => group.tagId).filter(Boolean), [groups]);
+    const keyboard = useProductionTabKeyboard(tabIds, onChange);
+
     return (
         <div className="Horizontal nav-tabs-list">
-            <ul className="nav nav-tabs" role="tablist">
-                {groups.map((group) => (
-                    <li key={group.tagId} className="nav-item + me-3" role="presentation">
-                        <a
-                            href="#"
-                            className={`more-link font-wt-lg ${group.tagId === activeTabId ? "active" : ""}`}
-                            role="tab"
-                            aria-selected={group.tagId === activeTabId}
-                            aria-controls={`H-navTabs-${group.tagId}`}
-                            id={`H-Tabs__${group.tagId}`}
-                            data-tab-id={group.tagId}
-                            {...tabAction}
-                        >
-                            <span className="vm">{group.tagName}</span>
-                            <span className="ms-1">〉</span>
-                        </a>
-                    </li>
-                ))}
+            <ul className="nav nav-tabs" role="tablist" aria-orientation="horizontal">
+                {groups.map((group) =>
+                {
+                    const isActive = group.tagId === activeTabId;
+
+                    return (
+                        <li key={group.tagId} className="nav-item + me-3" role="presentation">
+                            <a
+                                href="#"
+                                className={`more-link font-wt-lg ${isActive ? "active" : ""}`}
+                                role="tab"
+                                aria-selected={isActive}
+                                aria-controls={`H-navTabs-${group.tagId}`}
+                                id={`H-Tabs__${group.tagId}`}
+                                data-tab-id={group.tagId}
+                                tabIndex={isActive ? 0 : -1}
+                                ref={(element) => keyboard.registerTab(group.tagId, element)}
+                                onClick={keyboard.onClick}
+                                onKeyDown={keyboard.onKeyDown}
+                            >
+                                <span className="vm">{group.tagName}</span>
+                                <span className="ms-1">〉</span>
+                            </a>
+                        </li>
+                    );
+                })}
             </ul>
         </div>
     );
