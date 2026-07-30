@@ -40,13 +40,19 @@ const NAV_BAR_TEXT_MAP: Partial<Record<Lang, INavBarText>> = {
     "zh-cn": { Home: "回首页", NCHU: "中兴大学", SiteMap: "网站导览" },
     en: { Home: "Home", NCHU: "NCHU", SiteMap: "SiteMap" },
 };
+interface IHeaderSectionProps
+{
+    lang: Lang;
+    site: INormSite;
+    className?: string;
+}
 // #endregion
 
 // #region Section
-const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
+const Header_Section = (props: IHeaderSectionProps) =>
 {
     return (
-        <section className="header_section">
+        <section className={clsx("header_section", props.className)}>
             <header className="header_Box bg-custom-rgba">
                 <div className="navsBox">
                     <div className="container-customize0 d-flex justify-content-lg-between justify-content-center flex-wrap">
@@ -73,7 +79,7 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
 
     return (
         <section className="menu_section">
-            <div className="customMENU_Box bg-custom-rgba">
+            <div className="customMENU_Box bg-custom-rgba py-lg-0 py-1">
                 <div className="menuBox">
                     <div className="container-customize0">
                         <div className="navbar navbar-expand-lg px-0 py-0" ref={menuRef}>
@@ -95,7 +101,7 @@ const LogoComp = (props: { lang: Lang; }) =>
 
     return (
         <h1 className="logo">
-            <LangLink className="navbar-brand my-0" to="/" title={text.logoAlt} aria-label={text.logoAlt}>
+            <LangLink className="navbar-brand my-0" to="/" aria-label={text.logoAlt}>
                 <img src={LogoImg} alt={text.logoAlt} />
             </LangLink>
         </h1>
@@ -141,7 +147,6 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
                     data-bs-toggle="dropdown"
                     data-bs-auto-close="outside"
                     target={item.URL_Open}
-                    title={item.SrcData}
                     aria-label={item.SrcData}
                     aria-expanded="false"
                 >
@@ -220,7 +225,7 @@ export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; })
         <>
             <A11yContent />
             <div id="Site-Header" ref={headerRef} className={clsx("ALL_Header_DivBar", "main-header", isHome && "position-fixed")}>
-                <Header_Section lang={props.lang} site={props.site} />
+                <Header_Section lang={props.lang} site={props.site} className="d-none d-lg-none d-xl-block"/>
                 <Menu_Section {...props} />
                 <div className="overlayer" aria-hidden="true" />
             </div>
@@ -273,7 +278,6 @@ const MobileBtn = (props: { lang: Lang; }) =>
                 aria-controls="navbar-content"
                 aria-expanded="false"
                 aria-label={text.open}
-                title={text.open}
             >
                 <div className="hamburger-toggle" aria-hidden="true">
                     <div className="hamburger">
@@ -293,6 +297,7 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 
     return (
         <div id="navbar-content" className="collapse navbar-collapse overflow-scroll-Y" role="navigation" aria-label={getMenuToggleA11yText(props.lang).label}>
+            <Header_Section lang={props.lang} site={props.site} className="d-block d-lg-block d-xl-none"/>
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
                 {menuItems.map((item, idx) =>
                 {
@@ -343,7 +348,6 @@ const DropdownMenuItem = (props: { menuItem: MenuItemData; }) =>
                 data-bs-toggle="dropdown"
                 data-bs-auto-close="outside"
                 target={props.menuItem.URL_Open}
-                title={props.menuItem.SrcData}
                 aria-label={props.menuItem.SrcData}
                 aria-expanded="false"
             >

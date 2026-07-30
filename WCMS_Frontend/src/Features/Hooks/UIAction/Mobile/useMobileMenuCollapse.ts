@@ -121,7 +121,7 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
             togglerEl.classList.toggle("collapsed", !open);
             togglerEl.setAttribute("aria-expanded", open ? "true" : "false");
             togglerEl.setAttribute("aria-label", label);
-            togglerEl.setAttribute("title", label);
+            // togglerEl.setAttribute("title", label); //指引4.1：相容性：控制按鈕已使用aria-expended來說明展開、收合資訊，建議移除title屬性，避免輔助工具重複報讀或造成資訊混淆
         };
         // function：判斷元素是否可被鍵盤聚焦
         const isVisibleFocusable = (el: HTMLElement) =>
