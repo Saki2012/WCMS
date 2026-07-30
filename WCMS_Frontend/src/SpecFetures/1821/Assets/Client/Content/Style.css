@@ -1,0 +1,50 @@
+@charset "utf-8";
+/* CSS Document */
+/* 16px = 1rem = 1em = 100% */ 
+
+/* ------ 首頁內容 index content ----------------------- */
+@import url("css_import/style_index_content/index_content.css");
+
+/* GOOGLE 字型 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200..900&display=swap');
+/*font-family: "Noto Sans TC" */
+/* GOOGLE 字型 */
+
+/* ============================================= */
+
+/* ============================================= */
+
+:root {
+	--Customize_color: #96662a;
+	--Customize_color02: #402210;
+	--Customize_HRcolor: #96662a;
+	--Customize_ACcolor: #96662a;
+	--Customize_FCcolor: #96662a;
+	--Customize_Footercolor: #000000;
+	--Customize_BGcolor: #f3f1ea;
+	
+	/* =================================== */
+	
+	--Customize_TXTcolor: #000000;
+	--Customize_TXTHRcolor: #96662a;
+	--Customize_SUB_TITLEcolor: #ffb250;
+	--Customize_moreHRcolor: #ff4e00;
+	
+	/* =================================== */
+	
+	--Customize_Btn_color: #000000;
+	--Customize_Btn_HRcolor: #96662a;
+	--Customize_border_color: #00305c;
+
+	/* =================================== */
+	
+	--a_linkcolor: #0b5ed7;
+	--a_linkHRcolor: #0a58ca;
+	
+	--a_focuscolor: transparent;
+	--a_focusbordercolor: #AA0000;	
+	
+	--a_focuscolor2: transparent;
+	--a_focusbordercolor2: #AA0000;
+}
+

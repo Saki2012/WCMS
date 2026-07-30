@@ -1,0 +1,4 @@
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item.open-trigger > .pc-link,
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item.active > .pc-link {    
+    color: var(--FFFcolor);
+}

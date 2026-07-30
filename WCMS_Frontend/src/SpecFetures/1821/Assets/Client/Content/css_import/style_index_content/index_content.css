@@ -1,0 +1,5122 @@
+@charset "utf-8";
+/* CSS Document */
+
+/* ======================= */
+/* -------------------------
+
+**  首頁 共用 HEADER TITLE 標題
+**  首頁 共用 MORE
+**  首頁 共用 背景圖示 
+**  首頁 BANNER 輪播區 Carousel_slide_section
+		[ prev + next 按鈕 div框 / 輪播 暫停/撥放 / 輪播 下方 按鈕指標 [ 點點 ] / 輪播 左邊文字區 ]
+
+**  首頁 標準頁籤 區 Tabs_section
+		[ Horizontal 橫向式 TAB / Vertical 垂直式 TAB / 頁籤內容區 ALL ]
+
+**  首頁 專區連結 區 SpecialZone_section
+**  首頁 相關連結 區 RelatedLinks_section
+**  頁尾 FOOTER 區 BottomInfo_section
+**  頁尾 GO-TO-TOP
+
+-------------------------- */
+/* ======================= */
+
+
+
+/* ======================================================================================================================= */
+/* 所有 首頁 CSS 設定 ( 以下 )  OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO */
+/* ======================================================================================================================= */
+
+
+
+/* ====================================================== */
+/* =====  首頁 共用 HEADER TITLE 標題  ==================== */
+/* ====================================================== */
+.headDiv {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	/*justify-content: center;*/
+	align-items: center;
+	margin-top: 0;
+}
+/* ---------------------------------------------------- */
+.headDiv-left {
+	justify-content: flex-start;
+}
+.headDiv-center {
+	justify-content: center;
+}
+.headDiv-right {
+	justify-content: flex-end;
+}
+/* ---------------------------------------------------- */
+.headDiv-txt {
+	font-size: clamp(150%, 3.25vw, 225%);
+	font-weight: 600;
+	font-style: normal;
+	letter-spacing: 0.125rem;
+	
+	position: relative;
+	padding-left: 2rem;
+	z-index: 0;
+}
+@media screen and (max-width: 575px) {
+	.headDiv-txt {	
+		letter-spacing: 0rem;
+		padding-left: 1.5rem;
+	}
+}
+@media screen and (min-width: 576px) {
+	.headDiv-txt {		
+		padding-left: 2rem;
+	}
+}
+/* ---------------------------------------------------- */
+.headDiv-txt::before {
+	content: "";
+	position: absolute;	
+	border-radius: 100%;
+	background-color: var(--Customize_color);
+	z-index: 0;
+}
+@media screen and (max-width: 575px) {
+	.headDiv-txt::before {	
+		top: 0px;
+		left: 0px;
+		width: 16px;
+		height: 16px;
+	}
+}
+@media screen and (min-width: 576px) {
+	.headDiv-txt::before {		
+		top: 00px;
+		left: 0px;
+		width: 20px;
+		height: 20px;
+	}
+}
+/* ---------------------------------------------------- */
+.headDiv-txt::after {
+	content: "";
+	position: absolute;	
+	border-radius: 100%;
+	border: 1px solid #baa386;
+	background-color: transparent;
+	z-index: -1;
+}
+@media screen and (max-width: 575px) {
+	.headDiv-txt::after {	
+		top: 0px;
+		left: 0px;
+		width: 45px;
+		height: 45px;
+	}
+}
+@media screen and (min-width: 576px) {
+	.headDiv-txt::after {		
+		top: 0px;
+		left: 0px;
+		width: 55px;
+		height: 55px;
+	}
+}
+/* ---------------------------------------------------- */
+.headDiv-subtxt {
+	display: -webkit-inline-box;
+	display: -ms-inline-flexbox;
+	display: inline-flex;
+	-webkit-box-align: center;
+	  -ms-flex-align: center;
+		  align-items: center;
+	
+	position: relative;
+	font-size: clamp(93.75%, 2.25vw, 125%);
+	font-weight: 600;
+	text-transform: capitalize;
+	letter-spacing: 0.0125rem;
+	text-decoration: underline;
+	color: var(--Customize_color);
+	
+	margin-top: 0.75rem;
+}
+@media screen and (max-width: 575px) {
+	.headDiv-subtxt {		
+		margin-top: 0.5rem;
+	}
+}
+/* ---------------------------------------------------- */
+.diagonal-line {
+	font-size: clamp(100%, 3.25vw, 125%);
+	color: var(--G555color);
+	margin-top: 0.75rem;
+}
+@media screen and (max-width: 575px) {
+	.diagonal-line {		
+		margin-top: 0.5rem;
+	}
+}
+/* ====================================================== */
+/* =====  首頁 共用 HEADER TITLE 標題  ==================== */
+/* ====================================================== */
+
+
+
+/* ====================================================== */
+/* =====  首頁 共用 MORE  ================================ */
+/* ====================================================== */
+.w100-wrapper {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	/*justify-content: center;*/
+	align-items: center;
+}
+.btn-w100-wrapper {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	/*justify-content: center;*/
+	align-items: center;
+}
+/* 定位點 設定 */
+.btn_top_S1 {
+	top: 0px;
+}
+.btn_bottom_S1  {
+	bottom: 0px;
+}
+.btn_left_S1  {
+	left: 0px;
+}
+.btn_right_S1  {
+	right: 0px;
+}
+/* 定位點 設定 */
+/* ---------------------------------------------------- */
+.customize_btn {
+    position: relative;
+    display: inline-block;
+    /*margin-right: auto;*/
+    /*margin-left: auto;*/
+}
+/* ---------------------------------------------------- */
+.customize_btn a.Btn_a {
+    position: relative;
+    display: block;
+}
+/*..// FOCUS ALL // ..*/
+.customize_btn a:focus.Btn_a {
+	text-decoration: none;
+	outline: thin dotted;
+	/*outline: 2px solid var(--a_focusbordercolor);*/
+	outline: 2px dashed var(--a_focusbordercolor) !important;
+	outline-offset: 0px;
+	color: var(--blackcolor) !important;
+	background-color: var(--a_focuscolor) !important;
+	
+	border-radius: 2.25rem;
+}
+/*..// FOCUS ALL // ..*/
+/* ---------------------------------------------------- */
+.customize_btn .BtnBox {
+    position: relative;
+    display: block;
+    
+	font-size: clamp(87.5%, 3.25vw, 93.75%);
+    line-height: 1.75;
+    letter-spacing: normal;
+    text-align: left; 
+	text-transform: capitalize;
+       
+    width: 100%;
+    overflow: hidden;
+    z-index: 0;
+    
+    color: var(--Customize_color);
+    border-radius: 2.25rem;
+	border: 1px solid var(--Customize_color);
+    background-color: transparent;
+	
+	transition: all 0.5s ease;
+	transform: perspective(1px) translateZ(0);
+}
+@media screen and (max-width: 575px) {
+    .customize_btn .BtnBox {
+    	padding: 0.5rem 2rem 0.5rem 2rem;
+    }
+}
+@media screen and (min-width: 576px) {
+    .customize_btn .BtnBox {
+        font-weight: 600;
+		padding: 0.65rem 2.75rem 0.65rem 2.75rem;
+    }
+}
+/*..// HOVER ALL // ..*/
+.customize_btn .BtnBox:hover {
+    color: var(--FFFcolor);
+	background-color: var(--Customize_HRcolor);
+}
+/*..// HOVER ALL // ..*/
+/* ====================================================== */
+/* =====  首頁 共用 MORE  ================================ */
+/* ====================================================== */
+
+
+
+/* ====================================================== */
+/* =====  首頁 共用 背景圖示  ============================== */
+/* ====================================================== */
+.iMG-Shape-0 {
+	position: absolute;
+	top: 0;
+	right: 0;	
+	width: 465px;
+	height: 550px;
+	
+	z-index: 0;
+
+	/*background-color: transparent;*/
+	background-image: url("../../../images/bg/img-shape-0_465x550.svg");
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center top;
+
+	border-radius: 0;
+}
+/* ---------------------------------------------------- */
+.iMG-Shape-1 {
+	position: absolute;
+	top: -1px;
+	right: 0;	
+	width: 372px;
+	height: 365px;
+	
+	z-index: 0;
+
+	/*background-color: transparent;*/
+	background-image: url("../../../images/bg/img-shape-1_372x365.svg");
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center top;
+
+	border-radius: 0;
+}
+
+/* ---------------------------------------------------- */
+.iMG-Shape-2 {
+	position: absolute;
+	top: 0;
+	left: 0;	
+	width: 313px;
+	height: 493px;
+	
+	z-index: 0;
+
+	/*background-color: transparent;*/
+	background-image: url("../../../images/bg/img-shape-2_313x493.svg");
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center top;
+
+	border-radius: 0;
+}
+/* ---------------------------------------------------- */
+.iMG-Shape-3 {
+	position: absolute;
+	bottom: 0;
+	left: -350px;
+	width: 580px;
+	height: 500px;
+	
+	z-index: 0;
+
+	/*background-color: transparent;*/
+	background-image: url("../../../images/bg/img-shape-3.png");
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center top;
+
+	border-radius: 0;
+}
+/* ---------------------------------------------------- */
+.iMG-Shape-4 {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	width: 580px;
+	height: 500px;
+	
+	z-index: 0;
+
+	/*background-color: transparent;*/
+	background-image: url("../../../images/bg/img-shape-4.png");
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center top;
+
+	border-radius: 0;
+}
+/* ====================================================== */
+/* =====  首頁 共用 背景圖示  ============================== */
+/* ====================================================== */
+
+
+
+/* ====================================================== */
+/* =====  首頁 BANNER 輪播區 Carousel_slide_section  ====== */
+/* ====================================================== */
+.Carousel_slide_section {
+	position: relative;
+	display: block;
+	background-color: transparent;
+	/*background-image: url(images/bg/.....);*/
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center top;
+	
+	overflow: hidden; 
+}
+/* ---------------------------------------------------- */
+.Carousel_slide_section .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/*=============================================*/
+/* ==   prev + next 按鈕 div框   ============== */
+/*=============================================*/
+.Carousel_slide_section .carousel_btn-icon-prev,
+.Carousel_slide_section .carousel_btn-icon-next {
+	position: absolute;
+	/*top: calc(50% - 24px);*/
+	bottom: calc(0% + 24px);
+	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;	
+	z-index: 16; /*999*/
+}
+.Carousel_slide_section .carousel_btn-icon-prev {
+	/*left: 2.5%;*/
+	right: calc(2.5% + 32px + 10px);
+}
+.Carousel_slide_section .carousel_btn-icon-next {
+	right: 2.5%;
+}
+@media screen and (max-width: 768px) {
+	.Carousel_slide_section .carousel_btn-icon-prev,
+	.Carousel_slide_section .carousel_btn-icon-next {
+		/*top: calc(50% - 16px);*/
+		bottom: calc(0% + 12px);
+	}
+	
+	.Carousel_slide_section .carousel_btn-icon-prev {
+		/*left: 2.5%;*/
+		right: calc(2.5% + 24px + 10px);
+	}
+}
+
+/* ==================================================== */
+/* ------ Button 按鈕 carousel-control-prev ------------ */
+/* ------ Button 按鈕 carousel-control-next ------------ */
+.Carousel_slide_section .carousel_btn-icon-prev a div.carousel-control-prev,
+.Carousel_slide_section .carousel_btn-icon-next a div.carousel-control-next {
+	position: relative;
+	width: var(--Customize_size_32); /*48px*/
+	height: var(--Customize_size_32); /*48px*/
+	
+	opacity: 1;
+	background-repeat: no-repeat;
+	background-size: 8px;
+	background-position: center;
+	/*border: 1px solid var(--FFFcolor);*/
+	border-right: 1px solid var(--G777color);
+	border-bottom: 1px solid var(--G777color);
+	
+    background-color: rgba(0, 0, 0, 0.5);
+	
+	border-radius: 0rem;
+	padding: 0rem 0rem;
+	overflow: hidden;
+}
+.Carousel_slide_section .carousel_btn-icon-prev a:hover div.carousel-control-prev,
+.Carousel_slide_section .carousel_btn-icon-next a:hover div.carousel-control-next {
+	background-color: var(--Customize_HRcolor);
+}
+.Carousel_slide_section .carousel_btn-icon-prev a:focus div.carousel-control-prev,
+.Carousel_slide_section .carousel_btn-icon-next a:focus div.carousel-control-next {
+	text-decoration: none;
+    
+    color: var(--blackcolor) !important;
+	background-color: rgba(0, 0, 0, 0.5);
+}
+/* ------ Button 按鈕 carousel-control-prev ------------ */
+/* ------ Button 按鈕 carousel-control-next ------------ */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ ICON 符號 carousel-control-prev-icon --------- */
+/* ------ ICON 符號 carousel-control-next-icon --------- */
+.Carousel_slide_section .carousel_btn-icon-prev a div.carousel-control-prev .carousel-control-prev-icon,
+.Carousel_slide_section .carousel_btn-icon-next a div.carousel-control-next .carousel-control-next-icon {
+    display: inline-block;
+    width: var(--Customize_size_32); /*48px*/
+	height: var(--Customize_size_32); /*48px*/
+    border-radius: 0%;
+    
+	background-position-x: 50%;
+	background-position-y: center;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	/*background-image: none;*/
+	background-size: 100% 100%;
+	background-origin: padding-box;
+	background-clip: border-box;
+	
+	/*background-color: rgba(0, 0, 0, 0);*/
+    filter: none;
+}
+.Carousel_slide_section .carousel_btn-icon-prev a div.carousel-control-prev .carousel-control-prev-icon {
+	content: url("../../../images/banner/prev-W.svg");
+	/*background-image: url(../../../images/banner/prev_long_arrow_C.svg);*/
+	background-image: none;
+}
+.Carousel_slide_section .carousel_btn-icon-next a div.carousel-control-next .carousel-control-next-icon {
+	content: url("../../../images/banner/next-W.svg");
+	/*background-image: url(../../../images/banner/next_long_arrow_C.svg);*/
+	background-image: none;
+}
+
+/* ------ ICON 符號 HOVER --------- */
+.Carousel_slide_section .carousel_btn-icon-prev a:hover div.carousel-control-prev .carousel-control-prev-icon {
+	content: url("../../../images/banner/prev-W.svg");
+    /*background-image: url(../../../images/banner/prev_long_arrow_W.svg);*/
+	background-image: none;
+}
+.Carousel_slide_section .carousel_btn-icon-next a:hover div.carousel-control-next .carousel-control-next-icon {
+	content: url("../../../images/banner/next-W.svg");
+    /*background-image: url(../../../images/banner/next_long_arrow_W.svg);*/
+	background-image: none;
+}
+/* ------ ICON 符號 HOVER --------- */
+
+/* ------ ICON 符號 FOCUS --------- */
+.Carousel_slide_section .carousel_btn-icon-prev a:focus div.carousel-control-prev .carousel-control-prev-icon {
+	content: url("../../../images/banner/prev-W.svg");
+    /*background-image: url(../../../images/banner/prev_long_arrow_B.svg);*/
+	background-image: none;
+}
+.Carousel_slide_section .carousel_btn-icon-next a:focus div.carousel-control-next .carousel-control-next-icon {
+	content: url("../../../images/banner/next-W.svg");
+    /*background-image: url(../../../images/banner/next_long_arrow_B.svg);*/
+	background-image: none;
+}
+/* ------ ICON 符號 FOCUS --------- */
+
+/* ------ Button 按鈕 + ICON 符號 縮小至 768 的 size --------- */
+@media screen and (max-width: 768px) {
+    .Carousel_slide_section .carousel_btn-icon-prev a div.carousel-control-prev,
+    .Carousel_slide_section .carousel_btn-icon-next a div.carousel-control-next {
+		width: var(--Customize_size_24); /*32px*/
+		height: var(--Customize_size_24); /*32px*/
+	}   
+	.Carousel_slide_section .carousel_btn-icon-prev a div.carousel-control-prev .carousel-control-prev-icon,
+    .Carousel_slide_section .carousel_btn-icon-next a div.carousel-control-next .carousel-control-next-icon {
+		width: var(--Customize_size_24); /*32px*/
+		height: var(--Customize_size_24); /*32px*/
+	}
+}
+/* ------ Button 按鈕 + ICON 符號 縮小至 768 的 size --------- */
+
+/* ------ ICON 符號 carousel-control-prev-icon --------- */
+/* ------ ICON 符號 carousel-control-next-icon --------- */
+/* ==================================================== */
+
+/*=============================================*/
+/* ==   prev + next 按鈕 div框  ================ */
+/*=============================================*/
+
+/* ******************************************************** */
+
+/*=============================================*/
+/* ==   輪播 暫停 / 撥放  ====================== */
+/*=============================================*/
+.Carousel_slide_section .control-box {	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	
+	align-items: center;
+	
+	position: absolute; 
+    /*left: 1.125%;*/
+    /*right: 1.125%;*/
+    z-index: 16;
+    padding: 0; 
+    margin-bottom: 1rem;
+    color: var(--FFFcolor);
+    text-align: center;
+	/*background-color: rgba(0, 0, 0, 0.5);*/
+    width: 115px;
+}
+@media screen and (max-width: 991px) {
+	.Carousel_slide_section .control-box {
+		/* 上方左邊 */
+        /*justify-content: flex-start;*/ 
+        /*left: 2.5%;*/
+        /*top: 1%;*/
+		
+		/* 下方右邊 */
+		justify-content: flex-end;
+		right: 2.5%;
+		top: 1.5%;
+		/*bottom: 0%;*/
+	}
+}
+@media screen and (min-width: 992px) {
+	.Carousel_slide_section .control-box {  
+		/* 下方右邊 */
+        justify-content: flex-end;
+        right: 2.5%;
+        top: 1.5%;
+		/*bottom: 0%;*/
+	}
+}
+
+/* ==================================================== */
+/* ------ Button 按鈕 DIV框 .control-start ------------- */
+/* ------ Button 按鈕 DIV框 .control-pause ------------- */
+.Carousel_slide_section .control-start,
+.Carousel_slide_section .control-pause {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	z-index: 2; /*999*/
+}
+.Carousel_slide_section .control-start {
+	right: calc(0% + 10px);
+}
+.Carousel_slide_section .control-pause {
+	right: calc(0% - 0px);
+}
+/* ------ Button 按鈕 DIV框 .control-start ------------- */
+/* ------ Button 按鈕 DIV框 .control-pause ------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ Button 按鈕 a.start -------------------------- */
+/* ------ Button 按鈕 a.pause -------------------------- */
+.Carousel_slide_section .control-start a,
+.Carousel_slide_section .control-pause a {
+	position: relative;
+	display:inline-block;
+	width: var(--Customize_size_40);
+	height: var(--Customize_size_40);
+    
+    color: var(--Customize_color);
+	border-radius: 100%;
+    border: 1px solid var(--FFFcolor);
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* FOCUS */
+.Carousel_slide_section .control-start a:hover,
+.Carousel_slide_section .control-pause a:hover {
+	opacity: 1;
+	background-color: var(--Customize_color);
+}
+
+/* FOCUS */
+.Carousel_slide_section .control-start a:focus, 
+.Carousel_slide_section .control-pause a:focus {
+    text-decoration: none;
+    
+    color: var(--blackcolor) !important;
+	background-color: rgba(0, 0, 0, 0.5);
+}
+/* ------ Button 按鈕 a.start -------------------------- */
+/* ------ Button 按鈕 a.pause -------------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ ICON 符號 control-start-icon ----------------- */
+/* ------ ICON 符號 control-pause-icon ----------------- */
+.Carousel_slide_section .control-start-icon,
+.Carousel_slide_section .control-pause-icon {
+	display: inline-block;
+	width: var(--Customize_size_40);
+	height: var(--Customize_size_40);
+	background-position-x: 50%;
+	background-position-y: center;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-image: none;
+	background-size: 100% 100%;
+	background-origin: padding-box;
+	background-clip: border-box;
+}
+.Carousel_slide_section .control-start-icon {
+    background-image: url(../../../images/banner/control-start-B-icon.svg);
+}
+.Carousel_slide_section .control-pause-icon {
+    background-image: url(../../../images/banner/control-pause-B-icon.svg);
+}
+
+/* ------ ICON 符號 HOVER --------- */
+.Carousel_slide_section .control-start a:hover .control-start-icon {
+    background-image: url(../../../images/banner/control-start-W-icon.svg);
+}
+.Carousel_slide_section .control-pause a:hover .control-pause-icon {
+    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+}
+/* ------ ICON 符號 HOVER --------- */
+
+/* ------ ICON 符號 FOCUS --------- */
+.Carousel_slide_section .control-start a:focus .control-start-icon {
+    background-image: url(../../../images/banner/control-start-W-icon.svg);
+}
+.Carousel_slide_section .control-pause a:focus .control-pause-icon{
+    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+}
+/* ------ ICON 符號 FOCUS --------- */
+
+/* ------ Button 按鈕 + ICON 符號 縮小至 768 的 size --------- */
+@media screen and (max-width: 768px) {
+	.Carousel_slide_section .control-start a,
+	.Carousel_slide_section .control-pause a,
+	.Carousel_slide_section .control-start-icon,
+	.Carousel_slide_section .control-pause-icon {
+		width: 32px;
+		height: 32px;
+	}
+	
+	.Carousel_slide_section .control-box {	
+		padding-top: 5px;    
+		padding-left: 0px;
+		padding-right: 0px;
+		padding-bottom: 0px;
+	}
+
+	.Carousel_slide_section .control-start {
+		right: calc(1.5% + 5px);
+	}
+	.Carousel_slide_section .control-pause {
+		right: 1.5%;
+	}
+}
+/* ------ Button 按鈕 + ICON 符號 縮小至 768 的 size --------- */
+
+/* ------ ICON 符號 control-start-icon ----------------- */
+/* ------ ICON 符號 control-pause-icon ----------------- */
+/* ==================================================== */
+
+/* ******************************************************** */
+/* ******************************************************** */
+
+/* ==================================================== */
+/* ------ 單一切換 Button 按鈕 a.start ------------------ */
+/* ------ 單一切換 Button 按鈕 a.pause ------------------ */
+.Carousel_slide_section .control-singlebox {	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	
+	align-items: center;
+	
+	position: absolute; 
+    /*left: 1.125%;*/
+    /*right: 1.125%;*/
+    z-index: 16;
+    padding: 0; 
+    /*margin-bottom: 1rem;*/
+    color: var(--FFFcolor);
+    text-align: center;
+	/*background-color: rgba(0, 0, 0, 0.5);*/
+    width: 40px;
+}
+@media screen and (max-width: 767px) {
+	.Carousel_slide_section .control-singlebox {
+		/* 上方左邊 */
+        /*justify-content: flex-start;*/ 
+        /*left: 2.5%;*/
+        /*top: 1%;*/
+		
+		/* 下方右邊 */
+		justify-content: flex-end;
+		right: calc(2.5% + 24px + 24px + 10px + 10px);
+		/*top: 1.5%;*/
+		bottom: calc(0% + 12px);
+	}
+}
+@media screen and (min-width: 768px) and (max-width: 991px) {
+	.Carousel_slide_section .control-singlebox {
+		/* 上方左邊 */
+        /*justify-content: flex-start;*/ 
+        /*left: 2.5%;*/
+        /*top: 1%;*/
+		
+		/* 下方右邊 */
+		justify-content: flex-end;
+		right: calc(2.5% + 32px + 32px + 10px + 10px);
+		/*top: 1.5%;*/
+		bottom: calc(0% + 24px);
+	}
+}
+@media screen and (min-width: 992px) {
+	.Carousel_slide_section .control-singlebox {  
+		/* 下方右邊 */
+        justify-content: flex-end;
+        right: 2.5%;
+		right: calc(2.5% + 32px + 32px + 10px + 10px);
+		/*top: 1.5%;*/
+        bottom: 0%;
+		bottom: calc(0% + 24px);
+	}
+}
+/* ==================================================== */
+.Carousel_slide_section .control-toggle {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	z-index: 2;
+}
+.Carousel_slide_section .control-toggle a {
+	position: relative;
+	display:inline-block;
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_32);
+    
+    color: var(--Customize_color);
+	border-radius: 0%;
+    /*border: 1px solid var(--FFFcolor);*/
+	border-right: 1px solid var(--G777color);
+	border-bottom: 1px solid var(--G777color);
+    background-color: rgba(0, 0, 0, 0.5);
+	
+	padding: 0rem;
+	overflow: hidden;
+}
+
+/* HOVER */
+.Carousel_slide_section .control-toggle a:hover {
+	opacity: 1;
+	background-color: var(--Customize_HRcolor);
+}
+
+/* FOCUS */
+.Carousel_slide_section .control-toggle a:focus {
+    text-decoration: none;
+    
+    color: var(--blackcolor) !important;
+	background-color: rgba(0, 0, 0, 0.5) !important;
+}
+/* ------ 單一切換 Button 按鈕 a.start ------------------ */
+/* ------ 單一切換 Button 按鈕 a.pause ------------------ */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ 單一切換 ICON 符號 control-icon --------------- */
+/* ------ 單一切換 ICON 符號 control-icon --------------- */
+.Carousel_slide_section .control-icon {
+	display: inline-block;
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_32);
+	background-position-x: 50%;
+	background-position-y: center;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-image: none;
+	background-size: 100% 100%;
+	background-origin: padding-box;
+	background-clip: border-box;
+}
+.Carousel_slide_section .control-icon.play {
+    background-image: url(../../../images/banner/control-start-W-icon.svg);
+}
+.Carousel_slide_section .control-icon.pause {
+    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+}
+
+/* ------ ICON 符號 HOVER --------- */
+.Carousel_slide_section .control-toggle a:hover .control-icon.play {
+    background-image: url(../../../images/banner/control-start-W-icon.svg);
+}
+.Carousel_slide_section .control-toggle a:hover .control-icon.pause {
+    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+}
+/* ------ ICON 符號 HOVER --------- */
+
+/* ------ ICON 符號 FOCUS --------- */
+.Carousel_slide_section .control-toggle a:focus .control-icon.play {
+    background-image: url(../../../images/banner/control-start-W-icon.svg);
+}
+.Carousel_slide_section .control-toggle a:focus .control-icon.pause {
+    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+}
+/* ------ ICON 符號 FOCUS --------- */
+
+/* ------ Button 按鈕 + ICON 符號 縮小至 768 的 size --------- */
+@media screen and (max-width: 768px) {
+	.Carousel_slide_section .control-toggle a,
+	.Carousel_slide_section .control-toggle a .control-icon.play,
+	.Carousel_slide_section .control-toggle a .control-icon.pause {
+		width: var(--Customize_size_24);
+		height: var(--Customize_size_24);
+	}
+	
+	.Carousel_slide_section .control-box {	
+		padding-top: 0px;    
+		padding-left: 0px;
+		padding-right: 0px;
+		padding-bottom: 0px;
+	}
+	.Carousel_slide_section .control-toggle {
+		right: 1.5%;
+	}
+}
+/* ------ Button 按鈕 + ICON 符號 縮小至 768 的 size --------- */
+
+/* ------ 單一切換 ICON 符號 control-start-icon --------- */
+/* ------ 單一切換 ICON 符號 control-pause-icon --------- */
+/* ==================================================== */
+/*=============================================*/
+/* ==   輪播 暫停 / 撥放  ====================== */
+/*=============================================*/
+
+/* ******************************************************** */
+/* ******************************************************** */
+
+/*=============================================*/
+/* ==   輪播 下方 按鈕指標 [ 點點 ]  ============= */
+/*=============================================*/
+.carousel-indicators {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 0;
+	margin-right: 15%;
+	margin-bottom: 1rem;
+	margin-left: 15%;	
+	list-style: none;
+	
+	z-index: 15; /*15*/
+	/*display: none;*/
+}
+@media screen and (max-width: 991px) {
+	.Carousel_slide_section .carousel-indicators {
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-pack: center;
+        justify-content: flex-start;
+		align-items: center;		
+		margin-left: 2.5%;
+	}
+}
+@media screen and (min-width: 992px) {
+	.Carousel_slide_section .carousel-indicators {}
+}
+
+.carousel-indicators a {
+	display: inline-block;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	height: 16px;
+	width: 16px;
+	margin: 0 0.25rem;
+}
+
+.carousel-indicators button[data-bs-target] {
+	box-sizing: content-box;
+	flex: 0 1 auto;
+	width: 10px;
+	height: 10px;
+	padding: 0;
+	margin-right: 3px;
+	margin-left: 3px;
+	text-indent: -999px;
+	cursor: pointer;
+	background-color: var(--FFFcolor);
+	background-color: rgba(255, 255, 255, 0.9);
+	background-clip: padding-box;
+	border: 0;
+	opacity: .5;
+	transition: opacity .6s ease;
+}
+.carousel-indicators a button {
+	position: relative;
+	border: none;
+	margin: 0 6px;
+	padding: 0;
+	outline: none;
+	border-radius: 50%;
+}
+.carousel-indicators a button.active {
+	opacity: 1;
+	/*background-color: var(--Customize_color);*/
+	background-color: #ea61b7;
+}
+
+.carousel-indicators a button.active::before {
+	transform: translate3d(-50%,-50%,0) scale(.6666666667);
+}
+/* 環繞動畫圈 */
+.carousel-indicators a button.active::after {
+	content: "";
+	position: absolute;
+	top: -6px;
+	left: -6px;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	border: 2px solid transparent;
+	border-top-color: #ea61b7;  /* 你想要的顏色 */
+	animation: spin-ring 5s linear infinite;
+	box-sizing: border-box;
+}
+@keyframes spin-ring {
+	to { transform: rotate(1turn); }
+}
+/*=============================================*/
+/* ==   輪播 下方 按鈕指標 [ 點點 ]  ============= */
+/*=============================================*/
+
+/* ******************************************************** */
+/* ******************************************************** */
+
+/*=============================================*/
+/* ==   輪播 左邊文字區  ======================== */
+/*=============================================*/
+.carousel-caption-item {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 100%;
+	background-color: transparent;
+	z-index: 1;
+}
+/* ------ carousel-caption-item ----------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ caption-overlayer --------------------------- */
+.caption-overlayer {
+	content: "";
+    width: 100vw;
+    height: 100%;
+    position: absolute;
+    top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+    z-index: 0;
+    background-color: rgba(0, 0, 0, 0.22);
+    display: block;
+    pointer-events: none;
+}
+/* ------ caption-overlayer --------------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ caption-container --------------------------- */
+.caption-container {
+	width: 100%;
+	padding-right: 15px;
+	padding-left: 15px;
+	margin-right: auto;
+	margin-left: auto
+}
+@media screen and (max-width: 575px) {
+	.caption-container {
+		max-width: 540px;
+		padding-right: 15%; /*=240px*/
+  		padding-left: 15%; /*=240px*/
+	}
+}
+@media screen and (min-width: 576px) {
+	.caption-container {
+		max-width: 540px;
+		padding-right: 3.75%; /*=48px*/
+  		padding-left: 3.75%; /*=48px*/
+	}
+}
+@media screen and (min-width: 768px) {
+	.caption-container {
+		max-width: 720px;
+		padding-right: 5%; /*=64px*/
+  		padding-left: 5%; /*=64px*/
+	}
+}
+@media screen and (min-width: 992px) {
+	.caption-container {
+		max-width: 960px;
+		padding-right: 5%; /*=64px*/
+  		padding-left: 5%; /*=64px*/
+	}
+}
+@media screen and (min-width: 1200px) {
+	.caption-container {
+		max-width: 1170px;
+		padding-right: 6.25%; /*=80px*/
+  		padding-left: 6.25%; /*=80px*/
+	}
+}
+@media screen and (min-width: 1400px) {
+	.caption-container {
+		max-width: 1320px;
+		padding-right: 5%; /*=64px*/
+  		padding-left: 5%; /*=64px*/
+	}
+}
+@media screen and (min-width: 1600px) {
+	.caption-container {
+		max-width: 1584px;
+		padding-right: 6.25%; /*=80px*/
+  		padding-left: 6.25%; /*=80px*/
+	}
+}
+/* ------ caption-container --------------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ caption-title ------------------------------- */
+.caption-title {	
+	font-weight: 600;
+	text-transform: uppercase;
+	max-width: fit-content;
+}
+.caption-title {
+	color: var(--FFFcolor);
+}
+@media screen and (max-width: 991px) {
+	.caption-title {
+		font-size: 225.0%;
+		line-height: 2.25rem;
+		margin-bottom: 1.25rem;
+	}
+}
+@media screen and (min-width: 992px) {
+	.caption-title {
+		font-size: 625%;
+		line-height: 6.25rem;
+		margin-bottom: 1rem;
+	}
+}
+/* ------ caption-title ------------------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ caption-sub-title --------------------------- */
+.caption-sub-title {
+	font-weight: 600;
+	text-transform: capitalize;
+	max-width: fit-content;
+}
+.caption-sub-title {
+	color: var(--FFFcolor);
+}
+@media screen and (max-width: 991px) {
+	.caption-sub-title {
+		font-size: 106.25%;
+		line-height: 1.0625rem;
+		margin-bottom: 0.5rem;
+	}
+}
+@media screen and (min-width: 992px) {
+	.caption-sub-title {
+		font-size: 300%;
+		line-height: 3rem;
+		margin-bottom: 1rem;
+	}
+}
+/* ------ caption-sub-title --------------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ caption-desc -------------------------------- */
+.caption-desc {	
+	font-size: 112.5%;
+	font-weight: 700;
+	line-height: 36px;
+	padding-top: 25px;
+	margin-bottom: 35px;
+	color: var(--FFFcolor);
+	border-top: 1px solid rgb(255, 255, 255);	
+	max-width: fit-content;
+}
+@media screen and (max-width: 479px) {
+	.caption-desc {	
+		display: none;
+	}
+}
+@media screen and (max-width: 991px) {
+	.caption-desc {	
+		font-size: 93.75%;
+		line-height: 1.125rem;
+	}
+}
+@media screen and (min-width: 992px) {
+	.caption-desc {	
+		font-size: 112.5%;
+		line-height: 2.25rem;
+	}
+}
+/* ------ caption-desc -------------------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ caption-button ------------------------------ */
+.caption-button {
+	position: relative;
+	display: inline-block;
+	opacity: 0;
+	transition-duration: 2s;
+}
+.carousel-item.active .caption-button {
+	opacity: 1;
+}
+
+a.caption-customize-btn {
+	position: relative;
+	display: inline-block;
+	font-weight: bold;
+	line-height: 1.5;
+	letter-spacing: -.25px;
+	text-transform: capitalize;
+	text-decoration: none;
+	font-style: normal;
+	
+	color: var(--Customize_color);
+	border: 1px solid transparent;
+	border-radius: 30px;
+	background-color: var(--FFFcolor);
+	box-shadow: none;
+	transition: all .3s;
+	z-index: 1;
+}
+@media screen and (max-width: 991px) {
+	a.caption-customize-btn {
+		font-size: 75%;
+		padding: 0.5rem 1rem; /*8px 16px*/
+		padding-right: 2.125rem; /*22px*/
+	}
+}
+@media screen and (min-width: 992px) {
+	a.caption-customize-btn {
+		font-size: 100%;
+		padding: 0.75rem 2rem; /*12px 32px*/
+		padding-right: 2.75rem; /*44px*/
+	}
+}
+a.caption-customize-btn .button-icon {
+	font-size: 75%;
+	line-height: 3.125rem; /*50px*/
+    text-align: center;
+    font-family: FontAwesome;
+	
+	
+	position: absolute;
+	top: 0;
+    left: auto;
+    background-color: var(--Customize_color);
+    color: var(--FFFcolor);    
+    border-radius: 50%;
+    transform: translate3d(0, 0, 0) rotateZ(0);
+    transform-style: preserve-3d;
+    transition: all .5s ease-in-out;
+}
+@media screen and (max-width: 991px) {
+	a.caption-customize-btn .button-icon {
+		content: url("../../../images/banner/caption-arrow-W.svg");
+		right: -15px;
+		width: 2.25rem; /*36px*/
+		height: 2.25rem; /*36px*/
+	}
+}
+@media screen and (min-width: 992px) {
+	a.caption-customize-btn .button-icon {
+		content: url("../../../images/banner/caption-arrow-W.svg");
+		right: -25px;
+		width: 3.125rem; /*50px*/
+		height: 3.125rem; /*50px*/
+	}
+}
+a:focus.caption-customize-btn .button-icon,
+a:hover.caption-customize-btn .button-icon {
+	transform: translate3d(10px, 0, 0) rotateZ(45deg);
+}
+
+.caption-customize-btn .button-wrapper {
+	display: flex;
+	justify-content: center;
+	overflow: hidden;
+}
+
+
+.caption-customize-btn .button-text {
+	position: relative;
+    overflow: hidden;
+	text-decoration: inherit;
+}
+.caption-button:hover .button-text {
+	animation: MoveUpInitial .2s forwards,MoveUpEnd .2s forwards .2s;
+}
+@keyframes MoveUpInitial {
+	0% {
+		transform: translate3d(0, 0, 0);
+	}
+	
+	50% {
+		transform: translate3d(0, -30%, 0);
+	}
+	100% {
+		transform: translate3d(0, -105%, 0);
+	}
+}
+@keyframes MoveUpEnd {
+	0% {
+		transform: translate3d(0, 100%, 0);
+	}
+	
+	100% {
+		transform: translate3d(0, 0, 0);
+	}
+}
+/* ------ caption-button ------------------------------ */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ transform 轉變 TOP / BOTTOM / LEFT / RIGHT --- */
+/* ------ transform-top --------- */
+.transform-top {
+	opacity: 0;
+    transform: translateY(-120px);
+    transition: all 1000ms ease;
+}
+.carousel-item.active .transform-top {
+	opacity: 1;
+	transform: translateY(0);
+}
+/* ------ transform-top --------- */
+
+/* ------ transform-bottom --------- */
+.transform-bottom {
+	opacity: 0;
+    transform: translateY(50px);
+    transition: all 1000ms ease;
+}
+.carousel-item.active .transform-bottom {
+	opacity: 1;
+    transform: translateY(0);
+}
+/* ------ transform-bottom --------- */
+
+/* ------ transform-left --------- */
+.transform-left {
+	opacity: 0;
+    transition: all 1000ms ease;
+    transform: translateX(-200px);
+}   
+.carousel-item.active .transform-left {
+	opacity: 1;
+	transform: translateX(0);
+}
+/* ------ transform-left --------- */
+
+/* ------ transform-right --------- */
+.transform-right {
+	opacity: 0;
+    transition: all 1000ms ease;
+    transform: translateX(200px);
+}
+.carousel-item.active .transform-right {
+	opacity: 1;
+    transform: translateX(0);
+}
+/* ------ transform-right --------- */
+
+/* ------ transform-center --------- */
+.transform-center {
+	opacity: 0;
+    transition: all 1000ms ease;
+    transform: scale(0.9);
+}
+.carousel-item.active .transform-center {
+	opacity: 1;
+	transform: scale(1);
+}
+/* ------ transform-center --------- */
+/* ------ transform 轉變 TOP / BOTTOM / LEFT / RIGHT --- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ transform-delay 延遲秒數 --------------------- */
+.carousel-item.active .transform-delay-1 {
+	transition-delay: 250ms; /*1000ms*/
+}
+.carousel-item.active .transform-delay-2 {
+	transition-delay: 350ms; /*1400ms*/
+}
+.carousel-item.active .transform-delay-3 {
+	transition-delay: 425ms; /*1700ms*/
+}
+.carousel-item.active .transform-delay-4 {
+	transition-delay: 475ms; /*1900ms*/
+}
+.carousel-item.active .transform-delay-5 {
+	transition-delay: 525ms; /*2100ms*/
+}
+.carousel-item.active .transform-delay-6 {
+	transition-delay: 550ms; /*2200ms*/
+}
+/* ------ transform-delay 延遲秒數 --------------------- */
+/* ==================================================== */
+/*=============================================*/
+/* ==   輪播 左邊文字區    ====================== */
+/*=============================================*/
+/* ====================================================== */
+/* =====  首頁 BANNER 輪播區 Carousel_slide_section ======= */
+/* ====================================================== */
+
+
+
+
+
+
+
+
+/* ====================================================== */
+/* =====  首頁 標準頁籤 區 Tabs_section =================== */
+/* ====================================================== */
+.Tabs_section {
+	position: relative;
+	display: block;
+	background-color: transparent;
+	/*background-image: url(images/bg/.....);*/
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center top;
+}
+/* ---------------------------------------------------- */
+.Tabs_section .Mask-DivBox {  
+    text-align: left;
+    background-size: cover;
+	background-repeat: no-repeat;
+	background-position-x: center;
+	background-position-y: top;
+	
+    background-color: transparent;
+	/*background-image: url("../images/news/background-news-image_1920x1281.jpg");*/	
+	background-blend-mode: multiply; 	/* 設置背景混和模式為相乘模式*/
+}
+/*.Tabs_section .Mask-DivBox::before { 
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    background-color: var(--FFFcolor);
+}
+@media screen and (max-width: 1810px) {
+	.Tabs_section .Mask-DivBox::before { 
+		width: 100%;
+	}
+}
+@media screen and (min-width: 1811px) {
+	.Tabs_section .Mask-DivBox::before { 
+        width: calc(79.666667% - 30px);
+	}
+}*/
+/* ---------------------------------------------------- */
+.Tabs_section .customizeBox {  
+    position: relative; 
+	display: block;
+    z-index: 1;
+}
+/* ******************************************************** */
+/* ******************************************************** */
+
+/* ========================================== */
+/* ------ Horizontal 橫向式 TAB -------------- */
+/* ------ ul.nav-tabs + nav-fill ------------ */
+#Horizontal.H-nav-tabs-content-box {
+	display: block;
+	/*margin-bottom: 3rem;*/
+}
+@media screen and (min-width: 320px) and (max-width: 992px) {
+	#Horizontal.H-nav-tabs-content-box {
+		display: block;
+		/*margin-bottom: 1.5rem;*/
+	}
+}
+/* ---------------------------------------------------- */
+#Horizontal .nav-tabs-list ul.nav-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	padding-left: 0;
+	margin-bottom: 0;
+	list-style: none;
+	
+	width: 100%; 
+    margin-bottom: 2rem;
+	border-bottom: none;
+}
+/* ------ ul.nav-tabs + nav-fill --------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ ul.nav-tabs li ----------------------- */
+#Horizontal .nav-tabs-list ul.nav-tabs.nav-fill li.nav-item {
+    /*flex: 1 1 auto;*/
+	flex: 1 0 0%;
+    text-align: center;
+}
+@media screen and (min-width: 320px) and (max-width: 992px) {
+	#Horizontal .nav-tabs-list ul.nav-tabs.nav-fill li.nav-item {
+		flex: none;
+		text-align: center;
+	}
+}
+#Horizontal .nav-tabs-list ul.nav-tabs li {
+	float: left;
+	margin-left: 0px;
+    margin-right: 2.5px;
+    border-radius: 4px;
+	background-color: transparent;
+	
+	/* ====================================== */
+	/* =col4 x 2個 */
+    /*width: calc((100% - (2.5px * 4)) / 2);*/
+	
+	/* =col4 x 3個 */
+    /*width: calc((100% - (2.5px * 6)) / 3);*/
+	
+	/* =col3 x 4個 */
+    /*width: calc((100% - (2.5px * 8)) / 4);*/
+	
+	/* =col-? x 5個 */
+    /*width: calc((100% - (2.5px * 10)) / 5);*/ 
+	
+	/* =col2 x 5個 */
+    /*width: calc((100% - (2.5px * 12)) / 6);*/  
+	/* ====================================== */
+}
+#Horizontal .nav-tabs-list ul.nav-tabs li:first-child {
+	margin-left: 0
+}
+#Horizontal .nav-tabs-list ul.nav-tabs li:last-child {
+	margin-right: 0
+}
+@media screen and (min-width: 320px) and (max-width: 992px) {
+	#Horizontal .nav-tabs-list ul.nav-tabs li {
+		display: flex;
+		align-content: center;
+		margin-left: 0px;
+        margin-right: 2.5px;
+		margin-bottom: 5px;
+		
+		/* =col4 x 2個 */
+        width: calc((100% - (2.5px * 4)) / 2);
+        
+		min-height: 1px;
+	}
+}
+/* ------ ul.nav-tabs li ----------------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ ul.nav-tabs .nav-link ---------------- */
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link,
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link {	
+	font-size: 106.25%;
+	font-weight: 700;
+	text-transform: capitalize;
+	color: var(--blackcolor);
+	text-decoration: none;
+	min-width: auto;
+	
+	padding: 5px 5px;
+	padding: 2rem 1rem 2rem 1rem;
+	border-radius: 0px;
+	/*border: 1px solid var(--Customize_Btn_color);*/
+	/*background-color: transparent;	*/
+	margin-bottom: calc(-1 * 1px);
+	transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out;
+	transition: none;
+	
+	position: relative;
+	display: block;
+	border: 1px solid var(--G777color);
+	background-color: transparent;
+	overflow: hidden;	
+	
+	height: auto;
+	min-height: 220px;
+	display: flex;
+}
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link:hover {
+	color: var(--FFFcolor);
+	background-color: var(--Customize_HRcolor);
+}
+/* : BEFORE */
+/*#Horizontal .nav-tabs-list ul.nav-tabs .nav-link::before {
+	content: "";
+	position: absolute;
+	z-index: -1;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	color: var(--FFFcolor);
+	border-radius: 0;
+	background-color: var(--Customize_Btn_color);
+	-webkit-transform: scale(0);
+	transform: scale(0);
+	-webkit-transition-property: transform;
+	transition-property: transform;
+	-webkit-transition-duration: 0.3s;
+	transition-duration: 0.3s;
+	-webkit-transition-timing-function: ease-out;
+	transition-timing-function: ease-out;
+}*/
+
+/* a : HOVER */
+/*#Horizontal .nav-tabs-list ul.nav-tabs .nav-link:hover::before {
+	-webkit-transform: scale(1.15);
+	transform: scale(1.15);
+}*/
+/* a : HOVER */
+/* : BEFORE */
+
+
+/* a : ACTIVE */
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link.active {
+	color: var(--Customize_ACcolor);
+}
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link:hover.active {
+	color: var(--FFFcolor);
+}
+/* a : ACTIVE */
+/* ------ ul.nav-tabs .nav-link ------------- */
+
+/* ------ tab-content ----------------------- */
+#Horizontal .tab-content {
+	width: calc(100% - 0px);	
+	height: auto;
+}
+/* ------ tab-content ----------------------- */
+/* ------ Horizontal 橫向式 TAB -------------- */
+/* ========================================== */
+
+/* ******************************************************** */
+/* ******************************************************** */
+
+/* ========================================== */
+/* ------ Vertical 垂直式 TAB ---------------- */
+/* ------ ul.nav-tabs ----------------------- */
+#Vertical.V-nav-tabs-content-box {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	/*-ms-flex-wrap: wrap;
+	flex-wrap: wrap;*/
+	
+	margin-bottom: 3rem;
+}
+@media screen and (min-width: 320px) and (max-width: 992px) {
+	#Vertical.V-nav-tabs-content-box {
+		display: block;
+		margin-bottom: 1.5rem;
+		padding-right: 15px;
+  		padding-left: 15px;
+	}
+}
+/*-------------------------------------------*/
+#Vertical .nav-tabs-list ul.nav-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	padding-left: 0;
+	margin-bottom: 0;
+	list-style: none;
+	
+	flex-direction: column;
+	width: 100%; 
+    margin-bottom: 1rem;
+	border-bottom: none;
+}
+@media screen and (min-width: 320px) and (max-width: 992px) {
+	#Vertical .nav-tabs-list ul.nav-tabs {
+		flex-direction: row;
+	}
+}
+/* ------ ul.nav-tabs -------------------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ ul.nav-tabs li ----------------------- */
+#Vertical .nav-tabs-list ul.nav-tabs li.nav-item {
+    /*flex: 1 1 auto;*/
+	flex: 1 0 0%;
+    text-align: center;
+}
+@media screen and (min-width: 320px) and (max-width: 992px) {
+	#Vertical .nav-tabs-list ul.nav-tabs li.nav-item {
+		flex: none;
+		text-align: center;
+	}
+}
+#Vertical .nav-tabs-list ul.nav-tabs li {
+	float: left;
+	margin-top: 0px;
+    margin-right: 0px;
+	margin-bottom: 32px;
+    margin-left: 0px;
+    border-radius: 4px;
+	background-color: transparent;
+	
+	/* ====================================== */
+	/* =col4 x 2個 */
+    /*width: calc((100% - (2.5px * 4)) / 2);*/
+	
+	/* =col4 x 3個 */
+    /*width: calc((100% - (2.5px * 6)) / 3);*/
+	
+	/* =col3 x 4個 */
+    /*width: calc((100% - (2.5px * 8)) / 4);*/
+	
+	/* =col-? x 5個 */
+    /*width: calc((100% - (2.5px * 10)) / 5);*/ 
+	
+	/* =col2 x 5個 */
+    /*width: calc((100% - (2.5px * 12)) / 6);*/  
+	/* ====================================== */
+}
+#Vertical .nav-tabs-list ul.nav-tabs li:first-child {}
+#Vertical .nav-tabs-list ul.nav-tabs li:last-child {}
+@media screen and (min-width: 320px) and (max-width: 992px) {
+	#Vertical .nav-tabs-list ul.nav-tabs li {
+		display: flex;
+		align-content: center;
+		margin-left: 0px;
+        margin-right: 2.5px;
+		margin-bottom: 5px;
+		
+		/* =col4 x 2個 */
+        width: calc((100% - (2.5px * 4)) / 2);
+        
+		min-height: 1px;
+	}
+}
+/* ------ ul.nav-tabs li ----------------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ ul.nav-tabs .nav-link ---------------- */
+#Vertical .nav-tabs-list ul.nav-tabs .nav-link,
+#Vertical .nav-tabs-list ul.nav-tabs .nav-link {	
+	font-size: 100%;
+	font-size: 106.25%;	
+	font-weight: 700;
+	text-transform: capitalize;
+	color: var(--blackcolor);
+	text-decoration: none;	
+	padding: 1rem 2rem 1rem 2rem;
+	
+	border-radius: 0px;
+	/*border: 1px solid var(--Customize_Btn_color);*/
+	/*background-color: transparent;*/
+	margin-bottom: calc(-1 * 1px);
+	transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out;
+	transition: none;
+	
+	position: relative;
+	display: block;
+	border: 1px solid var(--G777color);
+	background-color: var(--FFFcolor);	
+	overflow: hidden;	
+}
+#Vertical .nav-tabs-list ul.nav-tabs .nav-link,
+#Vertical .nav-tabs-list ul.nav-tabs .nav-link {
+	min-width: auto;
+	max-width: 100%;
+	width: 12.5rem;
+}
+
+#Vertical .nav-tabs-list ul.nav-tabs .nav-link:hover {
+	color: var(--FFFcolor);
+	background-color: var(--Customize_HRcolor);
+}
+
+@media screen and (min-width: 320px) and (max-width: 992px) {
+	#Vertical .nav-tabs-list ul.nav-tabs .nav-link {
+		font-size: 106.25%;
+		width: 100%;
+	}
+}
+
+/* : BEFORE */
+/*#Vertical .nav-tabs-list ul.nav-tabs .nav-link::before {
+	content: "";
+	position: absolute;
+	z-index: -1;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	color: var(--FFFcolor);
+	border-radius: 0;
+	background-color: var(--Customize_Btn_color);
+	-webkit-transform: scale(0);
+	transform: scale(0);
+	-webkit-transition-property: transform;
+	transition-property: transform;
+	-webkit-transition-duration: 0.3s;
+	transition-duration: 0.3s;
+	-webkit-transition-timing-function: ease-out;
+	transition-timing-function: ease-out;
+}*/
+/* a : HOVER */
+/*#Vertical .nav-tabs-list ul.nav-tabs .nav-link:hover::before {
+	-webkit-transform: scale(1.15);
+	transform: scale(1.15);
+}*/
+/* a : HOVER */
+/* : BEFORE */
+
+
+/* a : ACTIVE */
+#Vertical .nav-tabs-list ul.nav-tabs .nav-link.active {
+	color: var(--Customize_ACcolor);
+}
+#Vertical .nav-tabs-list ul.nav-tabs .nav-link:hover.active {
+	color: var(--FFFcolor);
+}
+/* a : ACTIVE */
+/* ------ ul.nav-tabs .nav-link ------------- */
+
+/* ------ tab-content ----------------------- */
+#Vertical .tab-content {
+	width: calc(100% - 0px);
+  	margin-left: 8.33333333%;
+	
+	height: 300px;
+	border: 1px solid var(--G777color)
+}
+@media screen and (min-width: 992px) and (max-width: 1200px) {
+	#Vertical .tab-content {
+		margin-left: 35px;
+	}
+}
+@media screen and (max-width: 991px) {
+	#Vertical .tab-content {
+		margin-left: 0;
+		width: 100%;
+	}
+}
+/* ------ tab-content ----------------------- */
+/* ------ Vertical 垂直式 TAB ---------------- */
+/* ========================================== */
+
+/* ******************************************************** */
+/* ******************************************************** */
+
+/* ====================================================== */
+/* =====  頁籤內容區 ALL ================================== */
+
+/* == ※※※※※※※※※ == JESS 自訂設定 == ※※※※※※※※※ == */
+#Horizontal .nav-tabs-list ul li.nav-item {
+	flex: auto !important;
+    text-align: center;
+	/* ====================================== */
+	/* =col4 x 2個 */
+    /*width: calc((100% - (2.5px * 4)) / 2);*/
+	
+	/* =col4 x 3個 */
+    /*width: calc((100% - (2.5px * 6)) / 3);*/
+	
+	/* =col3 x 4個 */
+    /*width: calc((100% - (2.5px * 8)) / 4);*/
+	
+	/* =col-? x 5個 */
+    /*width: calc((100% - (2.5px * 10)) / 5);*/ 
+	
+	/* =col2 x 6個 */
+    /*width: calc((100% - (2.5px * 12)) / 6);*/
+	
+	/* =col2 x 7個 */
+    /*width: calc((100% - (2.5px * 14)) / 7);*/ 
+	/* ====================================== */
+	
+	padding: 10px;
+	margin-left: 0;
+	margin-right: 0;
+	border-radius: 0;
+	border: 1px solid #fce2c2;
+	background-color: #fffaf3;
+}
+@media screen and (max-width: 991px) {
+	#Horizontal .nav-tabs-list ul li.nav-item {
+		/* =col4 x 3個 */
+    	width: calc((100% - (2.5px * 6)) / 3);
+	}
+}
+@media screen and (min-width: 992px) {
+	#Horizontal .nav-tabs-list ul li.nav-item {
+		/* =col2 x 6個 */
+		width: calc((100% - (2.5px * 12)) / 6);
+	}
+}
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link {	
+	font-size: clamp(100%, 3.25vw, 106.25%);
+	font-weight: 700;
+	border-radius: 24px;
+	border: none;
+}
+@media screen and (max-width: 991px) {
+	#Horizontal .nav-tabs-list ul.nav-tabs .nav-link {
+		padding: 1rem 1rem 1rem 1rem;
+		height: auto;
+		min-height: auto;
+		min-height: 185px;
+	}
+}
+@media screen and (min-width: 992px) {
+	#Horizontal .nav-tabs-list ul.nav-tabs .nav-link {
+		padding: 2rem 1.25rem 2rem 1.25rem;
+		height: 100%;
+		min-height: 205px;
+	}
+}
+/* a : HOVER */
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link:hover {
+  	background-color: var(--Customize_HRcolor);
+}
+/* a : HOVER */
+
+/* a : ACTIVE */
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link.active,
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link:active {
+  	background-color: var(--Customize_HRcolor) !important;
+}
+/* a : ACTIVE */
+
+/* a : FOCUS */
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link:focus,
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link:focus-visible {
+  	background-color: var(--Customize_HRcolor) !important;
+	/*box-shadow: none;*/
+}
+/* a : FOCUS */
+/* == ※※※※※※※※※ == JESS 自訂設定 == ※※※※※※※※※ == */
+/* ---------------------------------------------------- */
+
+/* ---------------------------------------------------- */
+/* =====  頁籤 TAB UL LI 連結按鈕 內容 =================== */
+#Horizontal .nav-tabs-list .nav-link .icon_wrapper {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: column;
+	-ms-flex-wrap: nowrap;
+	flex-wrap: nowrap;
+	justify-content: center;
+	align-items: center;
+	
+	padding: 0 0rem;
+	width: 100%;	
+	background-color: transparent;
+}
+@media screen and (max-width: 575px) {
+	#Horizontal .nav-tabs-list .nav-link .icon_wrapper {
+		padding: 0;
+	}
+}
+/* ---------------------------------------------------- */
+#Horizontal .nav-tabs-list .nav-link .icon_area {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+}
+/* ---------------------------------------------------- */
+#Horizontal .nav-tabs-list .nav-link .icon_area .icon_image {
+	width: 76px;
+	height: 76px;
+}
+/* ---------------------------------------------------- */
+#Horizontal .nav-tabs-list .nav-link .icon_area .icon_image img {
+	border: 0;
+}
+/* ---------------------------------------------------- */
+#Horizontal .nav-tabs-list .nav-link .icon_area .icon_image img.ii01_img {
+	display: block;
+}
+/* HOVER Icon IMG */
+/* #Horizontal .nav-tabs-list .nav-link:hover .icon_area .icon_image img.ii01_img {
+	display: none;
+} */
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link:hover .icon_image img{
+	filter: brightness(0) invert(1);
+}
+/* HOVER Icon IMG */
+/* ---------------------------------------------------- */
+/* ACTIVE Icon IMG */
+/* #Horizontal .nav-tabs-list .nav-link:focus .icon_area .icon_image img.ii01_img,
+#Horizontal .nav-tabs-list .nav-link:active .icon_area .icon_image img.ii01_img,
+#Horizontal .nav-tabs-list .nav-link.active .icon_area .icon_image img.ii01_img {
+	display: none;
+} */
+#Horizontal .nav-tabs-list .nav-link:focus .icon_area .icon_image img.ii01_img,
+#Horizontal .nav-tabs-list .nav-link:active .icon_area .icon_image img.ii01_img,
+#Horizontal .nav-tabs-list .nav-link.active .icon_area .icon_image img.ii01_img{
+	filter: brightness(0) invert(1);
+}
+/* ACTIVE Icon IMG */
+/* ---------------------------------------------------- */
+
+/* ---------------------------------------------------- */
+#Horizontal .nav-tabs-list .nav-link .icon_area .icon_image img.ii02_img {
+	display: none;
+}
+/* HOVER Icon IMG */
+#Horizontal .nav-tabs-list .nav-link:hover .icon_area .icon_image img.ii02_img {
+	display: block;
+}
+/* HOVER Icon IMG */
+/* ---------------------------------------------------- */
+/* ACTIVE Icon IMG */
+#Horizontal .nav-tabs-list .nav-link:focus .icon_area .icon_image img.ii02_img,
+#Horizontal .nav-tabs-list .nav-link:active .icon_area .icon_image img.ii02_img,
+#Horizontal .nav-tabs-list .nav-link.active .icon_area .icon_image img.ii02_img {
+	display: block;
+}
+/* ACTIVE Icon IMG */
+/* ---------------------------------------------------- */
+#Horizontal .nav-tabs-list .nav-link .tit_area {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: column;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	padding: 0rem;
+}
+/* ---------------------------------------------------- */
+#Horizontal .nav-tabs-list .nav-link .tit_area .icons_title {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	font-size: clamp(112.5%, 3.25vw, 118.75%);
+	font-weight: bold;
+	line-height: 1.25;
+	color: var(--blackcolor);
+	text-align: center;
+	margin: 0;
+	
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	/*max-height: 54px;*/
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+
+#Horizontal .nav-tabs-list .nav-link .tit_area .icons_small {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	font-size: clamp(75%, 3.25vw, 87.5%);
+	font-weight: normal;
+	line-height: 1.25;
+	color: var(--blackcolor);
+	text-align: center;
+	margin: 0;
+}
+@media screen and (max-width: 575px) {
+	#Horizontal .nav-tabs-list .nav-link .tit_area .icons_small {
+		margin-top: 0.25rem;
+	}
+}
+@media screen and (min-width: 576px) {
+	#Horizontal .nav-tabs-list .nav-link .tit_area .icons_small {
+		margin-top: 0.5rem;
+	}
+}
+/* a : HOVER / ACTIVE / FOCUS */
+#Horizontal .nav-tabs-list .nav-link:hover .tit_area .icons_title,
+#Horizontal .nav-tabs-list .nav-link:hover .tit_area .icons_small,
+
+#Horizontal .nav-tabs-list .nav-link.active .tit_area .icons_title,
+#Horizontal .nav-tabs-list .nav-link:active .tit_area .icons_title,
+
+#Horizontal .nav-tabs-list .nav-link.active .tit_area .icons_small,
+#Horizontal .nav-tabs-list .nav-link:active .tit_area .icons_small,
+
+#Horizontal .nav-tabs-list .nav-link:focus .tit_area .icons_title,
+#Horizontal .nav-tabs-list .nav-link:focus .tit_area .icons_small {
+  	color: var(--FFFcolor);
+}
+/* a : HOVER / ACTIVE / FOCUS */
+
+/* =====  頁籤 TAB UL LI 連結按鈕 內容 =================== */
+/* ---------------------------------------------------- */
+
+/* ---------------------------------------------------- */
+#Horizontal .nav-tabs-list ul.nav-tabs {
+	margin: 0;
+}
+
+#Horizontal .tab-content {
+	width: calc(100% - 0px);	
+	height: auto;
+}
+/* ---------------------------------------------------- */
+
+/* ---------------------------------------------------- */
+/* =====  頁籤-第二層 切換區 內容 start  ===== */
+.Second-Level-DivBox {
+	position: relative;
+	display: block;
+	padding: 0;
+	margin: 0;
+	border-radius: 0;
+	border: 0;
+	background-color: transparent;
+}
+/* ---------------------------------------------------- */
+.Second-Level-DivBox .Second_BG_area {
+	padding-top: 2.5rem;
+	padding-right: 0rem;
+	padding-bottom: 0.375rem;
+	padding-left: 0rem;
+	background-color: #fffaf3;
+	border-bottom: 1px solid #fce2c2;
+}
+/* ---------------------------------------------------- */
+.Second-Level-DivBox .three_BG_display_area {
+	/*padding: 5rem 0rem;*/
+	background-color: var(--FFFcolor);
+}
+@media screen and (max-width: 575px) {
+	.Second-Level-DivBox .three_BG_display_area {
+		padding: 2.5rem 0rem 0rem 0rem;
+	}
+}
+@media screen and (min-width: 576px) {
+	.Second-Level-DivBox .three_BG_display_area {
+		padding: 5rem 0rem 0rem 0rem;
+	}
+}
+/* ---------------------------------------------------- */
+
+/* ---------------------------------------------------- */
+/* 第二層 ITEM 項目按鍵 */
+.Second-Level-DivBox ul.second-level-nav {
+	border-bottom: none;
+}
+/* ---------------------------------------------------- */
+.Second-Level-DivBox ul.second-level-nav li.nav-item {
+    float: left;
+    /*width: calc((100% - (0px * 4)) / 2);*/    /* =col4 x 2個 */
+    width: calc((100% - (0px * 6)) / 3);    /* =col4 x 3個 */
+    /*width: calc((100% - (0px * 8)) / 4);*/        /* =col3 x 4個 */
+    /*width: calc((100% - (0px * 10)) / 5);*/        /* =col-? x 5個 */
+    /*width: calc((100% - (0px * 12)) / 6);*/        /* =col2 x 5個 */
+    padding-left: 15px;
+    padding-right: 15px;
+    
+    border-radius: 4px;	
+}
+@media screen and (min-width: 320px) and (max-width: 767px) {
+    .Second-Level-DivBox ul.second-level-nav li.nav-item {
+        display: flex;
+        align-content: center;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        width: calc((100% - (0px * 4)) / 2);        
+        min-height: 1px;
+    }
+}
+/* ---------------------------------------------------- */
+.Second-Level-DivBox ul.second-level-nav .nav-link {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;	
+
+	text-align: left;
+	color: var(--blackcolor);	
+	border-radius: 0.5rem;	
+	border: 1px solid #fce2c2;
+	background-color: var(--FFFcolor);
+	z-index: 0;
+	overflow: hidden;
+	transition: all 0.2s ease;
+}
+@media screen and (max-width: 575px) {
+	.Second-Level-DivBox ul.second-level-nav .nav-link {
+		padding: 0.25rem 0.25rem;
+		margin-bottom: 1rem;
+	}
+}
+@media screen and (min-width: 576px) {
+	.Second-Level-DivBox ul.second-level-nav .nav-link {
+		padding: 0.25rem 1rem;
+		margin-bottom: 2rem;
+	}
+}
+/* ---------------------------------------------------- */
+.Second-Level-DivBox ul.second-level-nav .nav-link::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 66px 68px 0 0;
+	border-color: #fce2c2 transparent transparent transparent;
+	transition: all 0.3s ease;
+}
+
+/* a : HOVER / ACTIVE */
+.Second-Level-DivBox ul.second-level-nav .nav-link:hover,
+.Second-Level-DivBox ul.second-level-nav .nav-link.active {
+	color: var(--FFFcolor);
+	border-color: var(--Customize_color);
+	background-color: var(--Customize_color);	
+	box-shadow: 0 2px 8px rgba(160, 120, 66, 0.15);
+}
+/* a : HOVER / ACTIVE */
+
+/* a : FOCUS */
+.Second-Level-DivBox ul.second-level-nav .nav-link:focus,
+.Second-Level-DivBox ul.second-level-nav .nav-link:focus-visible {
+    text-decoration: none;    
+	outline: thin dotted;
+    /*outline: 2px solid var(--a_focusbordercolor);*/
+	outline: 2px dashed var(--a_focusbordercolor) !important;
+	outline-offset: 0px;    
+    color: var(--blackcolor) !important;
+	background-color: var(--a_focuscolor2) !important;
+    /*box-shadow: none;*/
+}
+/* a : FOCUS */
+
+/* ---------------------------------------------------- */
+.Second-Level-DivBox ul.second-level-nav .nav-link .d-itemsBox {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;	
+	width: 100%;
+	z-index: 1;
+	padding-right: 20px;
+}
+/* ---------------------------------------------------- */
+
+/* ---------------------------------------------------- */
+/* 第二層 ITEM 項目按鍵 */
+.Second-Level-DivBox ul.second-level-nav .nav-link .d-itemsBox .tab-number {
+	position: relative;
+	top: 0;
+	left: 0;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	font-family:"Arial", "sans-serif";
+	color: #baa386;
+	width: 56px;
+	height: 56px;
+	font-size: clamp(187.5%, 3.25vw, 262.5%);
+	line-height: 1;
+}
+.Second-Level-DivBox ul.second-level-nav .nav-link .d-itemsBox .Titletxt-bold {
+	font-size: clamp(106.25%, 2.25vw, 112.5%);
+}
+/* 第二層 ITEM 項目按鍵 */
+
+/* 第二層 ITEM 項目按鍵 箭頭 */
+.card_arrow {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	top: 50%;
+	right: 1rem;
+	transform: translate(0%, -50%);
+	
+	width: var(--Customize_size_20);
+	height: var(--Customize_size_20);
+	border-radius: var(--Customize_size_20);
+	background-color: var(--Customize_color);
+}
+.card_arrow {
+    color: var(--FFFcolor);
+	border: 1px solid var(--Customize_color);
+}
+.card_arrow i {
+	position: relative;
+	top: 1px;
+	left: 1px;
+    font-size: 75%;
+}
+/* a : HOVER / ACTIVE */
+.Second-Level-DivBox ul.second-level-nav .nav-link:hover .card_arrow,
+.Second-Level-DivBox ul.second-level-nav .nav-link.active .card_arrow {
+	color: var(--Customize_color);
+	border-color: var(--FFFcolor);
+	background-color: var(--FFFcolor);
+}
+/* a : HOVER / ACTIVE */
+/* 第二層 ITEM 項目按鍵 箭頭 */
+/* ---------------------------------------------------- */
+/* =====  頁籤-第二層 切換區 內容 end  ===== */
+/* ---------------------------------------------------- */
+
+/* ●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●● */
+
+/* ---------------------------------------------------- */
+/* =====  第二層頁籤切換內容區 three_BG_display_area  ==== */
+.News_mainDIV ul.ListNews {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+.News_mainDIV ul.ListNews li.News_item {
+    display: inline-block;    
+    margin-bottom: 30px;	
+}
+@media screen and (max-width: 991px) {	
+    .News_mainDIV ul.ListNews li.News_item {
+        margin-bottom: 1rem;
+		padding: 0 0rem;
+    }
+}
+@media screen and (min-width: 992px) {	
+    .News_mainDIV ul.ListNews li.News_item {
+        margin-bottom: 1.5rem;
+		padding: 0 1.5rem;
+    }
+}
+/* ---------------------------------------------------- */
+.News_mainDIV a .item-inner {
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    
+    padding: 0 0 1rem 0;
+	border-bottom: 1px solid #CCCCCC;
+	
+	column-gap: 2.5rem;
+} 
+@media screen and (max-width: 575px) {	
+    .News_mainDIV a .item-inner {
+        column-gap: 1.75rem;
+    }
+}
+@media screen and (min-width: 576px) {	
+    .News_mainDIV a .item-inner {
+        column-gap: 2.5rem;
+    }
+}
+/* ---------------------------------------------------- */
+.News_mainDIV a .item-inner .leftBox {
+	position: relative;
+	width: auto;
+	height: 100%;
+}
+/* ---------------------------------------------------- */
+/* -- 00/00 日期 -- */
+.news-date-box {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: column;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+
+	position: relative;
+	width: 100%;
+	height: 100%;  
+}
+/* ---------------------------------------------------- */
+.news-date-box .year,
+.news-date-box .mm-dd {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	font-family:"Arial", "sans-serif";
+	color: var(--blackcolor);
+}
+
+.news-date-box .year {
+	justify-content: flex-start;
+	align-items: center;
+	font-size: clamp(106.25%, 3.25vw, 112.5%);
+	font-weight: normal;
+}
+
+.news-date-box .mm-dd {
+	justify-content: flex-end;
+	align-items: center;
+	font-size: clamp(300%, 3.25vw, 312.5%);
+	font-weight: bold;
+	line-height: 1.25;
+}
+/* -- 00/00 日期 -- */
+/* ---------------------------------------------------- */
+
+/* ---------------------------------------------------- */
+.News_mainDIV a .item-inner .rightBox {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+}
+/* ---------------------------------------------------- */
+.News_mainDIV a .item-inner .card_catDiv {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+@media screen and (min-width: 320px) and (max-width: 400px) {
+	.News_mainDIV a .item-inner .card_catDiv {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+
+.News_mainDIV a .item-inner .card_catDiv .a-left {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+}
+/* ----------------------------------------------- */
+
+/* ====================================================== */
+/* =====  共用 標準 置頂標籤 CSS ( 以下 )  ================= */
+/* ====================================================== */
+.News_mainDIV .CustomState {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+	
+	position: relative;
+	display: inline-flex;
+}
+@media screen and (max-width: 767px) {
+	.News_mainDIV .CustomState  {
+		margin-left: 0.5rem;
+	}
+}
+
+.News_mainDIV .CustomState div.icon-small,
+.News_mainDIV .CustomState span.label {
+	font-size: 68.75%;
+	line-height: 1.25;
+	font-weight: 900;	
+	/*width: 100%;*/
+	/*width: 80px;*/
+	text-align: center;
+	padding: var(--bs-label-padding-x) var(--bs-label-padding-y);;
+	border-radius: 4px;
+}
+@media screen and (max-width: 767px) {
+	.News_mainDIV .CustomState div.icon-small,
+	.News_mainDIV .CustomState span.label {
+		margin-left: 0.25rem;
+		margin-right: 0.25rem;
+	}
+}
+@media screen and (min-width: 768px) {
+	.News_mainDIV .CustomState div.icon-small,
+	.News_mainDIV .CustomState span.label {
+		margin-left: 0.5rem;
+		margin-right: 0.5rem;
+	}
+}
+
+/* 置頂 */
+.News_mainDIV .CustomState div:nth-child(1).icon-small,
+.News_mainDIV span:nth-child(1).label {
+	margin-left: 0rem;
+}
+/* 熱門 */
+.News_mainDIV .CustomState div:nth-child(2).icon-small,
+.News_mainDIV span:nth-child(2).label {
+	margin-left: 0rem;
+}
+/* 最新 */
+.News_mainDIV .CustomState div:nth-child(3).icon-small,
+.News_mainDIV span:nth-child(3).label {
+	margin-left: 0rem;
+}
+
+/* ==================================================== */
+/* ------ 標籤顏色 ------------------------------------- */
+.News_mainDIV .CustomState .icon-small.top-bg,
+.News_mainDIV span.label.label-success {
+	color: var(--FFFcolor);
+	background-color: #004aa5;
+}
+
+
+.News_mainDIV .CustomState .icon-small.hot-bg,
+.News_mainDIV span.label.label-danger {
+	color: var(--FFFcolor);
+	background-color: #ce1800;
+}
+
+.News_mainDIV .CustomState .icon-small.new-bg,
+.News_mainDIV span.label.label-warning {
+	color: var(--blackcolor);
+	background-color: #fda601;
+}
+
+.News_mainDIV .CustomState .icon-small.default-bg,
+.News_mainDIV span.label.label-default {
+	color: var(--FFFcolor);
+	background-color: #5e5e5e;
+}
+
+@media screen and (max-width: 768px) {
+	/*
+	.News_mainDIV .table-rwd td:nth-of-type(2)::before,
+	.News_mainDIV td:nth-of-type(3)::before {
+		/* 最重要的就是這串 *
+		/*content: none; 
+	}
+	*/
+}
+/* ------ 標籤顏色 ------------------------------------- */
+/* ==================================================== */
+/* ====================================================== */
+/* =====  共用 標準 置頂標籤 CSS ( 以上 )  ================= */
+/* ====================================================== */
+
+/* ====================================================== */
+/* =====  自訂 板樣 類別 + 標題 + 箭頭 CSS ( 以下 )  ======== */
+/* -- 類別 -- */
+.News_mainDIV a .item-inner .card_cat {
+    text-align: right
+}
+/* ---------------------------------------------------- */
+.News_mainDIV a .item-inner .card_cat_link {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    color: var(--blackcolor);
+    /*font-size: 87.5%;*/
+    font-weight: 600;
+    padding: 0rem;
+	border: none;
+    border-radius: 0;
+    
+    transition-duration: .3s;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1);
+}
+@media screen and (min-width: 320px) and (max-width: 991px) {
+	.News_mainDIV a .item-inner .card_cat_link {
+		/*font-size: 81.25%;*/
+		padding: 0rem;
+	}
+}
+
+.News_mainDIV a .item-inner .card_cat_link .cat_title {
+	font-size: clamp(87.5%, 3.25vw, 93.75%);
+	color: #96662a;
+}
+
+.News_mainDIV a .item-inner .card_cat_link .cat_title::before {
+	float: left;
+	color: #96662a;
+	content: "│";
+	margin: 0 10px;
+}
+/* -- 類別 -- */
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+/* -- 標題 -- */
+.News_mainDIV a .item-inner .card_titleDiv { 
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    
+	/*padding-right: 6rem;*/
+    margin-top: 0.5rem;
+}
+/*@media screen and (min-width: 320px) and (max-width: 991px) {
+	.News_mainDIV a.item-inner .card_titleDiv { 
+		padding-right: 3rem;
+	}
+}*/
+/* ---------------------------------------------------- */
+.News_mainDIV a .item-inner .card_title {
+	font-size: clamp(100%, 2.25vw, 106.25%);
+    color: var(--blackcolor);
+    font-weight: bold;
+    display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 52px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+ 
+    transition-duration: .3s;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+@media screen and (min-width: 320px) and (max-width: 991px) {	
+    .News_mainDIV a .item-inner .card_title {
+        margin-right: 0px;
+    }
+}
+/*@media screen and (max-width: 575px) {
+	.News_mainDIV a.item-inner .card_title {
+		font-size: 100%;
+	}
+}
+@media screen and (min-width: 576px) {
+	.News_mainDIV a.item-inner .card_title {
+		font-size: 106.25%;
+	}
+}*/
+.News_mainDIV a .item-inner:hover .card_title,
+.News_mainDIV a .item-inner:focus .card_title,
+.News_mainDIV a .item-inner:active .card_title {
+    color: var(--Customize_TXTHRcolor);
+}
+/* ---------------------------------------------------- */
+.News_mainDIV a .item-inner .card_introduction {
+    font-size: 87.5%;
+    color: var(--G666color);
+    font-weight: normal;
+    display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 1;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 25px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+ 
+    transition-duration: .3s;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+/* -- 標題 -- */
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+/* -- 標準時間 -- */
+.News_mainDIV a .item-inner .card_time {
+    display: inline-block;
+    color: var(--G777color);
+    font-weight: 400;
+    font-size: 87.5%;
+	margin-top: 0.5rem;
+}
+/* -- 標準時間 -- */
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+/* -- 箭頭 -- */
+.News_mainDIV a .item-inner .link-arrow {
+	position: absolute;
+	top: 50%;
+	right: -15px;
+	transform: translate(-50%, -50%);
+	
+	display: grid;
+	place-content: center;
+	flex-shrink: 0;
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_24);
+	aspect-ratio: 1;
+	border-radius: 12px;
+
+	border: 1px solid var(--Customize_Btn_color);;
+	background-color: var(--Customize_Btn_color);;
+	transition: all .4s ease-out;
+}
+.News_mainDIV a:hover.item-inner .link-arrow {	
+	border: 1px solid var(--Customize_Btn_HRcolor);
+	background-color: var(--Customize_Btn_HRcolor);
+	background-color: transparent;
+}
+
+.News_mainDIV a .item-inner .link-arrow i {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	font-size: small;
+	font-weight: normal;
+	color: var(--FFFcolor);
+	margin-top: 0.125rem;
+	width: var(--Customize_size_16);
+	height: var(--Customize_size_16);
+	transition: all .4s ease-out;
+}
+.News_mainDIV a:hover.item-inner .link-arrow i {
+	color: var(--Customize_color);
+	animation: news_arrow .4s forwards;
+}
+@keyframes news_arrow {
+	0%, 100% {
+	  translate: 0 0;
+	  opacity: 1;
+	}
+	30% {
+	  translate: 50% 0;
+	  opacity: 0;
+	}
+	60% {
+	  translate: -50% 0;
+	  opacity: 0;
+	}
+}
+/* -- 箭頭 -- */
+/* =====  自訂 板樣 類別 + 標題 + 箭頭 CSS ( 以上 )  ======== */
+
+
+/* =====  第二層頁籤切換內容區 three_BG_display_area  ==== */
+/* ---------------------------------------------------- */
+
+/* ●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●● */
+
+/* =====  頁籤內容區 ALL ================================== */
+/* ====================================================== */
+
+/* ====================================================== */
+/* =====  首頁 標準頁籤 區 Tabs_section =================== */
+/* ====================================================== */
+
+
+
+/* ====================================================== */
+/* =====  首頁 專區連結 區 SpecialZone_section ============ */
+/* ====================================================== */
+.SpecialZone_section {
+    position: relative;
+	display: block;
+	background-color: transparent;
+	/*background-image: url(images/bg/.....);*/
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center top;
+}
+
+.SpecialZone_section .Mask-DivBox {
+	position: relative;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+	background-attachment: fixed;
+	width: 100%;
+	margin: 0 auto;
+}
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+/* 主卡片容器 */
+.SpecialZone_section .SZ_card {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	/*height: 420px;*/ /* 可依需求調整高度 */
+	/*aspect-ratio: 16/6.40625;*/
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	border-radius: 0; /* 原圖的大圓角 */
+
+	overflow: hidden;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+@media screen and (max-width: 767px) {
+	.SpecialZone_section .SZ_card {
+		/*height: 320px;*/
+		aspect-ratio: 16/8.40625;
+		padding: 0 15%;
+		margin-bottom: 1rem; /* 確保手機版堆疊時有間距 */
+	}
+}
+@media screen and (min-width: 768px) {
+	.SpecialZone_section .SZ_card {
+		aspect-ratio: 16/6.40625;
+		padding: 0 25%;
+		margin-bottom: 0; /* 平板以上取消下間距 */
+	}
+}
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+/* 精準還原：文字外圈的細白框 */
+.SpecialZone_section .a-href {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	width: 100%;
+	height: 50%;
+	overflow: hidden;
+	padding: 0;
+	margin: 0 auto;
+}
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+.SpecialZone_section .Outer_frame {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+
+	width: 100%;
+	/*max-width: 500px;*/		
+
+	border: 2px solid #FFFFFF; /* 細白框 */
+	border-radius: 20px; /* 白框圓角 */
+	background-color: transparent; /* 框內輕微半透明底色 */
+
+	padding: 16px; 
+	margin: 0 auto; 
+}
+@media screen and (max-width: 767px) {
+	.SpecialZone_section .Outer_frame {
+		height: auto;
+	}
+}
+@media screen and (min-width: 768px) {
+	.SpecialZone_section .Outer_frame {
+		height: 100%; /* 固定白框高度 */	
+	}
+}
+/* HOVER */
+.SpecialZone_section .a-href:hover .Outer_frame {
+	border: 2px solid rgba(150, 102, 42, 0.75);
+}
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+.SpecialZone_section .Inner_frame {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+
+	width: 100%;
+	/*max-width: 500px;*/
+
+	border: none; /* 細白框 */
+	border-radius: 10px; /* 白框圓角 */
+	background-color: rgba(255, 255, 255, 0.5); /* 框內輕微半透明底色 */
+	backdrop-filter: blur(4px); /* 框內微毛玻璃效果，讓文字更清晰 */
+	
+	margin: 0 auto;          
+}
+@media screen and (max-width: 767px) {
+	.SpecialZone_section .Inner_frame {
+		height: auto;
+		padding: 1rem 3rem;
+	}
+}
+@media screen and (min-width: 768px) {
+	.SpecialZone_section .Inner_frame {
+		height: 100%; /* 固定白框高度 */	
+		padding: 0 2rem;
+	}
+}
+/* HOVER */
+.SpecialZone_section .a-href:hover .Inner_frame {
+	background-color: rgba(150, 102, 42, 0.75);
+}
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+/* 標題文字 */
+.SpecialZone_section .Center_title {
+	font-size: clamp(125%, 3.25vw, 162.5%);
+	font-weight: bold;
+	line-height: 1.25;
+	color: var(--blackcolor);
+	text-align: center;
+	margin: 0;
+	
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	/*max-height: 54px;*/
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+/* HOVER */
+.SpecialZone_section .a-href:hover .Center_title {
+	color: var(--FFFcolor);
+}
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+/* 精準還原：半卡在底部的圓形數字 */
+.SpecialZone_section .SZ_badge {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	
+	border-radius: 50%;
+	background-color: var(--FFFcolor);	
+	
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+@media screen and (max-width: 767px) {
+	.SpecialZone_section .SZ_badge {
+		width: 60px;
+		height: 60px;
+		bottom: -25px; /* 往下溢出卡片邊界 */
+	}
+}
+@media screen and (min-width: 768px) {
+	.SpecialZone_section .SZ_badge {		
+		width: 75px;
+		height: 75px;		
+		bottom: -30px; /* 往下溢出卡片邊界 */
+	}
+}
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+/* 數字文字樣式 */
+.SpecialZone_section .CC_number {
+	position: absolute;
+	top: 40%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+
+	/*font-size: 26px;*/
+	font-size: clamp(125%, 3.25vw, 162.5%);
+	font-weight: bold;
+	color: #a47c4c; /* 原圖略帶深黃/棕色的數字 */
+}
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+/* 更換成您自己的圖片路徑 */
+.SpecialZone_section .bg-item-01 {
+	/*background-image: url('WERTYU.jpg');*/ /* 如果兩張在同一張圖，可用相同圖並調整 position，或切開成兩張 */
+	background-position: left center;
+}
+
+.SpecialZone_section .bg-item-02 {
+	/*background-image: url('WERTYU.jpg'); */
+	background-position: right center;
+}
+/* ====================================================== */
+/* =====  首頁 專區連結 區 SpecialZone_section ============ */
+/* ====================================================== */
+
+
+
+/* ====================================================== */
+/* =====  首頁 相關連結 區 RelatedLinks_section =========== */
+/* ====================================================== */
+.RelatedLinks_section {
+    position: relative;
+	display: block;
+	background-color: transparent;
+	/*background-image: url(images/bg/.....);*/
+	/*background-size: cover;*/
+	background-repeat: no-repeat;
+	background-position: center top;
+}
+
+.RelatedLinks_section .Mask-DivBox {
+	position: relative;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+	background-attachment: fixed;
+	width: 100%;
+	margin: 0 auto;
+}
+/* ============================================= */
+/* ------ content-box -------------------------- */
+.RelatedLinks_section.owl-box .content-box {
+    display: block;
+    position: relative;
+    padding: 0;
+}
+/* ------ content-box -------------------------- */
+
+/* ------ owl-stage-outer ---------------------- */
+.RelatedLinks_section.owl-box .owl-carousel .owl-stage-outer {
+	position: relative;
+	overflow: hidden;
+	-webkit-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
+	margin-bottom: 2rem;
+}
+
+.RelatedLinks_section.owl-box .owl-carousel .owl-item .item {
+	margin: 1px;
+}
+/* ------ owl-stage-outer ---------------------- */
+/* ============================================= */
+
+/*=============================================*/
+/* ==   輪播 內容ITEM   =========================*/
+/*=============================================*/
+.RelatedLinks_section .item a {
+	position: relative;
+	display: block;
+}
+.RelatedLinks_section .item a:focus {
+    text-decoration: none;
+    outline: 2px dashed var(--a_focusbordercolor) !important;
+	outline-offset: 0px;
+}
+/*=============================================*/
+/* ==   ITEM 內容區塊 開始   ====================*/
+.RelatedLinks_section .wrapper_box {
+	position: relative;
+	display: inline-block;
+	
+	width: 100%;
+	overflow: hidden;
+	border-radius: 24px;
+	box-shadow: 0px 12px 10px -10px rgba(0,0,0,0.25);
+}
+.RelatedLinks_section .item:first-child .wrapper_box {
+    border-left: 0
+}
+.RelatedLinks_section .item:last-child .wrapper_box {
+    border-right: 0
+}
+/* ---------------------------------------------------- */
+
+/* ---------------------------------------------------- */
+.RelatedLinks_section .wrapper_box .Qlink-item {
+    position: relative;
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	width: 100%;
+}
+.RelatedLinks_section .wrapper_box .Qlink-item {
+	padding: 3px;
+	overflow: hidden;
+	border-radius: 24px;
+	border: 1px solid #fce2c2;
+	/*background-color: var(--FFFcolor);*/
+	background-color: transparent;
+}
+
+.RelatedLinks_section .wrapper_box .Qlink-item .Qlinkimg-outer {
+	position: relative;
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	aspect-ratio: 16/7.00244;
+    overflow: hidden;
+    border-radius: 22px;
+	/*border-bottom: 1px solid rgba(181, 181, 181, .45);*/
+}
+/* ---------------------------------------------------- */
+.RelatedLinks_section .wrapper_box .Qlink-item img {	
+   text-align: center;
+}
+/*ZoomIn Hover Effect*/
+.RelatedLinks_section a:hover .wrapper_box .Qlink-item img {	
+    width: 100%;
+    height: auto;
+    -webkit-transition: all 0.5s ease-in-out;
+    -moz-transition: all 0.5s ease-in-out;
+    -o-transition: all 0.5s ease-in-out;
+    -ms-transition: all 0.5s ease-in-out;
+    transition: all 0.5s ease-in-out;
+}
+.RelatedLinks_section a:hover .wrapper_box .Qlink-item img {
+    -webkit-transform: scale(1.05);
+    -moz-transform: scale(1.05);
+    -o-transform: scale(1.05);
+    -ms-transform: scale(1.05);
+    transform: scale(1.05);
+}
+/*ZoomIn Hover Effect*/
+/* ---------------------------------------------------- */
+/* ==   ITEM 內容區塊 結束   ====================*/
+
+/*=============================================*/
+/* ==   輪播 內容ITEM   =========================*/
+/*=============================================*/
+
+/* ******************************************************** */
+/* ******************************************************** */
+
+/*=============================================*/
+/* ==   左右選擇鍵 [ 下方 LEFT 左邊 ]   ==========*/
+/*=============================================*/
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav {
+    display: flex;
+    flex-direction: row;
+	flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 0px;
+    width: calc(4px + var(--Customize_size_80) + 4px  + 4px + var(--Customize_size_80) + 4px);
+	
+	position: relative;
+	left: 0;
+	bottom: 0px;
+	
+	/*display: none;*/
+}
+@media screen and (max-width: 768px) {
+    .RelatedLinks_section.owl-box .owl-carousel .owl-nav {
+		width: calc(4px + 1rem + var(--Customize_size_40) + 1rem + 4px + 4px + 1rem + var(--Customize_size_40) + 1rem + 4px);
+        bottom: 0px;
+		
+		display: flex;
+    }
+}
+/* ------------------------------------------------------------*/
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-prev,
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-next {
+    cursor: pointer;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-prev,
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-next { 
+	position: relative; 
+	top: 45%;
+	font: inherit;
+	color: inherit;	
+	background: 0 0;
+	z-index: 2;
+		
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	padding: 0.25rem 0.25rem !important;
+	border: 1px solid var(--Customize_color); 
+	background-color: transparent;
+	overflow: hidden;
+	border-radius: 2rem;
+}
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-prev,
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-next {
+	width: var(--Customize_size_80);
+	height: var(--Customize_size_40);	
+}
+@media screen and (max-width: 768px) {
+    .RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-prev,
+    .RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-next {
+        width: var(--Customize_size_48);
+		height: var(--Customize_size_32);
+    }
+}
+/*..............................................................................*/
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-prev {
+	position: relative;
+	left: 0;
+	/*right: 0px;*/
+	margin: 0 4px;	
+}
+/*..............................................................................*/
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-next {
+	position: relative;
+	left: 0;
+	/*right: 0px;*/
+	margin: 0 4px;	
+}
+/*..............................................................................*/
+/* HOVER + ACTIVE */
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-prev:hover,
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-next:hover,
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-prev:active,
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-next:active {
+    background-color: var(--Customize_HRcolor) !important;        /*★★★ 重要 HOVER變色 ★★★*/
+}
+/*..............................................................................*/
+/* FOCUS */
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-next:focus {
+	display: block;
+	/*outline: 2px solid #43B5FC !important;*/
+	outline: 2px dashed var(--a_focusbordercolor) !important;
+    outline-offset: 0px;
+    background-color: var(--a_focuscolor2) !important;        /*★★★ 重要 焦點變色 ★★★*/
+}
+/*..............................................................................*/
+/*..............................................................................*/
+/*..............................................................................*/
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-prev span,
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-next span {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	height: 100px;
+	transform: translate(-50%, -50%);
+	
+	border: none !important;
+	background-color: transparent !important;
+	border-radius: 0%;
+} 
+/*@media(max-width: 991px) {
+	.newsbox-section.swiper-box .owl-carousel .owl-nav button.owl-prev span,
+    .newsbox-section.swiper-box .owl-carousel .owl-nav button.owl-next span {
+		border: 1px solid transparent !important;
+	    background-color: transparent !important;
+	}
+}*/
+/*..............................................................................*/
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-prev span {
+	content: url("../../../images/owl-carousel/prev_long_arrow_B.svg");
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_32);
+}
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-next span {
+	content: url("../../../images/owl-carousel/next_long_arrow_B.svg");
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_32);
+}
+@media screen and (max-width: 768px) {
+    .RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-prev span {
+        width: var(--Customize_size_24);
+		height: var(--Customize_size_24);
+    }
+    .RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-next span {
+		width: var(--Customize_size_24);
+		height: var(--Customize_size_24);
+    }
+}
+/*..............................................................................*/
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-prev:hover span,
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-prev:focus span {
+	content: url("../../../images/owl-carousel/prev_long_arrow_W.svg");
+	border: none !important;
+	background-color: none !important;
+}
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-next:hover span,
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-next:focus span {
+	content: url("../../../images/owl-carousel/next_long_arrow_W.svg");
+	border: none !important;
+	background-color: none !important;
+}
+/*..............................................................................*/
+/* FOCUS */
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-prev:focus span {
+	content: url("../../../images/owl-carousel/prev_long_arrow_B.svg");
+}
+.RelatedLinks_section.owl-box .owl-carousel .owl-nav button.owl-next:focus span {
+	content: url("../../../images/owl-carousel/next_long_arrow_B.svg");
+}
+/* FOCUS */
+/*=============================================*/
+/* ==   左右選擇鍵 [ 下方 LEFT 左邊 ]   ==========*/
+/*=============================================*/
+
+/* ******************************************************** */
+/* ******************************************************** */
+
+/*=============================================*/
+/* ==   單一顆 暫停 / 撥放 [ 輪播 ]   ============*/
+/*=============================================*/
+.RelatedLinks_section .DIV-singleBox {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	align-items: center;
+
+    position: absolute;
+	/*width: 32px;*/
+	
+	/*display: none;*/
+}
+@media screen and (max-width: 767px) {
+	.RelatedLinks_section .DIV-singleBox {
+		right: 0;
+        /*top: -40px;*/
+		top: -60px;
+		
+		display: flex;
+	}
+}
+@media screen and (min-width: 768px) {
+	.RelatedLinks_section .DIV-singleBox {
+		right: 0;
+		/*top: -40px;*/
+		top: -90px;
+	}
+}
+
+.RelatedLinks_section .control-singlebox {
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+    position: relative;
+    z-index: 2;
+}
+
+.RelatedLinks_section .control-singlebox a {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	
+	width: var(--Customize_size_48);
+	height: var(--Customize_size_32);
+	padding: 0.25rem 0.25rem;
+	border-radius: 2rem;
+	border: 1px solid var(--G999color);
+	background-color: rgba(255, 255, 255, 0.25);
+	overflow: hidden;
+}
+@media screen and (max-width: 767px) {
+	.RelatedLinks_section .control-singlebox a {
+		width: var(--Customize_size_40);
+		height: var(--Customize_size_32);
+	}
+}
+/*..............................................................................*/
+/* HOVER + ACTIVE */
+.RelatedLinks_section .control-singlebox a:hover,
+.RelatedLinks_section .control-singlebox a:active {
+    background-color: var(--Customize_HRcolor) !important;        /*★★★ 重要 HOVER變色 ★★★*/
+}
+/*..............................................................................*/
+/* FOCUS */
+.RelatedLinks_section .control-singlebox a:focus {
+	display: block;
+    background-color: transparent !important;        /*★★★ 重要 焦點變色 ★★★*/
+}
+/*..............................................................................*/
+/*..............................................................................*/
+/*..............................................................................*/
+.RelatedLinks_section .control-singlebox a > .control-toggle {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_32);
+	border-radius: 100%;
+	border: 1px solid transparent !important;
+	background-color: transparent !important;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+	outline: none;
+}
+/*..............................................................................*/
+.RelatedLinks_section .control-singlebox a > .control-pause-icon {
+    content: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+	background-image: none;
+}
+
+.RelatedLinks_section .control-singlebox a > .control-play-icon {
+    content: url(../../../images/owl-carousel/control-start-B-icon.svg);
+	background-image: none;
+}
+
+/* HOVER */
+.RelatedLinks_section .control-singlebox a:hover > .control-pause-icon {
+    content: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+}
+
+.RelatedLinks_section .control-singlebox a:hover > .control-play-icon {
+    content: url(../../../images/owl-carousel/control-start-W-icon.svg);
+}
+
+/* FOCUS */
+.RelatedLinks_section .control-singlebox a:focus > .control-pause-icon {
+    content: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+}
+
+.RelatedLinks_section .control-singlebox a:focus > .control-play-icon {
+    content: url(../../../images/owl-carousel/control-start-B-icon.svg);
+}
+/*=============================================*/
+/* ==   單一顆 暫停 / 撥放 [ 輪播 ] END   ========*/
+/*=============================================*/
+/* ******************************************************** */
+/* ******************************************************** */
+/*=============================================*/
+/* ==   兩顆 暫停 / 撥放 [ 輪播 ]   ==============*/
+/*=============================================*/
+.RelatedLinks_section .DIV-Box {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+	
+	position: absolute;
+	/*width: 150px;*/
+	padding: 0;
+	
+	display: none;
+}
+@media screen and (max-width: 767px) {
+	.RelatedLinks_section .DIV-Box {
+		right: 0px;
+        top: -55px;
+	}
+}
+@media screen and (min-width: 768px) {
+	.RelatedLinks_section .DIV-Box {
+		right: 0;
+		top: -80px;
+	}
+}
+/*.RelatedLinks_section .DIV-Box::before {
+    content: "";
+    position: relative;
+    height: 1px;
+    width: 75%;
+    background-color: #006d66;
+    left: 0;
+    top: 24px;
+}*/
+
+.RelatedLinks_section .control-box {	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+    
+	position: relative;
+    left: calc((100% - 1170px) / 2);
+    left: 0;
+    z-index: 2;
+        
+    color: var(--FFFcolor);
+    text-align: center;
+}
+@media screen and (max-width: 768px) {
+	.RelatedLinks_section .control-box {	
+		padding: 0px; 
+	}
+}
+/*..............................................................................*/
+.RelatedLinks_section a.play,
+.RelatedLinks_section a.stop {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	width: var(--Customize_size_48);
+	height: var(--Customize_size_32);
+	padding: 0.25rem 0.25rem;
+	border-radius: 2rem;
+	border: 1px solid var(--G999color);
+	background-color: transparent;
+	overflow: hidden;
+}
+@media screen and (max-width: 767px) {
+	.RelatedLinks_section a.play,
+	.RelatedLinks_section a.stop {
+		width: var(--Customize_size_40);
+  		height: var(--Customize_size_32);
+	}
+}
+/*..............................................................................*/
+/* HOVER + ACTIVE */
+.RelatedLinks_section a:hover.play,
+.RelatedLinks_section a:hover.stop
+.RelatedLinks_section a:active.play,
+.RelatedLinks_section a:active.stop {
+	background-color: var(--Customize_HRcolor) !important;        /*★★★ 重要 HOVER變色 ★★★*/
+}/*..............................................................................*/
+/* FOCUS */
+.RelatedLinks_section a:focus.play,
+.RelatedLinks_section a:focus.stop {
+	text-decoration: none;
+	outline: thin dotted;
+	outline: 2px solid var(--a_focusbordercolor);
+	outline-offset: 0px;
+	color: var(--blackcolor) !important;
+	background-color: transparent !important;
+}
+/*..............................................................................*/
+/*..............................................................................*/
+/*..............................................................................*/
+.RelatedLinks_section .contrl_start,
+.RelatedLinks_section .contrl_pause {
+	position: relative;
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_32);
+	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	
+	border-radius: 2rem;
+	z-index: 2; /*999*/
+}
+@media screen and (max-width: 767px) {
+	.RelatedLinks_section .contrl_start,
+	.RelatedLinks_section .contrl_pause {
+		width: var(--Customize_size_32);
+  		height: var(--Customize_size_32);
+	}
+    /*...................................*/
+	.RelatedLinks_section .control-start {
+		right: calc(1.5% + 5px);
+	}
+	.RelatedLinks_section .control-pause {
+		right: 1.5%;
+	}
+}
+/*..............................................................................*/
+.RelatedLinks_section .control-start-icon,
+.RelatedLinks_section .control-pause-icon {
+	display: inline-block;
+	width: var(--Customize_size_32);
+  	height: var(--Customize_size_32);
+	background-position-x: 50%;
+	background-position-y: center;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-image: none;
+	background-size: 100% 100%;
+	background-origin: padding-box;
+	background-clip: border-box;
+}
+.RelatedLinks_section .control-start-icon:hover,
+.RelatedLinks_section .control-pause-icon:hover {
+	opacity: 1;
+}
+/*..............................................................................*/
+.RelatedLinks_section .control-start-icon {
+    background-image: url(../../../images/owl-carousel/control-start-B-icon.svg);
+    opacity: .85;
+}
+/*..............................................................................*/
+.RelatedLinks_section .control-pause-icon {
+    background-image: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+    opacity: .85;
+}
+/*..............................................................................*/
+/* HOVER */
+.RelatedLinks_section a:hover .control-start-icon {
+    background-image: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    opacity: .85;
+}
+.RelatedLinks_section a:hover .control-pause-icon {
+    background-image: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    opacity: .85;
+}
+/*..............................................................................*/
+/* FOCUS */
+.RelatedLinks_section a:focus .control-start-icon {
+    background-image: url(../../../images/owl-carousel/control-start-B-icon.svg);
+    opacity: .85;
+}
+.RelatedLinks_section a:focus .control-pause-icon {
+    background-image: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+    opacity: .85;
+}
+/*..............................................................................*/
+/* FOCUS */
+.RelatedLinks_section .control-start:focus, 
+.RelatedLinks_section .control-pause:focus {
+    text-decoration: none;
+	background-color: var(--Customize_HRcolor);        /*★★★ 重要 焦點變色 ★★★*/
+	border-radius: 2rem;
+}
+/*..............................................................................*/
+
+/*=============================================*/
+/* ==   兩顆 暫停 / 撥放 [ 輪播 ] END   ==========*/
+/*=============================================*/
+/* ====================================================== */
+/* =====  首頁 相關連結 區 RelatedLinks_section =========== */
+/* ====================================================== */
+
+
+
+/* ====================================================== */
+/* =====  頁尾 FOOTER 區 BottomInfo_section  ============= */
+/* ====================================================== */
+.BottomInfo_section {
+    position: relative;
+    display: block;
+	background-color: var(--Customize_Footercolor); /*transparent*/
+	
+	/*background-image: url(images/bg/down_background-image_1920x108.png);
+	background-size: auto;
+	background-repeat: no-repeat;
+	background-position: top;*/
+}
+/*.footerbg-img::after {
+    position: absolute;
+    background-color: transparent;
+    left: 0;
+    top: -25px;
+    width: 100%;
+    height: auto;
+    content: url("../images/bg/down_background-image_1920x108.png");
+    z-index: 30;
+}*/
+
+.footer_section {
+	position: relative;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+	z-index: 1;
+}
+/*.footer_section:before {
+	position: absolute;
+	right: 0;
+	top: 0;
+	height: 100%;
+	width: 50%;
+	background-color: #006e66;
+	content: "";
+}
+@media screen and (max-width: 575px) {
+    .footer_section:before {
+        display: none;
+    }
+}*/
+
+.footer_section .widgets-box {
+	position: relative;
+	padding: 10px 0 10px 0;
+}
+
+.footer_section.alternate .widgets-box {
+	margin-top: 0;
+	padding-top: 95px;
+}
+
+.footer_section .footer-widget {
+	position: relative;
+}
+
+/*-------------------------------------*/
+/*----- about-widget ------------------*/
+.footer_section .about-widget {
+	position: relative;
+	/*padding: 0 15px;*/	
+}
+
+.footer_section .footer-logo {
+	position: relative;
+	margin-bottom: 30px;
+	/*padding-left: 10px;*/
+}
+
+.footer_section .footer-logo div {
+	margin: 0;
+	/*margin-top: -5px;*/
+}
+
+.footer_section .footer-logo div a {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+}
+/*@media screen and (max-width: 768px) {
+	.footer_section .footer-logo div a {
+		justify-content: center;
+	}
+}*/
+
+.footer_section .footer-logo img {
+	display: block;
+	max-width: 100%;
+}
+
+.footer_section .about-widget ul.list {
+	padding-left: 10px;
+	margin-bottom: 1.5rem;
+}
+
+.footer_section .about-widget .list li {
+	position: relative;
+	display: block;
+	
+	font-size: clamp(87.5%, 3.25vw, 93.75%);
+	font-weight: bold;
+	line-height: 1.5;	
+	/*color: var(--blackcolor);*/
+	color: var(--FFFcolor);
+	
+	margin-bottom: 5px;
+}
+
+.footer_section .about-widget .list li a {
+	/*color: var(--blackcolor);*/
+	color: var(--FFFcolor);
+}
+
+.footer_section .about-widget .list li a:hover {
+	/*color: var(--blackcolor);*/
+	color: var(--FFFcolor);
+}
+
+.footer_section .about-widget .text {
+	position: relative;
+	font-size: clamp(87.5%, 3.25vw, 93.75%);
+	font-weight: bold;
+	line-height: inherit;
+	/*color: var(--blackcolor);*/
+	color: var(--FFFcolor);
+	
+	text-align: left;
+	margin-bottom: 25px;
+}
+
+.footer_section .about-widget .text a {
+	/*color: var(--blackcolor);*/
+	color: var(--FFFcolor);
+}
+
+.footer_section .about-widget .text a i {
+	font-size: inherit;
+}
+
+.footer_section .about-widget .text a .icon {
+	position: relative;
+	display: inline-block;
+	top: 5px;
+	width: 24px;
+	height: 24px;
+	font-size: inherit;
+	color: inherit;
+	content: url("../images/footer/small_icon/map-custom.svg");
+}
+.footer_section .about-widget .text a .icon:hover {
+	content: url("../images/footer/small_icon/map-custom-hover.svg");
+}
+
+.footer_section .about-widget .text a:hover {
+	color: #ffbf00;
+}
+
+@media screen and (max-width: 1140px) {
+	.footer_section .footer-logo {
+		padding-left: 2.5px;
+	}
+	.footer_section .about-widget ul.list {
+		padding-left: 2.5px;
+	}
+	.footer_section .about-widget .text {
+		padding-left: 2.5px;
+	}
+}
+/*----- about-widget -------------------/
+/*-------------------------------------*/
+
+.footer_section .navbar-customizebrand {
+	display: block;
+	max-width: max(23.5vw, 75%);
+}
+
+.footer_section .navbar-customizebrand img {
+	max-width: 100%;
+	height: auto;
+	object-fit: cover;
+}
+
+/*-------------------------------------*/
+/*----- 聯絡資訊 -----------------------*/
+.footer_section .widget-title-content {
+    position: relative;
+    display: block;
+}
+.footer_section .widget-title-content:before {
+    content: "";
+	position: absolute;
+    bottom: 0;
+	left: 0;	
+    width: 70px;
+    height: 1px;
+    background-color: #d77d5d;
+}
+
+.footer_section div.TitleDivBox {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    
+    padding-bottom: 1rem; /*48px*/
+	margin-bottom: 1rem; /*48px*/
+}
+
+.footer_section span.widget-title {
+	position: relative;
+	font-size: clamp(106.25%, 3.25vw, 112.5%);
+	font-weight: 700;
+	/*color: var(--blackcolor);*/
+	color: var(--FFFcolor);
+	line-height: inherit;
+}
+/*.footer_section span.widget-title:before {
+	position: absolute;
+	left: 0; /*0*
+	top: 0;
+	font-size: 100%; /*1em*
+	line-height: inherit;
+	color: #f8ecd1;
+	font-weight: 400;
+	content: "\f141";
+	font-family: "FontAwesome";
+	transform: rotate(90deg);
+}*/
+
+.footer_section span.widget-V-line {
+	position: relative;
+	font-size: clamp(75%, 3.25vw, 75%);
+	font-weight: 500;
+	/*color: var(--blackcolor);*/
+	color: var(--FFFcolor);
+	line-height: inherit;
+	padding-left: 10px;
+}
+
+.footer_section span.widget-english {
+	position: relative;
+	font-size: clamp(75%, 3.25vw, 75%);
+	font-weight: 500;
+	/*color: var(--blackcolor);*/
+	color: var(--FFFcolor);
+	line-height: inherit;
+	padding-left: 10px;
+}
+
+.footer_section .info-widget {
+	position: relative;
+}
+
+.footer_section .info-widget ul.list {
+	/*padding-left: 2.5px;*/
+	padding-left: 0;
+	margin-bottom: 0rem;
+}
+
+.footer_section .info-widget .list li {
+	position: relative;
+	display: flex;
+	justify-content: flex-start;
+	align-items: flex-start;
+	flex-direction: row;	
+	
+	font-size: clamp(87.5%, 3.25vw, 93.75%);
+	font-weight: bold;
+    line-height: inherit;
+	/*color: var(--blackcolor);*/
+	color: var(--FFFcolor);
+	margin-bottom: 5px;
+}
+
+.footer_section .info-widget .list li a {
+	/*color: var(--blackcolor);*/
+	color: var(--FFFcolor);
+}
+
+.footer_section .info-widget .list li a:hover {
+    /*color: var(--blackcolor);*/
+	color: var(--FFFcolor);
+    background-color: var(--a_focuscolor);
+}
+
+.footer_section .info-widget .list li a i {
+	position: relative;
+	top: -1px;
+	font-size: 87.5%;
+	/*color: var(--blackcolor);*/
+	color: var(--FFFcolor);
+	margin-right: 5px;
+}
+.footer_section .info-widget .list li i {	
+	position: relative;
+	top: 6px;
+	font-size: 87.5%;
+	/*color: var(--blackcolor);*/
+	color: var(--FFFcolor);
+	margin-right: 5px;
+}
+
+.footer_section .info-widget .text {
+	position: relative;
+	font-size: clamp(87.5%, 3.25vw, 93.75%);
+	font-weight: bold;
+	line-height: inherit;
+	/*color: var(--blackcolor);*/
+	color: var(--FFFcolor);
+}
+
+/*-------------------------------------*/
+.footer_section .about-widget ul.list li p,
+.footer_section .info-widget ul.list li p {
+	font-size: inherit;
+	font-weight: bold;
+	line-height: inherit;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+/*----- 聯絡資訊 -----------------------*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/*----- FB + LINE+ 相關連結 ------------*/
+.footer_section .info-widget .social_box {
+	display: inline-block;
+	margin-top: 0px;
+	/*width: 100%;*/	
+}
+
+.footer_section .info-widget .social_box a {
+	width: 32px; /*cara 原32*/
+	height: 32px; /*cara 原32*/
+	margin-right: 10px; /*25*/
+	
+	display: inline-block;
+	margin-bottom: 8px; /*25*/
+}
+
+.footer_section .info-widget .social_box a .img1,
+.footer_section .info-widget .social_box a .img2 {
+    max-width: 100%;
+    height: auto;
+}
+
+.footer_section .info-widget .social_box a .img2 {
+	display: none;
+}
+
+.footer_section .info-widget .social_box a:hover .img1 {
+	display: none;
+}
+
+.footer_section .info-widget .social_box a:hover .img2 {
+	display: inline-block;
+}
+/*----- FB + LINE+ 相關連結 ------------*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/*----- NEW FB + LINE+ 相關連結 ---------*/
+.footer_section .info-widget .social_i_box {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;	
+	justify-content: flex-start;
+	align-items: center;
+	gap: 10px; /* 兩個項目之間的間距，可自行調整 */
+}
+
+.footer_section .info-widget .social_i_box a {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+    width: var(--Customize_size_32);
+    height: var(--Customize_size_32);
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+    /*color: var(--blackcolor);*/
+	color: var(--FFFcolor);
+    letter-spacing: 0.06em;
+}
+
+.footer_section .info-widget .social_i_box a.Icon_social {
+    color: var(--FFFcolor);
+	background-color: var(--Customize_ACcolor);
+}
+.footer_section .info-widget .social_i_box a:hover.Icon_social {
+    color: var(--FFFcolor);
+	background-color: var(--Customize_HRcolor);
+}
+
+.footer_section .info-widget .social_i_box a i {
+	font-size: 112.5%;
+}
+/*----- NEW FB + LINE+ 相關連結 ---------*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/*----- 加入 Line 好友 ------------------*/
+.badge-links {
+	/* 移除清單預設樣式 */
+	list-style: none;
+	padding: 0;
+	margin: 0;
+
+	/* 橫式排列與對齊 */
+	display: flex;
+	align-items: flex-start; /* 依據圖片，頂端對齊或視需求改為 center */
+	gap: 10px; /* 兩個項目之間的間距，可自行調整 */
+}
+@media screen and (max-width: 575px) {
+	.badge-links {
+		margin-top: 0rem;
+		margin-bottom: 1rem;
+	}
+}
+
+.badge-links li {
+	display: inline-block;
+}
+
+/* LINE QR Code 尺寸設定 */
+.badge-links .qr-code {
+	width: 72px;
+	height: auto;
+	display: block;
+}
+
+/* 無障礙標籤尺寸設定 */
+.badge-links .access-badge {
+	width: 128px;
+	width: 100px;
+	height: auto;
+	display: block;
+	/* 如果圖片原本較小，這會將其拉伸至 102x36 */
+}
+
+/* 滑鼠滑過效果 (選配) */
+.badge-links a:hover {
+	opacity: 0.8;
+}
+/*----- 加入 Line 好友 ------------------*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/*----- 無障礙 LOGO --------------------*/
+.footer_section .info-widget .Accessibility-Badge_box {
+	display: inline-block;
+	margin-top: 0px;
+	/*width: 100%;*/
+}
+.footer_section .info-widget .Accessibility-Badge_box a {
+	display: inline-block;
+	width: 100%;	
+}
+
+.footer_section .info-widget .Accessibility-Badge_box a img.Accessibility-Badge {
+	max-width: 100%;	
+	height: 36px;
+}
+/*-------------------------------------*/
+/*----- 無障礙 LOGO --------------------*/
+
+/*-------------------------------------*/
+/*----- QRcode ------------------------*/
+.footer_section .info-widget .QRcode_box {
+	display: inline-block;
+	margin-top: 0px;
+	/*width: 100%;*/	
+}
+
+.footer_section .info-widget .QRcode_box .Q-Div {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: column;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.footer_section .info-widget .QRcode_box .Q-Div .tit-name {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: column;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    font-size: 75%;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: var(--FFFcolor);
+    min-width: 115px;
+    height: auto;
+    padding: 2px 10px;
+    border-radius: 12px;
+    border: 5px solid var(--FFFcolor);
+    background-color: #70AD47;
+    margin-bottom: 5px;
+}
+
+.footer_section .info-widget .QRcode_box a {
+	width: 78px; /*cara 原32*/
+	height: 78px; /*cara 原32*/
+	
+	display: inline-block;
+	margin-bottom: 8px; /*25*/
+}
+/*----- QRcode ------------------------*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/*----- FOOTER 電子報 ------------------*/
+.footer_section .info-widget .widget-content .row {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: 0px;
+    margin-left: 0px;
+}
+
+.footer_section .info-widget .btn {
+	padding: 5px 5px !important;
+}
+.footer_section .info-widget .btn.btn-subscribe {
+    color: var(--FFFcolor);
+    background-color: var(--Customize_color);
+    border-color: var(--Customize_color);
+	margin-right: 2.5px;
+}
+
+.footer_section .info-widget .btn.btn-cancel {
+    color: var(--FFFcolor);
+    background-color: var(--Customize_color);
+    border-color: var(--Customize_color);
+	margin-left: 2.5px;
+}
+
+.footer_section .info-widget .btn.btn-subscribe:hover,
+.footer_section .info-widget .btn.btn-cancel:hover {
+    color: var(--Customize_HRcolor);
+    background-color: var(--FFFcolor);
+    border-color: var(--Customize_HRcolor);
+}
+/*----- FOOTER 電子報 ------------------*/
+/*-------------------------------------*/
+
+.footer_section .info-widget .widget-tw-title {
+	font-size: 1.25rem; /*20px*/
+	font-weight: 600;
+	letter-spacing: 0.5rem;
+	color: var(--FFFcolor);
+}
+
+.footer_section .info-widget .widget-en-title {
+	font-size: 0.875rem; /*15px*/
+	letter-spacing: 0.125rem;
+	color: var(--FFFcolor);
+}
+
+/* footer link */
+.footer_section .widget-content .link-fb,
+.footer_section .widget-content .link-yt {
+	font-size: 250%;
+	color: var(--FFFcolor);
+}
+.footer_section .widget-content .link-fb:hover,
+.footer_section .widget-content .link-yt:hover{
+	font-size: 250%;
+	color: var(--Customize_color);
+}
+/* ====================================================== */
+/* =====  頁尾 FOOTER 區 Footer_section  ================= */
+/* ====================================================== */
+
+
+/* ====================================================== */
+/* =====  頁尾 GO-TO-TOP  ================================ */
+/* ====================================================== */
+#gotop_btn {
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	text-align: center;
+	border-radius: 99em; /*4px*/
+	position: fixed;
+	bottom: 30px; /*30*/
+	right: 15px;  /*30*/
+	transition: background-color .3s, opacity .5s, visibility .5s;
+	opacity: 0;
+	visibility: hidden;
+	z-index: 1000;
+	background-color: rgba(0,0,0,0.75);
+}
+
+#gotop_btn::after {
+	/*content: "\f077";*/
+	/*content: url("../images/go-to-top/gototop_40x40.svg");*/
+	font-family: FontAwesome;
+	font-weight: normal;
+	font-style: normal;
+	font-size: 150%; /*1.5em*/ /*2em*/
+	line-height: 36px; /*50*/
+	color: var(--FFFcolor);
+}
+
+#gotop_btn:hover {
+	cursor: pointer;
+	background-color: var(--Customize_HRcolor);
+}
+
+#gotop_btn:active {
+	background-color: var(--Customize_HRcolor);
+}
+
+#gotop_btn.show {
+	opacity: 1;
+	visibility: visible;
+}
+
+#gotop_btn.show:focus {
+	background-color: #ffbf00;
+	text-decoration: none;
+	outline: 2px solid #43B5FC;
+}
+/* ====================================================== */
+/* =====  頁尾 GO-TO-TOP  ================================ */
+/* ====================================================== */
+
+.mt_customize {
+	margin-top: 3.75rem;
+}
+@media screen and (max-width: 1199px) {
+	.mt_customize {
+		margin-top: 2rem;
+	}
+}
+@media screen and (max-width: 991px) {
+	.mt_customize {
+		margin-top: 1.5rem;
+	}
+}
+@media screen and (max-width: 768px) {
+	.mt_customize {
+		margin-top: 0rem;
+	}
+}
+@media screen and (min-width: 1200px) {
+	.mt_customize {
+		margin-top: 3.75rem;
+	}
+}
+
+
+
+
+/* ====================================================== */
+/* =====  首頁 表格 RWD ( 檔案室 )  ======================= */
+/* ====================================================== */
+/* #ContentPlaceContent_ContentConentA 表格 RWD */
+:root {
+	--bs-padding-x: 0.75rem;
+	--bs-padding-y: 0.75rem;
+	--bs-padding-RWD-x: 0.25rem;
+	--bs-padding-RWD-y: 0.25rem;
+	--bs-label-padding-x: 0.125rem;
+	--bs-label-padding-y: 0.5rem;
+}
+/* padding: var(--bs-padding-x) var(--bs-padding-y); */
+/* padding: var(bs-label-padding-x) var(--bs-label-padding-y); */
+
+
+/* ******************************************************** */
+/* --------------- RWD TABLE CSS CODE START --------------- */
+/* ******************************************************** */
+.ALL_tTable_Display_Area .table > :not(caption) > * > * {
+	padding: var(--bs-padding-x) var(--bs-padding-y);
+	background-color: transparent;
+	border-bottom-width: 1px;
+	box-shadow: inset 0 0 0 9999px transparent;
+}
+
+.ALL_tTable_Display_Area .table-rwd { }
+/*這是額外做顏色，沒有什麼意義*/
+
+/* --- 標題TR底色設定 ---*/
+.ALL_tTable_Display_Area tr.tr-only-hide { 
+	font-size: 100%;
+	line-height: 1.5;
+	font-weight: inherit;
+	color: var(--blackcolor);
+	background-color: #e7e7e7!important;
+}
+
+/* ====================================================== */
+/* =====  共用 標準 bootstrap.min table CSS ( 以下 )  ===== */
+/* ====================================================== */
+.ALL_tTable_Display_Area .table-bordered {
+    border: 1px solid #dddddd;
+}
+
+.ALL_tTable_Display_Area .table-striped tbody tr:nth-of-type(2n+1) {
+	background-color: transparent;
+    /*background-color: rgba(0, 0, 0, 0.05);*/
+}
+.ALL_tTable_Display_Area .table-striped tbody tr:nth-of-type(2n) {
+    background-color: rgba(0, 0, 0, 0.0125);
+}
+
+.ALL_tTable_Display_Area .table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+.ALL_tTable_Display_Area table {
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+.ALL_tTable_Display_Area table {
+    background-color: transparent;
+}
+
+.ALL_tTable_Display_Area .table > tbody {
+    border-top: 1px solid transparent !important;
+}
+
+.ALL_tTable_Display_Area .table-bordered > thead > tr > th,
+.ALL_tTable_Display_Area .table-bordered > thead > tr > td,
+/* -------------------------------------------- */
+.ALL_tTable_Display_Area .table-bordered > tbody > tr > td,
+.ALL_tTable_Display_Area .table-bordered > tbody > tr > th,
+/* -------------------------------------------- */
+.ALL_tTable_Display_Area .table-bordered > tfoot > tr > th,
+.ALL_tTable_Display_Area .table-bordered > tfoot > tr > td {
+    border: 1px solid #dddddd;
+}
+
+.ALL_tTable_Display_Area .table > thead > tr > th,
+.ALL_tTable_Display_Area .table > tbody > tr > th {
+    padding: var(--bs-padding-x) var(--bs-padding-y);
+    vertical-align: top;
+    border-top: 1px solid #dddddd;
+}
+@media screen and (max-width: 767px) {
+	.ALL_tTable_Display_Area .table > thead > tr > th,
+	.ALL_tTable_Display_Area .table > tbody > tr > th {}
+}
+
+.ALL_tTable_Display_Area .table > thead > tr > td,
+.ALL_tTable_Display_Area .table > tbody > tr > td {	
+	color: var(--blackcolor);
+
+    padding: var(--bs-padding-x) var(--bs-padding-y);
+    vertical-align: top;
+    border-top: 1px solid #dddddd;
+	word-break: normal;        /* 不強制斷詞 */
+    overflow-wrap: break-word; /* 超過寬度才換行 */
+    white-space: normal;       /* 確保可換行 */
+}
+@media screen and (max-width: 767px) {
+	.ALL_tTable_Display_Area .table > thead > tr > td,
+	.ALL_tTable_Display_Area .table > tbody > tr > td {
+		padding: var(--bs-padding-RWD-x) var(--bs-padding-y);
+	}
+}
+
+/* ******************************************************** */
+
+.ALL_tTable_Display_Area td.table_td_vertical_align {
+	/*vertical-align: middle !important;*/ /*td 居中對齊*/
+}
+@media screen and (max-width: 767px) {
+	.ALL_tTable_Display_Area td.table_td_vertical_align {}
+}
+
+.ALL_tTable_Display_Area td.table_td_vertical_align a {	
+	color: var(--blackcolor);
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	/*max-height: 54px;*/
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+
+.ALL_tTable_Display_Area .table > tbody > tr > td a {
+	color: var(--blackcolor) !important;
+	margin-right: 0.75rem;
+}
+
+.ALL_tTable_Display_Area .table > tbody > tr > td i {
+	margin-left: 10px;
+	color: var(--blackcolor);
+}
+
+.ALL_tTable_Display_Area .table > tbody > tr > td a:hover {
+	color: var(--Customize_HRcolor) !important;
+}
+/* ******************************************************** */
+
+.ALL_tTable_Display_Area th {
+    text-align: left;
+}
+
+.ALL_tTable_Display_Area th {
+	font-size: clamp(93.75%, 2.25vw, 100%);
+}
+.ALL_tTable_Display_Area td {
+	font-size: clamp(100%, 2.25vw, 106.25%);
+	font-weight: bold;
+	word-break: break-all;
+}
+
+/* ******************************************************** */
+.ALL_tTable_Display_Area tr.tr-only-hide-titlebar { 
+	color: var(--blackcolor);
+	background-color: var(--Customize_color) !important;
+}
+.ALL_tTable_Display_Area tr.tr-only-hide-titlebar th { 
+	color: var(--FFFcolor);
+}
+/* ******************************************************** */
+.ALL_tTable_Display_Area .table > tbody > tr.transparent > td, 
+.ALL_tTable_Display_Area .table > tbody > tr.transparent > th, 
+.ALL_tTable_Display_Area .table > tbody > tr > td.transparent, 
+.ALL_tTable_Display_Area .table > tbody > tr > th.transparent, 
+.ALL_tTable_Display_Area .table > tfoot > tr.transparent > td, 
+.ALL_tTable_Display_Area .table > tfoot > tr.transparent > th, 
+.ALL_tTable_Display_Area .table > tfoot > tr > td.transparent, 
+.ALL_tTable_Display_Area .table > tfoot > tr > th.transparent, 
+.ALL_tTable_Display_Area .table > thead > tr.transparent > td, 
+.ALL_tTable_Display_Area .table > thead > tr.transparent > th, 
+.ALL_tTable_Display_Area .table > thead > tr > td.transparent, 
+.ALL_tTable_Display_Area .table > thead > tr > th.transparent {
+    background-color: transparent;
+}
+/* ******************************************************** */
+.ALL_tTable_Display_Area .table > tbody > tr.gray > td, 
+.ALL_tTable_Display_Area .table > tbody > tr.gray > th, 
+.ALL_tTable_Display_Area .table > tbody > tr > td.gray, 
+.ALL_tTable_Display_Area .table > tbody > tr > th.gray, 
+.ALL_tTable_Display_Area .table > tfoot > tr.gray > td, 
+.ALL_tTable_Display_Area .table > tfoot > tr.gray > th, 
+.ALL_tTable_Display_Area .table > tfoot > tr > td.gray, 
+.ALL_tTable_Display_Area .table > tfoot > tr > th.gray, 
+.ALL_tTable_Display_Area .table > thead > tr.gray > td, 
+.ALL_tTable_Display_Area .table > thead > tr.gray > th, 
+.ALL_tTable_Display_Area .table > thead > tr > td.gray, 
+.ALL_tTable_Display_Area .table > thead > tr > th.gray {
+    background-color: rgba(0,0,0,.0125);
+}
+/* ******************************************************** */
+
+
+/* ==================================================== */
+/* ------ 取消TR底色設定 bootstrap.min 等都要取消 --------- */
+/*
+.ALL_tTable_Display_Area .table-striped > tbody > tr:nth-of-type(2n+1) {
+    background-color: #f9f9f9;
+}
+*/
+/* ------ 取消TR底色設定 bootstrap.min 等都要取消 --------- */
+/* ==================================================== */
+.ALL_tTable_Display_Area .table.table-rwd > caption {
+	caption-side: top;
+	font-size: 125%;
+	font-weight: 500;
+	padding: var(--bs-padding-x) var(--bs-padding-y);
+	color: var(--blackcolor);
+	text-align: left;
+	
+	visibility: hidden; /* == 隱藏 == */
+	height: 0px;
+	padding: 0 var(--bs-padding-y);
+}
+/* ====================================================== */
+/* =====  共用 標準 bootstrap.min table CSS ( 以上 )  ===== */
+/* ====================================================== */
+
+
+/* ====================================================== */
+/* =====  共用 標準 手機模式 CSS ( 以下 )  ================= */
+/* ====================================================== */
+/*-- @media screen and (max-width: 736px) --*/
+@media screen and (max-width: 767px) {
+	.ALL_tTable_Display_Area .table-rwd {
+		min-width: 100%;
+	}
+	
+	/*針對 tr 去做隱藏*/
+	.ALL_tTable_Display_Area tr.tr-only-hide {
+		display: none !important;
+	}
+	
+	/*讓 tr 變成區塊主要讓他有個區塊*/
+	.ALL_tTable_Display_Area tr.tr-only-hide-titlebar {
+		display: none !important;
+	}
+	
+	.ALL_tTable_Display_Area .table-rwd tr {
+		display: block;
+		border: 1px solid #dddddd;
+		
+		margin-top: 0.75rem;
+	}	
+	.ALL_tTable_Display_Area .table-rwd tr:first-child {
+		margin-top: 0rem;
+	}
+	
+	.ALL_tTable_Display_Area .table-rwd td {
+		overflow: hidden;
+		width: 100%;
+		display: block;
+	}
+	.ALL_tTable_Display_Area td.table_td_vertical_align {
+		text-align: left;
+	}
+	
+	.ALL_tTable_Display_Area .table-rwd td:before {
+		/*最重要的就是這串*/
+		content: attr(data-th) " : ";
+		/*最重要的就是這串*/
+		/*display: inline-block;*/    /* 單獨一列顯示 */
+		
+		font-size: 100%;    /* 承襲 td font-size 設為 100% */
+		font-weight: 500;
+		/*text-transform: uppercase;*/	/* 英文字母皆為大寫 */
+		text-transform: capitalize;	/* 英文第一個字母大寫，其他字母小寫 */
+		color: var(--G555color);	/* RWD 標題顏色 */
+		
+		padding: 0;
+		margin: 0;
+		margin-right: 0.5rem;
+		/*border-bottom: 1px solid #dddddd;*/
+		width: 100%;
+	}
+	
+	/* 當 RWD 縮小的時候 .table-bordered 會有兩條線，所以針對 .table-bordered 去做修正 */
+	.ALL_tTable_Display_Area .table-rwd.table-bordered td,
+	.ALL_tTable_Display_Area .table-rwd.table-bordered th,
+	.ALL_tTable_Display_Area .table-rwd.table-bordered {
+		border: 0 !important;
+	}
+}
+/* ====================================================== */
+/* =====  共用 標準 手機模式 CSS ( 以上 )  ================= */
+/* ====================================================== */
+
+/* ******************************************************** */
+/* --------------- RWD TABLE CSS CODE END ----------------- */
+/* ******************************************************** */
+
+
+
+/* ====================================================== */
+/* =====  共用 標準 RWD TABLE 置頂標籤 CSS ( 以下 )  ======= */
+/* ====================================================== */
+.ALL_tTable_Display_Area table td .CustomState {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+	
+	position: relative;
+	display: inline-flex;
+}
+@media screen and (max-width: 767px) {
+	.ALL_tTable_Display_Area table td .CustomState {
+		margin-left: 0.5rem;
+	}
+}
+
+.ALL_tTable_Display_Area table td .CustomState .icon-small,
+.ALL_tTable_Display_Area table td span.label {
+	font-size: 68.75%;
+	line-height: 1.25;
+	font-weight: 900;
+	text-transform: uppercase;
+	/*width: 100%;*/
+	/*width: 80px;*/
+	text-align: center;
+	padding: var(--bs-label-padding-x) var(--bs-label-padding-y);;
+	border-radius: 4px;
+}
+@media screen and (max-width: 767px) {
+	.ALL_tTable_Display_Area table td .CustomState .icon-small,
+	.ALL_tTable_Display_Area table td span.label {
+		margin-left: 0.25rem;
+		margin-right: 0.25rem;
+	}
+}
+@media screen and (min-width: 768px) {
+	.ALL_tTable_Display_Area table td .CustomState .icon-small,
+	.ALL_tTable_Display_Area table td span.label {
+		margin-left: 0.5rem;
+		margin-right: 0.5rem;
+	}
+}
+
+.ALL_tTable_Display_Area table td span:first-child.label {
+	margin-left: 0;
+}
+
+	
+/* 置頂 */
+.ALL_tTable_Display_Area table td .CustomState .icon-small,
+.ALL_tTable_Display_Area table td span:nth-child(1).label {	
+	margin-right: 0rem;
+}
+/* 熱門 */
+.ALL_tTable_Display_Area table td .CustomState .icon-small,
+.ALL_tTable_Display_Area table td span:nth-child(2).label {
+	margin-right: 0rem;
+}
+/* 最新 */
+.ALL_tTable_Display_Area table td .CustomState .icon-small,
+.ALL_tTable_Display_Area table td span:nth-child(3).label {
+	margin-right: 0rem;
+}
+
+/* ==================================================== */
+/* ------ 標籤顏色 ------------------------------------- */
+.ALL_tTable_Display_Area table td .CustomState .icon-small.top-bg,
+.ALL_tTable_Display_Area table td span.label.label-success {
+	color: var(--FFFcolor);
+	background-color: #004aa5;
+}
+
+.ALL_tTable_Display_Area table td .CustomState .icon-small.hot-bg,
+.ALL_tTable_Display_Area table td span.label.label-danger {
+	color: var(--FFFcolor);
+	background-color: #ce1800;
+}
+
+.ALL_tTable_Display_Area table td .CustomState .icon-small.new-bg,
+.ALL_tTable_Display_Area table td span.label.label-warning {
+	color: var(--blackcolor);
+	background-color: #fda601;
+}
+
+.ALL_tTable_Display_Area table td .CustomState .icon-small.default-bg,
+.ALL_tTable_Display_Area table td span.label.label-default {
+	color: var(--FFFcolor);
+	background-color: #5e5e5e;
+}
+
+@media screen and (max-width: 767px) {
+	/*
+	.ALL_tTable_Display_Area .table-rwd td:nth-of-type(2)::before,
+	.ALL_tTable_Display_Area .table-rwd td:nth-of-type(3)::before {
+		/* 最重要的就是這串 *
+		/*content: none; 
+	}
+	*/
+}
+/* ------ 標籤顏色 ------------------------------------- */
+/* ==================================================== */
+
+/* ====================================================== */
+/* =====  共用 標準 RWD TABLE 置頂標籤 CSS ( 以上 )  ======= */
+/* ====================================================== */
+
+
+
+/* ============================================================= */
+/* =====  共用 標準 RWD TABLE 下載檔案表格_按鈕 CSS ( 以下 )  ======= */
+/* ============================================================= */
+.ALL_tTable_Display_Area table td .Standard_btnDiv {
+	position: relative;
+	/*display: inline-block;*/
+	/*width: 12.25vw;*/
+	/*max-width: 12.25vw;*/
+}
+@media screen and (max-width: 991px) {
+	.ALL_tTable_Display_Area table td .Standard_btnDiv {
+		width: 100%;
+		max-width: 100%;
+	}
+}
+
+.ALL_tTable_Display_Area table td a.btn.btn-default {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: flex-start;
+	
+	position: relative;
+	float: left;
+	font-size: 93.75%;
+	line-height: 1.25;
+	font-weight: 400;
+	/*color: transparent;*/
+	text-align: left;
+	
+	white-space: normal !important; /* 允許換行 */
+	word-wrap: break-word;         /* 舊寫法，兼容性佳 */
+	overflow-wrap: anywhere;       /* 新寫法，推薦 */
+	
+	vertical-align: middle;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	
+	/*min-width: var(--Customize_size_40);*/
+	padding: 0.25rem 0.5rem 0.375rem 0.5rem !important;
+	margin-top: 0rem;
+	margin-bottom: 0.5rem;
+	margin-right: 0.5rem;
+	
+	border-top-left-radius: 4px;
+	border-top-right-radius: 8px;
+	border-bottom-right-radius: 4px;
+	border-bottom-left-radius: 4px;
+	
+	border: 1px solid rgba(0,0,0,.125);
+	background-color: transparent !important;
+	transition: none;
+}
+@media screen and (max-width: 767px) {
+	.ALL_tTable_Display_Area table td a.btn.btn-default {
+		margin-top: 0.25rem;
+		margin-bottom: 0.25rem;
+		margin-right: 0.25rem;
+	}
+}
+/* ---------------------------------------------------- */
+.ALL_tTable_Display_Area table td a.btn.btn-default span {
+	font-size: clamp(87.5%, 3.25vw, 93.75%);
+  	line-height: inherit;
+	font-weight: bold;
+    margin: 0rem;
+	
+	/*transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;*/	
+}
+@media screen and (max-width: 767px) {
+	.ALL_tTable_Display_Area table td a.btn.btn-default span {
+		font-size: 87.5%;
+	}
+}
+/* ---------------------------------------------------- */
+.ALL_tTable_Display_Area table td a.btn.btn-default::before {
+	position: absolute;
+	font-size: 100%;
+	color: var(--G666color);
+	width: 12px;
+	height: 12px;
+	top: -9px;
+	right: -5px;
+	/*content: "◥";*/
+	content: url("../../../images/svg_icon/fileMask_B_8x8.svg")
+}
+.ALL_tTable_Display_Area table td a:hover.btn.btn-default::before {
+	color: var(--FFFcolor);
+	content: url("../../../images/svg_icon/fileMask_W_8x8.svg")
+}
+/* ==================================================== */
+/* 標準預設 / word / excel / pdf / ppt 設定 */
+.ALL_tTable_Display_Area table td a.btn.btn-default {
+	color: #0b5ed7;
+}
+/* ---------------------------------------------------- */
+.ALL_tTable_Display_Area table td a.btn.btn-default .docx {
+	color: #004395;
+}
+.ALL_tTable_Display_Area table td a.btn.btn-default .odt {
+	color: #004395;
+}
+/* ---------------------------------------------------- */
+.ALL_tTable_Display_Area table td a.btn.btn-default .xlsx {
+	color: #006c31;
+}
+.ALL_tTable_Display_Area table td a.btn.btn-default .ods {
+	color: #006c31;
+}
+/* ---------------------------------------------------- */
+.ALL_tTable_Display_Area table td a.btn.btn-default .pdf {
+	color: #ce1800;
+}
+/* ---------------------------------------------------- */
+.ALL_tTable_Display_Area table td a.btn.btn-default .ppt {
+	color: #ce1800;
+}
+/* ---------------------------------------------------- */
+.ALL_tTable_Display_Area table td a.btn.btn-default .link {
+	color: #0b5ed7;
+}
+/* word / excel / pdf / ppt 設定 */
+/* ==================================================== */
+
+/* ==================================================== */
+/* HOVER */
+.ALL_tTable_Display_Area table td a:hover.btn.bg_docx,
+.ALL_tTable_Display_Area table td a:hover.bg_docx,
+.ALL_tTable_Display_Area table td a:hover.btn.bg_docx span,
+.ALL_tTable_Display_Area table td a:hover.bg_docx span {
+	color: var(--FFFcolor) !important;
+  	background-color: #004395 !important;
+}
+.ALL_tTable_Display_Area table td a:hover.btn.bg_odt,
+.ALL_tTable_Display_Area table td a:hover.bg_odt,
+.ALL_tTable_Display_Area table td a:hover.btn.bg_odt span,
+.ALL_tTable_Display_Area table td a:hover.bg_odt span {
+	color: var(--FFFcolor) !important;
+  	background-color: #004395 !important;
+}
+/* ---------------------------------------------------- */
+.ALL_tTable_Display_Area table td a:hover.btn.bg_xlsx,
+.ALL_tTable_Display_Area table td a:hover.bg_xlsx,
+.ALL_tTable_Display_Area table td a:hover.btn.bg_xlsx span,
+.ALL_tTable_Display_Area table td a:hover.bg_xlsx span {
+	color: var(--FFFcolor) !important;
+  	background-color: #006c31 !important;
+}
+.ALL_tTable_Display_Area table td a:hover.btn.bg_ods,
+.ALL_tTable_Display_Area table td a:hover.bg_ods,
+.ALL_tTable_Display_Area table td a:hover.btn.bg_ods span,
+.ALL_tTable_Display_Area table td a:hover.bg_ods span {
+	color: var(--FFFcolor) !important;
+  	background-color: #006c31 !important;
+}
+/* ---------------------------------------------------- */
+.ALL_tTable_Display_Area table td a:hover.btn.bg_pdf,
+.ALL_tTable_Display_Area table td a:hover.bg_pdf,
+.ALL_tTable_Display_Area table td a:hover.btn.bg_pdf span,
+.ALL_tTable_Display_Area table td a:hover.bg_pdf span {
+	color: var(--FFFcolor) !important;
+  	background-color: #ce1800 !important;
+}
+/* ---------------------------------------------------- */
+.ALL_tTable_Display_Area table td a:hover.btn.bg_ppt,
+.ALL_tTable_Display_Area table td a:hover.bg_ppt,
+.ALL_tTable_Display_Area table td a:hover.btn.bg_ppt span,
+.ALL_tTable_Display_Area table td a:hover.bg_ppt span {
+	color: var(--FFFcolor) !important;
+  	background-color: #ce1800 !important;
+}
+/* ---------------------------------------------------- */
+.ALL_tTable_Display_Area table td a:hover.btn.bg_link,
+.ALL_tTable_Display_Area table td a:hover.bg_link,
+.ALL_tTable_Display_Area table td a:hover.btn.bg_link span,
+.ALL_tTable_Display_Area table td a:hover.bg_link span {
+	color: var(--FFFcolor) !important;
+  	background-color: #0b5ed7 !important;
+}
+/* HOVER */
+/* ==================================================== */
+
+/* ==================================================== */
+/* 標準預設 / URL-Link 設定 */
+.ALL_tTable_Display_Area table td a.bg_urllink {
+	margin-right: 0rem !important;
+	
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: none;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: visible;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: none;
+	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+
+.ALL_tTable_Display_Area table td a.btn.btn-default .URL_link {
+	font-size: 93.75%;
+	color: #0b5ed7;	
+	white-space: normal !important;
+	word-break: break-word;
+	
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 33px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+
+/* HOVER */
+.ALL_tTable_Display_Area table td a:hover.btn.bg_urllink,
+.ALL_tTable_Display_Area table td a:hover.bg_urllink,
+.ALL_tTable_Display_Area table td a:hover.btn.bg_urllink span,
+.ALL_tTable_Display_Area table td a:hover.bg_urllink span {
+	color: var(--FFFcolor) !important;
+  	background-color: #0b5ed7 !important;
+}
+/* HOVER */
+/* 標準預設 / URL-Link 設定 */
+/* ==================================================== */
+/* ============================================================= */
+/* =====  共用 標準 RWD TABLE 下載檔案表格_按鈕 CSS ( 以上 )  ======= */
+/* ============================================================= */
+
+
+
+/* ====================================================== */
+/* =====  共用 標準 自定義 th / td 對齊 CSS ( 以下 )  ======= */
+/* ====================================================== */
+@media screen and (min-width: 768px) {
+	/* // 公告列表專用 // */
+	.ALL_tTable_Display_Area .NEWS_table th:nth-child(2),
+	.ALL_tTable_Display_Area .NEWS_table td.table_td_vertical_align:nth-child(2) {
+		text-align: center !important;
+	}
+	.ALL_tTable_Display_Area .NEWS_table th:nth-child(4),
+	.ALL_tTable_Display_Area .NEWS_table td.table_td_vertical_align:nth-child(4) {
+		text-align: center !important;
+	}
+	.ALL_tTable_Display_Area .NEWS_table th:nth-child(5),
+	.ALL_tTable_Display_Area .NEWS_table td.table_td_vertical_align:nth-child(5) {
+		/*text-align: center !important;*/
+	}
+	/* // 公告列表 專用 // */
+
+	/* // 檔案室列表 專用 // */
+	.ALL_tTable_Display_Area .Files_table th:nth-child(2),
+	.ALL_tTable_Display_Area .Files_table td.table_td_vertical_align:nth-child(2) {
+		text-align: center !important;
+	}
+	.ALL_tTable_Display_Area .Files_table th:nth-child(5),
+	.ALL_tTable_Display_Area .Files_table td.table_td_vertical_align:nth-child(5) {
+		text-align: center !important;
+	}
+	.ALL_tTable_Display_Area .Files_table th:nth-child(6),
+	.ALL_tTable_Display_Area .Files_table td.table_td_vertical_align:nth-child(6) {
+		/*text-align: center !important;*/
+	}
+	/* // 檔案室列表 專用 // */
+
+	/* // 網路資源列表 專用 // */
+	.ALL_tTable_Display_Area .Online_table th:nth-child(2),
+	.ALL_tTable_Display_Area .Online_table td.table_td_vertical_align:nth-child(2) {
+		text-align: center !important;
+	}
+	/* // 網路資源列表 專用 // */
+
+	/* // 影音列表 專用 // */
+	.ALL_tTable_Display_Area .Video_table th:nth-child(2),
+	.ALL_tTable_Display_Area .Video_table td.table_td_vertical_align:nth-child(2) {
+		text-align: center !important;
+	}
+	/* // 影音列表 專用 // */
+}
+/* ====================================================== */
+/* =====  共用 標準 自定義 th / td 對齊 CSS ( 以上 )  ======= */
+/* ====================================================== */
+
+/* ====================================================== */
+/* =====  首頁 表格 RWD ( 檔案室 )  ======================= */
+/* ====================================================== */
+
+
+
+
+
+
+/* ======================================================================================================================= */
+/* 所有 首頁 CSS 設定 ( 以上 )  OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO */
+/* ======================================================================================================================= */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
