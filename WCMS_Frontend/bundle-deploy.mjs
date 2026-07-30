@@ -50,13 +50,29 @@ const getSpecManifestValue = (manifestText, fieldName) =>
 const getSpecManifestInfo = async (root) =>
 {
   const envSpecCode = await getSpecCodeFromProdEnv(root);
-  const manifestPath = path.resolve(root, "src", "SpecFetures", envSpecCode, "SpecManifest.ts");
+  if (!envSpecCode) return { specCode: "", specVersion: "" };
+
+  const manifestPath = await resolveSpecManifestPath(root, envSpecCode);
   const manifestText = await fs.readFile(manifestPath, "utf-8");
 
   return {
     specCode: getSpecManifestValue(manifestText, "specCode"),
     specVersion: getSpecManifestValue(manifestText, "specVersion"),
   };
+};
+
+/** 尋找目前 Spec 的 Manifest，並相容既有兩種資料夾拼字。 */
+const resolveSpecManifestPath = async (root, specCode) =>
+{
+  const candidates = ["SpecFetures", "SpecFeatures"]
+    .map(folder => path.resolve(root, "src", folder, specCode, "SpecManifest.ts"));
+
+  for (const candidate of candidates)
+  {
+    if (await pathExists(candidate)) return candidate;
+  }
+
+  throw new Error(`[bundle-deploy] 找不到 Spec ${specCode} 的 SpecManifest.ts。`);
 };
 
 const getServerEntryFileName = () =>
@@ -229,21 +245,20 @@ const sanitizeServiceToken = (value) =>
 
 const getProdEnvMap = async (root) =>
 {
-  // 讀取 root/.env.production 內容
-  const prodEnvPath = path.resolve(root, ".env.production");
-  const prodText = await readTextIfExists(prodEnvPath);
-  const envMap = parseEnvText(prodText);
-
-  return envMap;
+  // 依 Vite 規則合併 .env.production 與 .env.production.local
+  const prodText = await readTextIfExists(path.resolve(root, ".env.production"));
+  const localText = await readTextIfExists(path.resolve(root, ".env.production.local"));
+  return { ...parseEnvText(prodText), ...parseEnvText(localText) };
 };
 
 const getSpecCodeFromProdEnv = async (root) =>
 {
-  // 從 .env.production 取得 VITE_SPEC_CODE
+  // 環境變數優先；空值代表純 Feature 模式
   const envMap = await getProdEnvMap(root);
-  const specCode = sanitizeServiceToken(envMap.VITE_SPEC_CODE);
+  const rawSpecCode = process.env.VITE_SPEC_CODE ?? envMap.VITE_SPEC_CODE ?? "";
+  if (!String(rawSpecCode).trim()) return "";
 
-  return specCode;
+  return sanitizeServiceToken(rawSpecCode);
 };
 
 const pickPkgName = (specifier) =>
@@ -329,10 +344,12 @@ const writeWinSwXml = async (root, distDir) =>
 {
   // 產出 WinSW-x64.xml（service name 依 spec code 區分）
   const specCode = await getSpecCodeFromProdEnv(root);
+  const serviceToken = specCode || "feature";
+  const serviceLabel = specCode || "Feature";
   const entry = getServerEntryFileName();
-  const serviceId = `wcms_${specCode}_ssr`;
-  const serviceName = `WCMS_${specCode} SSR Service`;
-  const serviceDescription = `WCMS React Vite SSR service (${specCode})`;
+  const serviceId = `wcms_${serviceToken}_ssr`;
+  const serviceName = `WCMS_${serviceLabel} SSR Service`;
+  const serviceDescription = `WCMS React Vite SSR service (${serviceLabel})`;
 
   const lines = [
     "<service>",
@@ -610,6 +627,7 @@ const buildDistZipFileName = async (root) =>
   const frontendVersion = await getFrontendVersion(root);
   const specInfo = await getSpecManifestInfo(root);
 
+  if (!specInfo.specCode) return `(Feature) FE_${frontendVersion}.zip`;
   return `(Spec${specInfo.specCode}) FE_${frontendVersion}-${specInfo.specVersion}.zip`;
 };
 
@@ -732,7 +750,7 @@ const createZipArchive = async (distDir, zipPath) =>
 /** 判斷是否為前端自動部署 ZIP。 */
 const isGeneratedDistZipName = (fileName) =>
 {
-  return /^\(Spec[^)]+\) FE_.+\.zip$/.test(fileName);
+  return /^\((?:Spec[^)]+|Feature)\) FE_.+\.zip$/.test(fileName);
 };
 
 const deleteOldDistZipFiles = async (distDir) =>
