@@ -1,0 +1,124 @@
+﻿@charset "utf-8";
+/* CSS Document */
+
+/*-------------------------------------*/
+/*----- visitor_section ---------------*/
+.visitor_section {
+	/*display: -webkit-box;*/
+	/*display: -ms-flexbox;*/
+	display: flex;
+	-webkit-box-pack: start;			/* baseline / center / end / inherit / initial / revert / start / stretch / unset */
+	-ms-flex-pack: start;
+	justify-content: flex-start;		/* flex-start / flex-end / center / space-between / space-around / space-evenly */
+	position: relative;
+	background-color: transparent;
+}
+
+.visitor_section .info_contact > div.dbox {
+	display: block;
+	/*margin: 10px 0 0 0;*/
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.visitor_section .info_contact > div p {
+	font-size: 85%; /*0.9375em*/
+    font-weight: 600;
+    color: #FFFFFF;
+	margin: 0;
+	text-align: left;
+}
+/*@media (max-width: 1200px) {
+	.visitor_section .info_contact > div p {
+		padding: 0 15px;
+	}
+}
+
+@media (max-width: 992px) {
+	.visitor_section .info_contact > div p {
+		padding: 0 15px;
+	}
+}
+
+@media (max-width: 768px) {
+	.visitor_section .info_contact > div p {
+		padding: 0 1px;
+	}
+}*/
+
+.visitor_section .info_contact > div a {
+	color: #FFFFFF;
+}
+/*----- visitor_section ---------------*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/*----- copyright_section -------------*/
+.copyright_section {
+	/*display: -webkit-box;*/
+	/*display: -ms-flexbox;*/
+	display: flex;
+	-webkit-box-pack: center;			/* baseline / center / end / inherit / initial / revert / start / stretch / unset */
+	-ms-flex-pack: center;
+	justify-content: center;		/* flex-start / flex-end / center / space-between / space-around / space-evenly */
+	position: relative;
+	/*background-color: #e8e8e8;*/
+	background-color: transparent;
+}
+
+.copyright_section div.dbox {
+	display: block;
+	/*margin: 10px 0 0 0;*/
+}
+
+.copyright_section div.dbox-tb {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+	/*display: block;*/
+	margin: 0;
+}
+
+.copyright_section p {
+	font-size: 85%; /*87.5%*/ /*93.75%*/
+	color: #FFFFFF;
+	/*margin: 0 auto;*/
+	text-align: left;
+	margin: 0;
+}
+/*@media (max-width: 1200px) {
+	.copyright_section p {
+		padding: 0 15px;
+	}
+}
+
+@media (max-width: 992px) {
+	.copyright_section p {
+		padding: 0 15px;
+	}
+}
+
+@media (max-width: 768px) {
+	.copyright_section p {
+		padding: 0 1px;
+	}
+}*/
+
+.copyright_section .top-line {
+	border-top: 1px solid #777777;
+}
+
+.copyright_section a {
+	color: #FFFFFF;
+}
+/*----- copyright_section -------------*/
+/*-------------------------------------*/
