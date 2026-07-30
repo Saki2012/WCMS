@@ -1,0 +1,1327 @@
+* {
+	font-family: "Noto Serif TC", serif;
+}
+body {
+  font-family: "Noto Serif TC", serif;
+}
+.subpage_body_bg{
+	background-color: #f3f1ea;
+}
+/* menu */
+@media screen and (max-width: 991px) {
+	.navbar-nav .dropdown-menu {
+			background-color: #f3f1ea;
+	}
+}
+@media screen and (min-width: 992px) {
+	.navbar-expand-lg .navbar-nav .dropdown-menu {
+		min-width: 13.5rem;
+		max-width: 16rem;
+		background-color: #f3f1ea;
+	}
+}
+@media screen and (max-width: 991px) {
+	.navbar-collapse {
+		background-color: #f3f1ea;
+	}
+}
+/* ====================================================== */
+/* =====  內頁  自訂  SubPage-TopBanner ( IMG )  ========= */
+/* ====================================================== */
+.subpage_banner_wrapper {
+	position: relative;
+	z-index: 1;
+	/*background-image: url("../images/banner/subpage_banner_img_1920x550.jpg");*/
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-attachment: scroll;
+}
+@media screen and (max-width: 575px) {
+    .subpage_banner_wrapper {
+        min-height: 200px;
+    }
+}
+@media screen and (min-width: 1201px) {
+    .subpage_banner_wrapper {
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 0px;
+    }
+}
+.subpage_banner_wrapper::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    /*background-color: rgba(0, 0, 0, 0.35);*/
+	background-color: rgba(0, 0, 0, 0.125);
+	background-color: rgba(255, 255, 255, 0.35);
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper {
+	position: relative;
+	display: block;
+	overflow: hidden;
+}
+
+.subpage_banner_wrapper::before {
+	position: absolute;
+	top: unset;
+	bottom: 0;
+	left: 0;
+	content: url("../images/bg/mask_1920x300-2.png");
+	z-index: 1;
+}
+.subpage_banner_wrapper::after {
+	position: absolute;
+	top: 0;
+	left: 0;
+	content: url("../images/banner/SubPage_Banner_Mask_960x500.png");
+	z-index: 0;
+	-webkit-transition: transform 0.5s ease;
+	transition: transform 0.5s ease;
+}
+@media screen and (max-width: 575px) {
+    .subpage_banner_wrapper::after {
+		left: 0%;
+    }
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper img{
+	height: 400px !important;
+}
+.subpage_banner_wrapper .banner-content {
+	/*min-height: 400px;*/
+	/*min-height: 350px;*/
+	/*min-height: 300px;*/
+	min-height: 400px;
+}
+@media screen and (max-width: 575px) {
+    .subpage_banner_wrapper .banner-content {
+        /*min-height: 200px;*/
+			min-height: 300px;
+    }
+		.subpage_banner_wrapper img{
+			height: 300px !important;
+		}
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .content-inner {
+	width: 100%;
+	text-align: left;
+}
+@media screen and (max-width: 575px) {
+    .subpage_banner_wrapper .content-inner {
+       text-align: center;
+    }
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .titlebar {
+	display: block;
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .titlebar-inner {
+    max-width: none;
+    padding: 0 !important;
+	margin-bottom: 15px;
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .Big-title {	
+    font-family: "Noto Serif TC", serif;
+    font-size: initial;
+    font-weight: 700;
+    line-height: 60px;
+	letter-spacing: 4px;
+    text-transform: none;
+	margin-bottom: 0px;
+	color: var(--blackcolor);
+	/*color: var(--blackcolor);*/
+    text-shadow: rgba(0, 0, 0, 0.35) 2px 3px;
+	text-shadow: rgba(255, 255, 255, 0.35) 2px 3px;
+}
+@media screen and (max-width: 575px) {
+  .subpage_banner_wrapper .Big-title {	
+    font-size: 220.5%;
+    line-height: 40px;
+  }
+}
+@media screen and (min-width: 576px) {
+  .subpage_banner_wrapper .Big-title {	
+    font-size: 300%;
+    line-height: 60px;
+  }
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb {
+	display: block;
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb-inner {
+    padding: 0;
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb ol.breadcrumb {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    
+    padding: 0;
+    margin-bottom: 1rem;
+    list-style: none;
+    
+    border-radius: 0; /*.25rem*/
+	background-color: transparent;    
+}
+@media screen and (max-width: 575px) {
+    .subpage_banner_wrapper .banner-breadcrumb ol.breadcrumb {
+        justify-content: center;
+    }
+}
+
+.subpage_banner_wrapper .banner-breadcrumb ol li.breadcrumb-item + li.breadcrumb-item::before {
+    position: relative;
+    padding: 0 1rem;
+    float: left;
+    color: var(--FFFcolor);
+    content: "/";
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item,
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item a {
+	font-size: 93.75%;
+    color: var(--FFFcolor);
+	font-weight: bold;
+    text-decoration: none;
+    background-color: transparent;
+    padding: 0rem 0rem;
+    text-shadow: rgba(0, 0, 0, 0.35) 2px 3px;
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item a:hover {
+	color: var(--FFFcolor); /* JESS重要 - 變更顏色*/
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item+.breadcrumb-item:hover::before {
+	text-decoration: underline
+}
+
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item+.breadcrumb-item:hover::before {
+	text-decoration: none
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item.active {
+	font-size: 93.75%;
+	font-weight: bold;
+	color: var(--FFFcolor); /* JESS重要 - 變更顏色*/
+    padding: 0rem 0rem;
+    text-shadow: rgba(0, 0, 0, 0.35) 2px 3px;
+}
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item.active:focus-visible {
+	outline: none;
+}
+/*----------------------------------------------*/
+.subpage_banner_wrapper .banner-breadcrumb .breadcrumb-item a i {
+	position: relative;
+	font-size: 125%;
+	top: 1px;
+	margin-right: 3px;
+    /*color: #6c757d;*/
+}
+/* ====================================================== */
+/* =====  內頁  自訂  SubPage-TopBanner ( IMG )  ========= */
+/* ====================================================== */
+
+
+.SC-image-placeholder {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #777;
+}
+
+/* footer */
+.copyright_section .container-copyright .copyright_wrapper .info_box_1 .content ,
+.copyright_section .container-copyright .copyright_wrapper .info_box_2 .content ,
+.copyright_section .container-copyright .copyright_wrapper .info_box_2 .design_by{
+    color: var(--G555color);
+}
+
+/* =============================================================== */
+/* =====  內頁  客製 商品項目說明 ITEM  /////  ( 小圖切換大圖 用 )  ==== */
+/* =============================================================== */
+.commodity_wrapper {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+}
+
+.commodity_big_image_box {
+	position: relative;
+	padding: var(--Customize_size_16);
+	border: 1px solid var(--Gdddcolor);
+}
+/* =========================================================== */
+/* ( card_figure )_圖 ================= */
+.commodity_wrapper figure.figure_Box {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	margin: 0;
+}
+.commodity_wrapper a {
+	position: relative;
+	display: block;
+}
+.commodity_wrapper a:focus {
+	outline: 2px dashed var(--a_focusbordercolor) !important;
+	outline-offset: -2px !important;
+	background-color: var(--FFFcolor) !important;
+	padding: 2px;
+}
+
+.commodity_wrapper a .card_figure,
+.commodity_wrapper .card_figure {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	aspect-ratio: 4/4;  /*1/1*//*4/3*//*6/4*//*16/9*/
+	overflow: hidden;
+	border-radius: 1rem;
+	margin: 0;
+	
+	background-color: transparent; /* 圖片區 預設 背景色 JESS */
+	background-color: rgba(0, 0, 0, 0.1); /* 圖片區 預設 背景色 JESS */
+}
+
+.commodity_wrapper a .card_figure .img-wrapper,
+.commodity_wrapper .card_figure .img-wrapper {
+	position: relative;
+	width: 100%;
+	height: auto;
+	height: 100%;
+}
+.commodity_wrapper a .card_figure .img-wrapper img.card_image,
+.commodity_wrapper .card_figure .img-wrapper img.card_image {
+	-webkit-transition: all 0.5s ease 0s;
+	-moz-transition: all 0.5s ease 0s;
+	-ms-transition: all 0.5s ease 0s;
+	-o-transition: all 0.5s ease 0s;
+	transition: all 0.5s ease 0s;
+	
+	transition-duration: .7s;
+    transition-property: -webkit-transform;
+    transition-property: transform;
+    transition-property: transform, -webkit-transform;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+.commodity_wrapper a:hover .card_figure .img-wrapper img.card_image,
+.commodity_wrapper .card_figure:hover .img-wrapper img.card_image {
+	-webkit-transform: scale(1.05);
+	-ms-transform: scale(1.05);
+	-moz-transform: scale(1.05);
+	-o-transform: scale(1.05);
+	transform: scale(1.05);
+}
+/* ( card_figure )_圖 ================= */
+/* =========================================================== */
+
+/* =============================================================== */
+/* =====  commodity_ZoomIn_btn ( 影像放大 用 )  ==================== */
+.commodity_ZoomIn_btn {
+    position: absolute;
+	top: var(--Customize_size_16);
+	right: var(--Customize_size_16);
+    display: inline-block;
+    margin-left: 0 !important;
+	z-index: 2;
+}
+@media only screen and (max-width: 991px) {
+    .commodity_ZoomIn_btn {}
+}
+/* ---------------------------------------------------- */
+.commodity_ZoomIn_btn .Btn_zm1 {
+	position: relative;
+	top: 1rem;
+	right: 1rem;
+		
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+    
+    line-height: 1.75;
+    letter-spacing: normal;
+      
+    width: 2rem;
+	height: 2rem;
+    overflow: hidden;
+    z-index: 1;
+    
+    color: var(--Customize_color);
+    border-radius: 999999px;
+    border: 1px solid var(--Gdddcolor);;
+    background-color: var(--FFFcolor);
+    
+    -webkit-transition-property: color;
+    transition-property: color;
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+}
+@media screen and (max-width: 575px) {
+	.commodity_ZoomIn_btn .Btn_zm1 {
+        font-size: 62.5%;
+        /*padding: 0.25rem 1rem;*/
+    }
+}
+@media screen and (min-width: 575px) {
+	.commodity_ZoomIn_btn .Btn_s1 {
+        font-size: 68.75%;
+        font-weight: 600;
+        /*padding: 0.3725rem 1.5rem;*/
+    }
+}
+/* ---------------------------------------------------- */
+.commodity_ZoomIn_btn .Btn_zm1::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    
+    color: var(--FFFcolor);
+    border-radius: 999999px;
+    border: 1px solid var(--Customize_color);
+    background-color: var(--Customize_color);    
+    
+    -webkit-transform: scale(0);
+    transform: scale(0);
+    -webkit-transition-property: transform;
+    transition-property: transform;
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    -webkit-transition-timing-function: ease-out;
+    transition-timing-function: ease-out;
+}
+.commodity_ZoomIn_btn .Btn_zm1:hover {
+    color: var(--FFFcolor);
+}
+.commodity_ZoomIn_btn .Btn_zm1:hover::before {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+}
+/* ---------------------------------------------------- */
+.commodity_ZoomIn_btn .Btn_zm1 i {
+	font-size: 87.5%;
+}
+/* =====  commodity_ZoomIn_btn ( 影像放大 用 )  ==================== */
+/* =============================================================== */
+
+/* =========================================================== */
+/* ( 小圖 Owl-Carousel 區域 ) ================================= */
+.commodity_slider_box {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	padding: var(--Customize_size_16) var(--Customize_size_16) var(--Customize_size_12) var(--Customize_size_16);	
+	border: 1px solid transparent;
+}
+
+.commodity_slider_box .item {
+	display: inline-block;
+	border: 1px solid var(--Gdddcolor);
+}
+.commodity_slider_box .item.active {
+	display: inline-block;
+	border: 1px solid var(--Customize_color);
+}
+/*=============================================*/
+/* ==   左右選擇鍵 [ 中間 CENTER 中間 ]   ========*/
+/*=============================================*/
+.commodity_slider_box.owl-box .owl-carousel .owl-nav {
+    margin-top: 0px;	
+	/*display: none;*/
+}
+@media screen and (max-width: 768px) {
+    .commodity_slider_box.owl-box .owl-carousel .owl-nav {
+		display: flex;
+    }
+}
+/* ------------------------------------------------------------*/
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next {
+    cursor: pointer;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next { 
+	/*position: relative;*/ 
+	top: calc((100% - 40px) / 2 );
+	font: inherit;
+	color: inherit;	
+	background: 0 0;
+	z-index: 2;
+		
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	padding: 0.25rem 0.25rem !important;
+	
+	border: 1px solid var(--G999color); 
+	border: 2px solid var(--FFFcolor);
+	
+	background-color: var(--FFFcolor);
+	background-color: rgba(243, 241, 234, 0.85);
+	
+	overflow: hidden;
+	border-radius: 2rem;
+}
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next {
+	width: var(--Customize_size_40);
+	height: var(--Customize_size_40);	
+}
+@media screen and (max-width: 768px) {
+    .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev,
+    .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next {
+        width: var(--Customize_size_32);
+		height: var(--Customize_size_32);
+    }
+}
+/*..............................................................................*/
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev {
+	position: absolute;
+	left: calc(0% - var(--Customize_size_16) - 1px);
+	margin: 0 0px;	
+}
+/*..............................................................................*/
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next {
+	position: absolute;
+	right: calc(0% - var(--Customize_size_16) - 1px);
+	margin: 0 0px;	
+}
+/*..............................................................................*/
+/* HOVER + ACTIVE */
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev:hover,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next:hover,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev:active,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next:active {
+    background-color: var(--Customize_HRcolor) !important;        /*★★★ 重要 HOVER變色 ★★★*/
+}
+/*..............................................................................*/
+/* FOCUS */
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next:focus {
+	display: block;
+	outline: 2px dashed #43B5FC !important;
+    outline-offset: -2px;
+    background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
+}
+/*..............................................................................*/
+/*..............................................................................*/
+/*..............................................................................*/
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev span,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next span {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	height: 100px;
+	transform: translate(-50%, -50%);
+	
+	border: none !important;
+	background-color: transparent !important;
+	border-radius: 0%;
+} 
+/*@media(max-width: 991px) {
+	.newsbox-section.swiper-box .owl-carousel .owl-nav button.owl-prev span,
+    .newsbox-section.swiper-box .owl-carousel .owl-nav button.owl-next span {
+		border: 1px solid transparent !important;
+	    background-color: transparent !important;
+	}
+}*/
+/*..............................................................................*/
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev span {
+	content: url("../images/owl-carousel/prev-B.svg");
+	width: var(--Customize_size_24);
+	height: var(--Customize_size_24);
+}
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next span {
+	content: url("../images/owl-carousel/next-B.svg");
+	width: var(--Customize_size_24);
+	height: var(--Customize_size_24);
+}
+@media screen and (max-width: 768px) {
+    .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev span {
+        width: var(--Customize_size_20);
+		height: var(--Customize_size_20);
+    }
+    .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next span {
+		width: var(--Customize_size_20);
+		height: var(--Customize_size_20);
+    }
+}
+/*..............................................................................*/
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev:hover span {
+	content: url("../images/owl-carousel/prev-W.svg");
+	border: none !important;
+	background-color: none !important;
+}
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next:hover span {
+	content: url("../images/owl-carousel/next-W.svg");
+	border: none !important;
+	background-color: none !important;
+} 
+/*=============================================*/
+/* ==   左右選擇鍵 [ 中間 CENTER 中間 ]   ========*/
+/*=============================================*/
+/* ( 小圖 Owl-Carousel 區域 ) ================================= */
+/* =========================================================== */
+/* =============================================================== */
+/* =====  內頁  客製 商品項目說明 ITEM  /////  ( 小圖切換大圖 用 )  ==== */
+/* =============================================================== */
+
+/* ====================================================== */
+/* =====  首頁 展演活動 區 SharedCarouselDivBox ============= */
+/* ====================================================== */
+.SharedCarouselDivBox {
+    position: relative;
+	display: block;
+	background-color: transparent;
+	/*background-image: url(images/bg/.....);*/
+	/*background-size: cover;*/
+	background-repeat: no-repeat;
+	background-position: center top;
+}
+
+.SharedCarouselDivBox .Mask-DivBox {
+	position: relative;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+	background-attachment: fixed;
+	width: 100%;
+	margin: 0 auto;
+}
+/* ============================================= */
+/* ------ content-box -------------------------- */
+.SharedCarouselDivBox.owl-box .content-box {
+    display: block;
+    position: relative;
+    padding: 0;
+}
+/* ------ content-box -------------------------- */
+
+/* ------ owl-stage-outer ---------------------- */
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-stage-outer {
+	position: relative;
+	overflow: hidden;
+	-webkit-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
+	margin-bottom: 2rem;
+}
+
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-item .item {
+	margin: 1px;
+}
+/* ------ owl-stage-outer ---------------------- */
+/* ============================================= */
+
+/*=============================================*/
+/* ==   輪播 內容ITEM   =========================*/
+/*=============================================*/
+.SharedCarouselDivBox .item a {
+	position: relative;
+	display: block;
+	margin-bottom: 1rem;
+}
+.SharedCarouselDivBox .item a:focus {
+    text-decoration: none;
+    outline: 2px dashed #43B5FC;
+	outline-offset: -2px;
+}
+/*=============================================*/
+/* ==   ITEM 內容區塊 開始   ====================*/
+.SC-headerBox {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	
+	padding: 1.25rem;
+	margin: 2rem 0 3rem 0;
+	border: 1px solid var(--Customize_ACcolor);
+}
+/*----------------------------------------------*/
+.SC-header-title {
+	font-size: clamp(150%, 3.25vw, 200%);
+	font-weight: 700;
+}
+/*----------------------------------------------*/
+.SC-header-small {
+	font-size: clamp(93.75%, 3.25vw, 100%);
+	font-weight: 700;
+}
+/*----------------------------------------------*/
+/* 容器設定 */
+.SC-row {
+	display: flex;
+	flex-direction: column; /* 手機版：由上而下 (圖片先出現) */
+	align-items: center;
+	position: relative;
+}
+@media (min-width: 992px) {
+	.SC-row {
+		flex-direction: row-reverse; /* 翻轉：圖片在右，文字在左 */
+	}
+}
+/*----------------------------------------------*/
+/* 圖片樣式 */
+.SC-image-container {
+	width: 100%;
+	z-index: 1;
+}
+@media (min-width: 992px) {
+	.SC-image-container {
+		flex: 0 0 65%; /* 圖片佔 65% */
+	}
+}
+/*----------------------------------------------*/
+.SC-image-container img {
+	width: 100%;
+	height: 300px;
+	object-fit: cover;
+	display: block;
+}
+@media (min-width: 992px) {
+	.SC-image-container img {
+		height: 500px;
+	}
+}
+/*----------------------------------------------*/
+/* 文字方塊樣式 */
+.SC-info-card {	
+	width: 100%; /* 手機版稍微縮排 */
+	margin-top: -30px; /* 手機版稍微壓在圖片上，若不需要可改 0 */
+	padding: 30px;
+	z-index: 1;
+	border: 1px solid var(--Customize_ACcolor);
+	background-color: rgba(255, 255, 255, 0.5);
+	box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+@media (min-width: 992px) {
+	.SC-info-card {
+		flex: 0 0 40%; /* 文字佔 45% */
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		
+		margin-top: 0;
+		margin-right: -5%; /* 關鍵：向右偏移壓在圖片上 */
+		padding: 30px;
+		min-height: 400px;		
+	}
+}
+/*----------------------------------------------*/
+.SC-content {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	background-color: var(--FFFcolor);
+}
+/*----------------------------------------------*/
+.SC-info-card ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	border-top: none;
+}
+.SC-info-card li.li_row {
+	--bs-gutter-x: 1.5rem;
+	--bs-gutter-y: 0;
+	display: flex;
+	flex-wrap: wrap;
+	
+	/*font-size: clamp(93.75%, 3.25vw, 106.25%);*/
+	/*font-weight: 600;*/
+	
+	width: 100%;
+	padding: 1.0rem 0 1.0rem 0;
+	margin-top: calc(-1 * var(--bs-gutter-y));
+	margin-right: 0;
+	margin-left: 0;	
+	border-bottom: 1px solid rgba(0, 0, 0, 0.175);
+}
+@media screen and (max-width: 767px) {
+    .SC-info-card li.li_row {
+        padding: 1.25rem 0;
+    }
+}
+/*=============================================*/
+/* ==   輪播 內容ITEM   =========================*/
+/*=============================================*/
+
+/* ******************************************************** */
+/* ******************************************************** */
+
+/*=============================================*/
+/* ==   左右選擇鍵 [ 下方 LEFT 左邊 ]   ==========*/
+/*=============================================*/
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav {
+    display: flex;
+    flex-direction: row;
+	flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0px;
+    /*width: calc(4px + var(--Customize_size_80) + 4px  + 4px + var(--Customize_size_80) + 4px);*/
+	
+	position: relative;
+	left: 0;
+	bottom: 0px;
+	
+	/*display: none;*/
+}
+@media screen and (max-width: 768px) {
+    .SharedCarouselDivBox.owl-box .owl-carousel .owl-nav {
+		width: calc(4px + 1rem + var(--Customize_size_40) + 1rem + 4px + 4px + 1rem + var(--Customize_size_40) + 1rem + 4px);
+        bottom: 0px;
+		
+		display: flex;
+    }
+}
+/* ------------------------------------------------------------*/
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next {
+    cursor: pointer;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next { 
+	position: relative; 
+	top: 45%;
+	font: inherit;
+	color: inherit;	
+	background: 0 0;
+	z-index: 2;
+		
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	padding: 0.25rem 0.25rem !important;
+	border: 1px solid var(--G999color); 
+	background-color: transparent;
+	overflow: hidden;
+	border-radius: 2rem;
+}
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next {
+	width: var(--Customize_size_80);
+	height: var(--Customize_size_40);	
+}
+@media screen and (max-width: 768px) {
+    .SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev,
+    .SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next {
+        width: var(--Customize_size_48);
+		height: var(--Customize_size_32);
+    }
+}
+/*..............................................................................*/
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev {
+	position: relative;
+	left: 0;
+	/*right: 0px;*/
+	margin: 0 4px;	
+}
+/*..............................................................................*/
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next {
+	position: relative;
+	left: 0;
+	/*right: 0px;*/
+	margin: 0 4px;	
+}
+/*..............................................................................*/
+/* HOVER + ACTIVE */
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev:hover,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next:hover,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev:active,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next:active {
+    background-color: var(--Customize_HRcolor) !important;        /*★★★ 重要 HOVER變色 ★★★*/
+}
+/*..............................................................................*/
+/* FOCUS */
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next:focus {
+	display: block;
+	outline: 2px dashed #43B5FC !important;
+    outline-offset: -2px;
+    background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
+}
+/*..............................................................................*/
+/*..............................................................................*/
+/*..............................................................................*/
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev span,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next span {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	height: 100px;
+	transform: translate(-50%, -50%);
+	
+	border: none !important;
+	background-color: transparent !important;
+	border-radius: 0%;
+} 
+/*@media(max-width: 991px) {
+	.newsbox-section.swiper-box .owl-carousel .owl-nav button.owl-prev span,
+    .newsbox-section.swiper-box .owl-carousel .owl-nav button.owl-next span {
+		border: 1px solid transparent !important;
+	    background-color: transparent !important;
+	}
+}*/
+/*..............................................................................*/
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev span {
+	content: url("../images/owl-carousel/prev_long_arrow_B.svg");
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_32);
+}
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next span {
+	content: url("../images/owl-carousel/next_long_arrow_B.svg");
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_32);
+}
+@media screen and (max-width: 768px) {
+    .SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev span {
+        width: var(--Customize_size_24);
+		height: var(--Customize_size_24);
+    }
+    .SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next span {
+		width: var(--Customize_size_24);
+		height: var(--Customize_size_24);
+    }
+}
+/*..............................................................................*/
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev:hover span {
+	content: url("../images/owl-carousel/prev_long_arrow_W.svg");
+	border: none !important;
+	background-color: none !important;
+}
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next:hover span {
+	content: url("../images/owl-carousel/next_long_arrow_W.svg");
+	border: none !important;
+	background-color: none !important;
+} 
+/*=============================================*/
+/* ==   左右選擇鍵 [ 下方 LEFT 左邊 ]   ==========*/
+/*=============================================*/
+
+/* ******************************************************** */
+/* ******************************************************** */
+
+/*=============================================*/
+/* ==   單一顆 暫停 / 撥放 [ 輪播 ]   ============*/
+/*=============================================*/
+.SharedCarouselDivBox .DIV-singleBox {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	align-items: center;
+
+    position: absolute;
+	/*width: 32px;*/
+	
+	/*display: none;*/
+}
+@media screen and (max-width: 767px) {
+	.SharedCarouselDivBox .DIV-singleBox {
+		right: 0;
+        top: -39px;
+		
+		display: flex;
+	}
+}
+@media screen and (min-width: 768px) {
+	.SharedCarouselDivBox .DIV-singleBox {
+		right: 0;
+		top: -39px;
+	}
+}
+
+.SharedCarouselDivBox .control-singlebox {
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+    position: relative;
+    z-index: 2;
+}
+
+.SharedCarouselDivBox .control-singlebox a {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	
+	width: var(--Customize_size_48);
+	height: var(--Customize_size_32);
+	padding: 0.25rem 0.25rem;
+	border-radius: 2rem;
+	border: 1px solid var(--G999color);
+	background-color: rgba(255, 255, 255, 0.25);
+	overflow: hidden;
+}
+@media screen and (max-width: 767px) {
+	.SharedCarouselDivBox .control-singlebox a {
+		width: var(--Customize_size_40);
+		height: var(--Customize_size_32);
+	}
+}
+/*..............................................................................*/
+/* HOVER + ACTIVE */
+.SharedCarouselDivBox .control-singlebox a:hover,
+.SharedCarouselDivBox .control-singlebox a:active {
+    background-color: var(--Customize_HRcolor) !important;        /*★★★ 重要 HOVER變色 ★★★*/
+}
+/*..............................................................................*/
+/* FOCUS */
+.SharedCarouselDivBox .control-singlebox a:focus {
+	display: block;
+	outline: 2px dashed #43B5FC !important;
+    outline-offset: -2px;
+    background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
+}
+/*..............................................................................*/
+/*..............................................................................*/
+/*..............................................................................*/
+.SharedCarouselDivBox .control-singlebox a > .control-toggle {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_32);
+	border-radius: 100%;
+	border: 1px solid transparent !important;
+	background-color: transparent !important;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+	outline: none;
+}
+/*..............................................................................*/
+.SharedCarouselDivBox .control-singlebox a > .control-pause-icon {
+    content: url("../images/owl-carousel/control-pause-B-icon.svg");
+	background-image: none;
+}
+
+.SharedCarouselDivBox .control-singlebox a > .control-play-icon {
+    content: url("../images/owl-carousel/control-start-B-icon.svg");
+	background-image: none;
+}
+
+.SharedCarouselDivBox .control-singlebox a:hover > .control-pause-icon,
+.SharedCarouselDivBox .control-singlebox a:focus > .control-pause-icon {
+    content: url("../images/owl-carousel/owl-carousel/control-pause-W-icon.svg");
+}
+.SharedCarouselDivBox .control-singlebox a:hover > .control-play-icon,
+.SharedCarouselDivBox .control-singlebox a:focus > .control-play-icon {
+    content: url("../images/owl-carousel/control-start-W-icon.svg");
+}
+/*=============================================*/
+/* ==   單一顆 暫停 / 撥放 [ 輪播 ] END   ========*/
+/*=============================================*/
+/* ******************************************************** */
+/* ******************************************************** */
+/*=============================================*/
+/* ==   兩顆 暫停 / 撥放 [ 輪播 ]   ==============*/
+/*=============================================*/
+.SharedCarouselDivBox .DIV-Box {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+	
+	position: absolute;
+	/*width: 150px;*/
+	padding: 0;
+	
+	display: none;
+}
+@media screen and (max-width: 767px) {
+	.SharedCarouselDivBox .DIV-Box {
+		right: 0px;
+        top: -55px;
+	}
+}
+@media screen and (min-width: 768px) {
+	.SharedCarouselDivBox .DIV-Box {
+		right: 0;
+		top: -80px;
+	}
+}
+/*.SharedCarouselDivBox .DIV-Box::before {
+    content: "";
+    position: relative;
+    height: 1px;
+    width: 75%;
+    background-color: #006d66;
+    left: 0;
+    top: 24px;
+}*/
+
+.SharedCarouselDivBox .control-box {	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+    
+	position: relative;
+    left: calc((100% - 1170px) / 2);
+    left: 0;
+    z-index: 2;
+        
+    color: var(--FFFcolor);
+    text-align: center;
+}
+@media screen and (max-width: 768px) {
+	.SharedCarouselDivBox .control-box {	
+		padding: 0px; 
+	}
+}
+/*..............................................................................*/
+.SharedCarouselDivBox a.play,
+.SharedCarouselDivBox a.stop {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	width: var(--Customize_size_48);
+	height: var(--Customize_size_32);
+	padding: 0.25rem 0.25rem;
+	border-radius: 2rem;
+	border: 1px solid var(--G999color);
+	background-color: transparent;
+	overflow: hidden;
+}
+@media screen and (max-width: 767px) {
+	.SharedCarouselDivBox a.play,
+	.SharedCarouselDivBox a.stop {
+		width: var(--Customize_size_40);
+  		height: var(--Customize_size_32);
+	}
+}
+/*..............................................................................*/
+/* HOVER + ACTIVE */
+.SharedCarouselDivBox a:hover.play,
+.SharedCarouselDivBox a:hover.stop
+.SharedCarouselDivBox a:active.play,
+.SharedCarouselDivBox a:active.stop {
+	background-color: var(--Customize_HRcolor) !important;        /*★★★ 重要 HOVER變色 ★★★*/
+}/*..............................................................................*/
+/* FOCUS */
+.SharedCarouselDivBox a:focus.play,
+.SharedCarouselDivBox a:focus.stop {
+	text-decoration: none;
+	outline: thin dotted;
+	outline: 2px dashed var(--a_focusbordercolor);
+	outline-offset: 0px;
+	color: var(--blackcolor) !important;
+	background-color: var(--a_focuscolor) !important;
+}
+/*..............................................................................*/
+/*..............................................................................*/
+/*..............................................................................*/
+.SharedCarouselDivBox .contrl_start,
+.SharedCarouselDivBox .contrl_pause {
+	position: relative;
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_32);
+	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	
+	border-radius: 2rem;
+	z-index: 2; /*999*/
+}
+@media screen and (max-width: 767px) {
+	.SharedCarouselDivBox .contrl_start,
+	.SharedCarouselDivBox .contrl_pause {
+		width: var(--Customize_size_32);
+  		height: var(--Customize_size_32);
+	}
+    /*...................................*/
+	.SharedCarouselDivBox .control-start {
+		right: calc(1.5% + 5px);
+	}
+	.SharedCarouselDivBox .control-pause {
+		right: 1.5%;
+	}
+}
+/*..............................................................................*/
+.SharedCarouselDivBox .control-start-icon,
+.SharedCarouselDivBox .control-pause-icon {
+	display: inline-block;
+	width: var(--Customize_size_32);
+  	height: var(--Customize_size_32);
+	background-position-x: 50%;
+	background-position-y: center;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-image: none;
+	background-size: 100% 100%;
+	background-origin: padding-box;
+	background-clip: border-box;
+}
+.SharedCarouselDivBox .control-start-icon:hover,
+.SharedCarouselDivBox .control-pause-icon:hover {
+	opacity: 1;
+}
+/*..............................................................................*/
+.SharedCarouselDivBox .control-start-icon {
+    background-image: url("../images/owl-carousel/control-start-B-icon.svg");
+    opacity: .85;
+}
+/*..............................................................................*/
+.SharedCarouselDivBox .control-pause-icon {
+    background-image: url("../images/owl-carousel/control-pause-B-icon.svg");
+    opacity: .85;
+}
+/*..............................................................................*/
+.SharedCarouselDivBox a:hover .control-start-icon,
+.SharedCarouselDivBox a:focus .control-start-icon {
+    background-image: url("../images/owl-carousel/control-start-W-icon.svg");
+    opacity: .85;
+}
+.SharedCarouselDivBox a:hover .control-pause-icon,
+.SharedCarouselDivBox a:focus .control-pause-icon {
+    background-image: url("../images/owl-carousel/control-pause-W-icon.svg");
+    opacity: .85;
+}
+/*..............................................................................*/
+
+.SharedCarouselDivBox .control-start:focus, 
+.SharedCarouselDivBox .control-pause:focus {
+    text-decoration: none;
+    outline: 2px dashed #43B5FC;
+	outline-offset: -2px;
+	background-color: var(--Customize_HRcolor);        /*★★★ 重要 焦點變色 ★★★*/
+	border-radius: 2rem;
+}
+/*..............................................................................*/
+
+/*=============================================*/
+/* ==   兩顆 暫停 / 撥放 [ 輪播 ] END   ==========*/
+/*=============================================*/
+/* ====================================================== */
+/* =====  首頁 展演活動 區 SharedCarouselDivBox ============= */
+/* ====================================================== */
+
+
+.SubPage_Standard_itemBoxs .card_content .card_titleDiv {
+	min-height: 70px;
+}
+/* Header/Menu AA：補足 200%–400% 放大時的選單焦點、鍵盤與流動排版。 */
+.menu_section .navbar-toggler:focus,
+.menu_section .navbar-toggler:focus-visible,
+.menu_section .navbar-nav .nav-link:focus,
+.menu_section .navbar-nav .nav-link:focus-visible,
+.menu_section .dropdown-menu .dropdown-item:focus,
+.menu_section .dropdown-menu .dropdown-item:focus-visible {
+    outline: 2px dashed var(--a_focusbordercolor) !important;
+    outline-offset: 2px !important;
+    box-shadow: none !important;
+    background-color: var(--a_focuscolor) !important;
+    color: var(--blackcolor) !important;
+}
+.menu_section .navbar-toggler:focus .hamburger span,
+.menu_section .navbar-toggler:focus-visible .hamburger span {
+    background-color: var(--blackcolor) !important;
+}
+@media screen and (max-width: 991px) {
+    #Site-Header.main-header.position-fixed {
+        position: sticky !important;
+    }
+    #Site-Header.main-header.active {
+        position: sticky !important;
+        top: 0;
+    }
+    #navbar-content.navbar-collapse {
+        max-height: calc(100dvh - 6rem);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+    body .main-header.active .overlayer {
+        pointer-events: auto;
+    }
+}
