@@ -1,0 +1,1403 @@
+a:focus,
+a:focus-visible {
+    text-decoration: none;    
+	outline: thin dotted;
+	outline: 2px dashed var(--a_focusbordercolor2) !important;
+	outline-offset: 0px;    
+    color: var(--blackcolor) !important;
+	/* background-color: var(--a_focuscolor2) !important; */
+	background-color: var(--a_focuscolor) !important;
+    
+}
+[tabindex="-1"]:focus:not(:focus-visible) {
+	text-decoration: none;
+	outline: thin dotted !important;
+	outline: 2px dashed var(--a_focusbordercolor2) !important;
+	outline-offset: 0px;
+}
+
+/* =========================================================
+   Spec1816.css (SSR/CSR Patch)
+   目的：
+   1) Owl / Swiper 在 SSR 或尚未 init 時也可正常顯示（避免空白/爆版）
+   2) 補上 1816 首頁 LinkData / QuickLinksData 需要的關鍵樣式
+   ========================================================= */
+
+/* =========================
+   1) Owl SSR / Pre-init fallback
+   ========================= */
+
+/* Owl 原始 CSS 會讓 .owl-carousel 預設 display:none（等 owl-loaded 才顯示）
+   SSR 沒 init 會直接整段消失，所以這裡強制可見 */
+.owl-carousel {
+  display: block;
+}
+
+/* Owl 還沒 init（沒有 owl-loaded）時，用「水平可捲動」模擬 carousel（可用滑鼠/觸控拖動） */
+.owl-carousel:not(.owl-loaded) {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none; /* Firefox hide scrollbar */
+}
+.owl-carousel:not(.owl-loaded)::-webkit-scrollbar {
+  display: none; /* Chrome/Safari hide scrollbar */
+}
+
+.owl-carousel:not(.owl-loaded) > .item {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+}
+
+/* ---- 1816：Links（QuickLinksData.tsx）----
+   prototype: 0/575/767=2, 991=3, 1199=4, margin=5 */
+#Links_owl_carousel:not(.owl-loaded) {
+  gap: 5px;
+}
+#Links_owl_carousel:not(.owl-loaded) > .item {
+  flex-basis: 50%;
+}
+@media (min-width: 992px) {
+  #Links_owl_carousel:not(.owl-loaded) > .item {
+    flex-basis: 33.3333%;
+  }
+}
+@media (min-width: 1200px) {
+  #Links_owl_carousel:not(.owl-loaded) > .item {
+    flex-basis: 25%;
+  }
+}
+
+/* ---- 1816：Collections（你先前的 owl opts）----
+   0/575/767=2, 991=3, 1199=4 */
+#Collections_owl_carousel:not(.owl-loaded) {
+  gap: 5px;
+}
+#Collections_owl_carousel:not(.owl-loaded) > .item {
+  flex-basis: 50%;
+}
+@media (min-width: 992px) {
+  #Collections_owl_carousel:not(.owl-loaded) > .item {
+    flex-basis: 33.3333%;
+  }
+}
+@media (min-width: 1200px) {
+  #Collections_owl_carousel:not(.owl-loaded) > .item {
+    flex-basis: 25%;
+  }
+}
+
+/* ---- 1816：Event ----  20260312 cara修改
+   0/575/767=2, 991=3, 1199=3, margin=5 */
+#Event_owl_carousel:not(.owl-loaded) {
+  gap: 5px;
+}
+#Event_owl_carousel:not(.owl-loaded) > .item {
+  flex-basis: calc(50% - 3.5px);
+}
+@media (min-width: 992px) {
+  #Event_owl_carousel:not(.owl-loaded) > .item {
+    flex-basis: calc(33.3333% - 3.5px);
+  }
+}
+
+
+/* =========================
+   2) Swiper SSR / Pre-init fallback（LinkData.tsx）
+   ========================= */
+
+/* Swiper 尚未 initialized 時，讓它也用水平捲動可看全部 icons（避免只看到第一屏） */
+#icon_area.swiper:not(.swiper-initialized) {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+#icon_area.swiper:not(.swiper-initialized)::-webkit-scrollbar {
+  display: none;
+}
+#icon_area.swiper:not(.swiper-initialized) .swiper-wrapper {
+  display: flex;
+  flex-wrap: nowrap;
+}
+#icon_area.swiper:not(.swiper-initialized) .swiper-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+}
+
+/* 對標 LinkData 的 breakpoints：
+   480=2, 680=3, 768=4, 992=5, 1200=6 */
+@media (min-width: 480px) {
+  #icon_area.swiper:not(.swiper-initialized) .swiper-slide { flex-basis: 50%; }
+}
+@media (min-width: 680px) {
+  #icon_area.swiper:not(.swiper-initialized) .swiper-slide { flex-basis: 33.3333%; }
+}
+@media (min-width: 768px) {
+  #icon_area.swiper:not(.swiper-initialized) .swiper-slide { flex-basis: 25%; }
+}
+@media (min-width: 992px) {
+  #icon_area.swiper:not(.swiper-initialized) .swiper-slide { flex-basis: 20%; }
+}
+@media (min-width: 1200px) {
+  #icon_area.swiper:not(.swiper-initialized) .swiper-slide { flex-basis: 16.6667%; }
+}
+
+/* Swiper 沒 init 時：pagination/nav 先隱藏（避免出現但不能用） */
+#icon_area.swiper:not(.swiper-initialized) .swiper-pagination,
+#icon_area.swiper:not(.swiper-initialized) .swiper-nav {
+  display: none !important;
+}
+
+
+/* =========================
+   3) 1816 首頁：Link-icons_section（LinkData）必要樣式
+   （把 prototype 的關鍵段補回來，避免 SSR 首屏看起來不像）
+   ========================= */
+
+.Link-icons_section {
+  position: relative;
+  display: block;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center top;
+}
+
+.Link-icons_section .Mask-DivBox {
+  background-color: var(--Customize_color);
+}
+
+.Link-icons-pos {
+  position: relative;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  background-color: var(--Customize_Btn_color);
+}
+
+.Link-icons-pos .item {
+  position: relative;
+}
+
+.Link-icons-pos .swiper-slide:not(:last-child) .item::after {
+  content: "";
+  position: absolute;
+  width: 1px;
+  height: 40%;
+  top: 50%;
+  right: 0px;
+  transform: translate(0, -50%);
+  background: var(--FFFcolor);
+}
+
+.Link-icons-pos a {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.Link-icons-pos a:hover {
+  color: var(--blackcolor);
+}
+
+.Link-icons-pos a:focus-visible {
+  text-decoration: none;
+  outline: 2px dashed #43B5FC;
+  outline-offset: -2px;
+}
+
+.Link-icons-pos a .icon-wrapper {
+  position: relative;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  background-color: transparent;
+  padding: 1.25rem 1rem;
+  min-height: 95px;
+}
+
+.Link-icons-pos a .icon-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Link-icons-pos a .icon-area .icon-type-image {
+  width: 30px;
+  height: 30px;
+  margin-right: 0.75rem;
+}
+.Link-icons-pos a .icon-area .icon-type-image img {
+  border: 0;
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.Link-icons-pos a .tit-contents {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 0;
+}
+
+.Link-icons-pos a .tit-contents .Link-icons-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 112.5%;
+  font-weight: 700;
+  color: var(--FFFcolor);
+}
+@media (min-width: 320px) and (max-width: 992px) {
+  .Link-icons-pos a .tit-contents .Link-icons-title {
+    font-size: 93.75%;
+  }
+}
+
+
+/* =========================
+   4) 1816 首頁：Links_section（QuickLinksData）必要樣式
+   這段是「你截圖爆版」的核心修正點：卡片高度/圖片裁切
+   ========================= */
+
+.Links_section {
+  position: relative;
+  display: block;
+  background-color: transparent;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center top;
+}
+
+.Links_section .Mask-DivBox {
+  position: relative;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* A11y：有需要可以用 focus-visible 做外框（不改 DOM） */
+/* .Links_section a:focus-visible {
+  outline: 2px dashed #43B5FC;
+  outline-offset: 2px;
+} */
+
+.Links_section .item a {
+  position: relative;
+  display: block;
+}
+
+.Links_section .wrapper_box {
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.Links_section .wrapper_box .card_figure {
+  margin-bottom: 0;
+}
+
+/* ✅ 關鍵：固定比例 + 絕對定位裁切，避免圖片把區塊撐爆 */
+.Links_section a .wrapper_box .card_image_link {
+  display: block;
+  position: relative;
+  aspect-ratio: 17 / 5;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* hover/focus 放大（跟 prototype 一致） */
+.Links_section a:hover .wrapper_box .card_image_link .card_image,
+.Links_section a:focus .wrapper_box .card_image_link .card_image,
+.Links_section a:active .wrapper_box .card_image_link .card_image {
+  transform: scale(1.05);
+}
+
+.Links_section a .wrapper_box .card_image_link picture {
+  display: block;
+}
+
+.Links_section a .wrapper_box .card_image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+
+  transition-duration: 0.7s;
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(.19, 1, .22, 1);
+}
+
+/* =========================
+   A11y：SSR pre-init 可用鍵盤水平捲動
+   ========================= */
+
+/* Owl pre-init：允許鍵盤 focus 到 item 時自動可見 */
+.owl-carousel:not(.owl-loaded) > .item {
+  scroll-margin-left: 12px;
+  scroll-margin-right: 12px;
+}
+
+/* Swiper pre-init：同上 */
+#icon_area.swiper:not(.swiper-initialized) .swiper-slide {
+  scroll-margin-left: 12px;
+  scroll-margin-right: 12px;
+}
+
+/* 若你不希望滑鼠水平滾輪干擾，可保留；這段可選 */
+@media (prefers-reduced-motion: reduce) {
+  .Links_section a .wrapper_box .card_image {
+    transition: none;
+  }
+}
+
+
+/* ------------------內頁共用客製----------------------- */
+
+/* 因目前分享與列印不用會到，故先把分享與列印padding拿掉 */
+.PrintingSite__wrapper .Print-box{
+  padding: 0;
+}
+/* 因目前分享與列印不用會到，故將返回鍵靠左 */
+.R.justify-content-between{
+  justify-content: start !important;
+}
+
+/* 內頁標題上方的margin-top拿掉 */
+#ContentPlaceContent_ContentConentA.All_Standard_Content_CSS{
+  margin-top: 0 !important;
+}
+
+/* 內頁側邊攔新增的margin-top */
+#ContentPlaceContent_ContentSubMenu.SubPage-leftMenu{
+  margin-top: 1.2rem;
+}
+
+/* ====================================================== */
+/* =====  內頁 - 多層 左邊選單 ( 以下 )  =================== */
+/* ====================================================== */
+/* ============================================= */
+/* ------  左邊選單 標題區 ----------------------- */
+.SubPage-leftMenu h2,
+#ContentPlaceContent_ContentSubMenu .h2, #ContentPlaceContent_ContentSubMenu h2,
+#ContentPlaceContent_ContentConentA .h2, #ContentPlaceContent_ContentConentA h2 {
+	font-size: 150% !important;
+	font-weight: 500;
+}
+@media screen and (min-width: 320px) and (max-width: 991px) {
+	.SubPage-leftMenu h2,
+	#ContentPlaceContent_ContentSubMenu .h2, #ContentPlaceContent_ContentSubMenu h2,
+	#ContentPlaceContent_ContentConentA .h2, #ContentPlaceContent_ContentConentA h2 {
+		font-size: 125% !important;
+	}
+}
+/* ------  左邊選單 標題區 ----------------------- */
+/* ============================================= */
+#SubPage-SidebarMenu {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+}
+
+.sidebar {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+}
+/* ============================================= */
+/* ------  第一層 ul.list-group ----------------- */
+.sidebar ul.list-group {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: column;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+    align-items: center;
+	
+	padding: 0;
+	margin: 0;
+	list-style: none;
+	width: 100%;
+}
+@media screen and (min-width: 320px) and (max-width: 991px) {
+	.sidebar ul.list-group {
+		flex-direction: row;
+		justify-content: flex-start;
+		align-items: flex-start;
+	}
+}
+/* ------  第一層 ul.list-group ----------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ 第一層 ITEM ul li.nav-item ------------ */
+.sidebar ul li.nav-item {
+	position: relative;
+	list-style: none;
+	width: 100%;
+	margin-bottom: 0px;
+	padding: 0 0.05rem;
+}
+.sidebar ul.list-group > li.nav-item > a.list-group-item{
+	font-weight: 900;
+}
+.sidebar ul.list-group > li.nav-item:last-child{
+	border-bottom: 1px solid var(--GCCCcolor);
+}
+/* ------ 第一層 ITEM ul li.nav-item ------------ */
+/* ============================================= */
+
+/* ============================================= */
+/* ------  第二.三.四.五.六層 ul.submenu --------- */
+.sidebar ul li ul.submenu {
+	padding: 0;
+	margin: 0;
+	list-style: none;
+	width: 100%;
+}
+/* ------  第二.三.四.五.六層 ul.submenu --------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ 手機模式 第一層 ITEM ul li.nav-item ---- */
+@media screen and (min-width: 320px) and (max-width: 991px) {
+	#nav_accordion {
+		display: flex;
+		flex-wrap: wrap;
+    }
+
+    #nav_accordion > .nav-item {
+		/*width: 50%;*/
+		width: calc((100% - (2.5px * 4)) / 2);    /* =col4 x 2個 */
+		/*width: calc((100% - (2.5px * 6)) / 3);*/    /* =col4 x 3個 */
+		/*width: calc((100% - (2.5px * 8)) / 4);*/    /* =col3 x 4個 */
+		/*width: calc((100% - (2.5px * 10)) / 5);*/   /* =col-? x 5個 */
+		/*width: calc((100% - (2.5px * 12)) / 6);*/   /* =col2 x 5個 */
+
+		box-sizing: border-box;
+		margin-bottom: 5px;
+		margin-left: 2.5px;
+  		margin-right: 2.5px;
+    }
+
+    /* 展開保持子選單為直式清單 */
+    #nav_accordion .submenu {
+		width: 100%;
+    }
+
+}
+/* ------ 手機模式 第一層 ITEM ul li.nav-item ---- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ a class="list-group-item ------------- */
+.sidebar .list-group li{
+	position: relative;
+	border-top: 1px solid var(--GCCCcolor);
+}
+.sidebar .list-group-item {
+	position: relative;
+	cursor: pointer;
+	font-size: 93.75%;
+	color: var(--blackcolor);
+	width: 100%;	
+	border: 1px solid transparent;
+	border-radius: 0px;
+	font-weight: 500;
+	display: inline;
+}
+/* .sidebar .list-group-item::before{
+	content: "";
+	display: block;
+	width: 25vw;
+	height: 1px;
+	background-color: var(--GCCCcolor);
+	bottom: 0;
+	left: 0;
+	position: absolute;
+} */
+@media screen and (min-width: 320px) and (max-width: 991px) {
+	.sidebar .list-group-item {
+		font-size: 87.5%;
+		width: 100%;
+	}
+}
+.sidebar .list-group-item:hover,
+.sidebar .list-group-item:focus,
+.sidebar .list-group-item.active {
+	color: var(--Customize_color) !important;
+	background-color: var(--CFFFcolor) !important;
+	border-color: transparent;
+}
+.sidebar .list-group-item:focus {
+	outline: 2px dashed var(--Customize_FOCUScolor) !important;
+	outline-offset: 0px !important;
+}
+
+/* 只有有子選單的 a 才加箭頭 */
+.sidebar .has-submenu > .list-group-item{
+	position: relative;
+}
+.sidebar .has-submenu > .list-group-item::after {
+	content: "";
+	background-image: url(../images/sidebar-right-B.svg);
+	width: 13px;
+	height: 13px;
+	background-size: contain;
+	position: absolute;
+	top: 4.5px;
+	right: -18px;
+	font-size: 56.25%;
+	transition: transform 0.2s ease;
+}
+.sidebar .has-submenu > .list-group-item:hover::after,
+.sidebar .has-submenu > .list-group-item.active::after {
+	background-image: url(../images/sidebar-right-DARK-OR.svg);
+}
+/* 展開時變成向上箭頭 */
+.sidebar .has-submenu > .list-group-item.open::after {
+	background-image: url(../images/sidebar-down-B.svg);
+}
+.sidebar .has-submenu > .list-group-item.active.open::after{
+	background-image: url(../images/sidebar-down-DARK-OR.svg);
+}
+/* ------ a class="list-group-item ------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ 第一層 ITEM ul li.nav-item ------------ */
+.sidebar ul > li .list-group-item{
+	padding: 0;
+	line-height: 3;
+}
+/* ------ 第一層 ITEM ul li.nav-item ------------ */
+/* ============================================= */
+
+/* ============================================= */
+/* ------  第二.三.四.五.六層 ul.submenu --------- */
+.sidebar ul > li > ul.submenu > li > .list-group-item{
+	padding: 0;
+	margin: 0rem 0rem 0rem 0.35rem;
+	line-height: 3;
+}
+.sidebar ul > li > ul.submenu > li > ul.submenu > li .list-group-item{
+	padding: 0;
+	margin: 0rem 0rem 0rem 0.55rem;
+	line-height: 3;
+}
+.sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item{
+	padding: 0;
+	margin: 0rem 0rem 0rem 0.85rem;
+	line-height: 3;
+}
+.sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item{
+	padding: 0;
+	margin: 0rem 0rem 0rem 1.1rem;
+	line-height: 3;
+}
+.sidebar ul > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li > ul.submenu > li .list-group-item{
+	padding: 0;
+	margin: 0rem 0rem 0rem 1.35rem;
+	line-height: 3;
+}
+
+.list-group-item{
+	padding: 0;
+}
+/* ------  第二.三.四.五.六層 ul.submenu --------- */
+/* ============================================= */
+
+/* ====================================================== */
+/* =====  內頁 - 多層 左邊選單 ( 以上 )  =================== */
+/* ====================================================== */
+
+/* footer */
+@media screen and (min-width: 1200px) {
+  .tinyMCE_section .container-tinyMCEfooter {
+    max-width: 1370px;
+  }
+}
+@media screen and (min-width: 1200px) {
+  .copyright_section .container-copyright {
+    max-width: 1370px;
+  }
+}
+
+/* ====================================================== */
+/* =====  內頁  自訂  麵包屑 ( Breadcrumb )  ============== */
+/* ====================================================== */
+.breadcrumb__wrapper {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	
+	margin: 0;
+	border-bottom: transparent;
+}
+@media (max-width:1199px) {
+	.breadcrumb__wrapper .R{
+		width: 100%;
+	}
+}
+/*----------------------------------------------*/
+.custom_breadcrumb {
+    display: block;
+}
+
+.custom_breadcrumb ol.breadcrumb {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    padding: 0.6rem 0.2rem;
+    margin-bottom: 0rem;
+    list-style: none;
+    
+    border-radius: 0; /*.25rem*/
+	background-color: transparent;	
+	align-items: center;
+	background-color: var(--F2Fcolor);
+	border-radius: 10px;
+	
+}
+
+.custom_breadcrumb .breadcrumb-item,
+.custom_breadcrumb .breadcrumb-item a {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	font-size: 93.75%;
+    color: var(--blackcolor);
+	font-weight: normal;
+    text-decoration: none;
+    background-color: transparent;
+}
+@media screen and (max-width: 575px) {
+    .custom_breadcrumb .breadcrumb-item,
+	.custom_breadcrumb .breadcrumb-item a {
+		font-size: 87.5%;
+	}
+}
+
+.custom_breadcrumb .breadcrumb-item a .icon-custom-school-B{
+	background-image: url(../images/svg_icon/icon-custom-school-B.svg);
+	display: flex;
+	width: 12px;
+	height: 15px;
+	background-repeat: no-repeat;
+	background-size: contain;
+	margin-bottom: 0px;
+}
+
+.custom_breadcrumb .breadcrumb-item a:hover {
+	color: var(--Customize_color); /* JESS重要 - 變更顏色*/
+}
+
+.custom_breadcrumb .breadcrumb-item a:hover:not(:focus) .icon-custom-school-B{
+	background-image: url(../images/svg_icon/icon-custom-school-DARK-OR.svg);
+}
+
+.custom_breadcrumb .breadcrumb-item+.breadcrumb-item {
+	padding-left: .1rem;
+}
+.custom_breadcrumb .breadcrumb-item+.breadcrumb-item:last-child {
+	padding-right: .5rem;
+}
+/*----------------------------------------------*/
+.custom_breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+	float: left;
+	/* padding-right: .5rem; */
+	color: rgba(0,0,0,0.35);
+	content: "";
+	background-image: url(../images/owl-carousel/next-B.svg);
+	width: 1.5rem;
+	height: 1.5rem;
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+.custom_breadcrumb .breadcrumb-item + .breadcrumb-item:hover::before {
+	text-decoration: underline
+}
+
+.custom_breadcrumb .breadcrumb-item + .breadcrumb-item:hover::before {
+	text-decoration: none
+}
+/*----------------------------------------------*/
+.custom_breadcrumb .breadcrumb-item.active h2 {
+	font-size: 100%;
+	font-weight: bold;
+	color: var(--Customize_TXTcolor); /* JESS重要 - 變更顏色*/
+	margin-bottom: 0;
+}
+@media screen and (max-width: 575px) {
+    .custom_breadcrumb .breadcrumb-item.active h2 {
+		font-size: 93.75%;
+	}
+}
+
+.custom_breadcrumb .breadcrumb-item.active:focus-visible {
+	outline: none;
+}
+/*----------------------------------------------*/
+.custom_breadcrumb .breadcrumb-item a i {
+	position: relative;
+	top: 1px;
+	margin-right: 3px;
+}
+@media screen and (max-width: 575px) {
+    .custom_breadcrumb .breadcrumb-item.active h2 {
+		font-size: 100%;
+	}
+}
+/*----------------------------------------------*/
+.breadcrumb__wrapper a {
+	display: block;
+	font-size: 93.75%;	
+}
+@media screen and (max-width: 992px) {	
+	.breadcrumb__wrapper a {
+    font-size: 87.5%;
+		padding: 0.125rem 0.35rem; /*0.125rem 0.75rem*/
+	}
+}
+.breadcrumb__wrapper .retrun-wrap {
+  background-color: var(--F2Fcolor);
+	border-radius: 10px;
+	padding: 0.4rem 0.2rem;
+}
+.breadcrumb__wrapper a .return-box {
+    color: var(--blackcolor);
+	font-weight: normal;
+    text-decoration: none;
+	padding: 0.125rem 0.5rem 0.125rem 0.35rem;
+    background-color: transparent;
+}
+@media screen and (max-width: 575px) {
+    .breadcrumb__wrapper a .return-box {
+		font-size: 100%;
+		padding-left: 0;
+	}
+}
+.breadcrumb__wrapper a .return-box i {
+	position: relative;
+	font-size: 100%;
+    margin-right: 3px;
+}
+@media screen and (max-width: 575px) {
+    .breadcrumb__wrapper a .return-box i {
+		font-size: 100%;
+	}
+}
+.breadcrumb__wrapper a:hover .return-box,
+.breadcrumb__wrapper a:active .return-box {
+    color: var(--Customize_TXTcolor);
+}
+/* .breadcrumb__wrapper a:focus .return-box {
+	text-decoration: none;
+	outline: thin dotted;
+	outline: 1px solid var(--a_focusbordercolor);
+	outline-offset: 0px;
+	color: var(--blackcolor) !important;
+	background-color: var(--a_focuscolor) !important;
+} */
+/* ====================================================== */
+/* =====  內頁  自訂  麵包屑 ( Breadcrumb )  ============== */
+/* ====================================================== */
+
+
+/* =============================================================== */
+/* =====  內頁  標準  內容區 H3 標題  ///// .page-header H3  ======== */
+/* =============================================================== */
+.SubPage-RightMenu {
+	position: relative;
+	width: 100%;
+}
+
+.All_Standard_Content_CSS .Div_H3_Title, 
+.All_Standard_Content_CSS .Div_H3_Title
+#ContentPlaceContent_ContentSubMenu .h3, #ContentPlaceContent_ContentSubMenu h3, 
+#ContentPlaceContent_ContentConentA .h3, #ContentPlaceContent_ContentConentA h3 {
+	font-size: 150% !important;
+	font-weight: 900;
+	color: var(--Customize_color);
+}
+@media screen and (min-width: 320px) and (max-width: 991px) {
+	.All_Standard_Content_CSS .Div_H3_Title, 
+	.All_Standard_Content_CSS .Div_H3_Title
+	#ContentPlaceContent_ContentSubMenu .h3, #ContentPlaceContent_ContentSubMenu h3, 
+	#ContentPlaceContent_ContentConentA .h3, #ContentPlaceContent_ContentConentA h3 {
+		font-size: 125% !important;
+	}
+}
+
+.All_Standard_Content_CSS .Div_H3_Title::before, 
+.All_Standard_Content_CSS .Div_H3_Title::before,
+#ContentPlaceContent_ContentSubMenu .h3::before, #ContentPlaceContent_ContentSubMenu h3::before, 
+#ContentPlaceContent_ContentConentA .h3::before, #ContentPlaceContent_ContentConentA h3::before {
+  content: none;
+}
+/* =============================================================== */
+/* =====  內頁  標準  內容區 H3 標題  ///// .page-header H3  ======== */
+/* =============================================================== */
+
+/* 內頁sidebar客製 */
+.sidebar {
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  border-top: none;
+}
+.sidebar .has-submenu > .list-group-item:hover::after, 
+.sidebar .has-submenu > .list-group-item:focus::after {
+    filter: invert(0);
+}
+
+/* GoTop */
+.progress-wrap:focus {
+  background-color: var(--Customize_FOCUScolor);
+  text-decoration: none;
+  outline: 2px dashed var(--FFFcolor) !important;
+}
+.progress-wrap:focus .progress-icon {
+  color: var(--FFFcolor);
+}
+
+/* a focus 客製 */
+/* 淺橘底紅橘框 */
+a:focus,
+a:focus-visible,
+a.btn:focus-visible{
+  text-decoration: none;    
+	outline: thin dotted;
+  outline: 2px dashed var(--Customize_FOCUScolor) !important;
+	outline-offset: 0px;    
+  color: var(--blackcolor) !important;
+	background-color: var(--a_focuscolor) !important;
+	display: inline-block;
+}
+.navbar-toggler:focus{
+  outline: 2px dashed var(--Customize_FOCUScolor);
+	outline-offset: 0px;    
+}
+#gotocenter{
+	background: var(--a_focuscolor) !important;
+}
+/* 蓋過menu的a focus + TAB的a focus */
+.nav-link:focus-visible{
+	box-shadow: none;
+	outline: 2px dashed var(--Customize_FOCUScolor);
+	outline-offset: 0px;
+}
+#navbar-content a.nav-link:focus-visible {
+	outline: 2px dashed var(--Customize_FOCUScolor) !important;
+	box-shadow: none !important;
+}
+/* 修改header的a focus */
+.header_Box a:focus .fa-search, .header_Box a:focus .LMS-text, .header_Box a:focus .link-text {
+	color: var(--FFFcolor) !important; 
+  background-color: var(--blackcolor) !important;
+}
+.header_Box a:focus.active .fa-search, .header_Box a:focus.active .LMS-text, .header_Box a:focus.active .link-text {
+	color: var(--FFFcolor) !important; 
+  background-color: var(--Customize_color) !important;
+}
+/* 修改 search的focus */
+.Form_Search_DIV .Searchform-control:focus-visible{
+	outline: 2px dashed var(--Customize_FOCUScolor);
+	outline-offset: 0px;  	
+	background-color: var(--a_focuscolor) !important;
+	border: 1px solid transparent;
+}
+.Form_Search_DIV .Searchform-control:focus-visible::placeholder{
+	color: var(--G666color);
+}
+.Form_Search_DIV .Search_btn:focus {
+	outline: 2px dashed var(--Customize_FOCUScolor) !important;
+}
+/* 修改Link-icons的a focus */
+.Link-icons_section a:focus{
+	outline: 2px dashed var(--Customize_FOCUScolor) !important;
+	outline-offset: -3px !important;
+	background-color: var(--a_focuscolor) !important;
+}
+.Link-icons-pos a:focus .tit-contents .Link-icons-title {
+  color: var(--blackcolor) !important;
+}
+.Link-icons-pos a:focus .icon-type-image img {
+  filter: invert(1) grayscale(1);
+}
+/* 蓋過opening的a focus */
+.Opening_hours_DIV .Open_btn:focus {
+	text-decoration: none !important;
+	outline: 2px dashed var(--Customize_FOCUScolor) !important;
+	outline-offset: -3px;
+	background-color: var(--a_focuscolor) !important;
+}
+/* 修改輪播的img a focus */
+.Carousel_slide_section .carousel-item a:focus{
+	outline: 2px dashed var(--Customize_FOCUScolor) !important;
+	outline-offset: -2px;
+	border-radius: 10px;
+	border: 2px solid var(--FFFcolor);
+}
+/* 修改輪播的暫停撥放上下頁 a focus */
+.Carousel_slide_section .control-toggle a:focus {
+	text-decoration: none;
+	outline: 2px dashed var(--Customize_FOCUScolor) !important;	
+	outline-offset: -2px !important;
+	color: var(--blackcolor) !important;
+	background-color: var(--a_focuscolor) !important;
+}
+.carousel_btn-icon-prev a:focus,
+.carousel_btn-icon-next a:focus{
+	text-decoration: none;
+	outline: 0px;
+	outline-offset: -2px !important;
+	color: var(--blackcolor) !important;
+	background-color: var(--a_focuscolor) !important;
+}
+.carousel_btn-icon-prev a:focus .carousel-control-prev,
+.carousel_btn-icon-next a:focus .carousel-control-next{
+	background-color: var(--a_focuscolor) !important;
+	outline: 2px dashed var(--Customize_FOCUScolor) !important;	
+	outline-offset: -2px !important;
+}
+/* 修改Collections的a focus */
+.Collections_section .item a:focus {
+	text-decoration: none;
+	outline: 0px transparent;
+}
+.Collections_section a:focus .wrapper_box::after{
+	content: "";
+	background-color: rgba(255, 255, 255, 0);
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	text-decoration: none;
+	border: 3px solid var(--FFFcolor);
+	opacity: 1;
+}
+.Collections_section a:focus .wrapper_box::before{
+	content: "";
+	background-color: rgba(255, 255, 255, 0);
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 2;
+	text-decoration: none;
+	border: 2px dashed var(--Customize_FOCUScolor);
+	opacity: 1;
+}
+.Collections_section a:focus .wrapper_box .card_catname {
+	text-shadow: none;
+	background-color: var(--a_focuscolor) !important;
+	color: var(--blackcolor);
+	border-radius: 8px;
+}
+/* 修改Event的a focus */
+.Event_section .item a:focus {
+	text-decoration: none;
+	outline: 0px transparent;
+	outline-offset: -2px;
+}
+.Event_section a:focus .wrapper_box::before {
+	content: "";
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 2;
+	border: 3px solid var(--FFFcolor);
+}
+.Event_section a:focus .wrapper_box::after {
+	content: "";
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 3;
+	border: 2px dashed var(--Customize_FOCUScolor);
+}
+/* 修改Links的a focus */
+.Links_section .item a:focus {
+	text-decoration: none;
+	outline: 2px dashed var(--Customize_FOCUScolor);
+	outline-offset: -2px;
+}
+.Links_section a:focus .wrapper_box::before {
+	content: "";
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 2;
+	border: 3px solid var(--FFFcolor);
+}
+.Links_section a:focus .wrapper_box::after {
+	content: "";
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 3;
+	border: 2px dashed var(--Customize_FOCUScolor);
+}
+/* 修改Footer的a focus */
+.Footer_section .accesskey_footer.B{ /* 為了加底反黑字，讓字與框線有間格 */
+	padding: 3px;
+	display: inline-block;
+	width: 16.5px;
+}
+.Footer_section .footer-black .info-widget .list li a{ /* 為了加底反黑字，讓字與框線有間格 */
+	padding: 0 3px;
+	display: inline-block;
+}
+.Footer_section .Accessibility-Badge{ /* 為了加底反黑字，讓字與框線有間格 */
+	padding: 3px;
+}
+.Footer_section .copyright_section a{ /* 為了加底反黑字，讓字與框線有間格 */
+	padding: 0 3px;
+	display: inline-block;
+}
+.Footer_section a:focus{
+	text-decoration: none;
+	outline: 2px dashed var(--Customize_FOCUScolor) !important;	
+	outline-offset: -3px !important;
+	color: var(--blackcolor) !important;
+	background-color: var(--a_focuscolor) !important;	
+	z-index: 1;
+}
+/* 修改gototop focus */
+#gotop_btn.show:focus {
+	background-color:var(--Customize_FOCUScolor) !important;	
+	text-decoration: none;
+	outline: 2px dashed var(--FFFcolor) !important;	
+}
+/* 內頁breadcrumb-print+share的a focus */
+.PrintingSite__wrapper .Print-box .nav-link:focus-visible {
+	outline: 2px dashed var(--Customize_FOCUScolor);
+	box-shadow: none;
+}
+/* 內頁breadcrumb-returnbox的a focus */
+.breadcrumb__wrapper a:focus .return-box {
+	text-decoration: none;
+	outline: thin dotted;
+	outline: 2px dashed transparent;
+	outline-offset: 0px;
+	color: var(--blackcolor) !important;
+	background-color: var(--a_focuscolor) !important;
+}
+/* 內頁sidebar的a focus */
+.sidebar .list-group-item:focus {
+	outline: 2px dashed var(--Customize_FOCUScolor) !important;
+	outline-offset: 0px !important;
+}
+/* 內頁的a focus */
+.SubPage_Standard_itemBoxs a:focus {
+	outline: 2px dashed var(--Customize_FOCUScolor) !important;
+	outline-offset: 0px !important;
+}
+/* 內頁 accesskey CSS客製 */
+.subpage_body_bg .accesskey_main,
+.subpage_body_bg .accesskey_left{
+  left: -20px;
+  top: 28px;
+}
+/* 頁尾 accesskey CSS客製 */
+.accesskey_footer{
+  color: var(--FFFcolor) !important;
+}
+
+/* header */
+.header_Box .nav-link {
+	font-size: 87.5%; /*0.875rem*/
+	padding: 0.25rem 0.375rem !important;	
+}
+
+@media screen and (max-width: 992px) {	
+	.header_Box .nav-link {
+    font-size: 75%; /*0.75rem*/
+		padding: 0.125rem 0.35rem; /*0.125rem 0.75rem*/
+	}
+}
+
+.header_Box .nav-item a:hover.nav-link,
+.header_Box .nav-item + .nav-item a:hover.nav-link,
+.header_Box .nav-item + .nav-item a:hover.nav-link.disabled {
+    color: var(--Customize_HRcolor);
+}
+
+.header_Box .nav-item a.nav-link.active,
+.header_Box .nav-item a:hover.nav-link.active {
+    color: var(--Customize_HRcolor);
+}
+
+.header_section .navbar-brand,
+.header_section h1 .navbar-brand,
+.menu_section .navbar-brand,
+.menu_section h1 .navbar-brand {
+	padding-top: 0.3125rem;
+	padding-bottom: 0.3125rem;
+	margin-right: 15px;
+	margin-bottom: 0;
+	margin: 0.5rem 0;
+}
+
+.header_section .navbar-brand img,
+.menu_section .navbar-brand img {
+  max-width: 400px; /*300*/
+}
+
+@media screen and (min-width: 1200px) and (max-width: 1360px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 400px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 992px) and (max-width: 1200px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 400px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 590px) and (max-width: 992px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 400px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 540px) and (max-width: 590px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 400px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 490px) and (max-width: 540px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 375px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 479px) and (max-width: 490px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 355px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 470px) and (max-width: 479px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 340px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 460px) and (max-width: 470px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 330px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 450px) and (max-width: 460px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 320px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 440px) and (max-width: 450px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 310px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 430px) and (max-width: 440px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 300px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 420px) and (max-width: 430px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 290px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 410px) and (max-width: 420px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 280px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 400px) and (max-width: 410px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 270px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 390px) and (max-width: 400px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 260px;
+		height: auto;
+	}
+}
+
+@media screen and (min-width: 380px) and (max-width: 390px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 250px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 370px) and (max-width: 380px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 240px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 360px) and (max-width: 370px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 230px;
+		height: auto;
+	}
+}
+
+@media screen and (max-width: 359px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 230px;
+		height: auto;
+	}
+}
+
+@media screen and (min-width: 350px) and (max-width: 360px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 220px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 340px) and (max-width: 350px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 210px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 330px) and (max-width: 340px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 200px;
+		height: auto;
+	}
+}
+@media screen and (min-width: 320px) and (max-width: 330px) {
+	.header_section .navbar-brand img,
+	.menu_section .navbar-brand img {
+		max-width: 200px;
+		height: auto;
+	}
+}
+/* ====================================================== */
+/* ===== AA：Header Mega Menu 鍵盤/滑鼠關閉與動畫修正 ===== */
+/* ====================================================== */
+
+@media (min-width: 992px) {
+	#Site-Header .dropdown-mega > .dropdown-menu {
+		display: block;
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(8px);
+		pointer-events: none;
+		transition:
+			opacity 0.22s ease,
+			transform 0.22s ease,
+			visibility 0s linear 0.22s;
+	}
+
+	#Site-Header .dropdown-mega.show > .dropdown-menu,
+	#Site-Header .dropdown-mega > .dropdown-menu.show {
+		opacity: 1;
+		visibility: visible;
+		transform: translateY(0);
+		pointer-events: auto;
+		transition:
+			opacity 0.22s ease,
+			transform 0.22s ease,
+			visibility 0s linear 0s;
+	}
+
+	#Site-Header .dropdown-mega.is-closing > .dropdown-menu,
+	#Site-Header .dropdown-mega > .dropdown-menu.is-closing {
+		opacity: 0;
+		visibility: visible;
+		transform: translateY(8px);
+		pointer-events: none;
+		transition:
+			opacity 0.22s ease,
+			transform 0.22s ease,
+			visibility 0s linear 0.22s;
+	}
+
+	#Site-Header .dropdown-mega.is-hover-suppressed:hover > .dropdown-menu {
+		opacity: 0 !important;
+		visibility: hidden !important;
+		transform: translateY(8px) !important;
+		pointer-events: none !important;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#Site-Header .dropdown-mega > .dropdown-menu {
+		transition: none !important;
+	}
+}

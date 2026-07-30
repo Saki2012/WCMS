@@ -1,0 +1,39 @@
+﻿@charset "utf-8";
+/* CSS Document */
+/* 16px = 1rem = 1em = 100% */ 
+
+/* ------ 首頁內容 index content ----------------------- */
+@import url("css_import/style_index_content/index_content.css");
+
+
+:root {
+	--Customize_color: #a35c49; /* 原：#af624e */
+	--Customize_HRcolor: #a35c49; /* #af624e */
+	--Customize_ACcolor: #a35c49; /* #af624e */
+	--Customize_FOCUScolor: #AA0000; /* 原：#A05B42 */
+	--Customize_SCROLLcolor: #724033; /* #A05B42 */
+	--Customize_FCcolor: #E6CCC5;
+	/* --Customize_Footercolor: #00305c; */
+	--F2Fcolor: #f2f2f2;
+	
+	/* =================================== */
+	
+	--Customize_TXTcolor: #82493a; /* 原：#ad4829 */
+	--Customize_TXTHRcolor: #82493a; /* #ad4829 */
+	
+	/* =================================== */
+	
+	--Customize_Btn_color: #a35c49; /* #af624e */
+	--Customize_Btn_HRcolor: #a35c49; /* #af624e */
+	--Customize_border_color: #00305c;
+
+	/* =================================== */
+	
+	--a_linkcolor: #0b5ed7;
+	--a_linkHRcolor: #0a58ca;
+	--a_focuscolor: #fff0dc;
+	--a_focusbordercolor: #43B5FC;
+
+	--menu-section-height: 90px;
+	--bs-body-font-size: medium;
+}
