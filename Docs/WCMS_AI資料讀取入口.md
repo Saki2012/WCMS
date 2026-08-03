@@ -63,9 +63,12 @@ AI 白箱任務再依序閱讀：
 2. `Docs/03_品質與驗證文件/01_AI白箱檢測/RULE_REGISTRY.yml`
 3. 對應的需求與單元、專項或全專案白箱回歸檢測規範
 
-QA 任務進入：
+QA 任務再依序閱讀：
 
-`Docs/03_品質與驗證文件/02_QA測試/`
+1. `Docs/03_品質與驗證文件/02_QA測試/README.md`
+2. `Docs/03_品質與驗證文件/02_QA測試/01_WCMS_QA_RD_AI協作與開單驗證生命週期.md`
+
+QA 開單前的 AI Issue 歷史比對由 QA 發起並作最終分流；RD 修正後的 AI 白箱檢驗仍依 AI 白箱正式規範執行。
 
 尚在討論、草稿或未正式落地的流程，不得描述成已全面執行的正式規則。
 
@@ -103,10 +106,11 @@ QA 任務進入：
 5. 閱讀共通與端別開發規範。
 6. 視任務閱讀 Git／Commit、品質驗證或開發歷程文件。
 7. 白箱任務追加閱讀白箱 README、`RULE_REGISTRY.yml` 與對應檢測模式。
-8. 核對指定分支的實際程式碼。
-9. 搜尋 SysCore、Library、Helper、Hook、Component、Template、Adapter、FeatureDriver、Service、Repository、Feature 與相近 Spec 的既有實作。
-10. 搜尋相關 Issue、PR、Commit 與歷史修正。
-11. 再提出問題判斷與修改方案。
+8. QA 任務追加閱讀 QA README 與 `WCMS-QA-GOV-001` 正式生命週期。
+9. 核對指定分支的實際程式碼。
+10. 搜尋 SysCore、Library、Helper、Hook、Component、Template、Adapter、FeatureDriver、Service、Repository、Feature 與相近 Spec 的既有實作。
+11. 搜尋相關 Issue、PR、Commit 與歷史修正。
+12. 再提出問題判斷與修改方案。
 
 不得在未確認既有能力前，直接建立重複 Helper、平行流程或新的架構層。
 

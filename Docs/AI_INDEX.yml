@@ -1,4 +1,4 @@
-version: "1.0"
+version: "1.1"
 updated_at: "2026-08-03"
 purpose: "WCMS AI 快速定位索引；只提供導覽與搜尋入口，不取代正式架構、開發規範或實際程式碼。"
 
@@ -26,6 +26,7 @@ reading_order:
   - "依任務閱讀前端或後端開發規範"
   - "視任務閱讀 Git 與 Commit、品質驗證或開發歷程文件"
   - "白箱任務追加閱讀 AI 白箱 README、RULE_REGISTRY.yml 與對應檢測規範"
+  - "QA 任務追加閱讀 QA README 與 WCMS-QA-GOV-001 正式生命週期"
   - "核對指定分支的實際程式碼、Issue、PR 與 Commit"
 
 navigation:
@@ -45,6 +46,8 @@ navigation:
     whitebox_unit: "Docs/03_品質與驗證文件/01_AI白箱檢測/01_需求與單元白箱檢測.md"
     whitebox_focused: "Docs/03_品質與驗證文件/01_AI白箱檢測/02_專項白箱檢測.md"
     whitebox_regression: "Docs/03_品質與驗證文件/01_AI白箱檢測/03_全專案白箱回歸檢測.md"
+    qa_root: "Docs/03_品質與驗證文件/02_QA測試/README.md"
+    qa_lifecycle: "Docs/03_品質與驗證文件/02_QA測試/01_WCMS_QA_RD_AI協作與開單驗證生命週期.md"
     development_history: "Docs/01_研發與技術文件/03_開發歷程與版本紀錄/01_開發歷程優化表.csv"
 
   frontend:
@@ -104,6 +107,7 @@ search_sequence:
   - "搜尋 SysCore、Library、Helper、Template、FeatureDriver、Service 與 Repository 的共用能力。"
   - "搜尋目前 Spec 與相近 Spec 的延伸實作，但不得直接複製客製邏輯。"
   - "白箱任務依 RULE_REGISTRY.yml 篩選 active Rule，並核對其正式來源與適用範圍。"
+  - "QA 任務依 WCMS-QA-GOV-001 核對 Issue 歷史、版本鏈、修正與複驗證據。"
   - "搜尋相關 Issue、PR 與 Commit，確認修改原因及歷史決策。"
   - "資料來源不一致時分別列出程式實況、文件規範、管理狀態及建議更新來源。"
 
@@ -129,6 +133,7 @@ maintenance:
     - "Feature／Spec 根目錄或命名規則變更"
     - "新的正式文件入口建立或舊入口移除"
     - "白箱 Rule Registry 或檢測模式入口變更"
+    - "QA 生命週期、正式文件入口或版本狀態變更"
   do_not_duplicate:
     - "架構說明"
     - "Code Style"
@@ -136,8 +141,10 @@ maintenance:
     - "套件精確版本"
     - "測試或弱點掃描結果"
     - "Rule 的完整判斷內容"
+    - "QA 生命週期的完整流程與欄位定義"
   verification:
     - "確認所有列出的檔案與目錄仍存在於指定分支"
     - "確認 README 與 AI 入口仍能導向本索引"
     - "確認白箱入口與 RULE_REGISTRY.yml 可由本索引定位"
+    - "確認 QA README 與 WCMS-QA-GOV-001 可由本索引定位"
     - "確認本索引只提供定位，不與正式 Markdown 或 Rule Registry 衝突"

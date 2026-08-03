@@ -9,14 +9,14 @@
 1. [`01_共通開發規範.md`](./01_共通開發規範.md)
 2. 本次修改端別對應的前端或後端規範
 3. 本次功能涉及的 [`系統架構文件`](../01_系統架構/)
-4. 建立 Commit 或 PR 前閱讀 [`04_Git與PR規範.md`](./04_Git與PR規範.md)
+4. 建立 Commit 或 PR 前閱讀 [`04_Git與Commit規範.md`](./04_Git與Commit規範.md)
 
 ## 文件分類
 
 - [`01_共通開發規範.md`](./01_共通開發規範.md)：前後端共同遵守的程式規則。
 - [`02_前端開發規範.md`](./02_前端開發規範.md)：React、TypeScript、Hook、元件與前端資料流規則。
 - [`03_後端開發規範.md`](./03_後端開發規範.md)：C#、FeatureDriver、Biz、API、Persistence 與後端程式結構規則。
-- [`04_Git與PR規範.md`](./04_Git與PR規範.md)：Issue、Commit、PR、分支與回同步紀錄規則。
+- [`04_Git與Commit規範.md`](./04_Git與Commit規範.md)：Issue、Commit、PR、分支、交付說明與 AI 白箱 Gate 規則。
 
 ## 正式來源
 
