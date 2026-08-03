@@ -1,8 +1,8 @@
-schema_version: "1.0"
+schema_version: "1.1"
 
 ruleset:
   id: "WCMS-AI-WHITEBOX"
-  version: "0.1.0"
+  version: "0.1.1"
   status: "active"
   updated_at: "2026-08-03"
   owner: "RD"
@@ -13,8 +13,12 @@ lifecycle:
   statuses:
     draft: "候選規則，僅供試跑與 RD 評估，不得作為確定違規依據。"
     active: "正式啟用，可用於白箱判定與複驗。"
-    deprecated: "已不建議用於新檢測，保留供歷史報告查詢；應填寫 deprecated_in 與原因。"
-    retired: "已停止使用，僅保留識別與歷史追蹤；Rule ID 不得重複使用。"
+    deprecated: "已不建議用於新檢測，保留供歷史報告查詢。"
+    retired: "已停止使用，僅保留識別與歷史追蹤。"
+  automation_levels:
+    manual: "主要依賴 RD 或 AI 的語意、責任與架構判斷。"
+    partial: "可搜尋候選位置或比對模式，但仍須分析上下文、責任與例外。"
+    automated: "已有穩定工具或規則可直接執行並產出可重現結果。"
   id_policy:
     - "Rule ID 建立後不得重新編號、重複使用或因排序調整而改名。"
     - "規則過時時標示 deprecated 或 retired，不直接刪除仍可能被舊報告引用的項目。"
@@ -51,273 +55,219 @@ maintenance:
     - "規則同時混合多個無法獨立複驗的責任。"
   export_policy: "YAML 為唯一正式來源；如需 CSV 或試算表，應由本檔產生，不得雙向人工維護。"
 
+rule_defaults: &rule_defaults
+  version: "1.0"
+  status: "active"
+  automation: "partial"
+  status_reason: null
+  introduced_in: "0.1.0"
+  deprecated_in: null
+  retired_in: null
+  superseded_by: null
+
 rules:
-  - id: "COM-001"
-    version: "1.0"
-    status: "active"
+  - <<: *rule_defaults
+    id: "COM-001"
     title: "新增或修改功能前應搜尋既有實作"
     category: "common"
     applies_to: ["unit", "focused", "regression"]
     default_severity: "Medium"
-    automation: "partial"
     sources:
       - path: "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
         section: "1.1 搜尋既有實作"
     check:
-      trigger: "本次新增 Function、Helper、Library、Hook、Component、Template、Service、Repository 或平行流程。"
-      compliant: "交付與程式證據顯示已沿用既有能力，或能具體說明既有能力不適用。"
+      trigger: "新增 Function、Helper、Library、Hook、Component、Template、Service、Repository 或平行流程。"
+      compliant: "已沿用既有能力，或能具體說明既有能力不適用。"
       noncompliant: "未確認既有能力即建立相同或相近的獨立實作。"
-      unknown: "缺少搜尋範圍、關聯程式或 Repository 存取權限，無法確認是否已有相近能力。"
-    evidence_required: ["新增或修改的程式路徑", "實際沿用或可比較的既有能力", "未沿用時的責任差異"]
+      unknown: "缺少 Repository、搜尋範圍或關聯程式，無法確認既有能力。"
+    evidence_required: ["異動程式路徑", "既有能力或比較證據", "未沿用理由"]
     exceptions: []
-    introduced_in: "0.1.0"
-    deprecated_in: null
-    superseded_by: null
 
-  - id: "COM-002"
-    version: "1.0"
-    status: "active"
+  - <<: *rule_defaults
+    id: "COM-002"
     title: "共用技術能力不得建立重複或平行實作"
     category: "common"
     applies_to: ["unit", "focused", "regression"]
     default_severity: "Medium"
-    automation: "partial"
     sources:
       - path: "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
-        section: "1.2 共用 Library 優先"
-      - path: "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
-        section: "1.3 Library 不足時的處理方式"
-      - path: "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
-        section: "1.4 避免重複與平行實作"
+        section: "1.2 至 1.4 共用 Library 與重複實作"
     check:
-      trigger: "Feature、Spec 或單一功能內新增可被其他位置重用的技術處理。"
+      trigger: "Feature、Spec 或單一功能新增可重用的技術處理。"
       compliant: "使用既有 Library，或在正式共用層擴充且責任清楚。"
-      noncompliant: "已有相同能力仍複製局部版本，或在多個 Feature／Spec 各自建立同類 Helper。"
+      noncompliant: "已有相同能力仍複製局部版本，或在多個 Feature／Spec 建立同類 Helper。"
       unknown: "無法確認新邏輯是共用技術能力或特定業務流程。"
-    evidence_required: ["新實作與既有能力的程式證據", "責任、參數與行為差異", "受影響 Feature／Spec"]
-    exceptions: ["具有明確特定業務語意，且納入共用層會造成責任模糊或過度彈性。"]
-    introduced_in: "0.1.0"
-    deprecated_in: null
-    superseded_by: null
+    evidence_required: ["新舊實作證據", "責任與行為差異", "受影響 Feature／Spec"]
+    exceptions: ["具有明確特定業務語意，納入共用層會造成責任模糊。"]
 
-  - id: "GIT-001"
-    version: "1.0"
-    status: "active"
+  - <<: *rule_defaults
+    id: "GIT-001"
     title: "完成修改單元時必須提供交付與變更說明"
     category: "delivery"
     applies_to: ["unit"]
     default_severity: "Low"
-    automation: "partial"
     sources:
       - path: "Docs/01_研發與技術文件/02_開發規範/04_Git與Commit規範.md"
         section: "5. 開發交付與變更說明"
     check:
-      trigger: "完成可獨立交付或驗證的修改單元、回傳異動檔案、建立 Commit 或 Push。"
-      compliant: "交付內容至少包含完成項目、異動單元、沿用能力與架構、共用能力異動及影響與驗證。"
+      trigger: "完成可獨立交付或驗證的修改單元、回傳檔案、建立 Commit 或 Push。"
+      compliant: "交付內容包含完成項目、異動單元、沿用能力、共用能力異動及影響與驗證。"
       noncompliant: "只有模糊完成宣告或檔名，缺少必要交付資訊。"
-      unknown: "尚在分析或需求釐清，尚未形成可交付修改。"
-    evidence_required: ["Commit／PR Description 或同次交付說明", "Changed Files"]
-    exceptions: ["純分析或尚未完成可交付修改時不適用。"]
-    introduced_in: "0.1.0"
-    deprecated_in: null
-    superseded_by: null
+      unknown: "尚未形成可交付修改。"
+    evidence_required: ["Commit／PR Description 或交付說明", "Changed Files"]
+    exceptions: ["純分析或需求釐清時不適用。"]
 
-  - id: "GIT-002"
-    version: "1.0"
-    status: "active"
+  - <<: *rule_defaults
+    id: "GIT-002"
     title: "未實際執行的驗證不得描述為通過"
     category: "delivery"
     applies_to: ["unit", "focused", "regression"]
     default_severity: "High"
-    automation: "partial"
     sources:
       - path: "Docs/01_研發與技術文件/02_開發規範/04_Git與Commit規範.md"
         section: "5.5 驗證與真實性"
       - path: "Docs/03_品質與驗證文件/01_AI白箱檢測/README.md"
         section: "2. 角色與責任"
     check:
-      trigger: "交付、Commit、PR 或白箱結果宣稱 Build、Typecheck、Lint、測試、AA、Freego、弱掃、部署或實機驗證通過。"
-      compliant: "能提供實際執行結果，或清楚標示尚未執行、僅靜態檢查或無法確認。"
+      trigger: "宣稱 Build、Typecheck、Lint、測試、AA、Freego、弱掃、部署或實機驗證通過。"
+      compliant: "有實際執行證據，或明確標示尚未執行、僅靜態檢查或無法確認。"
       noncompliant: "沒有執行證據卻宣稱已通過。"
-      unknown: "外部執行紀錄未提供，且無法存取 CI 或工具結果。"
-    evidence_required: ["執行命令、CI Check、工具報告或 RD 實際驗證紀錄"]
+      unknown: "無法存取外部執行紀錄。"
+    evidence_required: ["命令、CI Check、工具報告或 RD 驗證紀錄"]
     exceptions: []
-    introduced_in: "0.1.0"
-    deprecated_in: null
-    superseded_by: null
 
-  - id: "FE-API-001"
-    version: "1.0"
-    status: "active"
+  - <<: *rule_defaults
+    id: "FE-API-001"
     title: "前端後端契約型別應以 OpenAPI Schema 為唯一來源"
     category: "frontend-api"
     applies_to: ["unit", "focused", "regression"]
     default_severity: "High"
-    automation: "partial"
     sources:
       - path: "Docs/01_研發與技術文件/02_開發規範/02_前端開發規範.md"
         section: "2.1 後端 Schema 是唯一契約來源"
     check:
-      trigger: "前端新增或修改 Model、DTO、Request、Response、Enum、Required／Optional、Nullable 或 API 欄位型別。"
-      compliant: "直接使用由 OpenAPI 產生的 components schemas，前端額外狀態另建 UI 專用型別。"
-      noncompliant: "前端重新宣告與後端相同的 Interface／Type，或用手寫型別掩蓋後端 Schema 錯誤。"
-      unknown: "無法取得目前 OpenAPI Schema 或無法確認型別是否代表純 UI 狀態。"
-    evidence_required: ["前端型別宣告與使用位置", "對應 OpenAPI Schema"]
-    exceptions: ["純前端 UI 狀態且未改變後端契約。"]
-    introduced_in: "0.1.0"
-    deprecated_in: null
-    superseded_by: null
+      trigger: "前端新增或修改 Model、DTO、Request、Response、Enum、Optional、Nullable 或 API 欄位型別。"
+      compliant: "使用 OpenAPI components schemas，額外狀態另建 UI 專用型別。"
+      noncompliant: "前端重複宣告後端契約，或以手寫型別掩蓋 Schema 問題。"
+      unknown: "無法取得 Schema 或確認型別是否為純 UI 狀態。"
+    evidence_required: ["前端型別位置", "對應 OpenAPI Schema"]
+    exceptions: ["純 UI 狀態且未改變後端契約。"]
 
-  - id: "FE-SSR-001"
-    version: "1.0"
-    status: "active"
+  - <<: *rule_defaults
+    id: "FE-SSR-001"
     title: "模組載入階段不得直接使用 Browser API"
     category: "frontend-ssr"
     applies_to: ["unit", "focused", "regression"]
     default_severity: "High"
-    automation: "partial"
     sources:
       - path: "Docs/01_研發與技術文件/02_開發規範/02_前端開發規範.md"
         section: "4.6 模組載入階段禁止直接使用 Browser API"
     check:
-      trigger: "前端模組頂層、SSR Entry 或初始載入流程使用 window、document、navigator、location、localStorage 或 sessionStorage。"
-      compliant: "Browser API 僅在 Client Effect、事件時機或正式環境 Adapter 中使用。"
-      noncompliant: "模組頂層在 Import 時即直接存取 Browser API。"
-      unknown: "無法確認程式是否只在 Client-only Bundle 中執行。"
+      trigger: "模組頂層、SSR Entry 或初始載入流程使用 Browser API。"
+      compliant: "Browser API 僅在 Client Effect、事件時機或正式環境 Adapter 使用。"
+      noncompliant: "Import 時即直接存取 Browser API。"
+      unknown: "無法確認是否為 Client-only 隔離入口。"
     evidence_required: ["Browser API 使用位置", "呼叫時機與 Bundle／Route 範圍"]
-    exceptions: ["框架明確保證僅在 Client 執行的隔離入口，且不會被 SSR Import。"]
-    introduced_in: "0.1.0"
-    deprecated_in: null
-    superseded_by: null
+    exceptions: ["框架保證只在 Client 執行且不會被 SSR Import。"]
 
-  - id: "FE-SSR-002"
-    version: "1.0"
-    status: "active"
+  - <<: *rule_defaults
+    id: "FE-SSR-002"
     title: "SSR 與 CSR 第一次 Render 的 DOM 結構必須一致"
     category: "frontend-ssr"
     applies_to: ["unit", "focused", "regression"]
     default_severity: "High"
-    automation: "partial"
     sources:
       - path: "Docs/01_研發與技術文件/02_開發規範/02_前端開發規範.md"
         section: "4.7 SSR 與 CSR 初始 DOM 必須一致"
     check:
-      trigger: "Component、Loader 或 Hydration 初始狀態依 Server／Client 環境輸出不同 DOM 結構。"
-      compliant: "Server Render 與 Client 第一次 Render 使用一致結構，再於 Effect 或明確狀態更新後變更。"
-      noncompliant: "以 typeof window 等判斷在 Server 與 Client 首次 Render 回傳不同主要結構。"
-      unknown: "缺少 SSR Route、Loader Initial Data 或 Hydration 流程，無法判斷首次 Render。"
-    evidence_required: ["Server 與 Client 初始 Render 路徑", "Initial Data 與環境判斷"]
+      trigger: "初始狀態依 Server／Client 環境輸出不同 DOM。"
+      compliant: "Server 與 Client 第一次 Render 結構一致，後續才更新。"
+      noncompliant: "以環境判斷在首次 Render 回傳不同主要結構。"
+      unknown: "缺少 SSR Route、Initial Data 或 Hydration 流程。"
+    evidence_required: ["Server／Client 初始 Render 路徑", "Initial Data 與環境判斷"]
     exceptions: []
-    introduced_in: "0.1.0"
-    deprecated_in: null
-    superseded_by: null
 
-  - id: "AA-001"
-    version: "1.0"
-    status: "active"
+  - <<: *rule_defaults
+    id: "AA-001"
     title: "滑鼠可操作功能必須提供鍵盤等價操作"
     category: "accessibility"
     applies_to: ["unit", "focused", "regression"]
     default_severity: "High"
-    automation: "partial"
     sources:
       - path: "Docs/01_研發與技術文件/02_開發規範/02_前端開發規範.md"
         section: "5.6 互動元件技術底線"
     check:
-      trigger: "新增或修改 onClick、拖曳、輪播控制、選單、對話框或其他滑鼠互動。"
-      compliant: "使用原生語意控制項，或提供可聚焦、可辨識且能以鍵盤完成的等價操作。"
-      noncompliant: "只有滑鼠事件，鍵盤使用者無法完成相同操作。"
-      unknown: "靜態程式無法確認第三方元件的實際鍵盤行為。"
-    evidence_required: ["互動元素與事件綁定", "鍵盤事件、原生語意或第三方元件契約"]
+      trigger: "新增或修改點擊、拖曳、輪播、選單、對話框或其他滑鼠互動。"
+      compliant: "使用原生語意控制項，或提供可聚焦且能以鍵盤完成的等價操作。"
+      noncompliant: "只有滑鼠事件，鍵盤無法完成相同操作。"
+      unknown: "無法由靜態程式確認第三方元件行為。"
+    evidence_required: ["互動元素與事件", "鍵盤事件、原生語意或第三方契約"]
     exceptions: []
-    introduced_in: "0.1.0"
-    deprecated_in: null
-    superseded_by: null
 
-  - id: "BE-FORM-001"
-    version: "1.0"
-    status: "active"
+  - <<: *rule_defaults
+    id: "BE-FORM-001"
     title: "標準表單資料應使用 WCMS 既有 Model／Biz／API 主線"
     category: "backend-form"
     applies_to: ["unit", "focused", "regression"]
     default_severity: "High"
-    automation: "partial"
     sources:
       - path: "Docs/01_研發與技術文件/02_開發規範/03_後端開發規範.md"
         section: "2.3 基本表單資料"
     check:
-      trigger: "新增或重構一般主表、Root／Detail、後台清單表單或標準 CRUD。"
-      compliant: "依資料角色選擇既有 Model 基底，Biz 使用 BizService<TFormModel>，API 使用 ApiDataController<TFormModel> 或合適的既有查詢入口。"
-      noncompliant: "標準表單另建獨立 Controller、Biz、Repository 主線，或重新實作 CRUD／Transaction。"
-      unknown: "無法確認功能是標準表單、報表、Func 或 SaaS 對外服務。"
-    evidence_required: ["功能類型判斷", "Model、Biz、API 繼承與入口"]
-    exceptions: ["經確認屬報表、獨立 Func 或其他已有正式底層的功能類型。"]
-    introduced_in: "0.1.0"
-    deprecated_in: null
-    superseded_by: null
+      trigger: "新增或重構主表、Root／Detail、後台清單表單或標準 CRUD。"
+      compliant: "依資料角色使用既有 Model 基底、BizService 與 ApiDataController 主線。"
+      noncompliant: "標準表單另建 Controller、Biz、Repository 或 CRUD／Transaction 主線。"
+      unknown: "無法確認功能類型。"
+    evidence_required: ["功能類型判斷", "Model、Biz、API 入口"]
+    exceptions: ["正式報表、獨立 Func 或其他已有底層的功能。"]
 
-  - id: "BE-FORM-002"
-    version: "1.0"
-    status: "active"
+  - <<: *rule_defaults
+    id: "BE-FORM-002"
     title: "一般 CRUD 不得直接繞過標準資料與交易流程"
     category: "backend-form"
     applies_to: ["unit", "focused", "regression"]
     default_severity: "Critical"
-    automation: "partial"
     sources:
       - path: "Docs/01_研發與技術文件/02_開發規範/03_後端開發規範.md"
         section: "一般 CRUD 對外入口與禁止直接呼叫的底層方法"
     check:
-      trigger: "一般 CRUD 直接呼叫 ApplicationDbContext、DbSet、Repository Write Operations、GraphRepo 或底層 Transaction 方法。"
+      trigger: "一般 CRUD 直接呼叫 DbContext、DbSet、Repository Write Operations、GraphRepo 或底層 Transaction。"
       compliant: "透過標準 Biz、Repository 與 Hook 入口完成資料異動。"
-      noncompliant: "Feature／Controller 直接操作底層寫入，可能繞過 Transaction、生命週期、主明細同步、差異更新、Hook、訊息或 Auditing。"
-      unknown: "無法確認該呼叫是否位於框架底層實作本身，或是否屬正式例外流程。"
-    evidence_required: ["直接底層呼叫位置", "呼叫所在層級與標準替代入口"]
-    exceptions: ["FeatureDriver、Persistence 或正式底層框架內部實作。"]
-    introduced_in: "0.1.0"
-    deprecated_in: null
-    superseded_by: null
+      noncompliant: "Feature／Controller 直接操作底層寫入並繞過標準生命週期。"
+      unknown: "無法確認是否位於正式底層實作或例外流程。"
+    evidence_required: ["底層呼叫位置", "所在層級與替代入口"]
+    exceptions: ["FeatureDriver、Persistence 或正式底層框架內部。"]
 
-  - id: "BE-AUDIT-001"
-    version: "1.0"
-    status: "active"
+  - <<: *rule_defaults
+    id: "BE-AUDIT-001"
     title: "操作日誌應由 Middleware 或共用 HTTP 管線統一收口"
     category: "backend-auditing"
     applies_to: ["unit", "focused", "regression"]
     default_severity: "Medium"
-    automation: "partial"
     sources:
       - path: "Docs/01_研發與技術文件/02_開發規範/03_後端開發規範.md"
         section: "2.5.1 操作日誌"
     check:
-      trigger: "Controller、API 或 Func 新增操作開始、來源資訊、執行結果或耗時紀錄。"
-      compliant: "使用 Middleware 或共用 HTTP 管線的統一操作日誌流程。"
-      noncompliant: "個別 Controller 重複建立不同格式或不同生命週期的操作日誌。"
-      unknown: "目前共用操作日誌管線尚未完整落地，無法確認可用入口。"
+      trigger: "Controller、API 或 Func 新增操作來源、結果或耗時紀錄。"
+      compliant: "使用 Middleware 或共用 HTTP 管線的統一流程。"
+      noncompliant: "個別 Controller 建立不同格式或生命週期的操作日誌。"
+      unknown: "共用管線尚未完整落地或無法確認入口。"
     evidence_required: ["操作日誌建立位置", "Middleware／HTTP 管線入口"]
-    exceptions: ["共用管線尚未落地時，只能標示待確認或架構觀察，不得強迫 Feature 引用不存在的 Class。"]
-    introduced_in: "0.1.0"
-    deprecated_in: null
-    superseded_by: null
+    exceptions: ["共用管線未落地時只能標示待確認或 Observation。"]
 
-  - id: "BE-AUDIT-002"
-    version: "1.0"
-    status: "active"
+  - <<: *rule_defaults
+    id: "BE-AUDIT-002"
     title: "資料變更日誌必須與資料異動位於同一 Transaction"
     category: "backend-auditing"
     applies_to: ["unit", "focused", "regression"]
     default_severity: "High"
-    automation: "partial"
     sources:
       - path: "Docs/01_研發與技術文件/02_開發規範/03_後端開發規範.md"
         section: "2.5.2 變更日誌"
     check:
-      trigger: "標準 CRUD 或特殊 Func 修改 Entity 資料並建立變更日誌。"
-      compliant: "資料異動與變更日誌在同一 Transaction Commit，任一失敗時整體 Rollback。"
-      noncompliant: "資料先提交後再獨立寫日誌，或以操作日誌取代資料差異紀錄。"
-      unknown: "無法追蹤 Transaction 邊界或共用變更流程實作。"
-    evidence_required: ["資料異動與日誌寫入路徑", "Transaction 邊界", "變更原因或來由的傳遞"]
+      trigger: "標準 CRUD 或特殊 Func 修改 Entity 並建立變更日誌。"
+      compliant: "資料異動與日誌在同一 Transaction Commit，任一失敗整體 Rollback。"
+      noncompliant: "資料先提交後另寫日誌，或以操作日誌取代資料差異紀錄。"
+      unknown: "無法追蹤 Transaction 邊界或共用變更流程。"
+    evidence_required: ["資料與日誌寫入路徑", "Transaction 邊界", "變更原因傳遞"]
     exceptions: []
-    introduced_in: "0.1.0"
-    deprecated_in: null
-    superseded_by: null
