@@ -3,7 +3,7 @@
 本文件是 AI 進入 WCMS 專案時的資料導向 Prompt。
 主要用途是指定 GitHub、Docs 與管理資料的讀取順序，以及資料不一致時的判斷原則。
 
-本文件只負責「導向與學習順序」，不取代 Docs 內的正式架構、開發規範、Git／PR 規範或品質驗證文件。
+本文件只負責「導向與學習順序」，不取代 Docs 內的正式架構、開發規範、Git／Commit 規範或品質驗證文件。
 
 ---
 
@@ -70,7 +70,7 @@ WCMS 的 `Docs` 資料夾會放在同一個 GitHub Repository 中進行版本控
 
 涉及 Commit、Branch、Issue、PR 或 Release 時追加閱讀：
 
-`Docs/01_研發與技術文件/02_開發規範/04_Git與PR規範.md`
+`Docs/01_研發與技術文件/02_開發規範/04_Git與Commit規範.md`
 
 不得用舊對話、舊 Word、舊 Prompt 或 Legacy Code 取代目前有效的 Markdown 規範。
 
@@ -135,7 +135,7 @@ WCMS 的 `Docs` 資料夾會放在同一個 GitHub Repository 中進行版本控
 3. 閱讀相關架構文件。
 4. 閱讀共通開發規範。
 5. 閱讀本次端別的前端或後端規範。
-6. 視任務閱讀 Git／PR、品質驗證或開發歷程文件。
+6. 視任務閱讀 Git／Commit、品質驗證或開發歷程文件。
 7. 核對 GitHub 指定分支的實際程式碼。
 8. 搜尋 SysCore、Library、Helper、Hook、Component、Template、Adapter、FeatureDriver、Service、Repository、Feature 與相近 Spec 的既有實作。
 9. 搜尋相關 Issue、PR、Commit 與歷史修正。
