@@ -8,7 +8,7 @@
 > [!NOTE]
 > 本文件規範 Commit 建立流程、GitHub Desktop 使用的 `Summary` 與 `Description`，以及完成修改單元時的交付與變更說明。
 >
-> 分支整合、人工作業審查與完整 PR 協作流程尚未正式導入；已建立的 AI 白箱 Gate 依 [`03_品質與驗證文件/01_AI白箱檢測`](../../../03_品質與驗證文件/01_AI白箱檢測/) 執行。
+> 分支整合、人工作業審查與完整 PR 協作流程尚未正式導入；已建立的 AI 白箱 Gate 依 [`AI 白箱檢測 README`](../../03_品質與驗證文件/01_AI白箱檢測/README.md) 執行。
 
 ---
 
@@ -76,7 +76,7 @@ Push Origin
 
 ### 2.2 Push／PR 與 AI 白箱 Gate
 
-Commit 並 Push 後，若準備建立或更新 PR，依 [`AI 白箱檢測 README`](../../../03_品質與驗證文件/01_AI白箱檢測/README.md) 執行：
+Commit 並 Push 後，若準備建立或更新 PR，依 [`AI 白箱檢測 README`](../../03_品質與驗證文件/01_AI白箱檢測/README.md) 執行：
 
 1. **需求與單元 Gate**：每個 PR 原則上必跑。
 2. **專項 Gate**：判斷是否觸發 Cache、SSR、AA、API、JWT、Auditing、Feature／Spec 或日期時間等專項。
