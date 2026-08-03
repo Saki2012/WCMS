@@ -1,0 +1,59 @@
+name: Finalize WCMS Docs Version
+
+on:
+  push:
+    branches:
+      - Feature/Dev
+    paths:
+      - .github/workflows/docs-version-finalize.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalize-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Feature Dev
+        uses: actions/checkout@v4
+        with:
+          ref: Feature/Dev
+          fetch-depth: 0
+
+      - name: Finalize document versions and links
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          replacements = {
+              "04_Git與PR規範.md": "04_Git與Commit規範.md",
+              "Git／PR 規範": "Git／Commit 規範",
+              "Git 與 PR 規範": "Git 與 Commit 規範",
+          }
+
+          for path in Path("Docs").rglob("*.md"):
+              text = path.read_text(encoding="utf-8-sig")
+              next_text = re.sub(
+                  r"> 文件狀態：Draft v\d+(?:\.\d+)*\s{2}",
+                  "> 文件版本：Version 1.0  ",
+                  text,
+              )
+              for old, new in replacements.items():
+                  next_text = next_text.replace(old, new)
+              if next_text != text:
+                  path.write_text(next_text, encoding="utf-8")
+
+      - name: Remove temporary workflow
+        run: rm .github/workflows/docs-version-finalize.yml
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Docs .github/workflows/docs-version-finalize.yml
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Docs：將現行文件定版為 Version 1.0"
+          git push origin HEAD:Feature/Dev
