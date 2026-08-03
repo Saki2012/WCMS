@@ -1,6 +1,6 @@
 # WCMS Git 與 Commit 規範
 
-> 文件狀態：Draft v0.2  
+> 文件版本：Version 1.0  
 > 適用 Repository：`Saki2012/WCMS`  
 > 適用範圍：`Feature/Dev`、`Feature/Release`、`Spec####`  
 > 最後整理：2026-08-03
