@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -1136,5 +1136,17 @@
   </data>
   <data name="SysDbProfile" xml:space="preserve">
     <value>資料庫環境識別</value>
+  </data>
+  <data name="Prog_Calendar" xml:space="preserve">
+    <value>行事曆管理</value>
+  </data>
+  <data name="Prog_Category" xml:space="preserve">
+    <value>類別管理</value>
+  </data>
+  <data name="Prog_Person" xml:space="preserve">
+    <value>人員基礎資料</value>
+  </data>
+  <data name="Prog_Tag" xml:space="preserve">
+    <value>標籤管理</value>
   </data>
 </root>
