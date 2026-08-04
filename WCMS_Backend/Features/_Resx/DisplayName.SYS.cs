@@ -53,6 +53,47 @@ public static partial class DisplayName
     /// 英：
     /// </summary>
     public const string WebClient_TimeZone = nameof(WebClient_TimeZone);
+
+    /// <summary>
+    /// 中：資料變更日誌
+    /// 英：Data Change Log
+    /// </summary>
+    public const string DataChangeLog = nameof(DataChangeLog);
+    /// <summary>
+    /// 中：資料變更日誌明細
+    /// 英：Data Change Log Detail
+    /// </summary>
+    public const string DataChangeLogDetail = nameof(DataChangeLogDetail);
+    /// <summary>
+    /// 中：操作日誌
+    /// 英：Operation Log
+    /// </summary>
+    public const string OperateLogModel = nameof(OperateLogModel);
+    /// <summary>
+    /// 中：檔案
+    /// 英：File
+    /// </summary>
+    public const string FileManage = nameof(FileManage);
+    /// <summary>
+    /// 中：最近檔案下載紀錄
+    /// 英：Recent File Download
+    /// </summary>
+    public const string FileManage_DownloadRecent = nameof(FileManage_DownloadRecent);
+    /// <summary>
+    /// 中：檔案同步資訊
+    /// 英：File Synchronization
+    /// </summary>
+    public const string FileManage_SyncInfo = nameof(FileManage_SyncInfo);
+    /// <summary>
+    /// 中：檔案使用紀錄
+    /// 英：File Usage
+    /// </summary>
+    public const string FileManage_UsedModel = nameof(FileManage_UsedModel);
+    /// <summary>
+    /// 中：資料庫環境識別
+    /// 英：Database Profile
+    /// </summary>
+    public const string SysDbProfile = nameof(SysDbProfile);
     #endregion
 
     #region FileManagement

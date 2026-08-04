@@ -42,6 +42,8 @@ export interface SearchFieldConfig
     type: SearchFieldType;
     fieldId?: string;
     placeholder?: string;
+    /** 文字型搜尋欄位允許輸入的最大長度。 */
+    maxLength?: number;
     options?: SearchOption[];
     defaultValue?: SearchValue;
     required?: boolean;

@@ -25,6 +25,8 @@ type SsrConfig = Readonly<{
 
 type ProdPaths = Readonly<{ clientRoot: string; serverEntry: string; indexPath: string; }>;
 
+type SpecAssetLoaderFile = Readonly<{ filePath: string; publicBase: string; }>;
+
 type HeaderValue = string | number | readonly string[];
 
 type HeadersMap = Record<string, HeaderValue>;
@@ -405,18 +407,33 @@ const applyProdTlsGuard = (isProd: boolean, apiTarget: string, allowInsecureTls:
     return allowBackendTls;
 };
 
-// 讀 env 並整理成 config
-const getConfig = (): SsrConfig =>
+/** 依目前模式載入 SSR Server 所需環境檔，讓 Spec 與 Feature 使用相同判斷。 */
+const loadRuntimeEnvFiles = (cwd: string, isDistRuntime: boolean): void =>
 {
-    const cwd = process.cwd();
-    const isDistRuntime = existsSync(path.resolve(cwd, "CSR")) && existsSync(path.resolve(cwd, "SSR"));
-
     if (isDistRuntime)
     {
         const hasDotEnv = existsSync(path.resolve(cwd, ".env"));
         const prodEnvPath = path.resolve(cwd, ".env.production");
         if (!hasDotEnv && existsSync(prodEnvPath)) dotenvConfig({ path: prodEnvPath });
+        return;
     }
+
+    const mode = String(process.env.NODE_ENV || "development") === "production" ? "production" : "development";
+    const candidates = [`.env.${mode}.local`, `.env.${mode}`];
+
+    for (const fileName of candidates)
+    {
+        const envPath = path.resolve(cwd, fileName);
+        if (existsSync(envPath)) dotenvConfig({ path: envPath });
+    }
+};
+
+// 讀 env 並整理成 config
+const getConfig = (): SsrConfig =>
+{
+    const cwd = process.cwd();
+    const isDistRuntime = existsSync(path.resolve(cwd, "CSR")) && existsSync(path.resolve(cwd, "SSR"));
+    loadRuntimeEnvFiles(cwd, isDistRuntime);
 
     const nodeEnv = String(process.env.NODE_ENV || "development");
     const isProd = nodeEnv === "production" || isDistRuntime;
@@ -461,6 +478,8 @@ const shouldSSR = (req: Request): boolean =>
 const readCssImportHrefs = async (absTsFilePath: string, devPublicBase: string): Promise<string[]> =>
 {
     // 宣告變數
+    if (!existsSync(absTsFilePath)) return [];
+
     const text = await fs.readFile(absTsFilePath, "utf-8");
     const re = /^\s*import\s+["'](.+?)["'];\s*$/gm;
     const hrefs: string[] = [];
@@ -470,12 +489,33 @@ const readCssImportHrefs = async (absTsFilePath: string, devPublicBase: string):
     {
         const p = String(m[1] || "");
         if (!p.endsWith(".css")) continue;
-        const rel = p.replace(/^\.\//, ""); // "./Client/xx.css" -> "Client/xx.css"
+        const rel = p.replace(/^\.\//, "");
         hrefs.push(`${devPublicBase}/${rel}`.replace(/\/{2,}/g, "/"));
     }
 
     // return
     return hrefs;
+};
+
+/** 取得目前啟用的 SpecCode；空值代表純 Feature 模式。 */
+const getActiveSpecCode = (): string =>
+{
+    return String(process.env.VITE_SPEC_CODE ?? "").trim();
+};
+
+/** 尋找 Spec 的 CSS loader，並相容既有兩種資料夾拼字。 */
+const resolveSpecAssetLoaderFile = (specCode: string, fileName: string): SpecAssetLoaderFile | null =>
+{
+    if (!specCode) return null;
+
+    const folders = ["SpecFetures", "SpecFeatures"];
+    for (const folder of folders)
+    {
+        const filePath = path.resolve(process.cwd(), "src", folder, specCode, "Assets", fileName);
+        if (existsSync(filePath)) return { filePath, publicBase: `/src/${folder}/${specCode}/Assets` };
+    }
+
+    return null;
 };
 
 const normalizeCssHref = (href: string): string =>
@@ -627,19 +667,21 @@ const getProdCssHrefsFromManifest = (m: ViteManifest, spec: string, isServer: bo
         addIfExists(["src/Features/Assets/LoadFeaturesCss.ts"]);
     }
 
-    // 3) ✅ Spec Css：用「精準 key」避免把整個 spec 資產都掃進來
-    if (isServer)
+    // 3) Spec Css：Feature 模式略過；Spec 模式只抓目前 Case
+    if (isServer && spec)
     {
         addIfExists([`src/SpecFetures/${spec}/Assets/LoadSpecCss_Server.ts`, `src/SpecFeatures/${spec}/Assets/LoadSpecCss_Server.ts`]);
-    } else
+    }
+    else
     {
-        // addIfExists([`src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`, `src/SpecFeatures/${spec}/Assets/LoadSpecCss.ts`]);
-        addIfExists([
-            `src/Features/Assets/LoadFeaturesCss_Client.ts`,
-            `src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`,
-            `src/SpecFeatures/${spec}/Assets/LoadSpecCss.ts`,
-        ]);
-        // cara
+        addIfExists(["src/Features/Assets/LoadFeaturesCss_Client.ts"]);
+        if (spec)
+        {
+            addIfExists([
+                `src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`,
+                `src/SpecFeatures/${spec}/Assets/LoadSpecCss.ts`,
+            ]);
+        }
     }
 
     // 4) fallback：真的抓不到時才全掃（把 css-only chunk 也納入）
@@ -813,29 +855,31 @@ const setupDevSSR = async (app: express.Express, cfg: SsrConfig) =>
             template = await vite.transformIndexHtml(url, template);
 
             // 宣告變數
-            const spec = String(process.env.VITE_SPEC_CODE);
+            const specCode = getActiveSpecCode();
             const isServer = String(req.path || "").toLowerCase().startsWith("/server");
 
             // 執行 function
             if (isServer)
             {
-                // 後台：Features + Spec(Server)
                 const featuresCssTs = path.resolve(process.cwd(), "src/Features/Assets/LoadFeaturesCss.ts");
-                const specServerCssTs = path.resolve(process.cwd(), `src/SpecFetures/${spec}/Assets/LoadSpecCss_Server.ts`);
+                const specCssFile = resolveSpecAssetLoaderFile(specCode, "LoadSpecCss_Server.ts");
+                const featureHrefs = await readCssImportHrefs(featuresCssTs, "/src/Features/Assets");
+                const specHrefs = specCssFile
+                    ? await readCssImportHrefs(specCssFile.filePath, specCssFile.publicBase)
+                    : [];
 
-                const fHrefs = await readCssImportHrefs(featuresCssTs, "/src/Features/Assets");
-                const sHrefs = await readCssImportHrefs(specServerCssTs, `/src/SpecFetures/${spec}/Assets`);
-
-                template = injectCssLinksToHead(template, [...fHrefs, ...sHrefs]);
-            } else
+                template = injectCssLinksToHead(template, [...featureHrefs, ...specHrefs]);
+            }
+            else
             {
-                // 前台：Spec(Client)
-                const featuresClientCssTs = path.resolve(process.cwd(), "src/Features/Assets/LoadFeaturesCss_Client.ts");
-                const specCssTs = path.resolve(process.cwd(), `src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`);
-                const Fhrefs = await readCssImportHrefs(featuresClientCssTs, "/src/Features/Assets");
-                const Shrefs = await readCssImportHrefs(specCssTs, `/src/SpecFetures/${spec}/Assets`);
+                const featuresCssTs = path.resolve(process.cwd(), "src/Features/Assets/LoadFeaturesCss_Client.ts");
+                const specCssFile = resolveSpecAssetLoaderFile(specCode, "LoadSpecCss.ts");
+                const featureHrefs = await readCssImportHrefs(featuresCssTs, "/src/Features/Assets");
+                const specHrefs = specCssFile
+                    ? await readCssImportHrefs(specCssFile.filePath, specCssFile.publicBase)
+                    : [];
 
-                template = injectCssLinksToHead(template, [...Fhrefs, ...Shrefs]);
+                template = injectCssLinksToHead(template, [...featureHrefs, ...specHrefs]);
             }
 
             const mod = await vite.ssrLoadModule("/src/SSR/Entry-Server.tsx");
@@ -881,7 +925,7 @@ const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>
             if (trySendResponseResult(res, result)) return;
             const payload = toPayload(result);
             let template = await fs.readFile(indexPath, "utf-8");
-            const spec = String(process.env.VITE_SPEC_CODE || "_default");
+            const spec = getActiveSpecCode();
             const isServer = String(req.path || "").toLowerCase().startsWith("/server");
             const manifest = await manifestPromise;
             if (manifest)

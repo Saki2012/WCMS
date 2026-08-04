@@ -6,8 +6,10 @@ using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.Features.WEB.PageManagement;
 
+[LibDesc(DisplayName.PageManagement)]
 public class PageManagement : WEBModel
 {
     /// <summary>
@@ -33,6 +35,7 @@ public class PageManagement : WEBModel
     public List<PageManagementDetail> _PageManagementDetail { get; set; } = [];
     #endregion
 }
+[LibDesc(DisplayName.PageManagementDetail)]
 public class PageManagementDetail : FormDetailModel
 {
     /// <summary>

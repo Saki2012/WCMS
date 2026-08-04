@@ -60,6 +60,7 @@ public class MatCategoryFormModel : IFormModel<Category>
 /// <summary>
 /// MAT 類別自訂欄位。
 /// </summary>
+[LibDesc(DisplayName.MatCategoryInfoField)]
 public class MatCategoryInfoField : FormDetailModel
 {
     #region Property
@@ -92,6 +93,7 @@ public class MatCategoryInfoField : FormDetailModel
 /// <summary>
 /// MAT 類別自訂欄位多語顯示名稱。
 /// </summary>
+[LibDesc(DisplayName.MatCategoryInfoFieldDisplay)]
 public class MatCategoryInfoFieldDisplay : FormDetailModel
 {
     #region Property

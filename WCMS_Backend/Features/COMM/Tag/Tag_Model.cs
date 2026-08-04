@@ -30,6 +30,8 @@ public class TagData : HeaderModel
     public List<TagDetail> _TagDetail { get; set; } = [];
     #endregion
 }
+
+[LibDesc(DisplayName.TagDetail)]
 public class TagDetail : FormDetailModel
 {
     /// <summary>

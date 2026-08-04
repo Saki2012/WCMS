@@ -1,14 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
+using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.SysCore.Auditing.DataChangeLog;
 
 /// <summary>
 /// 資料變更日誌
 /// </summary>
-[LibDesc]
+[LibDesc(DisplayName.DataChangeLog)]
 public class DataChangeLog
 {
     /// <summary>
@@ -41,7 +42,7 @@ public class DataChangeLog
 /// <summary>
 /// 資料變更日誌明細
 /// </summary>
-[LibDesc]
+[LibDesc(DisplayName.DataChangeLogDetail)]
 public class DataChangeLogDetail
 {
     /// <summary>
@@ -78,4 +79,3 @@ public class DataChangeLogDetail
     [LibField(ApiFieldMode.ReadWrite)]
     public RowState RowState { get; set; }
 }
-

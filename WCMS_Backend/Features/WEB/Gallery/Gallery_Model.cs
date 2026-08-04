@@ -13,6 +13,7 @@ namespace WCMS.Features.WEB.Gallery;
 /// <summary>
 /// 相簿
 /// </summary>
+[LibDesc(DisplayName.Gallery)]
 public class Gallery : HeaderModel
 {
     /// <summary>
@@ -69,6 +70,7 @@ public class Gallery : HeaderModel
 /// <summary>
 /// 相簿資訊
 /// </summary>
+[LibDesc(DisplayName.GalleryInfo)]
 public class GalleryInfo : FormDetailModel
 {
     /// <summary>
@@ -137,6 +139,7 @@ public class GalleryPhotos : FormDetailModel
 /// <summary>
 /// 相簿裡的相片資訊
 /// </summary>
+[LibDesc(DisplayName.GalleryPhotosInfo)]
 public class GalleryPhotosInfo : FormDetailModel
 {
     /// <summary>

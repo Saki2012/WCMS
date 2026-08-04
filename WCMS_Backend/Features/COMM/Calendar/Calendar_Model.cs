@@ -4,8 +4,11 @@ using WCMS.Features.IAM.Account;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
+using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.Features.COMM.Calendar;
 
+[LibDesc(DisplayName.Calendar)]
 public class Calendar : HeaderModel
 {
     /// <summary>
@@ -36,6 +39,7 @@ public class Calendar : HeaderModel
     #endregion
 }
 
+[LibDesc(DisplayName.CalendarDetail)]
 public partial class CalendarDetail : DetailModel
 {
     /// <summary>

@@ -98,7 +98,7 @@
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="name" use="required" />
             </xsd:complexType>
           </xsd:element>
         </xsd:choice>
@@ -1031,5 +1031,110 @@
   </data>
   <data name="HomePageSetting" xml:space="preserve">
     <value>Home Page Setting</value>
+  </data>
+  <data name="CalendarDetail" xml:space="preserve">
+    <value>Calendar Date</value>
+  </data>
+  <data name="CategoryDetail" xml:space="preserve">
+    <value>Category Translation</value>
+  </data>
+  <data name="TagDetail" xml:space="preserve">
+    <value>Tag Translation</value>
+  </data>
+  <data name="RoleData" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="MatCategoryInfoFieldDisplay" xml:space="preserve">
+    <value>Material Category Field Translation</value>
+  </data>
+  <data name="MaterialLangInfo" xml:space="preserve">
+    <value>Material Translation</value>
+  </data>
+  <data name="MaterialTags" xml:space="preserve">
+    <value>Material Tag</value>
+  </data>
+  <data name="AnnouncementDetail" xml:space="preserve">
+    <value>Announcement Translation</value>
+  </data>
+  <data name="FileArchiveInfo" xml:space="preserve">
+    <value>File Archive Translation</value>
+  </data>
+  <data name="GalleryInfo" xml:space="preserve">
+    <value>Gallery Translation</value>
+  </data>
+  <data name="GalleryPhotosInfo" xml:space="preserve">
+    <value>Photo Translation</value>
+  </data>
+  <data name="PageManagementDetail" xml:space="preserve">
+    <value>Page Translation</value>
+  </data>
+  <data name="SiteMenu_Index" xml:space="preserve">
+    <value>Site Menu</value>
+  </data>
+  <data name="SiteMenu_IndexInfo" xml:space="preserve">
+    <value>Site Translation</value>
+  </data>
+  <data name="SiteMenu_Item" xml:space="preserve">
+    <value>Site Menu Item</value>
+  </data>
+  <data name="SiteMenu_Item_Title" xml:space="preserve">
+    <value>Menu Title Translation</value>
+  </data>
+  <data name="SiteMenu_Item_Url" xml:space="preserve">
+    <value>URL Menu Settings</value>
+  </data>
+  <data name="SiteMenu_Item_Module" xml:space="preserve">
+    <value>Module Menu Settings</value>
+  </data>
+  <data name="SiteViewCountHeader" xml:space="preserve">
+    <value>Site View Statistics</value>
+  </data>
+  <data name="SiteViewCountDetail" xml:space="preserve">
+    <value>Content View Statistics</value>
+  </data>
+  <data name="SiteViewCountRecently" xml:space="preserve">
+    <value>Recent View Count Record</value>
+  </data>
+  <data name="Survey" xml:space="preserve">
+    <value>Survey</value>
+  </data>
+  <data name="SurveyItem" xml:space="preserve">
+    <value>Survey Field</value>
+  </data>
+  <data name="SurveyItemLang" xml:space="preserve">
+    <value>Survey Field Translation</value>
+  </data>
+  <data name="SurveySubmissions" xml:space="preserve">
+    <value>Survey Submission</value>
+  </data>
+  <data name="TimelineItem" xml:space="preserve">
+    <value>Timeline Item</value>
+  </data>
+  <data name="WebResourceInfo" xml:space="preserve">
+    <value>Web Resource Translation</value>
+  </data>
+  <data name="DataChangeLog" xml:space="preserve">
+    <value>Data Change Log</value>
+  </data>
+  <data name="DataChangeLogDetail" xml:space="preserve">
+    <value>Data Change Log Detail</value>
+  </data>
+  <data name="OperateLogModel" xml:space="preserve">
+    <value>Operation Log</value>
+  </data>
+  <data name="FileManage" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="FileManage_DownloadRecent" xml:space="preserve">
+    <value>Recent File Download</value>
+  </data>
+  <data name="FileManage_SyncInfo" xml:space="preserve">
+    <value>File Synchronization</value>
+  </data>
+  <data name="FileManage_UsedModel" xml:space="preserve">
+    <value>File Usage</value>
+  </data>
+  <data name="SysDbProfile" xml:space="preserve">
+    <value>Database Profile</value>
   </data>
 </root>

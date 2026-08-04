@@ -10,6 +10,7 @@ using WCMS.SysCore.I18n.Metadata;
 using WCMS.SysCore.PlatformServices.FileManagement;
 namespace WCMS.Features.WEB.FileArchive;
 
+[LibDesc(DisplayName.FileArchive)]
 public class FileArchive : HeaderModel
 {
     /// <summary>
@@ -48,6 +49,7 @@ public class FileArchive : HeaderModel
     public List<FileArchiveInfo> _FileArchiveInfo { get; set; } = [];
     #endregion
 }
+[LibDesc(DisplayName.FileArchiveInfo)]
 public class FileArchiveInfo : FormDetailModel
 {
     /// <summary>

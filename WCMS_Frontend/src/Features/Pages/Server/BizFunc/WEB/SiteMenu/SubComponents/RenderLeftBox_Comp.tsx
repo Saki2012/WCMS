@@ -48,7 +48,7 @@ type SyncIncomingOptions = {
     setItems: Dispatch<SetStateAction<SiteMenuItem[]>>;
     setOriginalSnapshot: Dispatch<SetStateAction<string>>;
     setDeletedRowIds: Dispatch<SetStateAction<number[]>>;
-    data: SiteMenuFormModel | undefined;
+    data: SiteMenuFormModel;
     lang: Lang;
     setSiteInfoTitle: Dispatch<SetStateAction<string>>;
 };
@@ -183,7 +183,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
 
         const nextRowId = createTempRowId();
         const nextTitleRowId = 1;
-        const sampleSiteIndex = prop.formData.data?._SiteMenu_Item?.[0]?.SiteIndex ?? prop.formData.data?.SiteIndex ?? "";
+        const sampleSiteIndex = prop.formData.data._SiteMenu_Item?.[0]?.SiteIndex ?? prop.formData.data.SiteIndex ?? "";
         const level = parent ? Number(parent.menuItem?.Level ?? 1) + 1 : 1;
         const displayOrder = parent ? (parent.children?.length ?? 0) + 1 : items.length + 1;
 
@@ -638,9 +638,9 @@ const cloneMenuItems = (nodes: SiteMenuItem[]): SiteMenuItem[] =>
 
 
 /** 依已成功儲存的表單資料更新左側選單標題。 */
-const applySavedTitles = (nodes: SiteMenuItem[], data: SiteMenuFormModel | undefined, lang: Lang): SiteMenuItem[] =>
+const applySavedTitles = (nodes: SiteMenuItem[], data: SiteMenuFormModel, lang: Lang): SiteMenuItem[] =>
 {
-    const sourceItems = data?._SiteMenu_Item ?? [];
+    const sourceItems = data._SiteMenu_Item ?? [];
     return nodes.map(node =>
     {
         const title = resolveMenuItemTitle(sourceItems, node.id, lang);
@@ -706,7 +706,7 @@ const CheckFrontBtn = (prop: { fullPath: string; disabled?: boolean; }) =>
 /** 同步伺服器回傳的 SiteMenu 樹，保留尚未儲存的本地異動。 */
 const syncIncomingItems = (incoming: SiteMenuItem[], opt: SyncIncomingOptions): void =>
 {
-    const hasMenuData = Array.isArray(opt.data?._SiteMenu_Item) || incoming.length > 0;
+    const hasMenuData = (opt.data._SiteMenu_Item ?? []).length > 0 || incoming.length > 0;
     if (!hasMenuData) return;
 
     const incomingItems = cloneMenuItems(incoming);
@@ -879,8 +879,6 @@ const applyRemovalToForm = (formData: UseFetchFormDataResult<SiteMenuFormModel>,
 {
     formData.setFormData((prev) =>
     {
-        if (!prev) return prev;
-
         return {
             ...prev,
             _SiteMenu_Item: (prev._SiteMenu_Item ?? []).filter(item => !idsToRemove.has(Number(item.RowId))),
@@ -910,8 +908,6 @@ const syncTreeToForm = (tree: SiteMenuItem[], formData: UseFetchFormDataResult<S
 
     formData.setFormData((prev) =>
     {
-        if (!prev) return prev;
-
         const next: SiteMenuFormModel = { ...prev };
         const list = [...(next._SiteMenu_Item ?? [])];
 
@@ -931,8 +927,8 @@ const syncTreeToForm = (tree: SiteMenuItem[], formData: UseFetchFormDataResult<S
 
 const resolveSiteInfoTitle = (data: SiteMenuFormModel, lang: Lang): string =>
 {
-    const siteIndex = data?.SiteIndex ?? "";
-    const details = (data?._SiteMenu_IndexInfo ?? []).filter((item: SiteMenu_IndexInfo) =>
+    const siteIndex = data.SiteIndex ?? "";
+    const details = (data._SiteMenu_IndexInfo ?? []).filter((item: SiteMenu_IndexInfo) =>
     {
         return item.SiteIndex === siteIndex;
     });

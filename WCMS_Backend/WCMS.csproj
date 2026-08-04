@@ -15,7 +15,7 @@
 		<TieredPGO>true</TieredPGO>
 		<InvariantGlobalization>false</InvariantGlobalization>
 		<DebugType>portable</DebugType>
-		<!-- 一律啟用 SpecFeatures 條件編譯，避免不同 Spec 的 partial 互相污染 -->
+		<!-- 保留 SpecFeatures 條件編譯能力；純 Feature 模式可使用空白 SpecCode -->
 		<UseSpecCodeCompile Condition="'$(UseSpecCodeCompile)' == ''">true</UseSpecCodeCompile>
 		<!-- Debug 預設讀 appsettings.Development.json -->
 		<SpecSettingsFile Condition="'$(SpecSettingsFile)' == '' and '$(Configuration)' == 'Debug'">appsettings.Development.json</SpecSettingsFile>
@@ -32,7 +32,8 @@
 		<HasCurrentSpecFeatureDir Condition="'$(SpecCode)' != '' and Exists('$(CurrentSpecFeatureDir)')">true</HasCurrentSpecFeatureDir>
 		<HasCurrentSpecFeatureDir Condition="'$(HasCurrentSpecFeatureDir)' == ''">false</HasCurrentSpecFeatureDir>
 		<!-- 開發 / 發佈實際編譯時啟用 SpecFeatures 過濾；不使用 DefaultItemExcludes，避免 IDE 找不到其他 Spec 檔案 -->
-		<EnableSpecCompileFilter Condition="'$(EnableSpecCompileFilter)' == '' and '$(UseSpecCodeCompile)' == 'true'">true</EnableSpecCompileFilter>
+		<!-- 只有明確設定 SpecCode 時，才啟用 SpecFeatures 條件編譯。 -->
+		<EnableSpecCompileFilter Condition="'$(EnableSpecCompileFilter)' == '' and '$(UseSpecCodeCompile)' == 'true' and '$(SpecCode)' != ''">true</EnableSpecCompileFilter>
 		<EnableSpecCompileFilter Condition="'$(EnableSpecCompileFilter)' == ''">false</EnableSpecCompileFilter>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
