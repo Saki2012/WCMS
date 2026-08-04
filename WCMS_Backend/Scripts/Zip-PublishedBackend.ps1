@@ -87,7 +87,7 @@ function Get-BackendVersionInfo {
     )
 
     # 讀取公版與目前 Spec 的版本來源
-    $basePath = Join-Path $ProjectRoot "SysCore\SystemFunc\SystemVersion\SystemVersion_Biz.cs"
+	$basePath = Join-Path $ProjectRoot "SysCore\Configuration\SystemVersion.cs"
     $specPath = Join-Path $ProjectRoot "SpecFeatures\$CurrentSpecCode\SYS\SystemVersion\SystemVersion_Biz.cs"
 
     if (-not [System.IO.File]::Exists($basePath)) {
