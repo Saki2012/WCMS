@@ -1,10 +1,13 @@
-using WCMS.Features.COMM.Setup;
+﻿using WCMS.Features.COMM.Setup;
 using WCMS.Features.IAM.Auth;
 using WCMS.Features.IAM.RolePermission;
 using WCMS.Features.IAM.Setup;
 using WCMS.Features.Setup.Migration;
 using WCMS.Features.WEB.Setup;
+using WCMS.SysCore.Configuration.Startup;
+using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
+
 namespace WCMS.Features.Setup;
 
 /// <summary>
@@ -20,7 +23,9 @@ internal static class FeaturesModuleSetup
     {
         services.AddScoped<AuthBiz>();
         services.AddScoped<IPermissionCache, PermissionCache>();
+        services.AddSingleton<IProgMetadataRegistry, ProgMetadataRegistry>();
         services.AddSingleton<RolePermissionCatalogCache>();
+        services.AddScoped<IApplicationStartupTask, ProgMetadataStartupTask>();
         IamModuleSetup.AddServices(services);
         WebModuleSetup.AddServices(services);
         CommonModuleSetup.AddServices(services);
