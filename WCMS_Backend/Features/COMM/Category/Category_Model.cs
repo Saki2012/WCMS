@@ -7,11 +7,13 @@ using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.Features.COMM.Category;
 
 /// <summary>
 /// 共用類別主表。
 /// </summary>
+[LibDesc(DisplayName.Category)]
 public class Category : HeaderModel
 {
     #region Property
@@ -45,6 +47,7 @@ public class Category : HeaderModel
 /// <summary>
 /// 共用類別多語明細。
 /// </summary>
+[LibDesc(DisplayName.CategoryDetail)]
 public class CategoryDetail : FormDetailModel
 {
     #region Property

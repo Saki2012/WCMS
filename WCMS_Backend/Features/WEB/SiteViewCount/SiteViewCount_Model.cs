@@ -5,10 +5,13 @@ using WCMS.Features.WEB.SiteMenuSetting;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
+using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.Features.WEB.SiteViewCount;
 
 /// 站台瀏覽次數
 /// </summary>
+[LibDesc(DisplayName.SiteViewCountHeader)]
 public class SiteViewCountHeader : HeaderModel
 {
     /// <summary>
@@ -38,6 +41,7 @@ public class SiteViewCountHeader : HeaderModel
 /// <summary>
 /// 頁面/公告/功能內容瀏覽次數
 /// </summary>
+[LibDesc(DisplayName.SiteViewCountDetail)]
 public class SiteViewCountDetail : DetailModel
 {
     /// <summary>
@@ -94,6 +98,7 @@ public class SiteViewCountDetail : DetailModel
 /// 直接獨立一張表來記錄最近的計次紀錄，定期清理過期紀錄即可
 /// </summary>
 [Index(nameof(LastViewTime), Name = "IX_ViewCountRecently_LastViewTime")]
+[LibDesc(DisplayName.SiteViewCountRecently)]
 public class SiteViewCountRecently : DetailModel
 {
     /// <summary>

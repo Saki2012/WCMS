@@ -1,11 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
+using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.SysCore.I18n.Metadata;
 
 namespace WCMS.SysCore.Persistence.Models
 {
     /// <summary>
     /// DB 環境識別資料，用來避免 SpecCode 與 DB 對錯。
     /// </summary>
+    [LibDesc(DisplayName.SysDbProfile)]
     public class SysDbProfile
     {
         /// <summary>

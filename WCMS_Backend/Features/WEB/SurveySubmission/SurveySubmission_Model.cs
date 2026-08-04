@@ -1,16 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Metadata;
 using SurveyFormModel = WCMS.Features.WEB.Survey.Survey;
 namespace WCMS.Features.WEB.SurveySubmission;
 
 /// <summary>
 /// 問卷回應
 /// </summary>
+[LibDesc(DisplayName.SurveySubmissions)]
 public class SurveySubmissions : DbModel
 {
     /// <summary>

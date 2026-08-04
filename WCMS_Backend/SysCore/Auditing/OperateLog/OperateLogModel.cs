@@ -1,10 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
+using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.SysCore.I18n.Metadata;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SysCore.Auditing.OperateLog;
 
 
 //資料傳輸用的物件
+[LibDesc(DisplayName.OperateLogModel)]
 public class OperateLogModel
 {
     [Key] public int Id { get; set; }
