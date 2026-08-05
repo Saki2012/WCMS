@@ -4,6 +4,7 @@ import "./Client/Content/bootstrap-5.3.3/css/bootstrap.min.css";
 import "./Client/Content/Style.css";
 import "../Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey.css";
 import "../Pages/Client/Scaffold/MainFrame/Accesskey/SkipToContent.css";
+import "../Pages/Client/Scaffold/MainFrame/Header.css";
 import "../Pages/Client/Scaffold/MainFrame/Footer/Footer.css";
 import "../Pages/Client/Scaffold/MainFrame/GoTop/GoTop.css";
 import "../Pages/Client/Scaffold/SubPages/subpage-content.css";

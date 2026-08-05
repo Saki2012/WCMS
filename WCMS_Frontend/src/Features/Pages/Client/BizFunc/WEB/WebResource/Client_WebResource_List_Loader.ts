@@ -270,7 +270,14 @@ const buildCellContent = (p: { item: WebResourceFormModel; colKey: string; lang:
 };
 
 /** 由 list 建立 gridProps */
-const buildGridProps = (p: { lang: Lang; listData: WebResourceFormModel[]; pageNumber: number; totalPages: number; onPageChange: (page: number) => void; }): GridProps =>
+const buildGridProps = (p: {
+    lang: Lang;
+    modelDisplayName: ModelDisplaySchema | null;
+    listData: WebResourceFormModel[];
+    pageNumber: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+}): GridProps =>
 {
     const columns = buildVisibleColumns(p.lang, p.modelDisplayName);
     const rows: GridRow[] = p.listData.map(item =>

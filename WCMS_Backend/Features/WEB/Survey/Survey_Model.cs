@@ -5,11 +5,13 @@ using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.Features.WEB.Survey;
 
 /// <summary>
 /// 問卷
 /// </summary>
+[LibDesc(DisplayName.Survey)]
 public class Survey : HeaderModel
 {
     /// <summary>
@@ -43,6 +45,7 @@ public class Survey : HeaderModel
 /// <summary>
 /// 問卷
 /// </summary>
+[LibDesc(DisplayName.SurveyItem)]
 public class SurveyItem : FormDetailModel
 {
     /// <summary>
@@ -84,6 +87,7 @@ public class SurveyItem : FormDetailModel
 /// <summary>
 /// 
 /// </summary>
+[LibDesc(DisplayName.SurveyItemLang)]
 public class SurveyItemLang : FormDetailModel
 {
     /// <summary>

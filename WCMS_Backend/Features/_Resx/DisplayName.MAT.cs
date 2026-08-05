@@ -2,8 +2,6 @@ namespace WCMS.SysCore.FeatureDriver.Resx;
 
 public static partial class DisplayName
 {
-    #region MAT
-
     #region 物件模組 (Material)
     /// <summary>
     /// 物件類別表單
@@ -49,6 +47,24 @@ public static partial class DisplayName
     /// </summary>
     public const string Product_Price = nameof(Product_Price);
     #endregion
-
-    #endregion
+    /// <summary>
+    /// 中：物件類別欄位多語顯示名稱
+    /// 英：Material Category Field Translation
+    /// </summary>
+    public const string MatCategoryInfoFieldDisplay = nameof(MatCategoryInfoFieldDisplay);
+    /// <summary>
+    /// 中：物件
+    /// 英：Material
+    /// </summary>
+    public const string Material = nameof(Material);
+    /// <summary>
+    /// 中：物件多語資訊
+    /// 英：Material Translation
+    /// </summary>
+    public const string MaterialLangInfo = nameof(MaterialLangInfo);
+    /// <summary>
+    /// 中：物件標籤
+    /// 英：Material Tag
+    /// </summary>
+    public const string MaterialTags = nameof(MaterialTags);
 }

@@ -1,0 +1,150 @@
+version: "1.1"
+updated_at: "2026-08-03"
+purpose: "WCMS AI 快速定位索引；只提供導覽與搜尋入口，不取代正式架構、開發規範或實際程式碼。"
+
+repository:
+  full_name: "Saki2012/WCMS"
+  default_branch: "main"
+  shared_development_branch: "Feature/Dev"
+  release_branch: "Feature/Release"
+  spec_branch_pattern: "Spec####"
+
+source_priority:
+  runtime_behavior: "GitHub 指定分支的程式碼與設定"
+  architecture_and_rules: "Docs 內有效的 Markdown 與白箱 RULE_REGISTRY.yml"
+  change_reason: "Git Commit、PR、Issue 與決策紀錄"
+  convergence_status: "Google Sheet：WCMS_整合收斂管理表"
+  snapshots: "Office、PDF、ZIP 與 GitHub 內的試算表快照"
+
+reading_order:
+  - "Docs/WCMS_AI資料讀取入口.md"
+  - "Docs/README.md"
+  - "Docs/AI_INDEX.yml"
+  - "Docs/01_研發與技術文件/01_系統架構/01_整體專案架構.md"
+  - "依任務閱讀前端或後端專案架構"
+  - "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
+  - "依任務閱讀前端或後端開發規範"
+  - "視任務閱讀 Git 與 Commit、品質驗證或開發歷程文件"
+  - "白箱任務追加閱讀 AI 白箱 README、RULE_REGISTRY.yml 與對應檢測規範"
+  - "QA 任務追加閱讀 QA README 與 WCMS-QA-GOV-001 正式生命週期"
+  - "核對指定分支的實際程式碼、Issue、PR 與 Commit"
+
+navigation:
+  docs:
+    root: "Docs/README.md"
+    ai_entry: "Docs/WCMS_AI資料讀取入口.md"
+    overall_architecture: "Docs/01_研發與技術文件/01_系統架構/01_整體專案架構.md"
+    frontend_architecture: "Docs/01_研發與技術文件/01_系統架構/02_前端專案架構.md"
+    backend_architecture: "Docs/01_研發與技術文件/01_系統架構/03_後端專案架構.md"
+    common_rules: "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
+    frontend_rules: "Docs/01_研發與技術文件/02_開發規範/02_前端開發規範.md"
+    backend_rules: "Docs/01_研發與技術文件/02_開發規範/03_後端開發規範.md"
+    git_commit_rules: "Docs/01_研發與技術文件/02_開發規範/04_Git與Commit規範.md"
+    quality_root: "Docs/03_品質與驗證文件/README.md"
+    whitebox_root: "Docs/03_品質與驗證文件/01_AI白箱檢測/README.md"
+    whitebox_rule_registry: "Docs/03_品質與驗證文件/01_AI白箱檢測/RULE_REGISTRY.yml"
+    whitebox_unit: "Docs/03_品質與驗證文件/01_AI白箱檢測/01_需求與單元白箱檢測.md"
+    whitebox_focused: "Docs/03_品質與驗證文件/01_AI白箱檢測/02_專項白箱檢測.md"
+    whitebox_regression: "Docs/03_品質與驗證文件/01_AI白箱檢測/03_全專案白箱回歸檢測.md"
+    qa_root: "Docs/03_品質與驗證文件/02_QA測試/README.md"
+    qa_lifecycle: "Docs/03_品質與驗證文件/02_QA測試/01_WCMS_QA_RD_AI協作與開單驗證生命週期.md"
+    development_history: "Docs/01_研發與技術文件/03_開發歷程與版本紀錄/01_開發歷程優化表.csv"
+
+  frontend:
+    root: "WCMS_Frontend"
+    package: "WCMS_Frontend/package.json"
+    build_config: "WCMS_Frontend/vite.config.ts"
+    route_entry: "WCMS_Frontend/src/Features/Pages/AppRoute.ts"
+    ssr_server: "WCMS_Frontend/src/SSR/SSR-Server.ts"
+    ssr_entry: "WCMS_Frontend/src/SSR/Entry-Server.tsx"
+    csr_entry: "WCMS_Frontend/src/SSR/Entry-Client.tsx"
+    api_base: "WCMS_Frontend/src/SysCore/Utils/API/APIBase.ts"
+    api_client: "WCMS_Frontend/src/SysCore/Utils/API/APIClient.ts"
+    api_adapter: "WCMS_Frontend/src/SysCore/Utils/API/APIAdapter.ts"
+    form_template: "WCMS_Frontend/src/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook.ts"
+    feature_roots:
+      - "WCMS_Frontend/src/Features"
+      - "WCMS_Frontend/src/SysCore"
+    spec_roots:
+      - "WCMS_Frontend/src/SpecFetures"
+      - "WCMS_Frontend/src/SpecFeatures"
+
+  backend:
+    root: "WCMS_Backend"
+    project: "WCMS_Backend/WCMS.csproj"
+    composition_root: "WCMS_Backend/Program.cs"
+    feature_root: "WCMS_Backend/Features"
+    syscore_root: "WCMS_Backend/SysCore"
+    spec_root: "WCMS_Backend/SpecFeatures"
+    feature_setup: "WCMS_Backend/Features/Setup/FeaturesModuleSetup.cs"
+    feature_driver_setup: "WCMS_Backend/SysCore/FeatureDriver/Setup/FeatureDriverModuleSetup.cs"
+    api_controller: "WCMS_Backend/SysCore/FeatureDriver/Api/Controllers/ApiDataController.cs"
+    api_response: "WCMS_Backend/SysCore/FeatureDriver/Api/Contracts/ApiResponse.cs"
+    biz_service: "WCMS_Backend/SysCore/FeatureDriver/Biz/BizService.cs"
+    repository: "WCMS_Backend/SysCore/FeatureDriver/Repo/BasicRepository.cs"
+    persistence_setup: "WCMS_Backend/SysCore/Persistence/PersistenceModuleSetup.cs"
+    db_context: "WCMS_Backend/SysCore/Persistence/ApplicationDbContext.cs"
+    cache_setup: "WCMS_Backend/SysCore/PlatformServices/Cache/CacheModuleSetup.cs"
+    auditing_setup: "WCMS_Backend/SysCore/Auditing/AuditingModuleSetup.cs"
+    hardening_setup: "WCMS_Backend/SysCore/Security/Hardening/HardeningSetup.cs"
+    identity_access_setup: "WCMS_Backend/SysCore/Security/IdentityAccess/IdentityAccessSetup.cs"
+
+path_patterns:
+  frontend_feature_api: "WCMS_Frontend/src/Features/Hooks/BizFunc/<DOMAIN>/<FEATURE>_Api.ts"
+  frontend_client_feature: "WCMS_Frontend/src/Features/Pages/Client/BizFunc/<DOMAIN>/<FEATURE>/"
+  frontend_server_feature: "WCMS_Frontend/src/Features/Pages/Server/BizFunc/<DOMAIN>/<FEATURE>/"
+  frontend_spec: "WCMS_Frontend/src/SpecFetures/<SPEC_CODE>/ 或 WCMS_Frontend/src/SpecFeatures/<SPEC_CODE>/"
+  backend_feature: "WCMS_Backend/Features/<DOMAIN>/<FEATURE>/"
+  backend_feature_files:
+    - "<FEATURE>_Model.cs"
+    - "<FEATURE>_Biz.cs"
+    - "<FEATURE>_Api.cs"
+  backend_spec: "WCMS_Backend/SpecFeatures/<SPEC_CODE>/"
+
+search_sequence:
+  - "先用功能名稱、PGID、Model 名稱、API Route 或錯誤訊息搜尋。"
+  - "搜尋 Feature 的既有 Model、Biz、API、Hook、Loader、Component 與 Adapter。"
+  - "搜尋 SysCore、Library、Helper、Template、FeatureDriver、Service 與 Repository 的共用能力。"
+  - "搜尋目前 Spec 與相近 Spec 的延伸實作，但不得直接複製客製邏輯。"
+  - "白箱任務依 RULE_REGISTRY.yml 篩選 active Rule，並核對其正式來源與適用範圍。"
+  - "QA 任務依 WCMS-QA-GOV-001 核對 Issue 歷史、版本鏈、修正與複驗證據。"
+  - "搜尋相關 Issue、PR 與 Commit，確認修改原因及歷史決策。"
+  - "資料來源不一致時分別列出程式實況、文件規範、管理狀態及建議更新來源。"
+
+risk_tags:
+  accessibility: ["AA", "keyboard", "focus", "ARIA", "CMS content"]
+  rendering: ["SSR", "CSR", "hydration", "loader", "browser API"]
+  security: ["weakness scan", "CSP", "XSRF", "CORS", "JWT", "cookie"]
+  data_contract: ["OpenAPI", "ApiResponse", "nullable", "optional", "DateOnly", "UTC"]
+  runtime_state: ["cache", "token state", "permission", "output cache"]
+  customization: ["Feature", "Spec", "fallback", "slot", "override"]
+  localization: ["route language", "Accept-Language", "i18n", "multilingual data"]
+  auditing: ["operation log", "change log", "NLog", "transaction"]
+
+legacy_compatibility:
+  - path: "WCMS_Frontend/src/SpecFetures"
+    note: "歷史拼字仍在相容範圍內；未完成全專案遷移前不得直接移除。"
+  - topic: "REST and GraphQL"
+    note: "目前 REST 為主線；GraphQL 套件存在不代表後端 GraphQL 主線已完成。"
+
+maintenance:
+  update_when:
+    - "正式入口、主要目錄或核心檔案路徑變更"
+    - "Feature／Spec 根目錄或命名規則變更"
+    - "新的正式文件入口建立或舊入口移除"
+    - "白箱 Rule Registry 或檢測模式入口變更"
+    - "QA 生命週期、正式文件入口或版本狀態變更"
+  do_not_duplicate:
+    - "架構說明"
+    - "Code Style"
+    - "功能完成狀態"
+    - "套件精確版本"
+    - "測試或弱點掃描結果"
+    - "Rule 的完整判斷內容"
+    - "QA 生命週期的完整流程與欄位定義"
+  verification:
+    - "確認所有列出的檔案與目錄仍存在於指定分支"
+    - "確認 README 與 AI 入口仍能導向本索引"
+    - "確認白箱入口與 RULE_REGISTRY.yml 可由本索引定位"
+    - "確認 QA README 與 WCMS-QA-GOV-001 可由本索引定位"
+    - "確認本索引只提供定位，不與正式 Markdown 或 Rule Registry 衝突"

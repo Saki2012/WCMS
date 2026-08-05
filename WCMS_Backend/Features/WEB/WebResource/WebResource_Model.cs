@@ -6,12 +6,14 @@ using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Metadata;
 using WCMS.SysCore.PlatformServices.FileManagement;
 namespace WCMS.Features.WEB.WebResource;
 
 /// <summary>
 /// 網路資源
 /// </summary>
+[LibDesc(DisplayName.WebResource)]
 public class WebResource : HeaderModel
 {
     /// <summary>
@@ -58,6 +60,7 @@ public class WebResource : HeaderModel
 /// <summary>
 /// 網路資源資訊
 /// </summary>
+[LibDesc(DisplayName.WebResourceInfo)]
 public class WebResourceInfo : FormDetailModel
 {
     /// <summary>

@@ -9,6 +9,7 @@ using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.Features.WEB.Banner;
 
+[LibDesc(DisplayName.Banner)]
 public partial class Banner : HeaderModel
 {
     /// <summary>
@@ -93,6 +94,7 @@ public partial class BannerDetail : FormDetailModel
     public List<BannerDetailInfo> _BannerDetailInfo { get; set; } = [];
     #endregion
 }
+[LibDesc(DisplayName.BannerDetailInfo)]
 public partial class BannerDetailInfo : FormDetailModel
 {
     /// <summary>

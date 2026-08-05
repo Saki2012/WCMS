@@ -72,7 +72,18 @@ const MenuItemType = {
 } as const;
 
 
-const emptyData: SiteMenuFormModel = {};
+/** 建立 SiteMenu 使用的合法空 FormModel，避免共用物件與 null 型別斷言。 */
+const createEmptySiteMenuFormModel = (): SiteMenuFormModel =>
+{
+    return {
+        GoogleAnalytics: null,
+        Enable: null,
+        DefaultLang,
+        SupportLangs: DefaultLang,
+        _SiteMenu_IndexInfo: [],
+        _SiteMenu_Item: [],
+    };
+};
 
 
 export interface SiteMenuItem
@@ -266,23 +277,23 @@ const useSiteMenuMainDataByAdapter = (adapter: ReturnType<typeof SiteMenuAdapter
     const skipQueryInitial = useMemo(() =>
     {
         if (validInternalId) return null;
-        return { args: "__skip__", apiRes: { IsSuccess: true, Data: emptyData, SysMessage: [] } };
+        return { args: "__skip__", apiRes: { IsSuccess: true, Data: createEmptySiteMenuFormModel(), SysMessage: [] } };
     }, [validInternalId]);
 
     const query = adapter.hooks.useQueryData({ internalId: validInternalId ?? "__skip__", initial: skipQueryInitial, deps: [validInternalId ?? ""], onError });
 
     const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
-    const [data, setData] = useState<SiteMenuFormModel>(emptyData);
+    const [data, setData] = useState<SiteMenuFormModel>(createEmptySiteMenuFormModel);
 
     useEffect(() =>
     {
         if (!validInternalId)
         {
-            setData(emptyData);
+            setData(createEmptySiteMenuFormModel());
             return;
         }
 
-        const normalizedModule = normalizeSiteMenuModuleGraph(query.data ?? emptyData);
+        const normalizedModule = normalizeSiteMenuModuleGraph(query.data ?? createEmptySiteMenuFormModel());
         setData(normalizeSiteMenuUrlGraph(normalizedModule));
     }, [validInternalId, query.data]);
 

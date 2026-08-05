@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 using WCMS.Features._Resx;
 using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Contracts;
@@ -8,6 +7,7 @@ using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
+
 namespace WCMS.Features.IAM.RolePermission;
 
 [LibApiController(ProgKeys.IAM.Code, ProgKeys.IAM.RolePermission, FuncAction.MasterData)]
@@ -18,27 +18,35 @@ public class RolePermissionController : ApiDataController<RoleData>
     #endregion
 
     #region Public
+    /// <summary>
+    /// 查詢排除系統角色後的角色權限清單。
+    /// </summary>
     public override Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
     {
         queryCondition.Condition = FiltSystemRoler(queryCondition.Condition);
         return base.QueryList(queryCondition, ct);
     }
-    [HttpGet(nameof(GetPermissionCatalog)), OutputCache(PolicyName = SysParam.OutputCachePolicies.PermanentCache)]
+
+    /// <summary>
+    /// 取得依目前語系轉換完成的角色權限功能目錄。
+    /// </summary>
+    [HttpGet(nameof(GetPermissionCatalog))]
     [ProducesResponseType(typeof(ApiResponse<PermissionCatalogModuleDTO>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetPermissionCatalog(CancellationToken ct)
+    public IActionResult GetPermissionCatalog()
     {
-        var data = ((RolePermissionBiz)Service).GetPermissionCatalog();
-        var response = new ApiResponse<PermissionCatalogModuleDTO>() { Data = data, SysMessage = Message.Messages };
+        IList<PermissionCatalogModuleDTO> data = ((RolePermissionBiz)Service).GetPermissionCatalog();
+        ApiResponse<PermissionCatalogModuleDTO> response = new() { Data = data, SysMessage = Message.Messages };
         return Ok(response);
     }
     #endregion
 
     #region Private
-
     /// <summary>
-    /// 過濾系統使用者
+    /// 過濾系統使用者。
     /// </summary>
-    /// <param name="srcCdt"></param>
-    private static string FiltSystemRoler(string srcCdt) => LibData.Merge(SysParam.QueryOperators.And, false, srcCdt, $@"{nameof(RoleData.RoleId)} Not In {Admin}");
+    private static string FiltSystemRoler(string srcCdt)
+    {
+        return LibData.Merge(SysParam.QueryOperators.And, false, srcCdt, $@"{nameof(RoleData.RoleId)} Not In {Admin}");
+    }
     #endregion
 }

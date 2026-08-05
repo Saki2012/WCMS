@@ -70,6 +70,7 @@ public partial class Announcement : HeaderModel
 /// <summary>
 /// 公告明細
 /// </summary>
+[LibDesc(DisplayName.AnnouncementDetail)]
 public partial class AnnouncementDetail : FormDetailModel
 {
     /// <summary>
