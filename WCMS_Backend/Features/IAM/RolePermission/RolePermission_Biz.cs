@@ -1,10 +1,13 @@
-using WCMS.SysCore.FeatureDriver.Biz;
+﻿using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.FeatureDriver.Biz.Metadata;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 
 namespace WCMS.Features.IAM.RolePermission;
 
-public class RolePermissionBiz(BizDeps bizDeps, RolePermissionCatalogCache catalogCache, IPermissionCache permissionCache) : BizService<RoleData>(bizDeps)
+public class RolePermissionBiz(
+    BizDeps bizDeps,
+    RolePermissionCatalogCache catalogCache,
+    IPermissionCache permissionCache) : BizService<RoleData>(bizDeps)
 {
     #region Property
     private RolePermissionCatalogCache CatalogCache { get; } = catalogCache;
@@ -27,6 +30,7 @@ public class RolePermissionBiz(BizDeps bizDeps, RolePermissionCatalogCache catal
         IReadOnlyList<RolePermissionCatalogModule> catalog = CatalogCache.GetCatalog();
         return [.. catalog.Select(BuildModuleDto)];
     }
+
     /// <summary>
     /// 清除 Catalog Cache，下一次呼叫會重新掃描 Controller Action。
     /// </summary>
@@ -47,6 +51,7 @@ public class RolePermissionBiz(BizDeps bizDeps, RolePermissionCatalogCache catal
         List<string> userIds = await PermissionCache.LoadUserIdsByRolesAsync(roleIds, ct);
         PendingPermissionUserIds.UnionWith(userIds);
     }
+
     /// <summary>
     /// 交易成功提交後失效受角色權限異動影響的使用者權限 Cache。
     /// </summary>
@@ -64,22 +69,26 @@ public class RolePermissionBiz(BizDeps bizDeps, RolePermissionCatalogCache catal
     /// </summary>
     private static string[] ResolveAffectedRoleIds(RoleData? oldSet, RoleData? newSet)
     {
-        return [.. new[] { oldSet?.RoleId, newSet?.RoleId }.Where(id => !string.IsNullOrWhiteSpace(id)).Select(id => id!).Distinct(StringComparer.OrdinalIgnoreCase)];
+        return [.. new[] { oldSet?.RoleId, newSet?.RoleId }
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Select(id => id!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)];
     }
+
     /// <summary>
     /// 將權限模組結構組成目前語系的回傳 DTO。
     /// </summary>
     private PermissionCatalogModuleDTO BuildModuleDto(RolePermissionCatalogModule module)
     {
-        string moduleCode = module.ModuleCode.ToString();
         List<PermissionCatalogProgDTO> progs = module.Progs.Select(BuildProgDto).ToList();
         return new PermissionCatalogModuleDTO
         {
-            ModuleCode = moduleCode,
-            ModuleTitle = I18n.GetResourceLabel(moduleCode),
+            ModuleCode = module.ModuleCode.ToString(),
+            ModuleTitle = I18n.GetResourceLabel(module.DisplayNameKey),
             Progs = progs,
         };
     }
+
     /// <summary>
     /// 將權限程式結構組成目前語系的回傳 DTO。
     /// </summary>
@@ -88,7 +97,7 @@ public class RolePermissionBiz(BizDeps bizDeps, RolePermissionCatalogCache catal
         return new PermissionCatalogProgDTO
         {
             ProgId = prog.ProgId,
-            ProgTitle = I18n.GetResourceLabel(prog.ProgId),
+            ProgTitle = I18n.GetResourceLabel(prog.DisplayNameKey),
             SupportMask = prog.SupportMask,
         };
     }

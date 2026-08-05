@@ -6,6 +6,7 @@ using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.PlatformServices.Cache;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
+
 namespace WCMS.Features.IAM.RolePermission;
 
 /// <summary>
@@ -14,7 +15,10 @@ namespace WCMS.Features.IAM.RolePermission;
 /// <remarks>
 /// 初始化角色權限功能目錄 Cache。
 /// </remarks>
-public sealed class RolePermissionCatalogCache(CacheService cacheService, IActionDescriptorCollectionProvider actionDescriptors) : LibCacheBase(cacheService)
+public sealed class RolePermissionCatalogCache(
+    CacheService cacheService,
+    IActionDescriptorCollectionProvider actionDescriptors,
+    IProgMetadataRegistry progMetadataRegistry) : LibCacheBase(cacheService)
 {
     #region Property
     private const string CacheRegionName = "role-permission-catalog";
@@ -26,8 +30,8 @@ public sealed class RolePermissionCatalogCache(CacheService cacheService, IActio
     };
     private readonly object _catalogLock = new();
     private readonly IActionDescriptorCollectionProvider _actionDescriptors = actionDescriptors;
+    private readonly IProgMetadataRegistry _progMetadataRegistry = progMetadataRegistry;
     protected override string CacheRegion => CacheRegionName;
-
     #endregion
 
     #region Internal
@@ -41,6 +45,7 @@ public sealed class RolePermissionCatalogCache(CacheService cacheService, IActio
         if (cached.IsHit) return cached.Value ?? [];
         lock (_catalogLock) return GetOrCreateLocal(key, RuntimeOptions, BuildCatalog) ?? [];
     }
+
     /// <summary>
     /// 清除目前 Spec 的角色權限功能目錄結構。
     /// </summary>
@@ -60,15 +65,17 @@ public sealed class RolePermissionCatalogCache(CacheService cacheService, IActio
         string specCode = string.IsNullOrWhiteSpace(SpecSettings.SpecCode) ? "core" : SpecSettings.SpecCode;
         return BuildCacheKey(CatalogKey, specCode);
     }
+
     /// <summary>
-    /// 掃描 Controller Action 並建立不含語系文字的權限目錄。
+    /// 掃描 Controller Action 並建立只保存 Prog Metadata Key 的權限目錄。
     /// </summary>
     private IReadOnlyList<RolePermissionCatalogModule> BuildCatalog()
     {
-        var modules = new Dictionary<ModuleCodeEnum, Dictionary<string, FuncAction>>();
+        Dictionary<ModuleCodeEnum, RolePermissionCatalogModuleBuilder> modules = [];
         foreach (LibApiControllerAttribute meta in EnumeratePermissionMetas()) UpsertModuleProg(modules, meta);
         return [.. modules.OrderBy(item => item.Key).Select(BuildModule)];
     }
+
     /// <summary>
     /// 列舉目前 Spec 可使用的權限 Metadata。
     /// </summary>
@@ -79,10 +86,10 @@ public sealed class RolePermissionCatalogCache(CacheService cacheService, IActio
             if (descriptor is not ControllerActionDescriptor action) continue;
             if (!IsAllowedBySpec(action)) continue;
             LibApiControllerAttribute? meta = GetPermissionMeta(action);
-            if (meta == null || string.IsNullOrWhiteSpace(meta.ProgId)) continue;
-            yield return meta;
+            if (meta != null) yield return meta;
         }
     }
+
     /// <summary>
     /// 判斷 Controller 是否屬於 Core 或目前啟用的 Spec。
     /// </summary>
@@ -94,35 +101,68 @@ public sealed class RolePermissionCatalogCache(CacheService cacheService, IActio
         if (string.IsNullOrWhiteSpace(specCode)) return true;
         return targetNamespace.StartsWith($"{SysParam.NamespacePrefixes.SpecFeatures}{specCode}.", StringComparison.OrdinalIgnoreCase);
     }
+
     /// <summary>
     /// 取得 Action 優先、Controller 次之的權限 Metadata。
     /// </summary>
     private static LibApiControllerAttribute? GetPermissionMeta(ControllerActionDescriptor action)
     {
-        LibApiControllerAttribute? actionMeta = action.MethodInfo.GetCustomAttributes(typeof(LibApiControllerAttribute), true).OfType<LibApiControllerAttribute>().FirstOrDefault();
+        LibApiControllerAttribute? actionMeta = action.MethodInfo
+            .GetCustomAttributes(typeof(LibApiControllerAttribute), true)
+            .OfType<LibApiControllerAttribute>()
+            .FirstOrDefault();
         if (actionMeta != null) return actionMeta;
-        return action.ControllerTypeInfo.GetCustomAttributes(typeof(LibApiControllerAttribute), true).OfType<LibApiControllerAttribute>().FirstOrDefault();
+        return action.ControllerTypeInfo
+            .GetCustomAttributes(typeof(LibApiControllerAttribute), true)
+            .OfType<LibApiControllerAttribute>()
+            .FirstOrDefault();
     }
+
     /// <summary>
-    /// 合併相同 Module 與 Prog 的支援權限遮罩。
+    /// 依 Registry 合併相同 Module 與 Prog 的支援權限遮罩。
     /// </summary>
-    private static void UpsertModuleProg(Dictionary<ModuleCodeEnum, Dictionary<string, FuncAction>> modules, LibApiControllerAttribute meta)
+    private void UpsertModuleProg(Dictionary<ModuleCodeEnum, RolePermissionCatalogModuleBuilder> modules, LibApiControllerAttribute meta)
     {
-        if (!modules.TryGetValue(meta.ModuleCode, out var progs))
+        ProgMetadata metadata = _progMetadataRegistry.GetRequired(meta.ModuleCode, meta.ProgId);
+        RolePermissionCatalogModuleBuilder module = GetOrCreateModule(modules, metadata);
+        if (module.Progs.TryGetValue(metadata.ProgId, out RolePermissionCatalogProg? current))
         {
-            progs = new Dictionary<string, FuncAction>(StringComparer.OrdinalIgnoreCase);
-            modules.Add(meta.ModuleCode, progs);
+            module.Progs[metadata.ProgId] = current with { SupportMask = current.SupportMask | meta.SupportFuncActMask };
+            return;
         }
-        progs.TryGetValue(meta.ProgId, out FuncAction currentMask);
-        progs[meta.ProgId] = currentMask | meta.SupportFuncActMask;
+        module.Progs.Add(metadata.ProgId, new RolePermissionCatalogProg(metadata.ProgId, metadata.ProgDisplayNameKey, meta.SupportFuncActMask));
     }
+
     /// <summary>
-    /// 將 Module Dictionary 轉為排序後的唯讀結構。
+    /// 取得或建立單一 Module 的目錄建構器。
     /// </summary>
-    private static RolePermissionCatalogModule BuildModule(KeyValuePair<ModuleCodeEnum, Dictionary<string, FuncAction>> module)
+    private static RolePermissionCatalogModuleBuilder GetOrCreateModule(
+        Dictionary<ModuleCodeEnum, RolePermissionCatalogModuleBuilder> modules,
+        ProgMetadata metadata)
     {
-        RolePermissionCatalogProg[] progs = [.. module.Value.OrderBy(item => item.Key, StringComparer.OrdinalIgnoreCase).Select(item => new RolePermissionCatalogProg(item.Key, item.Value))];
-        return new RolePermissionCatalogModule(module.Key, progs);
+        if (modules.TryGetValue(metadata.ModuleCode, out RolePermissionCatalogModuleBuilder? module)) return module;
+        module = new RolePermissionCatalogModuleBuilder(metadata.ModuleDisplayNameKey);
+        modules.Add(metadata.ModuleCode, module);
+        return module;
+    }
+
+    /// <summary>
+    /// 將 Module 建構器轉為排序後的唯讀結構。
+    /// </summary>
+    private static RolePermissionCatalogModule BuildModule(KeyValuePair<ModuleCodeEnum, RolePermissionCatalogModuleBuilder> module)
+    {
+        RolePermissionCatalogProg[] progs = [.. module.Value.Progs.Values
+            .OrderBy(item => item.ProgId, StringComparer.OrdinalIgnoreCase)];
+        return new RolePermissionCatalogModule(module.Key, module.Value.DisplayNameKey, progs);
+    }
+
+    /// <summary>
+    /// 暫存單一 Module 的顯示資源 Key 與 Prog 清單。
+    /// </summary>
+    private sealed class RolePermissionCatalogModuleBuilder(string displayNameKey)
+    {
+        public string DisplayNameKey { get; } = displayNameKey;
+        public Dictionary<string, RolePermissionCatalogProg> Progs { get; } = new(StringComparer.OrdinalIgnoreCase);
     }
     #endregion
 }
@@ -130,9 +170,15 @@ public sealed class RolePermissionCatalogCache(CacheService cacheService, IActio
 /// <summary>
 /// 保存不受語系影響的權限模組結構。
 /// </summary>
-internal sealed record RolePermissionCatalogModule(ModuleCodeEnum ModuleCode, IReadOnlyList<RolePermissionCatalogProg> Progs);
+internal sealed record RolePermissionCatalogModule(
+    ModuleCodeEnum ModuleCode,
+    string DisplayNameKey,
+    IReadOnlyList<RolePermissionCatalogProg> Progs);
 
 /// <summary>
 /// 保存不受語系影響的權限程式結構。
 /// </summary>
-internal sealed record RolePermissionCatalogProg(string ProgId, FuncAction SupportMask);
+internal sealed record RolePermissionCatalogProg(
+    string ProgId,
+    string DisplayNameKey,
+    FuncAction SupportMask);
