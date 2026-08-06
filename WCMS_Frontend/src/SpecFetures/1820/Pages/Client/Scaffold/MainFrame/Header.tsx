@@ -12,7 +12,7 @@ import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import clsx from "clsx";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import React from "react";
 import { useLocation } from "react-router-dom";
 
@@ -177,12 +177,44 @@ const isHomePage = (pathname: string, lang: Lang) =>
     return homePaths.includes(cleanPath);
 };
 
+
+
+/** 判斷目前畫面是否達到桌面版寬度。 */
+const DESKTOP_MIN_WIDTH_QUERY = "(min-width: 992px)";
+const useIsDesktopViewport = () =>
+{
+    const [isDesktopViewport, setIsDesktopViewport] = useState(false);
+
+    useEffect(() =>
+    {
+        const mediaQuery = window.matchMedia(DESKTOP_MIN_WIDTH_QUERY);
+
+        /** 同步目前瀏覽器寬度狀態。 */
+        const handleViewportChange = (event: MediaQueryListEvent) =>
+        {
+            setIsDesktopViewport(event.matches);
+        };
+
+        setIsDesktopViewport(mediaQuery.matches);
+        mediaQuery.addEventListener("change", handleViewportChange);
+
+        return () =>
+        {
+            mediaQuery.removeEventListener("change", handleViewportChange);
+        };
+    }, []);
+
+    return isDesktopViewport;
+};
+
 export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
     const headerRef = useRef<HTMLDivElement | null>(null);
     const location = useLocation();
+    const isDesktopViewport = useIsDesktopViewport();
 
     const isHome = isHomePage(location.pathname, props.lang);
+    const shouldUseFixedHeader = isHome && isDesktopViewport;
     const menuToggleText = getMenuToggleA11yText(props.lang);
 
     useMobileMenuCollapse({
@@ -203,7 +235,7 @@ export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; })
         const el = headerRef.current;
         if (!el) return;
 
-        /** 同步 Header 下滑後的陰影與濾鏡狀態 */
+        /** 同步 Header 下滑後的陰影與濾鏡狀態。 */
         const syncHeaderStyle = () =>
         {
             const isScrolled = window.scrollY >= 180;
@@ -224,14 +256,30 @@ export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; })
     return (
         <>
             <A11yContent />
-            <div id="Site-Header" ref={headerRef} className={clsx("ALL_Header_DivBar", "main-header", isHome && "position-fixed")}>
-                <Header_Section lang={props.lang} site={props.site} className="d-none d-lg-none d-xl-block"/>
+
+            <div
+                id="Site-Header"
+                ref={headerRef}
+                className={clsx(
+                    "ALL_Header_DivBar",
+                    "main-header",
+                    shouldUseFixedHeader && "position-fixed",
+                )}
+            >
+                <Header_Section
+                    lang={props.lang}
+                    site={props.site}
+                    className="d-none d-lg-none d-xl-block"
+                />
+
                 <Menu_Section {...props} />
+
                 <div className="overlayer" aria-hidden="true" />
             </div>
         </>
     );
 };
+
 const NavBar = (props: { lang: Lang; }) =>
 {
     const title = NAV_BAR_TEXT_MAP[props.lang] ?? NAV_BAR_TEXT_MAP["zh-tw"]!;
