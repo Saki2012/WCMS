@@ -14,7 +14,11 @@ internal static class NLogSetup
     private const string BaseLogPath = "${basedir}/logs";
     private const string HostCategory = "WCMS.Host";
     private const string HttpCategory = "WCMS.Http";
-    private const string ExceptionLayout = "${longdate} | ${level:uppercase=true} | ${logger} | ${message}${newline}${exception:format=tostring}";
+    private const string LogSeparator = "============================================================";
+    private const string ExceptionLayout =
+        "${longdate} | ${level:uppercase=true} | ${logger} | ${message}" +
+        "${newline}${exception:format=tostring}" +
+        "${newline}" + LogSeparator;
     #endregion
 
     #region Public
