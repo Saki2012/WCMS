@@ -1309,11 +1309,11 @@ body {
     background-color: var(--blackcolor) !important;
 }
 @media screen and (max-width: 991px) {
-    #Site-Header.main-header.position-fixed {
-        position: sticky !important;
+    #Site-Header.main-header {
+        position: relative !important;
     }
     #Site-Header.main-header.active {
-        position: sticky !important;
+        position: relative !important;
         top: 0;
     }
     #navbar-content.navbar-collapse {
