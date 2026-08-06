@@ -245,4 +245,19 @@ Target node: {2}</value>
   <data name="AACode00004" xml:space="preserve">
     <value>[{0}]-序號[{1}]：請輸入[{2}]語系的[{3}]</value>
   </data>
+  <data name="BECode00041" xml:space="preserve">
+    <value>No data was found, or the data is outside the current feature scope.</value>
+  </data>
+  <data name="BECode00037" xml:space="preserve">
+    <value>[{0}] must be between [{1}] and [{2}].</value>
+  </data>
+  <data name="BECode00038" xml:space="preserve">
+    <value>[{0}] must be greater than or equal to [{1}].</value>
+  </data>
+  <data name="BECode00039" xml:space="preserve">
+    <value>[{0}] must be less than or equal to [{1}].</value>
+  </data>
+  <data name="BECode00040" xml:space="preserve">
+    <value>[{0}] must be a valid number.</value>
+  </data>
 </root>

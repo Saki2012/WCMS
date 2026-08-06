@@ -112,13 +112,13 @@ public abstract class FormDetailModel : DetailModel
     /// 由後端配置的明細主鍵。
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
     public int RowId { get; set; }
 
     /// <summary>
     /// 由前端排序或後端補齊的明細序號。
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.RowNo)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.RowNo)]
     public int RowNo { get; set; }
 }
 

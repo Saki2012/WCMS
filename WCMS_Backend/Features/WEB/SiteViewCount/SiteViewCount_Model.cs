@@ -26,7 +26,7 @@ public class SiteViewCountHeader : HeaderModel
     /// <summary>
     /// 前台正式瀏覽次數
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int PublicViewCount { get; set; } = 0;
 
     #region 主子表關聯
@@ -65,22 +65,22 @@ public class SiteViewCountDetail : DetailModel
     /// <summary>
     /// 前台頁面瀏覽次數
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int PageViewCount { get; set; } = 0;
     /// <summary>
     /// 檔案預覽次數(PDF/Office檔等內嵌預覽的次數)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int FilePreviewCount { get; set; } = 0;
     /// <summary>
     /// 檔案下載次數
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int FileDownloadCount { get; set; } = 0;
     /// <summary>
     /// 連結點擊次數
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int LinkClickCount { get; set; } = 0;
 
     #region 主子表關聯

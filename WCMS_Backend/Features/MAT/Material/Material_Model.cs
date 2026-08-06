@@ -34,7 +34,7 @@ public class Material : HeaderModel
     /// <summary>
     /// 商品價格 (未來要移動到商品資料，而非物件資料)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.Product_Price)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.Product_Price)]
     public decimal Price { get; set; }
 
     #region 主子表關聯

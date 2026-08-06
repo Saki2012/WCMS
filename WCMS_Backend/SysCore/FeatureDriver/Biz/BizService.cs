@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using WCMS.Features._Resx;
 using WCMS.SysCore.Auditing.ErrorHandling;
@@ -404,7 +405,7 @@ public class BizService<TFormModel> : BizBase
     private async Task<TFormModel> UpdateInTransactionAsync(string internalId, TFormModel newData, CancellationToken ct)
     {
         TFormModel oldData = await DoQueryDataAsync(internalId, ct);
-        EnsureDataExists(oldData);
+        if (!EnsureDataExists(oldData)) return null;
         HeaderModel header = GraphCollector.GetHeader(newData);
         IReadOnlyList<IList> newDetailLists =
             GraphCollector.CollectDetailCollections(newData);
@@ -426,7 +427,7 @@ public class BizService<TFormModel> : BizBase
     private async Task<TFormModel> DeleteInTransactionAsync(string internalId, CancellationToken ct)
     {
         TFormModel oldData = await DoQueryDataAsync(internalId, ct);
-        EnsureDataExists(oldData);
+        if (!EnsureDataExists(oldData)) return null;
         await CheckIsUsedAsync(oldData, ct);
         if (Message.HasError) return oldData;
         TFormModel snapshot = oldData.Snapshot();
@@ -442,7 +443,7 @@ public class BizService<TFormModel> : BizBase
     private async Task<TFormModel> InvalidInTransactionAsync(string internalId, bool status, CancellationToken ct)
     {
         TFormModel oldData = await DoQueryDataAsync(internalId, ct);
-        EnsureDataExists(oldData);
+        if (!EnsureDataExists(oldData)) return null;
         TFormModel snapshot = oldData.Snapshot();
         TFormModel newData = oldData.Snapshot();
         DoInvalidSet(newData, status);
@@ -501,12 +502,13 @@ public class BizService<TFormModel> : BizBase
         return DbRepositoryProvider.GetRepo(modelType);
     }
     /// <summary>
-    /// 確認更新、刪除或作廢目標存在於目前資料範圍。
+    /// 確認操作目標存在於目前功能可存取的資料範圍。
     /// </summary>
-    private static void EnsureDataExists(TFormModel? data)
+    private bool EnsureDataExists(TFormModel data)
     {
-        if (data != null) return;
-        throw new BusinessException("查無資料，或資料不屬於目前功能範圍。");
+        if (data != null) return true;
+        Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00041);
+        return false;
     }
     /// <summary>
     /// 限制業務編號前綴長度。

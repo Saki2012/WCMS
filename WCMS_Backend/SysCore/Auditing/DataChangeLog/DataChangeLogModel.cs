@@ -16,7 +16,7 @@ public class DataChangeLog
     /// 序號
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibNum(ApiFieldMode.ReadOnly)]
     public long DataChangeId { get; set; }
     /// <summary>
     /// 使用者ID
@@ -55,18 +55,18 @@ public class DataChangeLogDetail
     /// 序號
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibNum(ApiFieldMode.ReadOnly)]
     public long DataChangeId { get; set; }
     /// <summary>
     /// 行序號
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibNum(ApiFieldMode.ReadOnly)]
     public long RowId { get; set; }
     /// <summary>
     /// 表單索引
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int TableIndex { get; set; }
     /// <summary>
     /// 變更前後資料
