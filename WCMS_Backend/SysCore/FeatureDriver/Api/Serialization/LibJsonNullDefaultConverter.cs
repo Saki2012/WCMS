@@ -1,5 +1,8 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using WCMS.Features._Resx;
+using WCMS.SysCore.Auditing.ErrorHandling;
+
 namespace WCMS.SysCore.FeatureDriver.Api.Serialization;
 
 /// <summary>
@@ -18,9 +21,11 @@ internal sealed class LibJsonNullDefaultConverter<T>(JsonConverter? innerConvert
     /// </summary>
     public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType == JsonTokenType.Null) return (T?)LibJsonDefaultValueFactory.Create(typeToConvert);
+        if (reader.TokenType == JsonTokenType.Null)
+            return (T?)LibJsonDefaultValueFactory.Create(typeToConvert);
+
         JsonConverter<T> converter = ResolveInnerConverter(options);
-        return converter.Read(ref reader, typeToConvert, options);
+        return ReadValue(converter, ref reader, typeToConvert, options);
     }
 
     /// <summary>
@@ -34,6 +39,39 @@ internal sealed class LibJsonNullDefaultConverter<T>(JsonConverter? innerConvert
     #endregion
 
     #region Private
+    /// <summary>
+    /// 讀取非 null JSON 值，並將可預期的格式錯誤轉為 WCMS JSON 例外。
+    /// </summary>
+    private static T? ReadValue(
+        JsonConverter<T> converter,
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
+        JsonSerializerOptions options)
+    {
+        try
+        {
+            return converter.Read(ref reader, typeToConvert, options);
+        }
+        catch (WCMSJsonException)
+        {
+            throw;
+        }
+        catch (Exception exception) when (IsInvalidJsonValueException(exception))
+        {
+            throw new WCMSJsonException(SysMessageCode.BECode00035, exception, "資料");
+        }
+    }
+
+    /// <summary>
+    /// 判斷例外是否屬於 Request JSON 值的格式或數值範圍錯誤。
+    /// </summary>
+    private static bool IsInvalidJsonValueException(Exception exception)
+    {
+        return exception is JsonException
+            or FormatException
+            or OverflowException;
+    }
+
     /// <summary>
     /// 解析 Property 或型別原有的 JSON Converter。
     /// </summary>

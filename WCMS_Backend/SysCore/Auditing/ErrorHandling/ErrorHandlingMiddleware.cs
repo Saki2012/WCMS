@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using NLog;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
@@ -45,6 +45,7 @@ public class ErrorHandlingMiddleware(RequestDelegate next, I18nCache i18n)
     /// </summary>
     private int AddErrorMessage(IErrorHelper message, Exception exception)
     {
+        if (TryAddWCMSJsonMessage(message, exception)) return StatusCodes.Status400BadRequest;
         if (TryAddForeignKeyValueMessage(message, exception)) return StatusCodes.Status400BadRequest;
         if (TryAddForeignKeyUsedMessage(message, exception)) return StatusCodes.Status409Conflict;
 
@@ -93,6 +94,25 @@ Request: {method} {path}
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = SysParam.MediaTypes.ApplicationJson;
         await context.Response.WriteAsJsonAsync(response, context.RequestAborted);
+    }
+
+    /// <summary>
+    /// 將 WCMS JSON 解析例外轉成 Request Error。
+    /// </summary>
+    private static bool TryAddWCMSJsonMessage(IErrorHelper message, Exception exception)
+    {
+        WCMSJsonException? jsonException = GetInnerException<WCMSJsonException>(exception);
+        if (jsonException == null) return false;
+        AddWCMSExceptionMessage(message, jsonException);
+        return true;
+    }
+
+    /// <summary>
+    /// 依 WCMS 例外契約加入安全的 SysMessage。
+    /// </summary>
+    private static void AddWCMSExceptionMessage(IErrorHelper message, IWCMSException exception)
+    {
+        message.AddRequestError(exception.MessageCode, exception.MessageArgs);
     }
 
     /// <summary>
