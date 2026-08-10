@@ -1,4 +1,4 @@
-version: "1.2"
+version: "1.3"
 updated_at: "2026-08-10"
 purpose: "WCMS AI 快速定位索引；只提供導覽與搜尋入口，不取代正式架構、開發規範或實際程式碼。"
 
@@ -36,7 +36,6 @@ navigation:
     overall_architecture: "Docs/01_研發與技術文件/01_系統架構/01_整體專案架構.md"
     frontend_architecture: "Docs/01_研發與技術文件/01_系統架構/02_前端專案架構.md"
     backend_architecture: "Docs/01_研發與技術文件/01_系統架構/03_後端專案架構.md"
-    backend_error_handling_architecture: "Docs/01_研發與技術文件/01_系統架構/04_ErrorHandling與IWCMSException架構.md"
     common_rules: "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
     frontend_rules: "Docs/01_研發與技術文件/02_開發規範/02_前端開發規範.md"
     backend_rules: "Docs/01_研發與技術文件/02_開發規範/03_後端開發規範.md"
