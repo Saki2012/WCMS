@@ -133,36 +133,6 @@ const getResponseNonce = (res: Response): string =>
     return nonce;
 };
 
-const readHeaderFirstValue = (value: string | string[] | undefined): string =>
-{
-    const raw = Array.isArray(value) ? value[0] : value;
-    return String(raw || "").split(",")[0].trim();
-};
-
-const sanitizeRequestProto = (value: string): string =>
-{
-    const proto = String(value || "").toLowerCase();
-    return proto === "http" || proto === "https" ? proto : "https";
-};
-
-const sanitizeRequestHost = (value: string): string =>
-{
-    const host = String(value || "").trim();
-    return /^[a-z0-9.-]+(?::\d+)?$/i.test(host) ? host : "";
-};
-
-/** 取得目前對外 Origin，讓 CSP script 可以收斂到同網域指定路徑。 */
-const getRequestPublicOrigin = (req: Request): string =>
-{
-    const envOrigin = String(process.env.SSR_PUBLIC_ORIGIN || "").trim().replace(/\/+$/, "");
-    if (envOrigin) return envOrigin;
-
-    const proto = sanitizeRequestProto(readHeaderFirstValue(req.headers["x-forwarded-proto"] as string | string[] | undefined) || req.protocol);
-    const host = sanitizeRequestHost(readHeaderFirstValue(req.headers["x-forwarded-host"] as string | string[] | undefined) || String(req.headers.host || ""));
-
-    return host ? `${proto}://${host}` : "";
-};
-
 /** 建立正式環境 HTML CSP 的調整參數。 */
 const getHtmlCspOptions = (req: Request) =>
 {
@@ -172,7 +142,6 @@ const getHtmlCspOptions = (req: Request) =>
     return {
         enforceTrustedTypes: isServerPage ? false : readBoolEnv("SSR_ENFORCE_TRUSTED_TYPES", false),
         styleMode: isServerPage ? "legacy" as CspStyleMode : readStyleModeEnv(),
-        scriptBaseOrigin: getRequestPublicOrigin(req),
     };
 };
 
@@ -671,8 +640,7 @@ const getProdCssHrefsFromManifest = (m: ViteManifest, spec: string, isServer: bo
     if (isServer && spec)
     {
         addIfExists([`src/SpecFetures/${spec}/Assets/LoadSpecCss_Server.ts`, `src/SpecFeatures/${spec}/Assets/LoadSpecCss_Server.ts`]);
-    }
-    else
+    } else
     {
         addIfExists(["src/Features/Assets/LoadFeaturesCss_Client.ts"]);
         if (spec)
@@ -798,10 +766,19 @@ const injectAppHtmlToRoot = (html: string, appHtml: string): string =>
     return html;
 };
 
-// 組 SSR HTML（dev/prod 共用）
-const buildHtml = (template: string, payload: { appHtml: string; headTags?: string; initialState?: unknown; }, _nonce: string, _isProd: boolean): string =>
+/** 將 CSP nonce 僅加入靜態 Template 既有 script，避免授權 SSR / CMS 後續注入內容。 */
+const injectCspNonceToTemplateScripts = (html: string, nonce: string): string =>
 {
-    let html = template;
+    const normalizedNonce = String(nonce || "").trim();
+    if (!normalizedNonce) throw new Error("[WCMS] SSR CSP nonce 不可為空。");
+
+    return html.replace(/<script\b(?![^>]*\bnonce=)([^>]*)>/gi, `<script nonce="${normalizedNonce}"$1>`);
+};
+
+// 組 SSR HTML（dev/prod 共用）
+const buildHtml = (template: string, payload: { appHtml: string; headTags?: string; initialState?: unknown; }, nonce: string, isProd: boolean): string =>
+{
+    let html = isProd ? injectCspNonceToTemplateScripts(template, nonce) : template;
     const cleanHtml = removeStaticRouterHydrationScripts(payload.appHtml ?? "");
     html = html.replace("<!--app-head-->", payload.headTags ?? "");
     html = injectAppHtmlToRoot(html, cleanHtml);
@@ -869,8 +846,7 @@ const setupDevSSR = async (app: express.Express, cfg: SsrConfig) =>
                     : [];
 
                 template = injectCssLinksToHead(template, [...featureHrefs, ...specHrefs]);
-            }
-            else
+            } else
             {
                 const featuresCssTs = path.resolve(process.cwd(), "src/Features/Assets/LoadFeaturesCss_Client.ts");
                 const specCssFile = resolveSpecAssetLoaderFile(specCode, "LoadSpecCss.ts");
