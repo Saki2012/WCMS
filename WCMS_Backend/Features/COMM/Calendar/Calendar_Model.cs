@@ -15,7 +15,7 @@ public class Calendar : HeaderModel
     /// 行事曆年度。
     /// </summary>
     [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibNum(ApiFieldMode.ReadOnly)]
     public int Year { get; set; }
     /// <summary>
     /// 匯入來源。
@@ -46,7 +46,7 @@ public partial class CalendarDetail : DetailModel
     /// 行事曆年度。
     /// </summary>
     [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibNum(ApiFieldMode.ReadOnly)]
     public int Year { get; set; }
     /// <summary>
     /// 行事曆日期。

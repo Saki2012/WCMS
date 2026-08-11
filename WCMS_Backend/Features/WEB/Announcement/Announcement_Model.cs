@@ -134,7 +134,7 @@ public partial class AnnouncementDetailFile : FormDetailModel
     /// 父行代碼
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 檔案來源

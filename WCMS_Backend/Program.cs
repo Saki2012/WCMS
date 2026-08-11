@@ -1,10 +1,12 @@
 ﻿using Microsoft.OpenApi;
+using NLog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text.Json.Nodes;
 using WCMS.Features.IAM.Auth;
 using WCMS.Features.Setup;
 using WCMS.SysCore.Auditing;
 using WCMS.SysCore.Auditing.ErrorHandling;
+using WCMS.SysCore.Auditing.Logging;
 using WCMS.SysCore.Configuration;
 using WCMS.SysCore.Configuration.Startup;
 using WCMS.SysCore.FeatureDriver.Setup;
@@ -15,6 +17,7 @@ using WCMS.SysCore.PlatformServices.Setup;
 using WCMS.SysCore.Security.Hardening;
 using WCMS.SysCore.Security.Hardening.AccessControl;
 using WCMS.SysCore.Security.IdentityAccess;
+
 namespace WCMS;
 
 /// <summary>
@@ -24,9 +27,33 @@ public class Program
 {
     #region Public
     /// <summary>
-    /// 註冊服務、建立 Middleware Pipeline 並啟動 WCMS API。
+    /// 初始化技術日誌並啟動 WCMS API。
     /// </summary>
     public static async Task Main(string[] args)
+    {
+        NLogSetup.Initialize();
+        Logger hostLogger = NLogSetup.GetHostLogger();
+        try
+        {
+            await RunApplicationAsync(args);
+        }
+        catch (Exception exception)
+        {
+            hostLogger.Fatal(exception, "WCMS Host 啟動或執行期間發生未處理的致命異常。");
+            throw;
+        }
+        finally
+        {
+            NLogSetup.Shutdown();
+        }
+    }
+    #endregion
+
+    #region Private
+    /// <summary>
+    /// 註冊服務、建立 Middleware Pipeline 並啟動 WCMS API。
+    /// </summary>
+    private static async Task RunApplicationAsync(string[] args)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
         SpecSettings.Init(builder.Configuration);
@@ -47,9 +74,7 @@ public class Program
         await ApplicationStartupInitializer.InitializeAsync(app.Services);
         await app.RunAsync();
     }
-    #endregion
 
-    #region Private
     /// <summary>
     /// 依安全、語系、授權與 API 順序建立 HTTP Pipeline。
     /// </summary>

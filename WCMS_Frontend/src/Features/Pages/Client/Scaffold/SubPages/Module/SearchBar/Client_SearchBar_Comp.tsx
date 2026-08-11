@@ -36,7 +36,6 @@ export const Client_SearchBar_Comp = (
         return (
             <input
                 id={getFieldId(field.key)}
-                name={field.key}
                 type={field.type === "select" ? "text" : field.type}
                 value={getDraftValue(field.key)}
                 placeholder={field.placeholder}
@@ -55,7 +54,6 @@ export const Client_SearchBar_Comp = (
         return (
             <select
                 id={getFieldId(field.key)}
-                name={field.key}
                 value={getDraftValue(field.key)}
                 disabled={field.disabled}
                 className="client-searchbar__select"

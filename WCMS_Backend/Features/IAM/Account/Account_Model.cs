@@ -83,7 +83,7 @@ public class Account : HeaderModel
     /// 密碼演算法版本
     /// </summary>
     [JsonIgnore]
-    [LibField(ApiFieldMode.Ignore)]
+    [LibNum(ApiFieldMode.Ignore)]
     public int PasswordAlgoVer { get; set; } = 1;
     #endregion
 }

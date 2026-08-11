@@ -106,7 +106,7 @@ public class MatCategoryInfoFieldDisplay : FormDetailModel
     /// <summary>
     /// 父行主鍵。
     /// </summary>
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 語系。

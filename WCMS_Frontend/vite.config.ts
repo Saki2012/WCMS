@@ -4,7 +4,7 @@ import path from "node:path";
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
 import packageJson from "./package.json";
-
+import { createPdfJsCompatibilityPlugin } from "./scripts/vite/PdfJsCompatibilityPlugin";
 // #region Property
 const SPEC_DIRECTORY_NAMES = ["SpecFetures", "SpecFeatures"];
 const FEATURE_SPEC_FALLBACK_PATH = "./src/SysCore/FeatureExtensions/SpecFallback";
@@ -26,7 +26,7 @@ export default defineConfig(({ mode, isSsrBuild }) =>
 
     return {
         base: "/",
-        plugins: [react()],
+        plugins: [createPdfJsCompatibilityPlugin(),react(),],
         optimizeDeps: { include: ["react-helmet-async"] },
         define:
         {

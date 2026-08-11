@@ -94,7 +94,7 @@ public class FileArchiveDetail : FormDetailModel
     /// 父行主鍵 (_FileArchiveInfo)
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 檔案來源
@@ -129,7 +129,7 @@ public class FileArchiveUrlDetail : FormDetailModel
     /// 父行主鍵 (_FileArchiveInfo)
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 檔案來源
