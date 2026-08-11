@@ -229,7 +229,17 @@ const escapeSqlValue = (value: string): string =>
     // return
     return value.replace(/'/g, "''");
 };
-
+/**
+ * Hotfix：作者搜尋只篩選符合文章，不裁切文章內完整作者清單。
+ * Root 永不成立條件加入 OR，避免共用 Projection 將作者條件套用至 Detail Filter。
+ */
+const buildAuthorSearchCondition = (author: string): string =>
+{
+    const value = escapeSqlValue(author);
+    const rootCondition = `${SpecJournalFields.JournalId} is null`;
+    const authorCondition = `(${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName} = '${value}' Or ${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en} = '${value}')`;
+    return `(${rootCondition} Or ${authorCondition})`;
+};
 /**
  * 建立查詢條件
  */
@@ -286,12 +296,7 @@ const buildCondition = (p: BuildConditionArgs): string =>
 
     if (f.author)
     {
-        condition = LibText.Merge(
-            " And ",
-            false,
-            condition,
-            `(${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName} = '${escapeSqlValue(f.author)}' Or ${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en} = '${escapeSqlValue(f.author)}')`,
-        );
+        condition = LibText.Merge(" And ", false, condition, buildAuthorSearchCondition(f.author));
     }
 
     if (f.keyword)
