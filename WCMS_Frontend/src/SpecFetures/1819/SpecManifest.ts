@@ -5,6 +5,6 @@ import type { SpecManifestInfo } from "@/SysCore/Interface/ISpecManifest_Types";
 export const SpecManifest: SpecManifestInfo = {
     specCode: "1819",
     specTitle: "淡江大學教育資料與圖書館學",
-    specVersion: "R02",
+    specVersion: "R03",
 };
 // #endregion
