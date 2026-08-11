@@ -1,3 +1,4 @@
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useEffect, useRef, useState, type Dispatch, type MutableRefObject, type SetStateAction } from "react";
 import { useLocation, useNavigationType } from "react-router-dom";
 import type { PageStateMemoryController, PageStateMemoryOptions } from "./PageStateMemory_Data";
@@ -17,7 +18,8 @@ export const usePageStateMemory = <TState>(options: PageStateMemoryOptions<TStat
     const location = useLocation();
     const navigationType = useNavigationType();
     const enabled = options.enabled ?? true;
-    const storageKey = buildPageStateMemoryKey(options.stateKey, options.scopeKeys);
+    const routeScope = buildPageStateRouteScope(location.pathname);
+    const storageKey = buildPageStateMemoryKey(options.stateKey, [...(options.scopeKeys ?? []), routeScope]);
     const [state, setState] = useState<TState>(options.defaultState);
     const [isReady, setIsReady] = useState(false);
     const [hasMemory, setHasMemory] = useState(false);
@@ -32,6 +34,14 @@ export const usePageStateMemory = <TState>(options: PageStateMemoryOptions<TStat
 // #endregion
 
 // #region Private
+/** 建立 PageStateMemory 使用的穩定 Route Scope。 */
+const buildPageStateRouteScope = (pathname: string): string =>
+{
+    const path = LibRoutePath.normalizeInternalPath(pathname);
+    if (path === "/") return path;
+    return `/${LibRoutePath.trimRouteSlash(path)}`;
+};
+
 /** Scope 或頁面初始化時，依導頁來源重設或還原狀態。 */
 const useRestorePageStateMemory = <TState>(
     storageKey: string,
