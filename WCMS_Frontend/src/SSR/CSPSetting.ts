@@ -88,7 +88,7 @@ export const buildProdCsp = (nonce: string, options: BuildProdCspOptions = {}): 
         `connect-src ${connectSrc}`,
         "frame-ancestors 'self'",
         `frame-src ${frameSrc}`,
-        "media-src 'self' data: blob: https:",
+        "media-src 'self' data: blob:",
         "worker-src 'self' blob:",
         "manifest-src 'self'",
         "object-src 'none'",
