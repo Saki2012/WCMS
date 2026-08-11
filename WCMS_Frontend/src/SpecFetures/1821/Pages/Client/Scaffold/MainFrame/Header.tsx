@@ -1,6 +1,7 @@
 /** Header 模組：依照 1821 prototype 的 Site-Header 結構整理前台 Header。 */
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import { useMobileMenuCollapse } from "@/Features/Hooks/UIAction/Mobile/useMobileMenuCollapse";
+import { useMenuNavigationAction } from "@/Features/Hooks/UIAction/Navigation/useMenuNavigationAction";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
@@ -335,10 +336,11 @@ const MainMenu = (props: MainMenuProp) =>
 /** 第一層單一連結選單。 */
 const SingleMenuItem = (props: MenuItemProp) =>
 {
+    const menuNavigation = useMenuNavigationAction();
     const isExternal = isExternalUrl(props.menuItem.Url);
     return (
         <li className="nav-item">
-            <LangNavLink className="nav-link" aria-current="page" to={resolveMenuUrl(props.menuItem)} role="button" tabIndex={0} title={props.menuItem.SrcData} aria-label={props.menuItem.SrcData} target={props.menuItem.URL_Open}>
+            <LangNavLink className="nav-link" aria-current="page" to={resolveMenuUrl(props.menuItem)} role="button" tabIndex={0} title={props.menuItem.SrcData} aria-label={props.menuItem.SrcData} target={props.menuItem.URL_Open} onClick={menuNavigation.onMenuNavigate}>
                 {isExternal && <i className="fad fa-link me-2" aria-hidden="true"></i>}
                 {props.menuItem.SrcData}
             </LangNavLink>
@@ -412,10 +414,11 @@ const DropdownChildItem = (props: DropdownChildItemProp) =>
 /** 下拉選單葉節點連結。 */
 const DropdownLeafItem = (props: MenuItemProp) =>
 {
+    const menuNavigation = useMenuNavigationAction();
     const isExternal = isExternalUrl(props.menuItem.Url);
     return (
         <li>
-            <LangNavLink className="dropdown-item" to={resolveMenuUrl(props.menuItem)} role="button" tabIndex={0} target={props.menuItem.URL_Open} title={props.menuItem.SrcData}>
+            <LangNavLink className="dropdown-item" to={resolveMenuUrl(props.menuItem)} role="button" tabIndex={0} target={props.menuItem.URL_Open} title={props.menuItem.SrcData} onClick={menuNavigation.onMenuNavigate}>
                 {isExternal && <i className="fad fa-link me-2" aria-hidden="true"></i>}
                 {props.menuItem.SrcData}
             </LangNavLink>
