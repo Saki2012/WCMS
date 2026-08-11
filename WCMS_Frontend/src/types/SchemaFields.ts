@@ -625,27 +625,6 @@ export const MaterialTagsFields = {
 
 export type MaterialTagsFieldKey = keyof typeof MaterialTagsFields;
 
-export const ORCIDDataFields = {
-  ORCID: 'ORCID',
-  AuthorName: 'AuthorName',
-  AuthorName_en: 'AuthorName_en',
-  JobTitle: 'JobTitle',
-  Unit: 'Unit',
-  Unit_en: 'Unit_en',
-  Email: 'Email',
-  Country: 'Country',
-} as const;
-
-export type ORCIDDataFieldKey = keyof typeof ORCIDDataFields;
-
-export const ORCIDDataApiResponseFields = {
-  IsSuccess: 'IsSuccess',
-  SysMessage: 'SysMessage',
-  Data: 'Data',
-} as const;
-
-export type ORCIDDataApiResponseFieldKey = keyof typeof ORCIDDataApiResponseFields;
-
 export const OrderBySpecFields = {
   Col: 'Col',
   Desc: 'Desc',
@@ -754,14 +733,6 @@ export const PersonApiRequestFields = {
 } as const;
 
 export type PersonApiRequestFieldKey = keyof typeof PersonApiRequestFields;
-
-export const PublishReqFields = {
-  InternalId: 'InternalId',
-  JournalIndexId: 'JournalIndexId',
-  JournalIndexRowId: 'JournalIndexRowId',
-} as const;
-
-export type PublishReqFieldKey = keyof typeof PublishReqFields;
 
 export const QueryListParamFields = {
   Fields: 'Fields',
@@ -1079,7 +1050,7 @@ export const SiteViewCountHeaderApiResponseFields = {
 
 export type SiteViewCountHeaderApiResponseFieldKey = keyof typeof SiteViewCountHeaderApiResponseFields;
 
-export const SpecJournalFields = {
+export const SpecHomePage1821Fields = {
   InternalId: 'InternalId',
   CreateTime: 'CreateTime',
   CreateUser: 'CreateUser',
@@ -1094,177 +1065,86 @@ export const SpecJournalFields = {
   InvalidUserId: 'InvalidUserId',
   DataVersion: 'DataVersion',
   IsIniData: 'IsIniData',
-  JournalId: 'JournalId',
-  _JournalIndex: '_JournalIndex',
-  JournalIndexId: 'JournalIndexId',
-  _JournalIndexDetail: '_JournalIndexDetail',
-  JournalIndexRowId: 'JournalIndexRowId',
-  Title: 'Title',
-  Title_en: 'Title_en',
-  PageStart: 'PageStart',
-  PageEnd: 'PageEnd',
-  DOIUrl: 'DOIUrl',
-  JournalFile: 'JournalFile',
-  JournalFileId: 'JournalFileId',
-  JournalFileName: 'JournalFileName',
-  InsightPointFile: 'InsightPointFile',
-  InsightPointFileId: 'InsightPointFileId',
-  InsightPointFileName: 'InsightPointFileName',
-  ArticleLang: 'ArticleLang',
-  Memo: 'Memo',
-  Memo_en: 'Memo_en',
-  Bibliography: 'Bibliography',
-  _SpecJournalAuthor: '_SpecJournalAuthor',
-  _SpecJournalRefFormat: '_SpecJournalRefFormat',
-  _SpecJournalOpenPointFiles: '_SpecJournalOpenPointFiles',
-  _SpecJournalRefFiles: '_SpecJournalRefFiles',
-  _SpecJournalDocument: '_SpecJournalDocument',
-  _SpecJournalTypes: '_SpecJournalTypes',
-  _SpecJournalKeywords: '_SpecJournalKeywords',
+  HomePageId: 'HomePageId',
+  Lang: 'Lang',
+  Section3Title: 'Section3Title',
+  Section3SubTitle: 'Section3SubTitle',
+  Card1Title: 'Card1Title',
+  Card1Link: 'Card1Link',
+  Card1Pic: 'Card1Pic',
+  Card1PicId: 'Card1PicId',
+  Card2Title: 'Card2Title',
+  Card2Link: 'Card2Link',
+  Card2Pic: 'Card2Pic',
+  Card2PicId: 'Card2PicId',
+  Section4Title: 'Section4Title',
+  Section4SubTitle: 'Section4SubTitle',
+  LinkOptions: 'LinkOptions',
+  LinkViewMore: 'LinkViewMore',
+  _SpecHomePage1821_Banner: '_SpecHomePage1821_Banner',
+  _SpecHomePage1821_Shortcut: '_SpecHomePage1821_Shortcut',
 } as const;
 
-export type SpecJournalFieldKey = keyof typeof SpecJournalFields;
+export type SpecHomePage1821FieldKey = keyof typeof SpecHomePage1821Fields;
 
-export const SpecJournalApiRequestFields = {
+export const SpecHomePage1821ApiRequestFields = {
   InternalId: 'InternalId',
   Data: 'Data',
 } as const;
 
-export type SpecJournalApiRequestFieldKey = keyof typeof SpecJournalApiRequestFields;
+export type SpecHomePage1821ApiRequestFieldKey = keyof typeof SpecHomePage1821ApiRequestFields;
 
-export const SpecJournalAuthorFields = {
+export const SpecHomePage1821_BannerFields = {
   RowState: 'RowState',
   RowId: 'RowId',
   RowNo: 'RowNo',
-  JournalId: 'JournalId',
-  AuthorType: 'AuthorType',
-  ORCID: 'ORCID',
-  AuthorName: 'AuthorName',
-  AuthorName_en: 'AuthorName_en',
-  JobTitle: 'JobTitle',
-  Unit: 'Unit',
-  Unit_en: 'Unit_en',
-  Email: 'Email',
-  Country: 'Country',
-} as const;
-
-export type SpecJournalAuthorFieldKey = keyof typeof SpecJournalAuthorFields;
-
-export const SpecJournalDocumentFields = {
-  RowState: 'RowState',
-  RowId: 'RowId',
-  RowNo: 'RowNo',
-  JournalId: 'JournalId',
-  DocumentType: 'DocumentType',
-  DocumentName: 'DocumentName',
-  Document: 'Document',
-  DocumentId: 'DocumentId',
-} as const;
-
-export type SpecJournalDocumentFieldKey = keyof typeof SpecJournalDocumentFields;
-
-export const SpecJournalIndexFields = {
-  InternalId: 'InternalId',
-  CreateTime: 'CreateTime',
-  CreateUser: 'CreateUser',
-  CreateUserId: 'CreateUserId',
-  ModifyTime: 'ModifyTime',
-  ModifyUser: 'ModifyUser',
-  ModifyUserId: 'ModifyUserId',
-  FormStatus: 'FormStatus',
-  DataStatus: 'DataStatus',
-  InvalidTime: 'InvalidTime',
-  InvalidUser: 'InvalidUser',
-  InvalidUserId: 'InvalidUserId',
-  DataVersion: 'DataVersion',
-  IsIniData: 'IsIniData',
-  IndexId: 'IndexId',
-  IndexName: 'IndexName',
-  _SpecJournalIndexDetail: '_SpecJournalIndexDetail',
-} as const;
-
-export type SpecJournalIndexFieldKey = keyof typeof SpecJournalIndexFields;
-
-export const SpecJournalIndexApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type SpecJournalIndexApiRequestFieldKey = keyof typeof SpecJournalIndexApiRequestFields;
-
-export const SpecJournalIndexDetailFields = {
-  RowState: 'RowState',
-  RowId: 'RowId',
-  RowNo: 'RowNo',
-  IndexId: 'IndexId',
-  Volume: 'Volume',
-  Issue: 'Issue',
-  IsSpecial: 'IsSpecial',
-  PublishDate: 'PublishDate',
-  SeasonNo: 'SeasonNo',
-  SummaryFile: 'SummaryFile',
-  SummaryFileId: 'SummaryFileId',
-  SummaryFileName: 'SummaryFileName',
-} as const;
-
-export type SpecJournalIndexDetailFieldKey = keyof typeof SpecJournalIndexDetailFields;
-
-export const SpecJournalKeywordsFields = {
-  RowState: 'RowState',
-  RowId: 'RowId',
-  RowNo: 'RowNo',
-  JournalId: 'JournalId',
-  LangCode: 'LangCode',
-  Keyword: 'Keyword',
-} as const;
-
-export type SpecJournalKeywordsFieldKey = keyof typeof SpecJournalKeywordsFields;
-
-export const SpecJournalOpenPointFilesFields = {
-  RowState: 'RowState',
-  RowId: 'RowId',
-  RowNo: 'RowNo',
-  JournalId: 'JournalId',
-  OpenPointFileName: 'OpenPointFileName',
-  OpenPointFile: 'OpenPointFile',
-  OpenPointFileId: 'OpenPointFileId',
-} as const;
-
-export type SpecJournalOpenPointFilesFieldKey = keyof typeof SpecJournalOpenPointFilesFields;
-
-export const SpecJournalRefFilesFields = {
-  RowState: 'RowState',
-  RowId: 'RowId',
-  RowNo: 'RowNo',
-  JournalId: 'JournalId',
-  RefFileName: 'RefFileName',
-  RefFile: 'RefFile',
-  RefFileId: 'RefFileId',
-} as const;
-
-export type SpecJournalRefFilesFieldKey = keyof typeof SpecJournalRefFilesFields;
-
-export const SpecJournalRefFormatFields = {
-  RowState: 'RowState',
-  RowId: 'RowId',
-  RowNo: 'RowNo',
-  JournalId: 'JournalId',
+  HomePageId: 'HomePageId',
   Title: 'Title',
-  Content: 'Content',
+  SubTitle: 'SubTitle',
+  BannerFile: 'BannerFile',
+  BannerFileId: 'BannerFileId',
+  BannerFileDescription: 'BannerFileDescription',
+  Link: 'Link',
 } as const;
 
-export type SpecJournalRefFormatFieldKey = keyof typeof SpecJournalRefFormatFields;
+export type SpecHomePage1821_BannerFieldKey = keyof typeof SpecHomePage1821_BannerFields;
 
-export const SpecJournalTypesFields = {
+export const SpecHomePage1821_ShortcutFields = {
   RowState: 'RowState',
   RowId: 'RowId',
   RowNo: 'RowNo',
-  JournalId: 'JournalId',
-  Tag: 'Tag',
-  TagId: 'TagId',
+  HomePageId: 'HomePageId',
+  ShortcutCode: 'ShortcutCode',
+  Title: 'Title',
+  SubTitle: 'SubTitle',
+  IconFile: 'IconFile',
+  IconFileId: 'IconFileId',
+  IconFileDescription: 'IconFileDescription',
+  ActionType: 'ActionType',
+  ActionValue: 'ActionValue',
+  IsLink: 'IsLink',
+  Link: 'Link',
+  LinkPic: 'LinkPic',
+  LinkPicId: 'LinkPicId',
+  _SpecHomePage1821_ShortcutModuleItem: '_SpecHomePage1821_ShortcutModuleItem',
 } as const;
 
-export type SpecJournalTypesFieldKey = keyof typeof SpecJournalTypesFields;
+export type SpecHomePage1821_ShortcutFieldKey = keyof typeof SpecHomePage1821_ShortcutFields;
+
+export const SpecHomePage1821_ShortcutModuleItemFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  HomePageId: 'HomePageId',
+  ParentRowId: 'ParentRowId',
+  Title: 'Title',
+  SubTitle: 'SubTitle',
+  ModuleType: 'ModuleType',
+  ModuleOptions: 'ModuleOptions',
+  MoreViewLink: 'MoreViewLink',
+} as const;
+
+export type SpecHomePage1821_ShortcutModuleItemFieldKey = keyof typeof SpecHomePage1821_ShortcutModuleItemFields;
 
 export const StringApiResponseFields = {
   IsSuccess: 'IsSuccess',
@@ -1583,8 +1463,7 @@ export const PGID = {
     RolePermission: "RolePermission",
     SiteMenu: "SiteMenu",
     SiteViewCount: "SiteViewCount",
-    SpecJournal: "SpecJournal",
-    SpecJournalIndex: "SpecJournalIndex",
+    SpecHomePageApi: "SpecHomePageApi",
     Survey: "Survey",
     SurveySubmission: "SurveySubmission",
     SystemAPI: "SystemAPI",
