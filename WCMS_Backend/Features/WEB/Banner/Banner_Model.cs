@@ -26,22 +26,22 @@ public partial class Banner : HeaderModel
     /// <summary>
     /// 轉換間隔
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_Interval)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.Banner_Interval)]
     public short Interval { get; set; }
     /// <summary>
     /// 轉換速度
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_Speed)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.Banner_Speed)]
     public short Speed { get; set; }
     /// <summary>
     /// 橫幅高度
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_Height)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.Banner_Height)]
     public short Height { get; set; }
     /// <summary>
     /// 橫幅寬度
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_Width)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.Banner_Width)]
     public short Width { get; set; }
 
     #region 主子表關聯
@@ -82,7 +82,7 @@ public partial class BannerDetail : FormDetailModel
     /// <summary>
     /// 播放順序
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_Sort)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.Banner_Sort)]
     public ushort Sort { get; set; }
 
     #region 主子表關聯
@@ -107,7 +107,7 @@ public partial class BannerDetailInfo : FormDetailModel
     /// 
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 語系

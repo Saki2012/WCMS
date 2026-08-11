@@ -73,7 +73,7 @@ public class FileManage : HeaderModel
     /// <summary>
     /// 檔案大小
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public long FileSize { get; set; }
     /// <summary>
     /// 功能Id
@@ -96,7 +96,7 @@ public class FileManage : HeaderModel
     /// <summary>
     /// 前台網站下載次數
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.FileManage_DownloadCount)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.FileManage_DownloadCount)]
     public int PublicDownloadCount { get; set; } = 0;
     /// <summary>
     /// 是否公開檔案
@@ -244,7 +244,7 @@ public class FileManage_UsedModel
     /// 行代碼
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibNum(ApiFieldMode.ReadOnly)]
     public int RowId { get; set; }
     /// <summary>
     /// 使用的功能表名

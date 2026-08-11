@@ -189,7 +189,7 @@ public static class SysMessageCode
     /// </summary>
     public const string BECode00036 = nameof(BECode00036);
     /// <summary>
-    /// 
+    /// 【{0}】必須介於【{1}】與【{2}】之間。
     /// </summary>
     public const string BECode00037 = nameof(BECode00037);
     /// <summary>
@@ -202,6 +202,7 @@ public static class SysMessageCode
     /// </summary>
     public const string BECode00040 = nameof(BECode00040);
     /// <summary>
+    /// 查無資料，或資料不屬於目前功能範圍。
     /// </summary>
     public const string BECode00041 = nameof(BECode00041);
     /// <summary>

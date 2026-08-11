@@ -139,7 +139,7 @@ public class SiteMenu_Item : FormDetailModel
     /// <summary>
     /// 上層選單項目代碼；根節點為 null。
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.Common_ParentRowId)]
     public int? ParentRowId { get; set; }
     /// <summary>
     /// 當前頁面網址代碼。
@@ -154,12 +154,12 @@ public class SiteMenu_Item : FormDetailModel
     /// <summary>
     /// 選單層級，由後端計算。
     /// </summary>
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.SiteMenu_Level)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.SiteMenu_Level)]
     public byte Level { get; set; }
     /// <summary>
     /// 同層顯示順序。
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.SiteMenu_DisplayOrder)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.SiteMenu_DisplayOrder)]
     public byte DisplayOrder { get; set; }
     /// <summary>
     /// 選單項目類型。
@@ -215,7 +215,7 @@ public class SiteMenu_Item_Title : FormDetailModel
     /// 所屬選單項目代碼。
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
     public int ItemRowId { get; set; }
     /// <summary>
     /// 語系。
@@ -258,7 +258,7 @@ public class SiteMenu_Item_Url : DetailModel
     /// 所屬選單項目代碼。
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
     public int ItemRowId { get; set; }
     /// <summary>
     /// 導向類型。
@@ -296,7 +296,7 @@ public class SiteMenu_Item_Module : DetailModel
     /// 所屬選單項目代碼。
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
     public int ItemRowId { get; set; }
     /// <summary>
     /// Banner 關聯資料。

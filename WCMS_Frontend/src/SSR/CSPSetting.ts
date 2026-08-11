@@ -1,24 +1,22 @@
 // #region Property
 export type CspStyleMode = "balanced" | "legacy" | "strict";
 
+export type BuildProdCspOptions = Readonly<{ enforceTrustedTypes?: boolean; styleMode?: CspStyleMode; }>;
 
-export type BuildProdCspOptions = Readonly<{ enforceTrustedTypes?: boolean; styleMode?: CspStyleMode; scriptBaseOrigin?: string; }>;
-
-
-/** Cloudflare Turnstile 前台驗證碼來源；需允許 script 與 iframe 載入。 */
+/** Cloudflare Turnstile 前台驗證碼來源；iframe 仍由 frame-src 控制。 */
 const turnstileSource = "https://challenges.cloudflare.com";
 // #endregion
 
 // #region Public
 /**
  * 建立正式環境 CSP。
- * script 不使用 nonce / strict-dynamic / unsafe-inline / self，改用同網域路徑級白名單，避免 /Service 或其他動態端點被納入可執行 script 來源。
+ * Script 改採每次 Response nonce + strict-dynamic，避免以 URL Allowlist 作為可執行腳本信任來源。
  */
-export const buildProdCsp = (_nonce: string, options: BuildProdCspOptions = {}): string =>
+export const buildProdCsp = (nonce: string, options: BuildProdCspOptions = {}): string =>
 {
     const styleMode = options.styleMode ?? "balanced";
 
-    const scriptSrc = joinSources(buildScriptSources(options.scriptBaseOrigin));
+    const scriptSrc = joinSources(buildScriptSources(nonce));
     const styleSrc = joinSources(buildStyleSources(styleMode));
     const styleAttrSrc = joinSources(buildStyleAttrSources(styleMode));
 
@@ -81,7 +79,6 @@ export const buildProdCsp = (_nonce: string, options: BuildProdCspOptions = {}):
     const csp = [
         "default-src 'none'",
         `script-src ${scriptSrc}`,
-        `script-src-elem ${scriptSrc}`,
         "script-src-attr 'none'",
         `style-src ${styleSrc}`,
         `style-src-elem ${styleSrc}`,
@@ -111,34 +108,28 @@ export const buildProdCsp = (_nonce: string, options: BuildProdCspOptions = {}):
 // #endregion
 
 // #region Private
+/** 移除 CSP Source 重複值並過濾空字串。 */
 const uniqueSources = (sources: readonly string[]): string[] =>
 {
-    return [...new Set(sources.map(s => String(s || "").trim()).filter(Boolean))];
+    return [...new Set(sources.map(source => String(source || "").trim()).filter(Boolean))];
 };
 
-
+/** 將 CSP Source 清單組成 Header 使用格式。 */
 const joinSources = (sources: readonly string[]): string =>
 {
     return uniqueSources(sources).join(" ");
 };
 
-
-const trimEndSlash = (value: string): string =>
+/** 建立 Script 信任來源，僅允許目前 Response nonce 與 strict-dynamic 信任鏈。 */
+const buildScriptSources = (nonce: string): string[] =>
 {
-    return String(value || "").trim().replace(/\/+$/, "");
+    const normalizedNonce = String(nonce || "").trim();
+    if (!normalizedNonce) throw new Error("[WCMS] CSP nonce 不可為空。");
+
+    return [`'nonce-${normalizedNonce}'`, "'strict-dynamic'"];
 };
 
-
-/** 建立 script 可載入來源；只允許正式靜態 bundle、自架 TinyMCE 與 Turnstile 驗證碼來源。 */
-const buildScriptSources = (scriptBaseOrigin?: string): string[] =>
-{
-    const origin = trimEndSlash(scriptBaseOrigin ?? "");
-    if (!origin) return ["'self'", turnstileSource];
-
-    return [`${origin}/assets/`, `${origin}/tinymce/`, `${origin}/tinymce-i18n/`, turnstileSource];
-};
-
-
+/** 建立可載入樣式來源。 */
 const buildStyleSources = (styleMode: CspStyleMode): string[] =>
 {
     const sources = [
@@ -153,7 +144,7 @@ const buildStyleSources = (styleMode: CspStyleMode): string[] =>
     return styleMode === "legacy" ? [...sources, "'unsafe-inline'"] : sources;
 };
 
-
+/** 建立 Style Attribute CSP；strict 模式完全禁止 inline style attribute。 */
 const buildStyleAttrSources = (styleMode: CspStyleMode): string[] =>
 {
     if (styleMode === "strict") return ["'none'"];

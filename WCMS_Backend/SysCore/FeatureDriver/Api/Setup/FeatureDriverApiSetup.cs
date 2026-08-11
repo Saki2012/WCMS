@@ -12,6 +12,7 @@ using WCMS.SysCore.FeatureDriver.Api.Contracts;
 using WCMS.SysCore.FeatureDriver.Api.Filters;
 using WCMS.SysCore.FeatureDriver.Api.OpenApi;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.I18n;
 
 namespace WCMS.SysCore.FeatureDriver.Api.Setup;
@@ -34,6 +35,11 @@ internal static class FeatureDriverApiSetup
     #endregion
 
     #region Private
+    /// <summary>
+    /// LibField 必填驗證使用的內部識別碼。
+    /// </summary>
+    private const string RequiredErrorKey = "WCMS_REQUIRED";
+
     /// <summary>
     /// 註冊 Controller、Spec Filter 與 System.Text.Json 規則。
     /// </summary>
@@ -122,6 +128,49 @@ internal static class FeatureDriverApiSetup
         PropertyInfo? property = FindModelProperty(context, key);
         string displayName = property == null ? GetFieldName(key) : i18n.GetLabel(property);
         string errorText = context.ModelState[key]?.Errors.FirstOrDefault()?.ErrorMessage ?? string.Empty;
+        if (TryAddLibNumMessage(message, property, errorText, displayName)) return;
+        AddDefaultInvalidModelMessage(message, property, errorText, displayName);
+    }
+    /// <summary>
+    /// 將 LibNum 驗證錯誤轉成對應的 SysMessage。
+    /// </summary>
+    private static bool TryAddLibNumMessage(ErrorHelper message, PropertyInfo? property, string errorText, string displayName)
+    {
+        LibNumAttribute? attr = property?.GetCustomAttribute<LibNumAttribute>();
+        if (attr == null || IsRequiredError(errorText)) return false;
+        if (TryAddLibNumRuleMessage(message, attr, errorText, displayName)) return true;
+        message.AddMessage(MessageStatus.Error, attr.InvalidMessageCode, displayName);
+        return true;
+    }
+    /// <summary>
+    /// 依 LibNum 內部錯誤識別碼加入數值範圍訊息。
+    /// </summary>
+    private static bool TryAddLibNumRuleMessage(ErrorHelper message, LibNumAttribute attr, string errorText, string displayName)
+    {
+        if (errorText == LibNumAttribute.NumberRangeErrorKey)
+        {
+            message.AddMessage(MessageStatus.Error, attr.RangeMessageCode, displayName, attr.MinValue ?? string.Empty, attr.MaxValue ?? string.Empty);
+            return true;
+        }
+        if (errorText == LibNumAttribute.NumberMinimumErrorKey)
+        {
+            message.AddMessage(MessageStatus.Error, attr.MinimumMessageCode, displayName, attr.MinValue ?? string.Empty);
+            return true;
+        }
+        if (errorText == LibNumAttribute.NumberMaximumErrorKey)
+        {
+            message.AddMessage(MessageStatus.Error, attr.MaximumMessageCode, displayName, attr.MaxValue ?? string.Empty);
+            return true;
+        }
+        if (errorText != LibNumAttribute.InvalidNumberErrorKey) return false;
+        message.AddMessage(MessageStatus.Error, attr.InvalidMessageCode, displayName);
+        return true;
+    }
+    /// <summary>
+    /// 加入既有字串長度或一般格式錯誤訊息。
+    /// </summary>
+    private static void AddDefaultInvalidModelMessage(ErrorHelper message, PropertyInfo? property, string errorText, string displayName)
+    {
         int? maxLength = GetMaxLength(property);
         if (maxLength.HasValue && !IsRequiredError(errorText))
             message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00034, displayName, maxLength.Value);
@@ -202,7 +251,8 @@ internal static class FeatureDriverApiSetup
     /// </summary>
     private static bool IsRequiredError(string errorText)
     {
-        return errorText.Contains("required", StringComparison.OrdinalIgnoreCase)
+        return errorText.Equals(RequiredErrorKey, StringComparison.Ordinal)
+            || errorText.Contains("required", StringComparison.OrdinalIgnoreCase)
             || errorText.Contains("請輸入", StringComparison.OrdinalIgnoreCase)
             || errorText.Contains("必填", StringComparison.OrdinalIgnoreCase);
     }

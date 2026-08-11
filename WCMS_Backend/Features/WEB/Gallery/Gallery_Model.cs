@@ -124,7 +124,7 @@ public class GalleryPhotos : FormDetailModel
     /// <summary>
     /// 相片排序
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.Gallery_Sort)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.Gallery_Sort)]
     public int Sort { get; set; }
 
     #region 主子表關聯
@@ -152,7 +152,7 @@ public class GalleryPhotosInfo : FormDetailModel
     /// 父行主鍵 - (_GalleryPhotos)
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 語系 LangCode

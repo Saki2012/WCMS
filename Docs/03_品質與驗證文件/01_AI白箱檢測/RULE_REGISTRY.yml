@@ -2,9 +2,9 @@ schema_version: "1.1"
 
 ruleset:
   id: "WCMS-AI-WHITEBOX"
-  version: "0.1.1"
+  version: "0.2.0"
   status: "active"
-  updated_at: "2026-08-03"
+  updated_at: "2026-08-06"
   owner: "RD"
   exact_snapshot: "白箱報告以 rules_ref Commit SHA 鎖定本檔與正式文件版本。"
   source_policy: "Rule 必須追溯至現行正式架構或開發規範；一般最佳實務只能列為 Observation。"
@@ -203,6 +203,27 @@ rules:
       unknown: "無法由靜態程式確認第三方元件行為。"
     evidence_required: ["互動元素與事件", "鍵盤事件、原生語意或第三方契約"]
     exceptions: []
+
+  - <<: *rule_defaults
+    id: "AA-002"
+    title: "窄版或高倍放大時固定導覽列不得過度壓縮可視範圍"
+    category: "accessibility"
+    applies_to: ["unit", "focused", "regression"]
+    default_severity: "High"
+    automation: "manual"
+    introduced_in: "0.2.0"
+    sources:
+      - path: "Docs/03_品質與驗證文件/01_AI白箱檢測/04_AA人工檢測反饋與驗證.md"
+        section: "4. 案例 AA-MANUAL-001：窄版畫面固定 Header 壓縮可視範圍"
+    check:
+      trigger: "新增或修改固定／Sticky Header、RWD 導覽列、手機或平板 Layout，或調整高倍放大後的窄 Viewport 行為。"
+      compliant: "窄版下固定導覽列已移除或縮減，且人工驗證確認內容與鍵盤焦點具有足夠可視範圍。"
+      noncompliant: "正式人工檢測或 Runtime 證據確認固定導覽列於手機、平板或高倍放大後持續占用過多可視範圍，造成內容或焦點難以完整閱讀。"
+      unknown: "只有靜態程式或 Freego 結果，缺少指定 Viewport、縮放倍率、鍵盤操作或人工複驗證據。"
+    evidence_required: ["人工檢測來源", "固定定位與 Breakpoint 程式位置", "Viewport／縮放／鍵盤複驗證據"]
+    exceptions:
+      - "固定／Sticky 本身不構成違規；人工驗證確認內容與焦點仍可完整閱讀時不適用。"
+      - "選單展開時的預期 Overlay／Drawer，且背景停止操作、選單可完整捲動時，不視為一般內容遮蔽。"
 
   - <<: *rule_defaults
     id: "BE-FORM-001"

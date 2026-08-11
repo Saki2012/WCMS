@@ -245,4 +245,19 @@
   <data name="AACode00004" xml:space="preserve">
     <value>[{0}]-序號[{1}]：請輸入[{2}]語系的[{3}]</value>
   </data>
+  <data name="BECode00041" xml:space="preserve">
+    <value>查無資料，或資料不屬於目前功能範圍。</value>
+  </data>
+  <data name="BECode00037" xml:space="preserve">
+    <value>【{0}】必須介於【{1}】與【{2}】之間。</value>
+  </data>
+  <data name="BECode00038" xml:space="preserve">
+    <value>【{0}】不得小於【{1}】。</value>
+  </data>
+  <data name="BECode00039" xml:space="preserve">
+    <value>【{0}】不得大於【{1}】。</value>
+  </data>
+  <data name="BECode00040" xml:space="preserve">
+    <value>【{0}】必須為有效數值。</value>
+  </data>
 </root>
