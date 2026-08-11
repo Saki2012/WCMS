@@ -7,7 +7,7 @@ import type { components } from "@/types/api";
 import { type RefObject, useCallback, useEffect, useRef, useState } from "react";
 
 // #region Property
-type SpecHomePage1821Model = components["schemas"]["SpecHomePage1821Model_DTO"];
+type SpecHomePage1821Model = components["schemas"]["SpecHomePage1821"];
 
 interface HomePageLinkViewModel
 {

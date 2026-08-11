@@ -5,6 +5,6 @@ import type { SpecManifestInfo } from "@/SysCore/Interface/ISpecManifest_Types";
 export const SpecManifest: SpecManifestInfo = {
     specCode: "1821",
     specTitle: "國立臺灣藝術大學招生資訊服務網站",
-    specVersion: "R07",
+    specVersion: "R08",
 };
 // #endregion

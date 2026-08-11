@@ -5,7 +5,6 @@ import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitema
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import { A11yContent } from "@/Features/Pages/Client/Scaffold/MainFrame/Header";
-import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import LogoImg from "@/SpecFetures/1821/Assets/Client/images/logo/LOGO_500x50.svg";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";

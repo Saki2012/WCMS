@@ -10,8 +10,9 @@ import { SpecHomePage1821Adapter } from "@/SpecFetures/1821/Hooks/WEB/HomePage_A
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import {
-    formatLocalIso,
+    getTodayRange,
     LibCondition,
+    LibText,
     Operator,
 } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -46,6 +47,12 @@ interface HomePageOptions
 {
     categoryIds: string;
     tagIds: string;
+}
+
+interface AnnouncementTimeRange
+{
+    dayStart: number;
+    dayEnd: number;
 }
 
 interface HomePageShortcutModuleViewModel
@@ -209,8 +216,8 @@ const normalizeFormModelData = async (args: LoaderFunctionArgs, formModelData: S
     const banners = sortByRowNo(formModelData._SpecHomePage1821_Banner);
     const shortcuts = sortByRowNo(formModelData._SpecHomePage1821_Shortcut).slice(0, MAX_SHORTCUT_ITEMS);
     const moduleItems = shortcuts.flatMap((shortcut) => sortByRowNo(shortcut._SpecHomePage1821_ShortcutModuleItem));
-    const nowIsoLocal = formatLocalIso(new Date());
-    const shortcutViewModels = await buildShortcutViewModels(args, lang, shortcuts, moduleItems, nowIsoLocal);
+    const announcementTimeRange = getTodayRange();
+    const shortcutViewModels = await buildShortcutViewModels(args, lang, shortcuts, moduleItems, announcementTimeRange);
     const linkList = await loadSection4Links(args, lang, homePage);
     return { homePage, banners, shortcuts: shortcutViewModels, featureCards: buildFeatureCards(homePage), linkList };
 };
@@ -249,7 +256,7 @@ const buildShortcutViewModels = async (
     lang: Lang,
     shortcuts: SpecHomePage1821Shortcut[],
     moduleItems: SpecHomePage1821ShortcutModuleItem[],
-    nowIsoLocal: string,
+    announcementTimeRange: AnnouncementTimeRange,
 ): Promise<HomePageShortcutViewModel[]> =>
 {
     const groupedItems = groupModuleItemsByParent(moduleItems);
@@ -263,7 +270,7 @@ const buildShortcutViewModels = async (
                     args,
                     lang,
                     groupedItems[shortcut.RowId ?? 0] ?? [],
-                    nowIsoLocal,
+                    announcementTimeRange,
                 );
             return { shortcut, modules };
         }),
@@ -289,7 +296,7 @@ const buildShortcutModules = async (
     args: LoaderFunctionArgs,
     lang: Lang,
     moduleItems: SpecHomePage1821ShortcutModuleItem[],
-    nowIsoLocal: string,
+    announcementTimeRange: AnnouncementTimeRange,
 ): Promise<HomePageShortcutModuleViewModel[]> =>
 {
     const viewModels = await Promise.all(
@@ -302,7 +309,7 @@ const buildShortcutModules = async (
 
             const options = parseHomePageOptions(item.ModuleOptions);
             const announcementList = moduleType === HomePageModuleType.Announcement
-                ? await loadAnnouncementList(args, lang, options, nowIsoLocal)
+                ? await loadAnnouncementList(args, lang, options, announcementTimeRange)
                 : [];
             const fileArchiveList = moduleType === HomePageModuleType.FileArchive
                 ? await loadFileArchiveList(args, lang, options)
@@ -344,11 +351,26 @@ const parseHomePageOptions = (value?: string | null): HomePageOptions =>
     }
 };
 
+/** 補齊 Announcement 查詢時間文字用的兩位數格式。 */
+const pad = (n: number): string =>
+{
+    return n < 10 ? `0${n}` : `${n}`;
+};
+
+/** 將 timestamp 轉為與 Announcement Feature 相同的本地查詢時間格式。 */
+const formatAnnouncementQueryDateTime = (value: number): string =>
+{
+    const d = new Date(value);
+    const dateText = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const timeText = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    return `${dateText}T${timeText}`;
+};
+
 const loadAnnouncementList = async (
     args: LoaderFunctionArgs,
     lang: Lang,
     options: HomePageOptions,
-    nowIsoLocal: string,
+    announcementTimeRange: AnnouncementTimeRange,
 ): Promise<AnnouncementFormModel[]> =>
 {
     const api = getSsrApi(args.request);
@@ -360,7 +382,7 @@ const loadAnnouncementList = async (
                 condition: buildAnnouncementHomeCondition({
                     lang,
                     options,
-                    nowIsoLocal,
+                    announcementTimeRange,
                 }),
                 take: ANNOUNCEMENT_TAKE,
             }),
@@ -369,50 +391,42 @@ const loadAnnouncementList = async (
     return env.apiRes.IsSuccess ? (env.apiRes.Data ?? []) : [];
 };
 
+/** 建立 Homepage Announcement 條件，固定條件跟隨 Announcement Feature 現行邏輯。 */
 const buildAnnouncementHomeCondition = (p: {
     lang: Lang;
     options: HomePageOptions;
-    nowIsoLocal: string;
+    announcementTimeRange: AnnouncementTimeRange;
 }): string =>
 {
-    return LibCondition.joinConditions([
-        LibCondition.createCondition(
-            AnnouncementFields.Validate_Start,
-            Operator.LessThanOrEqual,
-            p.nowIsoLocal,
-        ),
-        `(${AnnouncementFields.Validate_End} >= ${p.nowIsoLocal} Or ${AnnouncementFields.Validate_End} is null)`,
-        LibCondition.createCondition(
-            AnnouncementFields.ContentStatus,
-            Operator.BitwiseHasNone,
-            4,
-        ),
-        LibCondition.createCondition(
-            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
-            Operator.Equal,
-            p.lang,
-        ),
-        LibCondition.createCondition(
-            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
-            Operator.NotEqual,
-            "",
-            true,
-        ),
-        p.options.categoryIds
-            ? LibCondition.createCondition(
-                AnnouncementFields.Categories,
-                Operator.HasAny,
-                p.options.categoryIds,
-            )
-            : null,
-        p.options.tagIds
-            ? LibCondition.createCondition(
-                AnnouncementFields.Tags,
-                Operator.HasAny,
-                p.options.tagIds,
-            )
-            : null,
-    ]);
+    let condition = buildAnnouncementHomeBaseCondition(p);
+    if (LibText.safeTrim(p.options.categoryIds) !== "")
+    {
+        condition = LibText.Merge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [${p.options.categoryIds}]`);
+    }
+    if (LibText.safeTrim(p.options.tagIds) !== "")
+    {
+        condition = LibText.Merge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny [${p.options.tagIds}]`);
+    }
+    return condition;
+};
+
+/** 建立與 Announcement 最新消息一致的有效期間、狀態、語系及標題條件。 */
+const buildAnnouncementHomeBaseCondition = (p: {
+    lang: Lang;
+    announcementTimeRange: AnnouncementTimeRange;
+}): string =>
+{
+    const dayStartText = formatAnnouncementQueryDateTime(p.announcementTimeRange.dayStart);
+    const dayEndText = formatAnnouncementQueryDateTime(p.announcementTimeRange.dayEnd);
+    return LibText.Merge(
+        " And ",
+        false,
+        `${AnnouncementFields.Validate_Start} <= ${dayEndText}`,
+        `(${AnnouncementFields.Validate_End} >= ${dayStartText} Or ${AnnouncementFields.Validate_End} is null)`,
+        `${AnnouncementFields.ContentStatus} !& 4`,
+        `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${p.lang}`,
+        `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`,
+    );
 };
 
 const buildAnnouncementHomeQuery = (p: {

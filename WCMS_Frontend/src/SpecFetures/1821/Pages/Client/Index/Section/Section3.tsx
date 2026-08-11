@@ -5,7 +5,7 @@ import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 
 // #region Property
-type SpecHomePage1821Model = components["schemas"]["SpecHomePage1821Model_DTO"];
+type SpecHomePage1821Model = components["schemas"]["SpecHomePage1821"];
 
 interface HomePageFeatureCardViewModel
 {
@@ -48,7 +48,9 @@ const FeatureCard = (props: { lang: Lang; item: HomePageFeatureCardViewModel; in
         <div className="col-md-6 col-12 my-0 px-0">
             <div className={`SZ_card bg-item-${formatTwoDigits(props.index + 1)}`} style={getCardStyle(props.item)}>
                 <FeatureCardLink lang={props.lang} item={props.item} />
-                <div className="SZ_badge"><span className="CC_number">{formatTwoDigits(props.index + 1)}</span></div>
+                <div className="SZ_badge">
+                    <span className="CC_number">{formatTwoDigits(props.index + 1)}</span>
+                </div>
             </div>
         </div>
     );
@@ -66,7 +68,13 @@ const FeatureCardLink = (props: { lang: Lang; item: HomePageFeatureCardViewModel
 /** 專區連結文字外框。 */
 const FeatureCardContent = (props: { title: string; }) =>
 {
-    return <div className="Outer_frame"><div className="Inner_frame"><div className="Center_title">{props.title}</div></div></div>;
+    return (
+        <div className="Outer_frame">
+            <div className="Inner_frame">
+                <div className="Center_title">{props.title}</div>
+            </div>
+        </div>
+    );
 };
 // #endregion
 
