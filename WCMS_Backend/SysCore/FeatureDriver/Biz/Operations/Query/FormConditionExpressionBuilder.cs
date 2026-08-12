@@ -406,7 +406,7 @@ internal sealed class FormConditionExpressionBuilder(ModelTypeMetadataCache mode
                 case "not in":
                     {
                         // 宣告變數：取得欄位型別與實際比對型別
-                        var cleaned = val?.Trim('(', ')') ?? "";
+                        var cleaned = TrimInContainer(val);
                         var fieldProp = ModelMetadata.GetProperty(type, fieldExpr).PropertyType;
                         var targetType = Nullable.GetUnderlyingType(fieldProp) ?? fieldProp;
                         var isIn = op.Equals("in", StringComparison.OrdinalIgnoreCase);
@@ -749,6 +749,23 @@ internal sealed class FormConditionExpressionBuilder(ModelTypeMetadataCache mode
         return isIn
             ? $"{fieldExpr} != null && @{paramIndex}.Contains({fieldExpr}.Value)"
             : $"{fieldExpr} == null || !@{paramIndex}.Contains({fieldExpr}.Value)";
+    }
+
+    /// <summary>
+    /// 移除 In / Not In 條件外層的 [] 或 ()，保留實際值內容。
+    /// </summary>
+    private static string TrimInContainer(string? value)
+    {
+        // 宣告變數
+        string text = value?.Trim() ?? string.Empty;
+        if (text.Length < 2) return text;
+
+        // 執行 function
+        bool isSquare = text[0] == '[' && text[^1] == ']';
+        bool isRound = text[0] == '(' && text[^1] == ')';
+
+        // return
+        return isSquare || isRound ? text[1..^1].Trim() : text;
     }
     #endregion
 }
