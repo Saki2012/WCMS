@@ -78,7 +78,7 @@ public partial class BannerDetail : FormDetailModel
     /// 資料有效日期-迄
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_EndDate)]
-    public DateTime Validate_End { get; set; }
+    public DateTime? Validate_End { get; set; }
     /// <summary>
     /// 播放順序
     /// </summary>
