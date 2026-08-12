@@ -573,7 +573,7 @@ const getSiteViewCountDetails = (item: SiteViewCountFormModel): SiteViewCountDet
     return detailRows;
 };
 /** 組公告瀏覽數 map */
-const buildViewCountMap = (rows: SiteViewCountFormModel[]): Record<string, number> =>
+export const buildViewCountMap = (rows: SiteViewCountFormModel[]): Record<string, number> =>
 {
     const result: Record<string, number> = {};
     rows.forEach(item => getSiteViewCountDetails(item).forEach(detail => addViewCount(result, detail)));
