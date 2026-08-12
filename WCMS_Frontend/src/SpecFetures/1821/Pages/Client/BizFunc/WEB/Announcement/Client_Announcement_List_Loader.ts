@@ -1,30 +1,25 @@
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
 import { SiteViewCountAdapter } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
-import type {
-    AnnouncementListLoaderData,
-    AnnouncementListLoaderSpecContext,
-    AnnouncementListLoaderSpecSlot,
-    IAnnouncementListOptions,
-} from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_List_Loader";
 import {
-    buildClientDataQueryKey,
-    getClientSearchStringValue,
-    isSameClientDataQueryParam,
-} from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
+    type AnnouncementListLoaderData,
+    type AnnouncementListLoaderSpecContext,
+    type AnnouncementListLoaderSpecSlot,
+    buildViewCountMap,
+    buildViewCountQuery,
+    getAnnouncementInternalIds,
+    type IAnnouncementListOptions,
+} from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_List_Loader";
+import { buildClientDataQueryKey, getClientSearchStringValue, isSameClientDataQueryParam } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import { getModelColumnDisplayName } from "@/SysCore/Components/Grid/Grid_ModelDisplay";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiGridInitial, ApiGridLoaderData, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { formatDate, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
+import { formatDate, LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
-import {
-    AnnouncementDetailFields,
-    AnnouncementFields,
-    PGID,
-    SiteViewCountDetailFields,
-    SiteViewCountHeaderFields,
-} from "@/types/SchemaFields";
+import type { ModelDisplaySchema } from "@/types/IApiSchema";
+import { AnnouncementDetailFields, AnnouncementFields, SiteViewCountDetailFields, SiteViewCountHeaderFields } from "@/types/SchemaFields";
 import { useEffect, useMemo, useRef } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { useLoaderData } from "react-router-dom";
@@ -33,8 +28,6 @@ import { useLoaderData } from "react-router-dom";
 type QueryListParam = components["schemas"]["QueryListParam"];
 type AnnouncementFormModel = components["schemas"]["Announcement"];
 type SiteViewCountModel = components["schemas"]["SiteViewCountHeader"];
-type SiteViewCountDetailRow = { ProgId?: string | null; TargetInternalId?: string | null; PageViewCount?: number | null; };
-type SiteViewCountFormModelLike = SiteViewCountModel & { SiteViewCountDetail?: SiteViewCountDetailRow[] | null; };
 type Spec1821ArchiveQueryParam = Omit<Spec1821ArchiveLoaderArgs, "viewCountParam">;
 const SEARCH_KEYWORD_KEY = "keyword";
 const SPEC1821_ARCHIVE_VIEW_COUNT_COL_KEY = "__spec1821ArchiveViewCount__";
@@ -83,6 +76,7 @@ export interface UseSpec1821ArchiveListParam
 }
 interface Spec1821ArchiveGridQueryResult
 {
+    modelDisplayName: ModelDisplaySchema | null;
     list?: AnnouncementFormModel[] | null;
     pageNumber: number;
     totalPages: number;
@@ -111,7 +105,7 @@ export const useSpec1821AnnouncementArchiveListData = (p: UseSpec1821ArchiveList
             dayEnd: loaderData.args.dayEnd,
             searchValues: p.searchValues,
         }), [p.lang, p.opts, p.searchValues, loaderData.args.dayStart, loaderData.args.dayEnd]);
-    return useSpec1821ArchiveDataSource({ queryParam: currentArgs, initial });
+    return useSpec1821ArchiveDataSource({ queryParam: currentArgs, initial, lang: p.lang, viewCountModelInitial: loaderData.res.viewCountModelRes ?? null });
 };
 // #endregion
 
@@ -125,24 +119,25 @@ const loadSpec1821ArchiveInitialData = async (context: AnnouncementListLoaderSpe
     const gridLoader = announcement.loader.createQueryGridDataLoader({ getCondition: () => baseArgs.listParam, getApiInstance: () => context.apiInstance });
     const gridRes = await gridLoader({ request: context.request } as LoaderFunctionArgs);
     const listData = gridRes.list.apiRes.Data ?? [];
-    const viewCountParam = buildSpec1821ViewCountQuery(getAnnouncementInternalIds(listData));
+    const viewCountParam = buildViewCountQuery(getAnnouncementInternalIds(listData));
     const viewCountLoader = siteView.loader.createQueryListLoader({ getCondition: () => viewCountParam, getApiInstance: () => context.apiInstance });
     const viewCountLD = await viewCountLoader({ request: context.request } as LoaderFunctionArgs);
     return { args: { ...baseArgs, viewCountParam }, res: { gridRes, viewCountRes: viewCountLD.apiRes.Data ?? [] } };
 };
 /** SPEC1821 歷年消息 DataSource，負責 CSR 查詢與 SSR initial 沿用。 */
-const useSpec1821ArchiveDataSource = (p: { queryParam: Spec1821ArchiveQueryParam; initial: Spec1821ArchiveLoaderData | null; }): Spec1821ArchiveListVm =>
+const useSpec1821ArchiveDataSource = (p: { queryParam: Spec1821ArchiveQueryParam; initial: Spec1821ArchiveLoaderData | null; lang: Lang; viewCountModelInitial: ApiLoaderData<null, ModelDisplaySchema[]> | null; }): Spec1821ArchiveListVm =>
 {
     const announcement = useMemo(() => AnnouncementAdapter(), []);
     const siteView = useMemo(() => SiteViewCountAdapter(), []);
+    const viewCountModel = siteView.hooks.useModelDisplayName({ initial: p.viewCountModelInitial, deps: [p.lang] });
     const gridInitial = useMemo(() => buildArchiveGridInitial(p.queryParam, p.initial), [p.queryParam, p.initial]);
     const grid = announcement.hooks.useQueryGridData({ baseParam: p.queryParam.listParam, deps: [p.queryParam.condition, p.queryParam.pageSize], initial: gridInitial });
     useResetArchivePageOnSearchChange({ queryParam: p.queryParam, onPageChange: grid.onPageChange });
-    const viewCountParam = useMemo(() => buildSpec1821ViewCountQuery(getAnnouncementInternalIds(grid.list ?? [])), [grid.list]);
+    const viewCountParam = useMemo(() => buildViewCountQuery(getAnnouncementInternalIds(grid.list ?? [])), [grid.list]);
     const viewCountInitial = useMemo(() => buildArchiveViewCountInitial(viewCountParam, p.initial), [viewCountParam, p.initial]);
     const viewCountParamKey = useMemo(() => JSON.stringify(viewCountParam ?? null), [viewCountParam]);
     const useViewCount = siteView.hooks.useQueryList({ condition: viewCountParam, initial: viewCountInitial, deps: [viewCountParamKey] });
-    return buildSpec1821ArchiveVm({ queryParam: p.queryParam, grid, viewCountRows: useViewCount.data ?? [], viewCountLoading: useViewCount.isLoading, viewCountError: useViewCount.errorText });
+    return buildSpec1821ArchiveVm({ queryParam: p.queryParam, grid, viewCountModel: viewCountModel.data, viewCountRows: useViewCount.data ?? [], viewCountLoading: useViewCount.isLoading, viewCountError: useViewCount.errorText });
 };
 // #endregion
 
@@ -206,7 +201,7 @@ const buildSpec1821ArchiveQueryParam = (p: Omit<Spec1821ArchiveQueryParam, "cond
     const condition = buildSpec1821ArchiveCondition(p);
     return { ...p, condition, listParam: buildSpec1821ArchiveQuery({ condition, pageNumber: p.pageNumber, pageSize: p.pageSize }) };
 };
-/** 建立 SPEC1821 歷年消息查詢條件。 */
+/** 建立 SPEC1821 歷年消息查詢條件；僅查詢 Validate_End 已早於今日的過期公告。 */
 const buildSpec1821ArchiveCondition = (p: { lang: Lang; dayStart: number; dayEnd: number; categoryIds: string; tagIds: string; keyword?: string; }): string =>
 {
     const dayStartText = formatQueryDateTime(p.dayStart);
@@ -249,38 +244,7 @@ const buildSpec1821ArchiveQuery = (p: { condition: string; pageNumber: number; p
         PageSize: p.pageSize,
     };
 };
-/** 取公告 internalIds。 */
-const getAnnouncementInternalIds = (rows: AnnouncementFormModel[]): string[] =>
-{
-    return rows.map(p => p?.InternalId ?? "").filter(Boolean);
-};
-/** 組成 In 查詢可用字串。 */
-const buildQuotedValues = (values: string[]): string =>
-{
-    const quoted = LibText.toTrimmedStringArray(values).map(value => `"${LibCondition.escapeConditionValue(value)}"`);
-    return quoted.join(",");
-};
-/** 建立瀏覽數查詢條件。 */
-const buildSpec1821ViewCountCondition = (internalIds: string[]): string =>
-{
-    const idText = buildQuotedValues(internalIds);
-    if (!idText) return "1=0";
-    return `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.ProgId} = ${PGID.Announcement} And ${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.TargetInternalId} In [${idText}]`;
-};
-/** 建立瀏覽數 QueryListParam。 */
-const buildSpec1821ViewCountQuery = (internalIds: string[]): QueryListParam =>
-{
-    return {
-        Fields: [
-            `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.ProgId}`,
-            `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.TargetInternalId}`,
-            `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.PageViewCount}`,
-        ],
-        Condition: buildSpec1821ViewCountCondition(internalIds),
-        PageNumber: 0,
-        PageSize: 0,
-    };
-};
+
 /** 建立歷年消息 Grid SSR initial。 */
 const buildArchiveGridInitial = (queryParam: Spec1821ArchiveQueryParam, initial: Spec1821ArchiveLoaderData | null): ApiGridInitial<AnnouncementFormModel> =>
 {
@@ -317,34 +281,33 @@ const useResetArchivePageOnSearchChange = (p: { queryParam: Spec1821ArchiveQuery
         p.onPageChange(1);
     }, [resetKey, p.onPageChange]);
 };
-/** 組歷年消息瀏覽數 map。 */
-const buildViewCountMap = (rows: SiteViewCountModel[]): Record<string, number> =>
-{
-    const result: Record<string, number> = {};
-    rows.forEach((item) =>
-        (item as SiteViewCountFormModelLike)._SiteViewCountDetail?.forEach((detail) =>
-        {
-            const key = detail.TargetInternalId ?? "";
-            if (!key) return;
-            result[key] = (result[key] ?? 0) + Number(detail.PageViewCount ?? 0);
-        })
-    );
-    return result;
-};
+
 /** 由歷年消息資料組 GridProps。 */
-const buildSpec1821ArchiveGridProps = (p: { lang: Lang; listData: AnnouncementFormModel[]; viewCountMap: Record<string, number>; pageNumber: number; totalPages: number; onPageChange: (page: number) => void; }): GridProps =>
+const buildSpec1821ArchiveGridProps = (p: {
+    lang: Lang;
+    modelDisplayName: ModelDisplaySchema | null;
+    viewCountModelDisplayName: ModelDisplaySchema | null;
+    listData: AnnouncementFormModel[];
+    viewCountMap: Record<string, number>;
+    pageNumber: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+}): GridProps =>
 {
-    const columns = buildSpec1821ArchiveColumns();
+    const columns = buildSpec1821ArchiveColumns(p.modelDisplayName, p.viewCountModelDisplayName);
     const rows: GridRow[] = p.listData.map((item) => buildSpec1821ArchiveGridRow({ item, lang: p.lang, columns, viewCountMap: p.viewCountMap }));
     return { columns, rows, CurrentPage: p.pageNumber, TotalPage: p.totalPages, onPageChange: p.onPageChange };
 };
-/** 建立歷年消息欄位。 */
-const buildSpec1821ArchiveColumns = (): ColumnConfig[] =>
+/** 依後端 Model Metadata 建立歷年消息 Grid 欄位，欄位來源與 Feature Announcement Grid 一致。 */
+const buildSpec1821ArchiveColumns = (model: ModelDisplaySchema | null, viewCountModel: ModelDisplaySchema | null): ColumnConfig[] =>
 {
-    return [{ key: AnnouncementDetailFields.Title, title: "標題" }, { key: AnnouncementFields.Validate_Start, title: "日期" }, { key: AnnouncementFields.Categories, title: "分類" }, { key: AnnouncementFields.Tags, title: "標籤" }, {
-        key: SPEC1821_ARCHIVE_VIEW_COUNT_COL_KEY,
-        title: "瀏覽",
-    }];
+    return [
+        { key: AnnouncementDetailFields.Title, title: getModelColumnDisplayName(model, AnnouncementFields._AnnouncementDetail, AnnouncementDetailFields.Title) },
+        { key: AnnouncementFields.Validate_Start, title: getModelColumnDisplayName(model, "", AnnouncementFields.Validate_Start) },
+        { key: AnnouncementFields.Categories, title: getModelColumnDisplayName(model, "", AnnouncementFields.Categories) },
+        { key: AnnouncementFields.Tags, title: getModelColumnDisplayName(model, "", AnnouncementFields.Tags) },
+        { key: SPEC1821_ARCHIVE_VIEW_COUNT_COL_KEY, title: getModelColumnDisplayName(viewCountModel, SiteViewCountHeaderFields._SiteViewCountDetail, SiteViewCountDetailFields.PageViewCount) },
+    ];
 };
 /** 建立歷年消息單列 GridRow。 */
 const buildSpec1821ArchiveGridRow = (p: { item: AnnouncementFormModel; lang: Lang; columns: ColumnConfig[]; viewCountMap: Record<string, number>; }): GridRow =>
@@ -366,7 +329,14 @@ const resolveSpec1821ArchiveCellText = (p: { colKey: string; item: AnnouncementF
     return "";
 };
 /** 建立歷年消息 ViewModel。 */
-const buildSpec1821ArchiveVm = (p: { queryParam: Spec1821ArchiveQueryParam; grid: Spec1821ArchiveGridQueryResult; viewCountRows: SiteViewCountModel[]; viewCountLoading: boolean; viewCountError: string | null; }): Spec1821ArchiveListVm =>
+const buildSpec1821ArchiveVm = (p: {
+    queryParam: Spec1821ArchiveQueryParam;
+    grid: Spec1821ArchiveGridQueryResult;
+    viewCountModel: ModelDisplaySchema | null;
+    viewCountRows: SiteViewCountModel[];
+    viewCountLoading: boolean;
+    viewCountError: string | null;
+}): Spec1821ArchiveListVm =>
 {
     const viewCountMap = buildViewCountMap(p.viewCountRows);
     const paginatorProps = p.queryParam.pageSize === 0 ? null : { currentPage: p.grid.pageNumber, totalPages: p.grid.totalPages, onPageChange: p.grid.onPageChange };
@@ -377,7 +347,16 @@ const buildSpec1821ArchiveVm = (p: { queryParam: Spec1821ArchiveQueryParam; grid
         totalCount: p.grid.count,
         listData: p.grid.list ?? [],
         viewCountMap,
-        gridPropsFromList: buildSpec1821ArchiveGridProps({ lang: p.queryParam.lang, listData: p.grid.list ?? [], viewCountMap, pageNumber: p.grid.pageNumber, totalPages: p.grid.totalPages, onPageChange: p.grid.onPageChange }),
+        gridPropsFromList: buildSpec1821ArchiveGridProps({
+            lang: p.queryParam.lang,
+            modelDisplayName: p.grid.modelDisplayName,
+            viewCountModelDisplayName: p.viewCountModel,
+            listData: p.grid.list ?? [],
+            viewCountMap,
+            pageNumber: p.grid.pageNumber,
+            totalPages: p.grid.totalPages,
+            onPageChange: p.grid.onPageChange,
+        }),
         paginatorProps,
         isLoading: Boolean(p.grid.isLoading || p.viewCountLoading),
         errorList: [p.grid.errorText, p.viewCountError].filter((x): x is string => Boolean(x)),
