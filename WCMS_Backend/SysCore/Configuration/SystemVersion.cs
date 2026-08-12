@@ -19,7 +19,7 @@ public class SystemVersion
     {
         SystemVersion_DTO data = new()
         {
-            FeatVersion = 3,
+            FeatVersion = 4,
             ModelVersion = 1,
             Patch = 0,
         };
