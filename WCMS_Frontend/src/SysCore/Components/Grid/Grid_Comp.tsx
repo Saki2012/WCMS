@@ -39,7 +39,7 @@ export const ColRender = (props: { columns: ColumnConfig[]; style?: IGridView_St
         <thead>
             <tr className={props.style?.ColumnStyle ?? "tr-only-hide-titlebar"}>
                 {props.columns.filter((col) => col.visible !== false).map((col, idx) => (
-                    <th key={col.key} scope="col" style={{ width: typeof col.width === "number" ? `${col.width}px` : "auto", position: "relative", color: "inherit" }}>
+                    <th key={col.key} scope="col" style={{ width: typeof col.width === "number" ? `${col.width}px` : "auto", position: "relative" }}>
                         {col.title}
                         {/* 不是最後一欄才有分隔線 */}
                         {idx < props.columns.length - 1 && (
