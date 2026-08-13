@@ -124,7 +124,9 @@ public partial class BannerDetailInfo : FormDetailModel
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Common_Content)]
     public string Content { get; set; } = string.Empty;
-
+    /// <summary>
+    /// 
+    /// </summary>
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Url, DisplayName.Common_Url)]
     public string URL { get; set; } = string.Empty;
     /// <summary>
