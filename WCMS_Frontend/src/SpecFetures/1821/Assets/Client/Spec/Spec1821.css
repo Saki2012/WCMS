@@ -216,3 +216,9 @@
 #navbar-content .nav-link.active, #navbar-content .nav-link.disabled, #navbar-content .nav-link.show{
   color: var(--FFFcolor);
 }
+
+.copyright_section .container-copyright .copyright_wrapper .info_box_1 .content,
+.copyright_section .container-copyright .copyright_wrapper .info_box_2 .content,
+.copyright_section .container-copyright .copyright_wrapper .info_box_2 .design_by{
+	color: var(--FFFcolor) !important;
+}
