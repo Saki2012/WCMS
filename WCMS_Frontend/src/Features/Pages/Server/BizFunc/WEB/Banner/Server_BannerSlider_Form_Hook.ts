@@ -29,8 +29,17 @@ import {
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { getModelColumnDisplayName, getModelTableDisplayName } from "@/SysCore/Components/Grid/Grid_ModelDisplay";
-import { buildSupportedLangOrder, DefaultLang, type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
+import {
+    getModelColumnDisplayName,
+    getModelTableDisplayName,
+} from "@/SysCore/Components/Grid/Grid_ModelDisplay";
+import {
+    buildSupportedLangOrder,
+    DefaultLang,
+    type Lang,
+    LangLabelMap,
+    SUPPORTED_LANGS,
+} from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
@@ -38,23 +47,56 @@ import { LibText } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_Hooks/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { BannerDetailFields, BannerDetailInfoFields, BannerFields } from "@/types/SchemaFields";
+import {
+    BannerDetailFields,
+    BannerDetailInfoFields,
+    BannerFields,
+} from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo } from "react";
 
 // #region Property
+/** Banner FormModel，直接使用 OpenAPI 產生的 Feature schema。 */
 type BannerFormModel = components["schemas"]["Banner"];
+
+/** Banner 圖片明細 schema。 */
 type BannerDetail = components["schemas"]["BannerDetail"];
-type BannerDetailInfo = components["schemas"]["BannerDetailInfo"] & {
-    SpecLatestShows?: string | null;
-    SpecShowLocation?: string | null;
-    SpecShowDate?: string | null;
-};
+
+/** Banner 語系子明細 schema；Feature 層僅保留共用欄位。 */
+export type BannerDetailInfo = components["schemas"]["BannerDetailInfo"];
+
+/** Banner URL 開啟方式 enum。 */
 type WindowTarget = components["schemas"]["WindowTarget"];
+
+/** 共用檔案上傳 Hook 的回呼型別。 */
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
-export type BannerPictureCellValue = EditGridFileValue & { internalId?: string; originalFileName?: string; };
-export type BannerDetailGridRow = GridRow & { BannerId?: string | null; DetailRowId?: number | null; };
-export type BannerDetailInfoGridRow = GridRow & { BannerId?: string | null; ParentRowId?: number | null; InfoRowId?: number | null; };
+
+/** Banner 圖片欄位使用的 EditGrid FileValue，額外保留後端 internalId 與原始檔名。 */
+export type BannerPictureCellValue =
+    & EditGridFileValue
+    & {
+        internalId?: string;
+        originalFileName?: string;
+    };
+
+/** Banner 圖片明細 Grid Row，保留父層 BannerId 與 Detail RowId。 */
+export type BannerDetailGridRow =
+    & GridRow
+    & {
+        BannerId?: string | null;
+        DetailRowId?: number | null;
+    };
+
+/** Banner 語系子明細 Grid Row，保留父層與目前語系明細的識別資訊。 */
+export type BannerDetailInfoGridRow =
+    & GridRow
+    & {
+        BannerId?: string | null;
+        ParentRowId?: number | null;
+        InfoRowId?: number | null;
+    };
+
+/** 建立 Banner Form Template 所需參數。 */
 export interface UseBannerSliderFormTemplateOptions
 {
     /** 目前語系 */
@@ -72,6 +114,8 @@ export interface UseBannerSliderFormTemplateOptions
     /** Form Template 標準動作設定 */
     actionsOpt: BannerSliderFormActionsOpt;
 }
+
+/** 建立 Banner 圖片明細 EditGrid 所需參數。 */
 export interface UseBannerDetailEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
@@ -95,6 +139,8 @@ export interface UseBannerDetailEditGridOptions
     /** 子明細編輯中時鎖住父層 */
     isSubDetailEditing: boolean;
 }
+
+/** 建立 Banner 語系子明細 EditGrid 所需參數。 */
 export interface UseBannerDetailInfoEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
@@ -111,29 +157,78 @@ export interface UseBannerDetailInfoEditGridOptions
 
     /** EditGrid UI 樣式，仍由 Comp 決定 */
     style: IEditGridView_Style;
+
+    /** 客製層可選的語系明細擴充。 */
+    extension?: BannerDetailInfoEditGridExtension;
 }
+
+/**
+ * Banner 語系子明細的通用擴充介面。
+ * Feature 僅提供擴充點，不包含任何 Spec 欄位名稱或 Spec 判斷。
+ */
+export interface BannerDetailInfoEditGridExtension
+{
+    /** 追加客製欄位設定，不修改 Feature 既有欄位。 */
+    buildColumns?: (
+        displayName: ModelDisplaySchema,
+        windowTargetOpts: Record<string, string>,
+    ) => ColumnConfig[];
+
+    /** 追加單筆語系明細的客製 Cell。 */
+    buildCells?: (
+        info: BannerDetailInfo,
+        displayName: ModelDisplaySchema,
+        windowTargetOpts: Record<string, string>,
+    ) => RowCell[];
+
+    /** 儲存前追加客製欄位到語系明細 DTO。 */
+    extendItem?: (
+        item: BannerDetailInfo,
+        row: GridRow,
+    ) => BannerDetailInfo;
+}
+
+/** Banner Form 需要的參照資料。 */
 export type BannerSliderFormRefs = {
     /** 外部連結開啟方式選項 */
     windowTargetOpts: Record<string, string>;
 };
+
+/** Banner Form 標準動作設定。 */
 export type BannerSliderFormActionsOpt = {
     /** 儲存成功後要回到列表（或其他導頁） */
     onBackToList: () => void;
 };
-export type BannerSliderFormAdapter = { BannerSlider: ReturnType<typeof BannerSliderAdapter>; };
+
+/** Banner Form 使用的 Adapter 集合。 */
+export type BannerSliderFormAdapter = {
+    BannerSlider: ReturnType<typeof BannerSliderAdapter>;
+};
+
 /** 標題顏色，後續看是否可調成進階選取 RGBA。 */
 const fontColorOptions = toEditGridOptions({ "0": "系統預設", "1": "白色", "2": "綠色" }, true);
+
+/** Banner 語系明細標題最大長度，需與後端欄位限制一致。 */
 const BANNER_DETAIL_INFO_TITLE_MAX_LENGTH = 200;
-const SpecBannerDetailInfoFields = {
-    SpecLatestShows: "SpecLatestShows",
-    SpecShowLocation: "SpecShowLocation",
-    SpecShowDate: "SpecShowDate",
-} as const;
+
 // #endregion
 
 // #region Public
-export const bannerSliderEmptyData: BannerFormModel = { _BannerDetail: [{ RowId: 1, RowNo: 1, PicSrcId: "", FontColor: "0", Sort: 1, _BannerDetailInfo: [] }] };
+/** Banner 新增模式預設資料，先建立一筆圖片明細供使用者直接編輯。 */
+export const bannerSliderEmptyData: BannerFormModel = {
+    _BannerDetail: [
+        {
+            RowId: 1,
+            RowNo: 1,
+            PicSrcId: "",
+            FontColor: "0",
+            Sort: 1,
+            _BannerDetailInfo: [],
+        },
+    ],
+};
 
+/** Banner 圖片明細 Grid 中用來掛載語系 SubDetail 的虛擬欄位 Key。 */
 export const BannerDetailInfoSubDetailColumnKey = "__BannerDetailInfo";
 
 /** 建立 BannerSlider Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
@@ -197,7 +292,10 @@ export const useBannerDetailEditGrid = (opt: UseBannerDetailEditGridOptions) =>
 export const useBannerDetailInfoEditGrid = (opt: UseBannerDetailInfoEditGridOptions) =>
 {
     const displayName = opt.binding.displayName;
-    const columns = useMemo(() => buildBannerDetailInfoColumns(displayName, opt.windowTargetOpts), [displayName, opt.windowTargetOpts]);
+    const columns = useMemo(
+        () => buildBannerDetailInfoColumns(displayName, opt.windowTargetOpts, opt.extension),
+        [displayName, opt.extension, opt.windowTargetOpts],
+    );
 
     return useEditGridBinding<BannerFormModel, BannerDetailInfo, BannerDetailInfoGridRow>({
         binding: opt.binding,
@@ -208,8 +306,8 @@ export const useBannerDetailInfoEditGrid = (opt: UseBannerDetailInfoEditGridOpti
         getItemRowId: info => info.RowId,
         sortItems: infos => sortBannerDetailInfos(infos, opt.lang),
         createItem: ctx => buildNewBannerDetailInfoItem(ctx.data, opt.parentRowId, ctx.nextRowId, ctx.nextRowNo, opt.lang),
-        toRow: (info, index) => buildBannerDetailInfoGridRow(info, index, displayName, opt.windowTargetOpts),
-        toItem: (row, index, ctx) => toBannerDetailInfoModel(ctx.data, opt.parentRowId, row, index),
+        toRow: (info, index) => buildBannerDetailInfoGridRow(info, index, displayName, opt.windowTargetOpts, opt.extension),
+        toItem: (row, index, ctx) => toBannerDetailInfoModel(ctx.data, opt.parentRowId, row, index, opt.extension),
         editGridProps: buildBannerDetailInfoGridProps(opt.parentRowId, opt.style, displayName),
     });
 };
@@ -219,7 +317,12 @@ export const buildBannerPictureCellValue = (detail: BannerDetail): BannerPicture
 {
     const internalId = detail.PicSrcId ?? "";
 
-    return { internalId, fileName: buildBannerPictureFieldDisplayName("", internalId), originalFileName: "", url: getBannerPicturePreviewUrl(internalId) };
+    return {
+        internalId,
+        fileName: buildBannerPictureFieldDisplayName("", internalId),
+        originalFileName: "",
+        url: getBannerPicturePreviewUrl(internalId),
+    };
 };
 
 /** 上傳後建立新的圖片 CellValue，欄位顯示原始檔名與 internalId。 */
@@ -241,7 +344,11 @@ export const toBannerPictureCellValue = (value: EditGridCellValue): BannerPictur
     if (isBannerPictureCellValue(value)) return value;
     if (typeof value === "string")
     {
-        return { internalId: value, fileName: buildBannerPictureFieldDisplayName("", value), url: getBannerPicturePreviewUrl(value) };
+        return {
+            internalId: value,
+            fileName: buildBannerPictureFieldDisplayName("", value),
+            url: getBannerPicturePreviewUrl(value),
+        };
     }
     return { fileName: "", internalId: "" };
 };
@@ -256,17 +363,30 @@ export const getBannerPicturePreviewUrl = (picId?: string | null): string | unde
 
 // #region Private
 /** 建立 BannerSlider Form 標題，功能名稱優先讀 ModelDisplayName。 */
-const buildBannerSliderFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
+const buildBannerSliderFormTitle = (
+    ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; },
+): string =>
 {
     const modelTitle = getBannerModelTitle(ctx.displayName, "廣告輪播");
     return `${ctx.mode === "edit" ? "修改" : "新增"}${modelTitle}`;
 };
 
 /** 建立新增模式的 initial data，統一由 Feature Timing 交給 Template。 */
-const buildBannerSliderInitialData = (ctx: { mode: "new" | "edit"; emptyData: BannerFormModel; }): ApiFormInitial<BannerFormModel> | undefined =>
+const buildBannerSliderInitialData = (
+    ctx: { mode: "new" | "edit"; emptyData: BannerFormModel; },
+): ApiFormInitial<BannerFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
-    return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
+    return {
+        data: {
+            args: "__new__",
+            apiRes: {
+                IsSuccess: true,
+                Data: ctx.emptyData,
+                SysMessage: [],
+            },
+        },
+    };
 };
 
 /** 建立 BannerSlider Form 會使用到的 Adapter 群組。 */
@@ -276,7 +396,12 @@ const buildBannerSliderFormAdapter = (): BannerSliderFormAdapter =>
 };
 
 /** 取得 Header / Detail 需要的參照資料與語系明細補齊。 */
-const useBannerSliderReferenceData = (ctx: { binding: ServerFormDefaultRawData<BannerFormModel, BannerSliderFormRefs>["formData"]; lang: Lang; }) =>
+const useBannerSliderReferenceData = (
+    ctx: {
+        binding: ServerFormDefaultRawData<BannerFormModel, BannerSliderFormRefs>["formData"];
+        lang: Lang;
+    },
+) =>
 {
     useEnsureBannerDetailInfos(ctx.binding, ctx.lang);
 
@@ -300,7 +425,11 @@ const getBannerModelTitle = (displayName: ModelDisplaySchema, fallback: string):
 };
 
 /** WindowTarget enum options，沒有回傳時保留舊版預設顯示。 */
-const useWindowTargetOptions = (): { data: Record<string, string>; isLoading: boolean; error: string | null; } =>
+const useWindowTargetOptions = (): {
+    data: Record<string, string>;
+    isLoading: boolean;
+    error: string | null;
+} =>
 {
     const src = useFetchEnumOptions("WindowTarget");
 
@@ -318,7 +447,11 @@ const getFallbackWindowTargetMap = (): Record<string, string> =>
 };
 
 /** 建立輪播圖片 EditGrid 固定設定，Grid 標題優先讀 ModelDisplayName。 */
-const buildBannerDetailGridProps = (style: IEditGridView_Style, displayName: ModelDisplaySchema, opt: UseBannerDetailEditGridOptions) =>
+const buildBannerDetailGridProps = (
+    style: IEditGridView_Style,
+    displayName: ModelDisplaySchema,
+    opt: UseBannerDetailEditGridOptions,
+) =>
 {
     const gridTitle = getBannerTableTitle(displayName, BannerFields._BannerDetail, "圖片明細");
 
@@ -346,7 +479,11 @@ const buildBannerDetailGridProps = (style: IEditGridView_Style, displayName: Mod
 };
 
 /** 建立語系明細 EditGrid 固定設定，語系列不開放新增刪除。 */
-const buildBannerDetailInfoGridProps = (parentRowId: number, style: IEditGridView_Style, displayName: ModelDisplaySchema) =>
+const buildBannerDetailInfoGridProps = (
+    parentRowId: number,
+    style: IEditGridView_Style,
+    displayName: ModelDisplaySchema,
+) =>
 {
     const gridTitle = getBannerTableTitle(displayName, BannerDetailFields._BannerDetailInfo, "語系明細");
 
@@ -370,14 +507,20 @@ const buildBannerDetailInfoGridProps = (parentRowId: number, style: IEditGridVie
 /** 依 Sort / RowId 排序輪播圖片。 */
 const sortBannerDetails = (details: BannerDetail[]): BannerDetail[] =>
 {
-    return [...details].sort((a, b) => Number(a.Sort ?? a.RowId ?? 0) - Number(b.Sort ?? b.RowId ?? 0));
+    return [...details].sort(
+        (a, b) => Number(a.Sort ?? a.RowId ?? 0) - Number(b.Sort ?? b.RowId ?? 0),
+    );
 };
 
 /** 依目前語系與支援語系順序排序語系資料。 */
 const sortBannerDetailInfos = (infos: BannerDetailInfo[], preferLang: Lang): BannerDetailInfo[] =>
 {
     const order = buildSupportedLangOrder(preferLang).map(lang => lang.toLowerCase());
-    return [...infos].sort((a, b) => order.indexOf(String(a.Lang ?? "").toLowerCase()) - order.indexOf(String(b.Lang ?? "").toLowerCase()));
+    return [...infos].sort(
+        (a, b) =>
+            order.indexOf(String(a.Lang ?? "").toLowerCase())
+            - order.indexOf(String(b.Lang ?? "").toLowerCase()),
+    );
 };
 
 /** 建立輪播圖片欄位設定，欄位名稱優先讀 ModelDisplayName。 */
@@ -410,7 +553,11 @@ const buildBannerDetailColumns = (displayName: ModelDisplaySchema): ColumnConfig
 };
 
 /** 建立語系明細欄位設定，欄位名稱優先讀 ModelDisplayName。 */
-const buildBannerDetailInfoColumns = (displayName: ModelDisplaySchema, windowTargetOpts: Record<string, string>): ColumnConfig[] =>
+const buildBannerDetailInfoColumns = (
+    displayName: ModelDisplaySchema,
+    windowTargetOpts: Record<string, string>,
+    extension?: BannerDetailInfoEditGridExtension,
+): ColumnConfig[] =>
 {
     const baseColumns: ColumnConfig[] = [{
         key: BannerDetailInfoFields.Lang,
@@ -448,19 +595,8 @@ const buildBannerDetailInfoColumns = (displayName: ModelDisplaySchema, windowTar
         options: buildWindowTargetEditGridOptions(windowTargetOpts),
     }];
 
-    return shouldShowSpec1817Fields() ? [...baseColumns, ...buildSpec1817Columns()] : baseColumns;
-};
-
-/** 建立 1817 客製欄位。 */
-const buildSpec1817Columns = (): ColumnConfig[] =>
-{
-    return [{ key: SpecBannerDetailInfoFields.SpecLatestShows, title: "Latest Shows", width: 180, inputType: "text", editable: true }, {
-        key: SpecBannerDetailInfoFields.SpecShowLocation,
-        title: "Show Location",
-        width: 180,
-        inputType: "text",
-        editable: true,
-    }, { key: SpecBannerDetailInfoFields.SpecShowDate, title: "Show Date", width: 180, inputType: "text", editable: true }];
+    const extensionColumns = extension?.buildColumns?.(displayName, windowTargetOpts) ?? [];
+    return [...baseColumns, ...extensionColumns];
 };
 
 /** 建立 WindowTarget 的 EditGrid options。 */
@@ -498,6 +634,7 @@ const buildBannerDetailInfoGridRow = (
     index: number,
     displayName: ModelDisplaySchema,
     windowTargetOpts: Record<string, string>,
+    extension?: BannerDetailInfoEditGridExtension,
 ): BannerDetailInfoGridRow =>
 {
     const rowId = Number(info.RowId ?? index + 1);
@@ -510,7 +647,7 @@ const buildBannerDetailInfoGridRow = (
         BannerId: info.BannerId,
         ParentRowId: info.ParentRowId,
         InfoRowId: rowId,
-        cells: buildBannerDetailInfoCells(info, displayName, windowTargetOpts),
+        cells: buildBannerDetailInfoCells(info, displayName, windowTargetOpts, extension),
     };
 };
 
@@ -553,7 +690,12 @@ const buildBannerDetailCells = (
 };
 
 /** 建立語系明細列 cells，語系不可手動修改。 */
-const buildBannerDetailInfoCells = (info: BannerDetailInfo, displayName: ModelDisplaySchema, windowTargetOpts: Record<string, string>): RowCell[] =>
+const buildBannerDetailInfoCells = (
+    info: BannerDetailInfo,
+    displayName: ModelDisplaySchema,
+    windowTargetOpts: Record<string, string>,
+    extension?: BannerDetailInfoEditGridExtension,
+): RowCell[] =>
 {
     const cells = [
         buildEditGridCell(
@@ -588,46 +730,77 @@ const buildBannerDetailInfoCells = (info: BannerDetailInfo, displayName: ModelDi
         ),
     ];
 
-    return shouldShowSpec1817Fields() ? [...cells, ...buildSpec1817Cells(info)] : cells;
-};
-
-/** 建立 1817 客製欄位 cells。 */
-const buildSpec1817Cells = (info: BannerDetailInfo): RowCell[] =>
-{
-    return [
-        buildEditGridCell(SpecBannerDetailInfoFields.SpecLatestShows, "Latest Shows", info.SpecLatestShows ?? "", { inputType: "text", editable: true }),
-        buildEditGridCell(SpecBannerDetailInfoFields.SpecShowLocation, "Show Location", info.SpecShowLocation ?? "", { inputType: "text", editable: true }),
-        buildEditGridCell(SpecBannerDetailInfoFields.SpecShowDate, "Show Date", info.SpecShowDate ?? "", { inputType: "text", editable: true }),
-    ];
+    const extensionCells = extension?.buildCells?.(info, displayName, windowTargetOpts) ?? [];
+    return [...cells, ...extensionCells];
 };
 
 /** 取得子表顯示名稱，避免 Grid 標題寫死。 */
-const getBannerTableTitle = (displayName: ModelDisplaySchema, tableId: string, fallback: string): string =>
+const getBannerTableTitle = (
+    displayName: ModelDisplaySchema,
+    tableId: string,
+    fallback: string,
+): string =>
 {
     return getModelTableDisplayName(displayName, tableId, fallback);
 };
 
 /** 依資料表與欄位代碼取得 ModelDisplayName 顯示文字。 */
-const getBannerColumnTitle = (displayName: ModelDisplaySchema, tableId: string, columnId: string, fallback: string): string =>
+const getBannerColumnTitle = (
+    displayName: ModelDisplaySchema,
+    tableId: string,
+    columnId: string,
+    fallback: string,
+): string =>
 {
     return getModelColumnDisplayName(displayName, tableId, columnId, fallback);
 };
 
 /** 建立新輪播圖片，並立即補齊所有支援語系。 */
-const buildNewBannerDetailItem = (data: BannerFormModel, rowId: number, rowNo: number): BannerDetail =>
+const buildNewBannerDetailItem = (
+    data: BannerFormModel,
+    rowId: number,
+    rowNo: number,
+): BannerDetail =>
 {
-    const detail: BannerDetail = { BannerId: data.BannerId, RowId: rowId, RowNo: rowNo, PicSrcId: "", FontColor: "0", Sort: rowNo };
-    return { ...detail, _BannerDetailInfo: buildMissingBannerDetailInfos(detail, [], data.BannerId) };
+    const detail: BannerDetail = {
+        BannerId: data.BannerId,
+        RowId: rowId,
+        RowNo: rowNo,
+        PicSrcId: "",
+        FontColor: "0",
+        Sort: rowNo,
+    };
+    return {
+        ...detail,
+        _BannerDetailInfo: buildMissingBannerDetailInfos(detail, [], data.BannerId),
+    };
 };
 
 /** 建立新語系明細。 */
-const buildNewBannerDetailInfoItem = (data: BannerFormModel, parentRowId: number, rowId: number, rowNo: number, lang: Lang): BannerDetailInfo =>
+const buildNewBannerDetailInfoItem = (
+    data: BannerFormModel,
+    parentRowId: number,
+    rowId: number,
+    rowNo: number,
+    lang: Lang,
+): BannerDetailInfo =>
 {
-    return { BannerId: data.BannerId, ParentRowId: parentRowId, RowId: rowId, RowNo: rowNo, Lang: lang, URL_Open: 0 };
+    return {
+        BannerId: data.BannerId,
+        ParentRowId: parentRowId,
+        RowId: rowId,
+        RowNo: rowNo,
+        Lang: lang,
+        URL_Open: 0,
+    };
 };
 
 /** 將圖片 Grid Row 轉回 BannerDetail，並保留語系子明細。 */
-const toBannerDetailModel = (source: BannerFormModel, row: GridRow, index: number): BannerDetail =>
+const toBannerDetailModel = (
+    source: BannerFormModel,
+    row: GridRow,
+    index: number,
+): BannerDetail =>
 {
     const pictureValue = toBannerPictureCellValue(getEditGridCellValue(row, BannerDetailFields.PicSrcId));
     const rowId = getEditGridRowId(row, index);
@@ -646,9 +819,15 @@ const toBannerDetailModel = (source: BannerFormModel, row: GridRow, index: numbe
 };
 
 /** 將語系明細 Grid Row 轉回 BannerDetailInfo。 */
-const toBannerDetailInfoModel = (source: BannerFormModel, parentRowId: number, row: GridRow, index: number): BannerDetailInfo =>
+const toBannerDetailInfoModel = (
+    source: BannerFormModel,
+    parentRowId: number,
+    row: GridRow,
+    index: number,
+    extension?: BannerDetailInfoEditGridExtension,
+): BannerDetailInfo =>
 {
-    return {
+    const item: BannerDetailInfo = {
         BannerId: source.BannerId ?? (row as BannerDetailInfoGridRow).BannerId,
         ParentRowId: parentRowId,
         RowId: getEditGridRowId(row, index),
@@ -658,10 +837,9 @@ const toBannerDetailInfoModel = (source: BannerFormModel, parentRowId: number, r
         Content: getEditGridNullableStringCellValue(row, BannerDetailInfoFields.Content),
         URL: getEditGridNullableStringCellValue(row, BannerDetailInfoFields.URL),
         URL_Open: getEditGridNumberCellValue(row, BannerDetailInfoFields.URL_Open, 0) as WindowTarget,
-        SpecLatestShows: getEditGridNullableStringCellValue(row, SpecBannerDetailInfoFields.SpecLatestShows),
-        SpecShowLocation: getEditGridNullableStringCellValue(row, SpecBannerDetailInfoFields.SpecShowLocation),
-        SpecShowDate: getEditGridNullableStringCellValue(row, SpecBannerDetailInfoFields.SpecShowDate),
     };
+
+    return extension?.extendItem?.(item, row) ?? item;
 };
 
 /** 父層 Grid 寫回時，保留各圖片的語系子明細並補齊缺少語系。 */
@@ -678,17 +856,34 @@ const getBannerDetailInfos = (data: BannerFormModel, parentRowId: number): Banne
 };
 
 /** 寫回指定圖片的語系子明細，不改動其他圖片。 */
-const setBannerDetailInfos = (data: BannerFormModel, parentRowId: number, infos: BannerDetailInfo[]): BannerFormModel =>
+const setBannerDetailInfos = (
+    data: BannerFormModel,
+    parentRowId: number,
+    infos: BannerDetailInfo[],
+): BannerFormModel =>
 {
     const normalized = normalizeBannerDetailInfos(data, parentRowId, infos);
-    const details = (data._BannerDetail ?? []).map(detail => Number(detail.RowId ?? 0) === parentRowId ? { ...detail, _BannerDetailInfo: normalized } : detail);
+    const details = (data._BannerDetail ?? []).map(detail =>
+        Number(detail.RowId ?? 0) === parentRowId
+            ? { ...detail, _BannerDetailInfo: normalized }
+            : detail
+    );
     return { ...data, _BannerDetail: details };
 };
 
 /** 正規化語系子明細的父鍵與顯示順序。 */
-const normalizeBannerDetailInfos = (data: BannerFormModel, parentRowId: number, infos: BannerDetailInfo[]): BannerDetailInfo[] =>
+const normalizeBannerDetailInfos = (
+    data: BannerFormModel,
+    parentRowId: number,
+    infos: BannerDetailInfo[],
+): BannerDetailInfo[] =>
 {
-    return infos.map((info, index) => ({ ...info, BannerId: info.BannerId ?? data.BannerId, ParentRowId: parentRowId, RowNo: index + 1 }));
+    return infos.map((info, index) => ({
+        ...info,
+        BannerId: info.BannerId ?? data.BannerId,
+        ParentRowId: parentRowId,
+        RowNo: index + 1,
+    }));
 };
 
 /** 依 RowId 取得輪播圖片。 */
@@ -708,16 +903,33 @@ const useEnsureBannerDetailInfos = (binding: ServerFormBinding<BannerFormModel>,
 };
 
 /** 補齊單一圖片的語系子明細與排序欄位。 */
-const ensureBannerDetailInfos = (detail: BannerDetail, bannerId?: string | null, rowNo?: number, preferLang: Lang = DefaultLang): BannerDetail =>
+const ensureBannerDetailInfos = (
+    detail: BannerDetail,
+    bannerId?: string | null,
+    rowNo?: number,
+    preferLang: Lang = DefaultLang,
+): BannerDetail =>
 {
     const infos = detail._BannerDetailInfo ?? [];
     const missing = buildMissingBannerDetailInfos(detail, infos, bannerId);
-    const sorted = sortBannerDetailInfos([...infos, ...missing], preferLang).map((info, index) => ({ ...info, RowNo: index + 1 }));
-    return { ...detail, BannerId: detail.BannerId ?? bannerId, RowNo: rowNo ?? detail.RowNo, Sort: rowNo ?? detail.Sort, _BannerDetailInfo: sorted };
+    const sorted = sortBannerDetailInfos([...infos, ...missing], preferLang).map(
+        (info, index) => ({ ...info, RowNo: index + 1 }),
+    );
+    return {
+        ...detail,
+        BannerId: detail.BannerId ?? bannerId,
+        RowNo: rowNo ?? detail.RowNo,
+        Sort: rowNo ?? detail.Sort,
+        _BannerDetailInfo: sorted,
+    };
 };
 
 /** 建立指定圖片缺少的語系明細。 */
-const buildMissingBannerDetailInfos = (parent: BannerDetail, infos: BannerDetailInfo[], bannerId?: string | null): BannerDetailInfo[] =>
+const buildMissingBannerDetailInfos = (
+    parent: BannerDetail,
+    infos: BannerDetailInfo[],
+    bannerId?: string | null,
+): BannerDetailInfo[] =>
 {
     const existLangs = new Set(infos.map(info => String(info.Lang ?? "").toLowerCase()));
     const maxRowId = infos.reduce((max, info) => Math.max(max, Number(info.RowId ?? 0)), 0);
@@ -732,7 +944,11 @@ const buildMissingBannerDetailInfos = (parent: BannerDetail, infos: BannerDetail
 };
 
 /** 使用 EditGrid 內建 file 欄位選圖後，上傳並同步補齊語系標題。 */
-const uploadBannerPictureValue = async (args: EditGridCellValueChangeArgs, binding: ServerFormBinding<BannerFormModel>, handleFileChange: UploadFileHandler): Promise<EditGridCellValueChangeResult> =>
+const uploadBannerPictureValue = async (
+    args: EditGridCellValueChangeArgs,
+    binding: ServerFormBinding<BannerFormModel>,
+    handleFileChange: UploadFileHandler,
+): Promise<EditGridCellValueChangeResult> =>
 {
     const selectedFile = getSelectedEditGridFile(args.nextValue);
     if (!selectedFile?.file) return { value: buildEmptyBannerPictureCellValue() };
@@ -765,7 +981,10 @@ const isBannerPictureCellValue = (value: EditGridCellValue): value is BannerPict
 };
 
 /** 建立圖片欄位顯示文字：原始檔名 (internalId)。 */
-const buildBannerPictureFieldDisplayName = (originalName?: string | null, internalId?: string | null): string =>
+const buildBannerPictureFieldDisplayName = (
+    originalName?: string | null,
+    internalId?: string | null,
+): string =>
 {
     const name = LibText.safeTrim(originalName);
     const id = LibText.safeTrim(internalId);
@@ -799,12 +1018,6 @@ const getBannerLangText = (value: EditGridCellValue): string =>
     return LangLabelMap[lang] ?? String(value ?? "");
 };
 
-/** 判斷是否顯示 1817 客製欄位。 */
-const shouldShowSpec1817Fields = (): boolean =>
-{
-    return String(import.meta.env.VITE_SPEC_CODE ?? "") === "1817";
-};
-
 /** 依圖片檔名補齊該圖片列底下所有語系標題。 */
 const syncBannerDetailInfoTitlesByPictureName = (
     args: EditGridCellValueChangeArgs,
@@ -821,19 +1034,30 @@ const syncBannerDetailInfoTitlesByPictureName = (
 };
 
 /** 同步 BannerDetailInfo 標題，僅補空白標題避免覆蓋人工輸入。 */
-const syncBannerDetailInfoTitles = (data: BannerFormModel, parentRowId: number, title: string): BannerFormModel =>
+const syncBannerDetailInfoTitles = (
+    data: BannerFormModel,
+    parentRowId: number,
+    title: string,
+): BannerFormModel =>
 {
     const details = (data._BannerDetail ?? []).map((detail, index) =>
     {
         if (Number(detail.RowId ?? 0) !== parentRowId) return detail;
         const ensured = ensureBannerDetailInfos(detail, data.BannerId, index + 1);
-        return { ...ensured, _BannerDetailInfo: (ensured._BannerDetailInfo ?? []).map(info => fillBannerDetailInfoTitle(info, parentRowId, title)) };
+        return {
+            ...ensured,
+            _BannerDetailInfo: (ensured._BannerDetailInfo ?? []).map(info => fillBannerDetailInfoTitle(info, parentRowId, title)),
+        };
     });
     return { ...data, _BannerDetail: details };
 };
 
 /** 補上單筆語系標題，已有標題時保留原值。 */
-const fillBannerDetailInfoTitle = (info: BannerDetailInfo, parentRowId: number, title: string): BannerDetailInfo =>
+const fillBannerDetailInfoTitle = (
+    info: BannerDetailInfo,
+    parentRowId: number,
+    title: string,
+): BannerDetailInfo =>
 {
     if (Number(info.ParentRowId ?? 0) !== parentRowId) return info;
     if (LibText.safeTrim(info.Title)) return info;

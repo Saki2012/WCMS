@@ -73,7 +73,7 @@ public class SurveyItem : FormDetailModel
     /// 選項資料，每行一個選項
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Common_Options)]
-    public string Options { get; set; } = string.Empty;
+    public string? Options { get; set; }
 
     #region 主子表關聯
     [ForeignKey(nameof(SurveyId))]

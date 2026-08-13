@@ -4,7 +4,7 @@ setlocal
 
 pushd "%~dp0"
 
-set "SWAGGER_URL=https://localhost:7030/swagger/v1/swagger.json"
+set "SWAGGER_URL=http://localhost:5098/swagger/v1/swagger.json"
 
 if not "%~1"=="" set "SWAGGER_URL=%~1"
 

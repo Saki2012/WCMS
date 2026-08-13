@@ -14,7 +14,7 @@ import {
     useClientDataQueryTemplate,
 } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { getClientSearchBarText } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_I18n";
-import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import type { ColumnConfig, GridProps, GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import { getModelColumnDisplayName } from "@/SysCore/Components/Grid/Grid_ModelDisplay";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
@@ -413,7 +413,7 @@ const buildTagQuery = (progId: string): QueryListParam =>
     };
 };
 /** 取公告 internalIds */
-const getAnnouncementInternalIds = (rows: AnnouncementFormModel[]): string[] =>
+export const getAnnouncementInternalIds = (rows: AnnouncementFormModel[]): string[] =>
 {
     return rows.map(p => p?.InternalId ?? "").filter(Boolean);
 };
@@ -427,7 +427,7 @@ const buildViewCountCondition = (internalIds: string[]): string =>
 };
 
 /** 建瀏覽數 QueryListParam。 */
-const buildViewCountQuery = (internalIds: string[]): QueryListParam =>
+export const buildViewCountQuery = (internalIds: string[]): QueryListParam =>
 {
     return {
         Fields: [
@@ -573,7 +573,7 @@ const getSiteViewCountDetails = (item: SiteViewCountFormModel): SiteViewCountDet
     return detailRows;
 };
 /** 組公告瀏覽數 map */
-const buildViewCountMap = (rows: SiteViewCountFormModel[]): Record<string, number> =>
+export const buildViewCountMap = (rows: SiteViewCountFormModel[]): Record<string, number> =>
 {
     const result: Record<string, number> = {};
     rows.forEach(item => getSiteViewCountDetails(item).forEach(detail => addViewCount(result, detail)));
@@ -589,15 +589,14 @@ const addViewCount = (result: Record<string, number>, detail: SiteViewCountDetai
 };
 
 /** 依後端 Model Metadata 建立公告 Grid 欄位。 */
-const buildAnnouncementGridColumns = (lang: Lang, model: ModelDisplaySchema | null, viewCountModel: ModelDisplaySchema | null): ColumnConfig[] =>
+const buildAnnouncementGridColumns = (model: ModelDisplaySchema | null, viewCountModel: ModelDisplaySchema | null): ColumnConfig[] =>
 {
-    const isEnglish = lang === "en";
     return [
-        { key: AnnouncementDetailFields.Title, title: getModelColumnDisplayName(model, ["AnnouncementDetail_DTO", "AnnouncementDetail"], AnnouncementDetailFields.Title, isEnglish ? "Title" : "標題") },
-        { key: AnnouncementFields.Validate_Start, title: getModelColumnDisplayName(model, ["Announcement_DTO", "Announcement"], AnnouncementFields.Validate_Start, isEnglish ? "Announcement Date" : "日期") },
-        { key: AnnouncementFields.Categories, title: getModelColumnDisplayName(model, ["Announcement_DTO", "Announcement"], AnnouncementFields.Categories, isEnglish ? "Category" : "分類") },
-        { key: AnnouncementFields.Tags, title: getModelColumnDisplayName(model, ["Announcement_DTO", "Announcement"], AnnouncementFields.Tags, isEnglish ? "Tag" : "標籤") },
-        { key: ANNOUNCEMENT_VIEW_COUNT_COL_KEY, title: getModelColumnDisplayName(viewCountModel, ["SiteViewCountDetailModel_DTO", "SiteViewCountDetailModel"], SiteViewCountDetailFields.PageViewCount, isEnglish ? "View Count" : "瀏覽次數") },
+        { key: AnnouncementDetailFields.Title, title: getModelColumnDisplayName(model, AnnouncementFields._AnnouncementDetail, AnnouncementDetailFields.Title) },
+        { key: AnnouncementFields.Validate_Start, title: getModelColumnDisplayName(model, "", AnnouncementFields.Validate_Start) },
+        { key: AnnouncementFields.Categories, title: getModelColumnDisplayName(model, "", AnnouncementFields.Categories) },
+        { key: AnnouncementFields.Tags, title: getModelColumnDisplayName(model, "", AnnouncementFields.Tags) },
+        { key: ANNOUNCEMENT_VIEW_COUNT_COL_KEY, title: getModelColumnDisplayName(viewCountModel, SiteViewCountHeaderFields._SiteViewCountDetail, SiteViewCountDetailFields.PageViewCount) },
     ];
 };
 
@@ -613,7 +612,7 @@ const buildGridPropsFromList = (p: {
     onPageChange: (page: number) => void;
 }): GridProps =>
 {
-    const columns = buildAnnouncementGridColumns(p.lang, p.modelDisplayName, p.viewCountModelDisplayName);
+    const columns = buildAnnouncementGridColumns(p.modelDisplayName, p.viewCountModelDisplayName);
     const rows = p.listData.map(item => buildAnnouncementGridRow(p.lang, item, columns, p.viewCountMap));
     return { columns, rows, CurrentPage: p.pageNumber, TotalPage: p.totalPages, onPageChange: p.onPageChange };
 };

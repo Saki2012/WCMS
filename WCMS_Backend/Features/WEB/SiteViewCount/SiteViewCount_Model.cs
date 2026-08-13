@@ -65,7 +65,7 @@ public class SiteViewCountDetail : DetailModel
     /// <summary>
     /// 前台頁面瀏覽次數
     /// </summary>
-    [LibNum(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.SiteViewCount_PageViewCount)]
     public int PageViewCount { get; set; } = 0;
     /// <summary>
     /// 檔案預覽次數(PDF/Office檔等內嵌預覽的次數)

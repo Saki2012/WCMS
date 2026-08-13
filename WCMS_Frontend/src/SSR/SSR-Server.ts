@@ -8,7 +8,6 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 import crypto from "node:crypto";
 import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
-import https from "node:https";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import serveStatic from "serve-static";
@@ -19,8 +18,7 @@ import { buildProdCsp, type CspStyleMode } from "./CSPSetting";
 type SsrConfig = Readonly<{
     port: number;
     isProd: boolean;
-    apiTarget: string; // 後端 origin，例如 https://localhost:7030
-    allowInsecureBackendTls: boolean;
+    apiTarget: string;
 }>;
 
 type ProdPaths = Readonly<{ clientRoot: string; serverEntry: string; indexPath: string; }>;
@@ -60,29 +58,6 @@ const setNoStoreHeaders = (res: Response): void =>
     res.setHeader("Cache-Control", noStoreHeaderValue);
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
-};
-
-/** 讀取布林環境參數，讓弱掃與相容性可逐案微調。 */
-const readBoolEnv = (key: string, defaultValue = false): boolean =>
-{
-    const raw = String(process.env[key] ?? "").trim().toLowerCase();
-    if (!raw) return defaultValue;
-    return raw === "1" || raw === "true" || raw === "yes" || raw === "y";
-};
-
-/** 讀取 CSP style 模式，預設 balanced：保留 inline style attribute，但不開放 inline style element。 */
-const readStyleModeEnv = (): CspStyleMode =>
-{
-    const raw = String(process.env.SSR_CSP_STYLE_MODE || "balanced").trim().toLowerCase();
-    if (raw === "legacy" || raw === "strict") return raw;
-    return "balanced";
-};
-
-/** 取得 Referrer-Policy；預設兼顧安全與 Google/外部服務相容性。 */
-const getReferrerPolicy = (): string =>
-{
-    const raw = String(process.env.SSR_REFERRER_POLICY || "").trim();
-    return raw || defaultReferrerPolicy;
 };
 
 /** 移除由 Node/Proxy 可控制的技術洩漏標頭。 */
@@ -127,7 +102,6 @@ const getResponseNonce = (res: Response): string =>
 {
     const current = res.locals.cspNonce;
     if (typeof current === "string" && current.trim()) return current;
-
     const nonce = crypto.randomBytes(16).toString("base64");
     res.locals.cspNonce = nonce;
     return nonce;
@@ -138,19 +112,14 @@ const getHtmlCspOptions = (req: Request) =>
 {
     const pathname = String(req.path || "");
     const isServerPage = /^\/server(?:\/|$)/i.test(pathname);
-
-    return {
-        enforceTrustedTypes: isServerPage ? false : readBoolEnv("SSR_ENFORCE_TRUSTED_TYPES", false),
-        styleMode: isServerPage ? "legacy" as CspStyleMode : readStyleModeEnv(),
-    };
+    return { styleMode: isServerPage ? "legacy" as CspStyleMode : "balanced" as CspStyleMode };
 };
-
 /** 設定 HTML、靜態資源共用的基礎安全標頭，不在這裡塞 CSP。 */
 const setBaseSecurityHeaders = (res: Response, cfg: SsrConfig): void =>
 {
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-Frame-Options", "SAMEORIGIN");
-    res.setHeader("Referrer-Policy", getReferrerPolicy());
+    res.setHeader("Referrer-Policy", defaultReferrerPolicy);
     res.setHeader("Permissions-Policy", defaultPermissionsPolicy);
     res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
     res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
@@ -200,7 +169,7 @@ const setProxySecurityHeaders = (proxyRes: ProxyResponseLike, cfg: SsrConfig): v
     proxyRes.headers["expires"] = "0";
     proxyRes.headers["x-content-type-options"] = "nosniff";
     proxyRes.headers["x-frame-options"] = "SAMEORIGIN";
-    proxyRes.headers["referrer-policy"] = getReferrerPolicy();
+    proxyRes.headers["referrer-policy"] = defaultReferrerPolicy;
     proxyRes.headers["permissions-policy"] = defaultPermissionsPolicy;
     proxyRes.headers["cross-origin-opener-policy"] = "same-origin";
     proxyRes.headers["x-permitted-cross-domain-policies"] = "none";
@@ -298,82 +267,17 @@ const tryBuildProdPaths = (root: string): ProdPaths | null =>
 
 const getProdPaths = (): ProdPaths =>
 {
-    // 宣告變數
-    const appRoot = process.env.SSR_APP_ROOT?.trim();
-
-    // 執行 function
-    if (appRoot)
-    {
-        const p = tryBuildProdPaths(appRoot);
-        if (p) return p;
-    }
-
     // 情境1：直接在 dist/ 內啟動（cwd 就是 dist）
     const p1 = tryBuildProdPaths(process.cwd());
     if (p1) return p1;
-
     // 情境2：在專案根目錄啟動（讀 root/dist）
     const p2 = tryBuildProdPaths(path.resolve(process.cwd(), "dist"));
     if (p2) return p2;
-
     // fallback：維持舊行為（相對 SSR-Server.ts 的位置）
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     const p3 = tryBuildProdPaths(path.resolve(__dirname, "../../dist"));
     if (p3) return p3;
-
     throw new Error("Cannot resolve prod paths: missing CSR/client or SSR/server build output.");
-};
-
-const tryParseUrl = (s: string): URL | null =>
-{
-    // 宣告變數
-    const raw = String(s || "").trim();
-
-    // 執行 function
-    if (!raw) return null;
-
-    try
-    {
-        return new URL(raw);
-    } catch
-    {
-        return null;
-    }
-};
-
-const isLocalhostHost = (host: string): boolean =>
-{
-    const h = String(host || "").toLowerCase();
-    return h === "localhost" || h === "127.0.0.1" || h === "::1";
-};
-
-const shouldAllowInsecureBackendTls = (isProd: boolean, apiTarget: string, allowInsecureTls: boolean): boolean =>
-{
-    const u = tryParseUrl(apiTarget);
-    const isHttps = u?.protocol === "https:";
-    const isLocalhost = isLocalhostHost(u?.hostname ?? "");
-
-    if (!isHttps) return false;
-    if (!isProd) return true;
-    return allowInsecureTls && isLocalhost;
-};
-
-const applyProdTlsGuard = (isProd: boolean, apiTarget: string, allowInsecureTls: boolean): boolean =>
-{
-    const allowBackendTls = shouldAllowInsecureBackendTls(isProd, apiTarget, allowInsecureTls);
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = allowBackendTls ? "0" : "1";
-
-    if (allowBackendTls && isProd)
-    {
-        console.warn(`[SSR] Insecure TLS allowed ONLY for localhost backend: ${apiTarget}`);
-    }
-
-    if (isProd && allowInsecureTls && !allowBackendTls)
-    {
-        console.warn(`[SSR] SSR_ALLOW_INSECURE_TLS ignored. Only https localhost backend may use it. apiTarget=${apiTarget}`);
-    }
-
-    return allowBackendTls;
 };
 
 /** 依目前模式載入 SSR Server 所需環境檔，讓 Spec 與 Feature 使用相同判斷。 */
@@ -397,21 +301,17 @@ const loadRuntimeEnvFiles = (cwd: string, isDistRuntime: boolean): void =>
     }
 };
 
-// 讀 env 並整理成 config
+/** 讀取 SSR 執行環境設定。 */
 const getConfig = (): SsrConfig =>
 {
     const cwd = process.cwd();
     const isDistRuntime = existsSync(path.resolve(cwd, "CSR")) && existsSync(path.resolve(cwd, "SSR"));
     loadRuntimeEnvFiles(cwd, isDistRuntime);
-
     const nodeEnv = String(process.env.NODE_ENV || "development");
     const isProd = nodeEnv === "production" || isDistRuntime;
-    const port = Number(process.env.SSR_PORT || process.env.PORT || 5174);
-    const apiTarget = String(process.env.SSR_API_TARGET || "https://localhost:7030").replace(/\/+$/, "");
-    const allowInsecureTls = readBoolEnv("SSR_ALLOW_INSECURE_TLS", false);
-    const allowInsecureBackendTls = applyProdTlsGuard(isProd, apiTarget, allowInsecureTls);
-
-    return { port, isProd, apiTarget, allowInsecureBackendTls };
+    const port = Number(process.env.PORT || 5174);
+    const apiTarget = String(process.env.SSR_API_TARGET || "http://localhost:5098").replace(/\/+$/, "");
+    return { port, isProd, apiTarget };
 };
 
 const isPathSegmentPrefix = (pathname: string, segment: string): boolean =>
@@ -923,14 +823,13 @@ const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>
     });
 };
 
-// API Proxy：/Service -> cfg.apiTarget（後端）
+/** 建立後端 API Proxy，HTTPS Backend 一律驗證正式憑證。 */
 const setupApiProxy = (app: express.Express, cfg: SsrConfig) =>
 {
-    const isHttpsTarget = cfg.apiTarget.startsWith("https://");
     const options = {
         target: cfg.apiTarget,
         changeOrigin: true,
-        ...(isHttpsTarget ? { secure: !cfg.allowInsecureBackendTls, agent: new https.Agent({ rejectUnauthorized: !cfg.allowInsecureBackendTls }) } : {}),
+        secure: true,
         logLevel: "warn",
         pathRewrite: (p: string) => `/Service${p}`,
         onProxyRes: (proxyRes: ProxyResponseLike) =>

@@ -73,12 +73,12 @@ public partial class BannerDetail : FormDetailModel
     /// 資料有效日期-起
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_StartDate)]
-    public DateTime Validate_Start { get; set; }
+    public DateTime? Validate_Start { get; set; }
     /// <summary>
     /// 資料有效日期-迄
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_EndDate)]
-    public DateTime Validate_End { get; set; }
+    public DateTime? Validate_End { get; set; }
     /// <summary>
     /// 播放順序
     /// </summary>
@@ -124,7 +124,9 @@ public partial class BannerDetailInfo : FormDetailModel
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Common_Content)]
     public string Content { get; set; } = string.Empty;
-
+    /// <summary>
+    /// 
+    /// </summary>
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Url, DisplayName.Common_Url)]
     public string URL { get; set; } = string.Empty;
     /// <summary>
