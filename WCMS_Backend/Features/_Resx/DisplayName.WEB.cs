@@ -753,4 +753,10 @@ public static partial class DisplayName
     /// 英：Web Resource Translation
     /// </summary>
     public const string WebResourceInfo = nameof(WebResourceInfo);
+
+    /// <summary>
+    /// 中：瀏覽次數
+    /// 英：View Count
+    /// </summary>
+    public const string SiteViewCount_PageViewCount = nameof(SiteViewCount_PageViewCount);
 }

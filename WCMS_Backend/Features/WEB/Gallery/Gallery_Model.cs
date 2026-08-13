@@ -48,7 +48,7 @@ public class Gallery : HeaderModel
     /// 資料有效日期迄。
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite)]
-    public DateTime Validate_End { get; set; }
+    public DateTime? Validate_End { get; set; }
     /// <summary>
     /// 封面照 (透過功能從相簿裡的PicSrcId直接取得，保存時紀錄，供之後List查看時減少效能使用)
     /// </summary>

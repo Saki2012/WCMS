@@ -1,8 +1,7 @@
 // #region Property
 export type CspStyleMode = "balanced" | "legacy" | "strict";
 
-export type BuildProdCspOptions = Readonly<{ enforceTrustedTypes?: boolean; styleMode?: CspStyleMode; }>;
-
+export type BuildProdCspOptions = Readonly<{ styleMode?: CspStyleMode; }>;
 /** Cloudflare Turnstile 前台驗證碼來源；iframe 仍由 frame-src 控制。 */
 const turnstileSource = "https://challenges.cloudflare.com";
 // #endregion
@@ -88,7 +87,7 @@ export const buildProdCsp = (nonce: string, options: BuildProdCspOptions = {}): 
         `connect-src ${connectSrc}`,
         "frame-ancestors 'self'",
         `frame-src ${frameSrc}`,
-        "media-src 'self' data: blob: https:",
+        "media-src 'self' data: blob:",
         "worker-src 'self' blob:",
         "manifest-src 'self'",
         "object-src 'none'",
@@ -96,12 +95,6 @@ export const buildProdCsp = (nonce: string, options: BuildProdCspOptions = {}): 
         "form-action 'self'",
         "upgrade-insecure-requests",
     ];
-
-    if (options.enforceTrustedTypes)
-    {
-        csp.push("require-trusted-types-for 'script'");
-        csp.push("trusted-types default react dompurify tinyMCE wcms");
-    }
 
     return csp.join("; ");
 };
@@ -144,7 +137,7 @@ const buildStyleSources = (styleMode: CspStyleMode): string[] =>
     return styleMode === "legacy" ? [...sources, "'unsafe-inline'"] : sources;
 };
 
-/** 建立 Style Attribute CSP；strict 模式完全禁止 inline style attribute。 */
+/** 建立 Style Attribute CSP；Strict 完全禁止 Inline Style Attribute。 */
 const buildStyleAttrSources = (styleMode: CspStyleMode): string[] =>
 {
     if (styleMode === "strict") return ["'none'"];

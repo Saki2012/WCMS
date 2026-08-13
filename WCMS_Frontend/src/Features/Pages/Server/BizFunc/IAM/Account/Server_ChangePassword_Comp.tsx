@@ -1,15 +1,34 @@
 import { FormShellComp } from "@/Features/Pages/Server/Scaffold/Content/FormShell_Comp";
-import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibPwdTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibPwdTextBox_Comp";
 import { LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { useServerChangePassword } from "./Server_ChangePassword_Hook";
 
 // #region Public
+/** 修改目前登入者密碼，並提供儲存與返回操作。 */
 export const Server_ChangePassword_Comp = (props: { theme: IBETheme; }) =>
 {
     const vm = useServerChangePassword(props.theme);
+    const actions = vm.actions;
+
     return (
-        <FormShellComp prop={vm.prop}>
+        <FormShellComp
+            prop={vm.prop}
+            actionToolbarButtons={[
+                {
+                    title: "儲存送出",
+                    action: async () =>
+                    {
+                        await actions.onSave();
+                    },
+                    disabled: actions.isExecuting,
+                },
+                {
+                    title: "取消返回",
+                    action: actions.onCancelBack,
+                },
+            ]}
+        >
             <div className="row">
                 <div className="col-sm-12">
                     <div className="panel">

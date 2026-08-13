@@ -59,7 +59,7 @@ public partial class Announcement : HeaderModel
     /// 資料有效日期-迄
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Announcement_EndDate)]
-    public DateTime Validate_End { get; set; }
+    public DateTime? Validate_End { get; set; }
 
     #region 主子表關聯
     [InverseProperty(nameof(AnnouncementDetail._Announcement))]

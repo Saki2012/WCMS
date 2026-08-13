@@ -1,6 +1,7 @@
 /* Feature 前台 Header 範例。 */
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import { useMobileMenuCollapse } from "@/Features/Hooks/UIAction/Mobile/useMobileMenuCollapse";
+import { useMenuNavigationAction } from "@/Features/Hooks/UIAction/Navigation/useMenuNavigationAction";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
@@ -218,12 +219,13 @@ const DropdownMenu = ({ item, depth }: MenuItemProps) =>
 /** 建立最終可導頁的選單連結。 */
 const LeafMenuItem = (props: { item: MenuItemData; className: string; }) =>
 {
+    const menuNavigation = useMenuNavigationAction();
     const external = isExternalUrl(props.item.Url);
     const target = props.item.URL_Open || (external ? "_blank" : "_self");
 
     return (
         <li className="nav-item">
-            <LangNavLink className={props.className} to={props.item.Url || "#"} target={target} rel={target === "_blank" ? "noopener noreferrer" : undefined}>
+            <LangNavLink className={props.className} to={props.item.Url || "#"} target={target} rel={target === "_blank" ? "noopener noreferrer" : undefined} onClick={menuNavigation.onMenuNavigate}>
                 {external && <i className="fas fa-external-link-alt me-2" aria-hidden="true" />}
                 {props.item.SrcData}
             </LangNavLink>

@@ -471,7 +471,7 @@ const toSurveyItemDto = (source: SurveyFormModel, row: GridRow, index: number, i
         SurveyId: source.SurveyId ?? (row as SurveyItemGridRow).SurveyId,
         RowId: rowId,
         RowNo: index + 1,
-        FieldId: getEditGridNullableStringCellValue(row, SurveyItemFields.FieldId),
+        FieldId: getEditGridStringCellValue(row, SurveyItemFields.FieldId),
         IsRequired: Boolean(getEditGridCellValue(row, SurveyItemFields.IsRequired)),
         InputType: inputType,
         Options: shouldKeepSurveyOptions(inputType, inputOpts) ? getEditGridNullableStringCellValue(row, SurveyItemFields.Options) : null,
@@ -488,7 +488,7 @@ const toSurveyItemLangDto = (source: SurveyFormModel, parentRowId: number, row: 
         RowId: getEditGridRowId(row, index),
         RowNo: index + 1,
         Lang: getSurveyLangCellValue(row),
-        FieldName: getEditGridNullableStringCellValue(row, SurveyItemLangFields.FieldName),
+        FieldName: getEditGridStringCellValue(row, SurveyItemLangFields.FieldName),
     };
 };
 

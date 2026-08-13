@@ -41,7 +41,7 @@ public class FileArchive : HeaderModel
     /// </summary>
     [Obsolete]
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Announcement_StartDate)]
-    public DateTime Validate_Start { get; set; }
+    public DateTime? Validate_Start { get; set; }
 
     #region 主子表關聯
     [InverseProperty(nameof(FileArchiveInfo._FileArchive))]
