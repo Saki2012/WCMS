@@ -37,7 +37,7 @@ import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_Hooks/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { GalleryInfoFields, GalleryPhotosFields, GalleryPhotosInfoFields, GalleryFields, PGID } from "@/types/SchemaFields";
+import { GalleryFields, GalleryInfoFields, GalleryPhotosFields, GalleryPhotosInfoFields, PGID } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -805,7 +805,6 @@ const buildNewGalleryPhotoInfoItem = (data: GalleryFormModel, parentRowId: numbe
     return { GalleryId: data.GalleryId ?? "", ParentRowId: parentRowId, RowId: rowId, RowNo: rowNo, Lang: lang, Title: "", Description: "" };
 };
 
-
 /** 將相片 Grid Row 轉回 DTO，RowId 保持穩定，Sort 依目前畫面順序重算。 */
 const toGalleryPhotoDto = (source: GalleryFormModel, row: GridRow, index: number): GalleryPhoto =>
 {
@@ -831,8 +830,8 @@ const toGalleryPhotoInfoDto = (source: GalleryFormModel, parentRowId: number, ro
         RowId: getEditGridRowId(row, index),
         RowNo: index + 1,
         Lang: getEditGridStringCellValue(row, GalleryPhotosInfoFields.Lang) as components["schemas"]["LangCode"],
-        Title: getNullableStringCellValue(row, GalleryPhotosInfoFields.Title),
-        Description: getNullableStringCellValue(row, GalleryPhotosInfoFields.Description),
+        Title: getEditGridStringCellValue(row, GalleryPhotosInfoFields.Title),
+        Description: getEditGridStringCellValue(row, GalleryPhotosInfoFields.Description),
     };
 };
 
