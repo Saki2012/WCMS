@@ -17,6 +17,7 @@ type ChangePassword = components["schemas"]["ChangePassword"];
 export interface UseServerChangePasswordResult
 {
     prop: FormCompProp;
+    actions: UseActionsResult;
     displayName: string;
     oldPwd: string;
     newPwd: string;
@@ -28,9 +29,9 @@ export interface UseServerChangePasswordResult
 // #endregion
 
 // #region Public
+/** 建立修改密碼頁面的資料、驗證與操作行為。 */
 export const useServerChangePassword = (theme: IBETheme): UseServerChangePasswordResult =>
 {
-    // 宣告變數
     const { publish } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
@@ -42,9 +43,9 @@ export const useServerChangePassword = (theme: IBETheme): UseServerChangePasswor
     const [newPwd, setNewPwd] = useState<string>("");
     const [confirmPwd, setConfirmPwd] = useState<string>("");
 
+    /** 返回同模組帳號列表。 */
     const handleCancelBack = useCallback(() =>
     {
-        // 執行 function：回到同模組 List 頁
         navigate(location.pathname.replace(/\/ChangePassword(\/[^\/]*)?$/, "/List"));
     }, [navigate, location.pathname]);
 
@@ -57,7 +58,7 @@ export const useServerChangePassword = (theme: IBETheme): UseServerChangePasswor
 
     useEffect(() =>
     {
-        // 執行 function：讀取目前登入者資訊
+        /** 讀取目前登入者顯示資訊。 */
         const loadUserName = async () =>
         {
             const res = await AuthAPI.me();
@@ -68,9 +69,9 @@ export const useServerChangePassword = (theme: IBETheme): UseServerChangePasswor
         void loadUserName();
     }, []);
 
+    /** 檢查修改密碼必填欄位與密碼一致性。 */
     const validateBeforeSave = useCallback((): boolean =>
     {
-        // 執行 function：儲存前檢查欄位
         if (!oldPwd || !newPwd || !confirmPwd)
         {
             publish({ level: MessageStatus.Error, title: "保存失敗", text: "請輸入舊密碼、新密碼與再次確認密碼" });
@@ -92,16 +93,13 @@ export const useServerChangePassword = (theme: IBETheme): UseServerChangePasswor
         return true;
     }, [oldPwd, newPwd, confirmPwd, publish]);
 
+    /** 驗證表單並送出修改密碼 API。 */
     const handleSave = useCallback(async (): Promise<boolean> =>
     {
-        // 宣告變數
         const ok = validateBeforeSave();
-
-        // 執行 function：驗證後送出 API
         if (!ok) return false;
 
         const payload: ChangePassword = { OldPassword: oldPwd, NewPassword: newPwd };
-
         const res = await changePwd.execute(payload);
 
         (res.SysMessage ?? []).forEach((item) =>
@@ -122,7 +120,6 @@ export const useServerChangePassword = (theme: IBETheme): UseServerChangePasswor
 
     const actions = useMemo<UseActionsResult>(() =>
     {
-        // return：提供表單工具列使用
         return {
             isExecuting: changePwd.isLoading,
             onSave: handleSave,
@@ -142,11 +139,19 @@ export const useServerChangePassword = (theme: IBETheme): UseServerChangePasswor
 
     const prop = useMemo<FormCompProp>(() =>
     {
-        // return：表單外層設定
         return { Title: handle?.Title ?? "修改密碼", Theme: theme, IsLoading: changePwd.isLoading, ErrorList: [], Actions: actions };
     }, [handle?.Title, theme, changePwd.isLoading, actions]);
 
-    // return
-    return { prop, displayName, oldPwd, newPwd, confirmPwd, onOldPwdChange: setOldPwd, onNewPwdChange: setNewPwd, onConfirmPwdChange: setConfirmPwd };
+    return {
+        prop,
+        actions,
+        displayName,
+        oldPwd,
+        newPwd,
+        confirmPwd,
+        onOldPwdChange: setOldPwd,
+        onNewPwdChange: setNewPwd,
+        onConfirmPwdChange: setConfirmPwd,
+    };
 };
 // #endregion

@@ -19,10 +19,10 @@ type ResetPassword = components["schemas"]["ResetPassword"];
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-
 export interface UseServerResetPasswordResult
 {
     prop: FormCompProp;
+    actions: UseActionsResult;
     accountDict: Record<string, string>;
     userInternalId: string;
     newPwd: string;
@@ -167,6 +167,7 @@ export const useServerResetPassword = (theme: IBETheme): UseServerResetPasswordR
     // return
     return {
         prop,
+        actions,
         accountDict,
         userInternalId,
         newPwd,
