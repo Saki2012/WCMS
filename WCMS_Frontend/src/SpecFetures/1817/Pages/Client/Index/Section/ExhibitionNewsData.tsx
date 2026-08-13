@@ -23,7 +23,7 @@ import { formatDateParts as formatDate } from "@/SysCore/Utils/Library/LibData";
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementSet = components["schemas"]["Announcement"];
 
 type CategoryFormModel = components["schemas"]["Category"];
 

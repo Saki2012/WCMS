@@ -16,7 +16,7 @@ import { useMemo } from "react";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementSet = components["schemas"]["Announcement"];
 type CategoryFormModel = components["schemas"]["Category"];
 type TagFormModel = components["schemas"]["TagData"];
 interface NewsDataProps

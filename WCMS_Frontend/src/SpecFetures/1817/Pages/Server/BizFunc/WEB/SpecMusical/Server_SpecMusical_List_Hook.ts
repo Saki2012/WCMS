@@ -8,6 +8,7 @@ import {
 import type {
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
+    ServerListGridQueryContext,
     ServerListGridTemplate,
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
 import { SpecMusicalAdapter } from "@/SpecFetures/1817/Hooks/BizFunc/WEB/SpecMusical_Api";
@@ -15,9 +16,9 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
-import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDateTime, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PGID, SpecMusicalFields } from "@/types/SchemaFields";
@@ -140,12 +141,12 @@ const DEFAULT_SPEC_MUSICAL_LIST_PAGE_STATE: SpecMusicalListPageState = {
 /** 建立樂器後台純 Spec ListGridTemplate 設定 */
 export const useSpecMusicalListGridTemplate = (opt: { lang: Lang; renderers: SpecMusicalListRenderers; }): SpecMusicalListGridTemplate =>
 {
-        const pageState = usePageStateMemory<SpecMusicalListPageState>({
+    const pageState = usePageStateMemory<SpecMusicalListPageState>({
         stateKey: SPEC_MUSICAL_LIST_STATE_KEY,
         defaultState: DEFAULT_SPEC_MUSICAL_LIST_PAGE_STATE,
         scopeKeys: [opt.lang],
     });
-return useMemo<SpecMusicalListGridTemplate>(() =>
+    return useMemo<SpecMusicalListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.SpecMusical,
@@ -272,7 +273,7 @@ const buildSpecMusicalSearchConditions = (ctx: { searchParams: SpecMusicalSearch
 };
 
 /** 建立樂器列表完整 QueryParam */
-const buildSpecMusicalQueryParam = (ctx: { searchCondition: string; }): QueryListParam =>
+const buildSpecMusicalQueryParam = (ctx: ServerListGridQueryContext<SpecMusicalSearchParams>): QueryListParam =>
 {
     return {
         Fields: buildSpecMusicalQueryFields(),

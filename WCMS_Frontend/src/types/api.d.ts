@@ -7737,133 +7737,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecJournal/GetAuthorByOrcid": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: {
-                    orcid?: string;
-                };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["ORCIDDataApiResponse"];
-                        "application/json": components["schemas"]["ORCIDDataApiResponse"];
-                        "text/json": components["schemas"]["ORCIDDataApiResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournal/PublishJournal": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["PublishReq"];
-                    "text/json": components["schemas"]["PublishReq"];
-                    "application/*+json": components["schemas"]["PublishReq"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournal/UnpublishJournal": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": string;
-                    "text/json": string;
-                    "application/*+json": string;
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournal/Create": {
+    "/Service/SpecMusical/Create": {
         parameters: {
             query?: never;
             header?: never;
@@ -7884,9 +7758,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecJournal"];
-                    "text/json": components["schemas"]["SpecJournal"];
-                    "application/*+json": components["schemas"]["SpecJournal"];
+                    "application/json": components["schemas"]["SpecMusical"];
+                    "text/json": components["schemas"]["SpecMusical"];
+                    "application/*+json": components["schemas"]["SpecMusical"];
                 };
             };
             responses: {
@@ -7905,7 +7779,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecJournal/InitialCreateData": {
+    "/Service/SpecMusical/InitialCreateData": {
         parameters: {
             query?: never;
             header?: never;
@@ -7926,9 +7800,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecJournal"][];
-                    "text/json": components["schemas"]["SpecJournal"][];
-                    "application/*+json": components["schemas"]["SpecJournal"][];
+                    "application/json": components["schemas"]["SpecMusical"][];
+                    "text/json": components["schemas"]["SpecMusical"][];
+                    "application/*+json": components["schemas"]["SpecMusical"][];
                 };
             };
             responses: {
@@ -7947,7 +7821,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecJournal/Update": {
+    "/Service/SpecMusical/Update": {
         parameters: {
             query?: never;
             header?: never;
@@ -7967,9 +7841,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecJournalApiRequest"];
-                    "text/json": components["schemas"]["SpecJournalApiRequest"];
-                    "application/*+json": components["schemas"]["SpecJournalApiRequest"];
+                    "application/json": components["schemas"]["SpecMusicalApiRequest"];
+                    "text/json": components["schemas"]["SpecMusicalApiRequest"];
+                    "application/*+json": components["schemas"]["SpecMusicalApiRequest"];
                 };
             };
             responses: {
@@ -7989,7 +7863,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecJournal/Invalid/{pk}": {
+    "/Service/SpecMusical/Invalid/{pk}": {
         parameters: {
             query?: never;
             header?: never;
@@ -8030,7 +7904,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/Service/SpecJournal/BatchInvalid": {
+    "/Service/SpecMusical/BatchInvalid": {
         parameters: {
             query?: never;
             header?: never;
@@ -8074,7 +7948,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/Service/SpecJournal/Delete": {
+    "/Service/SpecMusical/Delete": {
         parameters: {
             query?: never;
             header?: never;
@@ -8112,456 +7986,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecJournal/BatchDelete": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": string[];
-                    "text/json": string[];
-                    "application/*+json": string[];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournal/QueryData": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: {
-                    internalId?: string;
-                };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournal/QueryList": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournal/GetTotalCounts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournal/GetModelDisplayName": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/Create": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecJournalIndex"];
-                    "text/json": components["schemas"]["SpecJournalIndex"];
-                    "application/*+json": components["schemas"]["SpecJournalIndex"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/InitialCreateData": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecJournalIndex"][];
-                    "text/json": components["schemas"]["SpecJournalIndex"][];
-                    "application/*+json": components["schemas"]["SpecJournalIndex"][];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/Update": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecJournalIndexApiRequest"];
-                    "text/json": components["schemas"]["SpecJournalIndexApiRequest"];
-                    "application/*+json": components["schemas"]["SpecJournalIndexApiRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/Invalid/{pk}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: {
-                    internalId?: string;
-                    isInvalid?: boolean;
-                };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path: {
-                    pk: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/BatchInvalid": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: {
-                    isInvalid?: boolean;
-                };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": string[];
-                    "text/json": string[];
-                    "application/*+json": string[];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/Delete": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: {
-                    internalId?: string;
-                };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/BatchDelete": {
+    "/Service/SpecMusical/BatchDelete": {
         parameters: {
             query?: never;
             header?: never;
@@ -8603,7 +8028,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecJournalIndex/QueryData": {
+    "/Service/SpecMusical/QueryData": {
         parameters: {
             query?: never;
             header?: never;
@@ -8641,7 +8066,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecJournalIndex/QueryList": {
+    "/Service/SpecMusical/QueryList": {
         parameters: {
             query?: never;
             header?: never;
@@ -8683,7 +8108,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecJournalIndex/GetTotalCounts": {
+    "/Service/SpecMusical/GetTotalCounts": {
         parameters: {
             query?: never;
             header?: never;
@@ -8725,7 +8150,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecJournalIndex/GetModelDisplayName": {
+    "/Service/SpecMusical/GetModelDisplayName": {
         parameters: {
             query?: never;
             header?: never;
@@ -11021,6 +10446,9 @@ export interface components {
             Content?: string | null;
             URL?: string | null;
             URL_Open?: components["schemas"]["WindowTarget"];
+            SpecLatestShows?: string | null;
+            SpecShowLocation?: string | null;
+            SpecShowDate?: string | null;
         };
         Calendar: {
             readonly InternalId?: string | null;
@@ -11514,21 +10942,6 @@ export interface components {
          * @enum {integer}
          */
         ModulePageType: 0 | 1;
-        ORCIDData: {
-            ORCID?: string | null;
-            AuthorName?: string | null;
-            AuthorName_en?: string | null;
-            JobTitle?: string | null;
-            Unit?: string | null;
-            Unit_en?: string | null;
-            Email?: string | null;
-            Country?: string | null;
-        };
-        ORCIDDataApiResponse: {
-            IsSuccess?: boolean | null;
-            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
-            Data?: components["schemas"]["ORCIDData"][] | null;
-        };
         OrderBySpec: {
             Col?: string | null;
             Desc?: boolean | null;
@@ -11620,17 +11033,6 @@ export interface components {
         PersonApiRequest: {
             InternalId?: string | null;
             Data?: components["schemas"]["Person"];
-        };
-        PublishReq: {
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            /** @description 期刊目次代號 */
-            JournalIndexId?: string | null;
-            /**
-             * Format: int32
-             * @description 卷期代號
-             */
-            JournalIndexRowId?: number | null;
         };
         QueryListParam: {
             Fields?: string[] | null;
@@ -11910,17 +11312,7 @@ export interface components {
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: components["schemas"]["SiteViewCountHeader"][] | null;
         };
-        /**
-         * Format: int32
-         * @enum {integer}
-         */
-        SpecAuthorType: 0 | 1;
-        /**
-         * Format: int32
-         * @enum {integer}
-         */
-        SpecDocumentType: 0 | 1 | 2 | 3 | 4;
-        SpecJournal: {
+        SpecMusical: {
             readonly InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
@@ -11939,166 +11331,49 @@ export interface components {
             /** Format: byte */
             readonly DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly JournalId?: string | null;
-            _JournalIndex?: components["schemas"]["SpecJournalIndex"];
-            JournalIndexId?: string | null;
-            _JournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail"];
-            /** Format: int32 */
-            JournalIndexRowId?: number | null;
-            Title?: string | null;
-            Title_en?: string | null;
-            /** Format: int32 */
-            PageStart?: number | null;
-            /** Format: int32 */
-            PageEnd?: number | null;
-            DOIUrl?: string | null;
-            JournalFile?: components["schemas"]["FileManage"];
-            JournalFileId?: string | null;
-            JournalFileName?: string | null;
-            InsightPointFile?: components["schemas"]["FileManage"];
-            InsightPointFileId?: string | null;
-            InsightPointFileName?: string | null;
-            ArticleLang?: components["schemas"]["LangCode"];
-            Memo?: string | null;
-            Memo_en?: string | null;
-            Bibliography?: string | null;
-            _SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor"][] | null;
-            _SpecJournalRefFormat?: components["schemas"]["SpecJournalRefFormat"][] | null;
-            _SpecJournalOpenPointFiles?: components["schemas"]["SpecJournalOpenPointFiles"][] | null;
-            _SpecJournalRefFiles?: components["schemas"]["SpecJournalRefFiles"][] | null;
-            _SpecJournalDocument?: components["schemas"]["SpecJournalDocument"][] | null;
-            _SpecJournalTypes?: components["schemas"]["SpecJournalTypes"][] | null;
-            _SpecJournalKeywords?: components["schemas"]["SpecJournalKeywords"][] | null;
+            readonly MusicalId?: string | null;
+            MusicalName?: string | null;
+            Category?: components["schemas"]["Category"];
+            CategoryId?: string | null;
+            CoverPicId?: string | null;
+            Specification?: string | null;
+            Headstock?: string | null;
+            Backboard?: string | null;
+            ScaleLength?: string | null;
+            Bridge?: string | null;
+            BodyForm?: string | null;
+            Material?: string | null;
+            Info?: string | null;
+            _SpecMusicalSoundList?: components["schemas"]["SpecMusicalSoundList"][] | null;
+            _SpecMusicalPictureList?: components["schemas"]["SpecMusicalPictureList"][] | null;
         };
-        SpecJournalApiRequest: {
+        SpecMusicalApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["SpecJournal"];
+            Data?: components["schemas"]["SpecMusical"];
         };
-        SpecJournalAuthor: {
+        SpecMusicalPictureList: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
             readonly RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly JournalId?: string | null;
-            AuthorType?: components["schemas"]["SpecAuthorType"];
-            ORCID?: string | null;
-            AuthorName?: string | null;
-            AuthorName_en?: string | null;
-            JobTitle?: string | null;
-            Unit?: string | null;
-            Unit_en?: string | null;
-            Email?: string | null;
-            Country?: string | null;
+            readonly MusicalId?: string | null;
+            PicSrc?: components["schemas"]["FileManage"];
+            PicSrcId?: string | null;
+            /** Format: int32 */
+            Sort?: number | null;
+            Info?: string | null;
         };
-        SpecJournalDocument: {
+        SpecMusicalSoundList: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
             readonly RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly JournalId?: string | null;
-            DocumentType?: components["schemas"]["SpecDocumentType"];
-            DocumentName?: string | null;
-            Document?: components["schemas"]["FileManage"];
-            DocumentId?: string | null;
-        };
-        SpecJournalIndex: {
-            readonly InternalId?: string | null;
-            /** Format: date-time */
-            readonly CreateTime?: string | null;
-            CreateUser?: components["schemas"]["Account"];
-            readonly CreateUserId?: string | null;
-            /** Format: date-time */
-            readonly ModifyTime?: string | null;
-            ModifyUser?: components["schemas"]["Account"];
-            readonly ModifyUserId?: string | null;
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            readonly InvalidTime?: string | null;
-            InvalidUser?: components["schemas"]["Account"];
-            readonly InvalidUserId?: string | null;
-            /** Format: byte */
-            readonly DataVersion?: string | null;
-            readonly IsIniData?: boolean;
-            readonly IndexId?: string | null;
-            IndexName?: string | null;
-            _SpecJournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail"][] | null;
-        };
-        SpecJournalIndexApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["SpecJournalIndex"];
-        };
-        SpecJournalIndexDetail: {
-            RowState?: components["schemas"]["RowState"];
-            /** Format: int32 */
-            readonly RowId?: number;
-            /** Format: int32 */
-            RowNo?: number | null;
-            readonly IndexId?: string | null;
-            /** Format: int32 */
-            Volume?: number | null;
-            Issue?: string | null;
-            IsSpecial?: boolean | null;
-            /** Format: date */
-            PublishDate?: string | null;
-            SeasonNo?: string | null;
-            SummaryFile?: components["schemas"]["FileManage"];
-            SummaryFileId?: string | null;
-            SummaryFileName?: string | null;
-        };
-        SpecJournalKeywords: {
-            RowState?: components["schemas"]["RowState"];
-            /** Format: int32 */
-            readonly RowId?: number;
-            /** Format: int32 */
-            RowNo?: number | null;
-            readonly JournalId?: string | null;
-            LangCode?: components["schemas"]["LangCode"];
-            Keyword?: string | null;
-        };
-        SpecJournalOpenPointFiles: {
-            RowState?: components["schemas"]["RowState"];
-            /** Format: int32 */
-            readonly RowId?: number;
-            /** Format: int32 */
-            RowNo?: number | null;
-            readonly JournalId?: string | null;
-            OpenPointFileName?: string | null;
-            OpenPointFile?: components["schemas"]["FileManage"];
-            OpenPointFileId?: string | null;
-        };
-        SpecJournalRefFiles: {
-            RowState?: components["schemas"]["RowState"];
-            /** Format: int32 */
-            readonly RowId?: number;
-            /** Format: int32 */
-            RowNo?: number | null;
-            readonly JournalId?: string | null;
-            RefFileName?: string | null;
-            RefFile?: components["schemas"]["FileManage"];
-            RefFileId?: string | null;
-        };
-        SpecJournalRefFormat: {
-            RowState?: components["schemas"]["RowState"];
-            /** Format: int32 */
-            readonly RowId?: number;
-            /** Format: int32 */
-            RowNo?: number | null;
-            readonly JournalId?: string | null;
-            Title?: string | null;
-            Content?: string | null;
-        };
-        SpecJournalTypes: {
-            RowState?: components["schemas"]["RowState"];
-            /** Format: int32 */
-            readonly RowId?: number;
-            /** Format: int32 */
-            RowNo?: number | null;
-            readonly JournalId?: string | null;
-            Tag?: components["schemas"]["TagData"];
-            TagId?: string | null;
+            readonly MusicalId?: string | null;
+            SoundSrc?: components["schemas"]["FileManage"];
+            SoundSrcId?: string | null;
+            Info?: string | null;
         };
         StringApiResponse: {
             IsSuccess?: boolean | null;

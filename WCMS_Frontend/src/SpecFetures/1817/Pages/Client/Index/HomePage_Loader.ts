@@ -18,7 +18,7 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 
 type BannerFormModel = components["schemas"]["Banner"];
 
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementSet = components["schemas"]["Announcement"];
 
 type CategoryFormModel = components["schemas"]["Category"];
 
