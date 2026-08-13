@@ -650,7 +650,7 @@ const getFileArchiveGridCellContent = (lang: Lang, item: FileArchiveFormModel, k
     if (key === FileArchiveGridColumnKey.Sort) return "0";
     if (key === FileArchiveGridColumnKey.Title) return <FileArchiveTitleCell lang={lang} item={item} />;
     if (key === FileArchiveGridColumnKey.Download) return <FileArchiveDownloadCell lang={lang} item={item} />;
-    if (key === FileArchiveGridColumnKey.DownloadCount) return String(getDownloadCount(item));
+    if (key === FileArchiveGridColumnKey.DownloadCount) return String(getDownloadCount(item, lang));
     if (key === FileArchiveGridColumnKey.UploadDate) return formatDate(item?.CreateTime) ?? "";
     return "";
 };
@@ -698,10 +698,12 @@ const sortFileArchiveRows = <TRow extends { RowId?: number; RowNo?: number | nul
     });
 };
 
-/** 取得總下載數。 */
-const getDownloadCount = (item: FileArchiveFormModel) =>
+/** 取得目前語系檔案的總下載數。 */
+const getDownloadCount = (item: FileArchiveFormModel, lang: Lang): number =>
 {
-    return (item._FileArchiveInfo ?? []).flatMap((info) => info._FileArchiveDetail ?? []).reduce((sum, row) => sum + Number(row.FileSrc?.PublicDownloadCount ?? 0), 0);
+    const info = getCurrentFileInfo(item, lang);
+    const fileRows = info?._FileArchiveDetail ?? [];
+    return fileRows.reduce((sum, row) => sum + Number(row.FileSrc?.PublicDownloadCount ?? 0), 0);
 };
 
 /** 取得日期拆分。 */
