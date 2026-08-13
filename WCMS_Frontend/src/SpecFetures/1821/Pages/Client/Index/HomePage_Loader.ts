@@ -562,7 +562,10 @@ const buildFileArchiveHomeQuery = (p: {
                 Condition: LibCondition.joinConditions([LibCondition.createCondition(FileArchiveFields.ContentStatus, Operator.BitwiseHasAny, 1)]),
             },
         ],
-        OrderBy: [{ Col: FileArchiveFields.CreateTime, Desc: true }],
+        OrderBy: [
+            { Col: FileArchiveFields.Validate_Start, Desc: true },
+            { Col: FileArchiveFields.CreateTime, Desc: true },
+        ],
         PageNumber: 1,
         PageSize: p.take,
     };
