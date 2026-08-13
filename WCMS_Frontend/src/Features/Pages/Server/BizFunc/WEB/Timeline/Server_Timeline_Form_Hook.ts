@@ -23,6 +23,7 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { getModelColumnDisplayName, getModelTableDisplayName } from "@/SysCore/Components/Grid/Grid_ModelDisplay";
 import { buildSupportedLangOrder, DefaultLang, type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
+import { formatDate } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { PGID, TimelineFields, TimelineItemFields, TimelineLangDetailFields } from "@/types/SchemaFields";
@@ -269,6 +270,7 @@ const buildTimelineItemColumns = (displayName: ModelDisplaySchema): ColumnConfig
         title: getTimelineColumnTitle(displayName, TimelineItemTableId, TimelineItemFields.Date, "日期"),
         inputType: "date",
         editable: true,
+        required: true,
         width: 180,
     }, {
         key: TimelineLangDetailColumnKey,
@@ -439,7 +441,7 @@ const toTimelineItemModel = (source: TimelineFormModel, row: GridRow, index: num
         TimelineId: source.TimelineId ?? (row as TimelineItemGridRow).TimelineId,
         RowId: rowId,
         RowNo: index + 1,
-        Date: getEditGridNullableStringCellValue(row, TimelineItemFields.Date),
+        Date: getEditGridStringCellValue(row, TimelineItemFields.Date),
         _TimelineLangDetail: current?._TimelineLangDetail ?? [],
     };
 };
@@ -463,7 +465,7 @@ const toTimelineLangDetailModel = (source: TimelineFormModel, parentRowId: numbe
 /** 建立新的 TimelineItem，並立即補齊所有支援語系。 */
 const buildNewTimelineItem = (data: TimelineFormModel, rowId: number, rowNo: number): TimelineItem =>
 {
-    const item: TimelineItem = { TimelineId: data.TimelineId, RowId: rowId, RowNo: rowNo, Date: null };
+    const item: TimelineItem = { TimelineId: data.TimelineId, RowId: rowId, RowNo: rowNo, Date: formatDate(new Date()) };
     return { ...item, _TimelineLangDetail: buildMissingTimelineLangDetails(item, [], data.TimelineId) };
 };
 

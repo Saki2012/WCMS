@@ -73,7 +73,7 @@ public partial class BannerDetail : FormDetailModel
     /// 資料有效日期-起
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_StartDate)]
-    public DateTime Validate_Start { get; set; }
+    public DateTime? Validate_Start { get; set; }
     /// <summary>
     /// 資料有效日期-迄
     /// </summary>
