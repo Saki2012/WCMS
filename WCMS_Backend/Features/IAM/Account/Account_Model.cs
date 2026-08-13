@@ -8,10 +8,12 @@ using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.SysCore.I18n.Metadata;
 using WCMS.SysCore.Security.IdentityAccess;
 namespace WCMS.Features.IAM.Account;
 
 [Index(nameof(PersonId), IsUnique = true)]
+[LibDesc(DisplayName.Account)]
 public class Account : HeaderModel
 {
     /// <summary>
@@ -81,7 +83,7 @@ public class Account : HeaderModel
     /// 密碼演算法版本
     /// </summary>
     [JsonIgnore]
-    [LibField(ApiFieldMode.Ignore)]
+    [LibNum(ApiFieldMode.Ignore)]
     public int PasswordAlgoVer { get; set; } = 1;
     #endregion
 }

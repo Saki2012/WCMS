@@ -5,6 +5,7 @@ using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.SysCore.PlatformServices.FileManagement;
 
 /// <summary>
@@ -22,6 +23,7 @@ public class FilePathOptions
 /// 檔案管理
 /// </summary>
 [Index(nameof(FileSHA256))]
+[LibDesc(DisplayName.FileManage)]
 public class FileManage : HeaderModel
 {
     /// <summary>
@@ -71,7 +73,7 @@ public class FileManage : HeaderModel
     /// <summary>
     /// 檔案大小
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public long FileSize { get; set; }
     /// <summary>
     /// 功能Id
@@ -94,7 +96,7 @@ public class FileManage : HeaderModel
     /// <summary>
     /// 前台網站下載次數
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.FileManage_DownloadCount)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.FileManage_DownloadCount)]
     public int PublicDownloadCount { get; set; } = 0;
     /// <summary>
     /// 是否公開檔案
@@ -117,6 +119,7 @@ public class FileManage : HeaderModel
 /// </summary>
 /// 
 [Index(nameof(InternalId), nameof(VisitorKey), IsUnique = true), Index(nameof(LastCountTime))]
+[LibDesc(DisplayName.FileManage_DownloadRecent)]
 public class FileManage_DownloadRecent : FormDetailModel
 {
     /// <summary>
@@ -151,6 +154,7 @@ public class FileManage_DownloadRecent : FormDetailModel
 /// <summary>
 /// 檔案同步資訊
 /// </summary>
+[LibDesc(DisplayName.FileManage_SyncInfo)]
 public class FileManage_SyncInfo : FormDetailModel
 {
     /// <summary>
@@ -227,6 +231,7 @@ public class FileManage_SyncInfo : FormDetailModel
 /// <summary>
 /// 檔案被用表 (之後再來做邏輯，先開表)
 /// </summary>
+[LibDesc(DisplayName.FileManage_UsedModel)]
 public class FileManage_UsedModel
 {
     /// <summary>
@@ -239,7 +244,7 @@ public class FileManage_UsedModel
     /// 行代碼
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibNum(ApiFieldMode.ReadOnly)]
     public int RowId { get; set; }
     /// <summary>
     /// 使用的功能表名

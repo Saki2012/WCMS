@@ -4,12 +4,11 @@ import { MessageStatus, type MessageStatusCode } from "@/SysCore/Utils/API/APIBa
 import * as React from "react";
 
 // #region Property
-const DEFAULT_AUTO_CLOSE_MS = Number(import.meta.env.VITE_TOAST_AUTO_CLOSE_MS ?? 5000);
+const DEFAULT_AUTO_CLOSE_MS = 5000;
 
 const EXIT_ANIM_MS = 300;
 
 const ENTER_ANIM_MS = 250;
-
 
 const iconMap: Record<MessageStatusCode, string> = {
     [MessageStatus.Error]: "✖",
@@ -18,14 +17,12 @@ const iconMap: Record<MessageStatusCode, string> = {
     [MessageStatus.Green]: "✔",
 };
 
-
 const levelStyle: Record<MessageStatusCode, React.CSSProperties> = {
     [MessageStatus.Error]: { borderLeft: "4px solid #d32f2f", background: "#fdecea" },
     [MessageStatus.Warning]: { borderLeft: "4px solid #ed6c02", background: "#fff4e5" },
     [MessageStatus.Info]: { borderLeft: "4px solid #0288d1", background: "#e8f4fd" },
     [MessageStatus.Green]: { borderLeft: "4px solid #2e7d32", background: "#edf7ed" },
 };
-
 
 // 進度條顏色（可視需要微調深淺）
 const progressColor: Record<MessageStatusCode, string> = {
@@ -34,7 +31,6 @@ const progressColor: Record<MessageStatusCode, string> = {
     [MessageStatus.Info]: "#0288d1",
     [MessageStatus.Green]: "#2e7d32",
 };
-
 
 type TimerState = {
     timeoutId: number | null;
@@ -302,9 +298,7 @@ export const ToastViewport_Comp: React.FC = () =>
                             // 入/出場動畫：enter 從右→左；exit 往右滑並淡出（左→右）
                             transform: isExiting ? "translateX(40px)" : (isEntering ? "translateX(40px)" : "translateX(0px)"),
                             opacity: isExiting ? 0 : (isEntering ? 0 : 1),
-                            transition: `transform ${isExiting ? EXIT_MS : ENTER_MS}ms ease ${isExiting ? 0 : delay}ms, opacity ${
-                                isExiting ? EXIT_MS : ENTER_MS
-                            }ms ease ${isExiting ? 0 : delay}ms`,
+                            transition: `transform ${isExiting ? EXIT_MS : ENTER_MS}ms ease ${isExiting ? 0 : delay}ms, opacity ${isExiting ? EXIT_MS : ENTER_MS}ms ease ${isExiting ? 0 : delay}ms`,
                             willChange: "transform, opacity",
                             position: "relative",
                             overflow: "hidden",

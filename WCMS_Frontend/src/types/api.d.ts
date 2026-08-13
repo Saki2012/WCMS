@@ -151,9 +151,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["AccountSet_DTO"];
-                    "text/json": components["schemas"]["AccountSet_DTO"];
-                    "application/*+json": components["schemas"]["AccountSet_DTO"];
+                    "application/json": components["schemas"]["Account"];
+                    "text/json": components["schemas"]["Account"];
+                    "application/*+json": components["schemas"]["Account"];
                 };
             };
             responses: {
@@ -193,9 +193,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["AccountSet_DTO"][];
-                    "text/json": components["schemas"]["AccountSet_DTO"][];
-                    "application/*+json": components["schemas"]["AccountSet_DTO"][];
+                    "application/json": components["schemas"]["Account"][];
+                    "text/json": components["schemas"]["Account"][];
+                    "application/*+json": components["schemas"]["Account"][];
                 };
             };
             responses: {
@@ -234,9 +234,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["AccountSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["AccountSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["AccountSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["AccountApiRequest"];
+                    "text/json": components["schemas"]["AccountApiRequest"];
+                    "application/*+json": components["schemas"]["AccountApiRequest"];
                 };
             };
             responses: {
@@ -600,9 +600,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["AnnouncementSet_DTO"];
-                    "text/json": components["schemas"]["AnnouncementSet_DTO"];
-                    "application/*+json": components["schemas"]["AnnouncementSet_DTO"];
+                    "application/json": components["schemas"]["Announcement"];
+                    "text/json": components["schemas"]["Announcement"];
+                    "application/*+json": components["schemas"]["Announcement"];
                 };
             };
             responses: {
@@ -642,9 +642,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["AnnouncementSet_DTO"][];
-                    "text/json": components["schemas"]["AnnouncementSet_DTO"][];
-                    "application/*+json": components["schemas"]["AnnouncementSet_DTO"][];
+                    "application/json": components["schemas"]["Announcement"][];
+                    "text/json": components["schemas"]["Announcement"][];
+                    "application/*+json": components["schemas"]["Announcement"][];
                 };
             };
             responses: {
@@ -683,9 +683,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["AnnouncementSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["AnnouncementSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["AnnouncementSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["AnnouncementApiRequest"];
+                    "text/json": components["schemas"]["AnnouncementApiRequest"];
+                    "application/*+json": components["schemas"]["AnnouncementApiRequest"];
                 };
             };
             responses: {
@@ -1083,7 +1083,7 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: {
-                    "X-XSRF-Token"?: string;
+                    "X-XSRF-TOKEN"?: string;
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
@@ -1200,9 +1200,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["BannerSet_DTO"];
-                    "text/json": components["schemas"]["BannerSet_DTO"];
-                    "application/*+json": components["schemas"]["BannerSet_DTO"];
+                    "application/json": components["schemas"]["Banner"];
+                    "text/json": components["schemas"]["Banner"];
+                    "application/*+json": components["schemas"]["Banner"];
                 };
             };
             responses: {
@@ -1242,9 +1242,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["BannerSet_DTO"][];
-                    "text/json": components["schemas"]["BannerSet_DTO"][];
-                    "application/*+json": components["schemas"]["BannerSet_DTO"][];
+                    "application/json": components["schemas"]["Banner"][];
+                    "text/json": components["schemas"]["Banner"][];
+                    "application/*+json": components["schemas"]["Banner"][];
                 };
             };
             responses: {
@@ -1283,9 +1283,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["BannerSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["BannerSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["BannerSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["BannerApiRequest"];
+                    "text/json": components["schemas"]["BannerApiRequest"];
+                    "application/*+json": components["schemas"]["BannerApiRequest"];
                 };
             };
             responses: {
@@ -1686,9 +1686,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["CalendarDetail_DTO"];
-                    "text/json": components["schemas"]["CalendarDetail_DTO"];
-                    "application/*+json": components["schemas"]["CalendarDetail_DTO"];
+                    "application/json": components["schemas"]["CalendarDetail"];
+                    "text/json": components["schemas"]["CalendarDetail"];
+                    "application/*+json": components["schemas"]["CalendarDetail"];
                 };
             };
             responses: {
@@ -1729,9 +1729,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["CalendarSet_DTO"];
-                    "text/json": components["schemas"]["CalendarSet_DTO"];
-                    "application/*+json": components["schemas"]["CalendarSet_DTO"];
+                    "application/json": components["schemas"]["Calendar"];
+                    "text/json": components["schemas"]["Calendar"];
+                    "application/*+json": components["schemas"]["Calendar"];
                 };
             };
             responses: {
@@ -1771,9 +1771,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["CalendarSet_DTO"][];
-                    "text/json": components["schemas"]["CalendarSet_DTO"][];
-                    "application/*+json": components["schemas"]["CalendarSet_DTO"][];
+                    "application/json": components["schemas"]["Calendar"][];
+                    "text/json": components["schemas"]["Calendar"][];
+                    "application/*+json": components["schemas"]["Calendar"][];
                 };
             };
             responses: {
@@ -1812,9 +1812,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["CalendarSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["CalendarSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["CalendarSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["CalendarApiRequest"];
+                    "text/json": components["schemas"]["CalendarApiRequest"];
+                    "application/*+json": components["schemas"]["CalendarApiRequest"];
                 };
             };
             responses: {
@@ -2218,9 +2218,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["CategoryDataSet_DTO"];
-                    "text/json": components["schemas"]["CategoryDataSet_DTO"];
-                    "application/*+json": components["schemas"]["CategoryDataSet_DTO"];
+                    "application/json": components["schemas"]["Category"];
+                    "text/json": components["schemas"]["Category"];
+                    "application/*+json": components["schemas"]["Category"];
                 };
             };
             responses: {
@@ -2260,9 +2260,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["CategoryDataSet_DTO"][];
-                    "text/json": components["schemas"]["CategoryDataSet_DTO"][];
-                    "application/*+json": components["schemas"]["CategoryDataSet_DTO"][];
+                    "application/json": components["schemas"]["Category"][];
+                    "text/json": components["schemas"]["Category"][];
+                    "application/*+json": components["schemas"]["Category"][];
                 };
             };
             responses: {
@@ -2301,9 +2301,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["CategoryDataSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["CategoryDataSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["CategoryDataSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["CategoryApiRequest"];
+                    "text/json": components["schemas"]["CategoryApiRequest"];
+                    "application/*+json": components["schemas"]["CategoryApiRequest"];
                 };
             };
             responses: {
@@ -2667,9 +2667,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["FileArchiveSet_DTO"];
-                    "text/json": components["schemas"]["FileArchiveSet_DTO"];
-                    "application/*+json": components["schemas"]["FileArchiveSet_DTO"];
+                    "application/json": components["schemas"]["FileArchive"];
+                    "text/json": components["schemas"]["FileArchive"];
+                    "application/*+json": components["schemas"]["FileArchive"];
                 };
             };
             responses: {
@@ -2709,9 +2709,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["FileArchiveSet_DTO"][];
-                    "text/json": components["schemas"]["FileArchiveSet_DTO"][];
-                    "application/*+json": components["schemas"]["FileArchiveSet_DTO"][];
+                    "application/json": components["schemas"]["FileArchive"][];
+                    "text/json": components["schemas"]["FileArchive"][];
+                    "application/*+json": components["schemas"]["FileArchive"][];
                 };
             };
             responses: {
@@ -2750,9 +2750,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["FileArchiveSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["FileArchiveSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["FileArchiveSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["FileArchiveApiRequest"];
+                    "text/json": components["schemas"]["FileArchiveApiRequest"];
+                    "application/*+json": components["schemas"]["FileArchiveApiRequest"];
                 };
             };
             responses: {
@@ -3441,9 +3441,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["FileManageSet_DTO"];
-                    "text/json": components["schemas"]["FileManageSet_DTO"];
-                    "application/*+json": components["schemas"]["FileManageSet_DTO"];
+                    "application/json": components["schemas"]["FileManage"];
+                    "text/json": components["schemas"]["FileManage"];
+                    "application/*+json": components["schemas"]["FileManage"];
                 };
             };
             responses: {
@@ -3483,9 +3483,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["FileManageSet_DTO"][];
-                    "text/json": components["schemas"]["FileManageSet_DTO"][];
-                    "application/*+json": components["schemas"]["FileManageSet_DTO"][];
+                    "application/json": components["schemas"]["FileManage"][];
+                    "text/json": components["schemas"]["FileManage"][];
+                    "application/*+json": components["schemas"]["FileManage"][];
                 };
             };
             responses: {
@@ -3524,9 +3524,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["FileManageSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["FileManageSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["FileManageSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["FileManageApiRequest"];
+                    "text/json": components["schemas"]["FileManageApiRequest"];
+                    "application/*+json": components["schemas"]["FileManageApiRequest"];
                 };
             };
             responses: {
@@ -3890,9 +3890,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["GallerySet_DTO"];
-                    "text/json": components["schemas"]["GallerySet_DTO"];
-                    "application/*+json": components["schemas"]["GallerySet_DTO"];
+                    "application/json": components["schemas"]["Gallery"];
+                    "text/json": components["schemas"]["Gallery"];
+                    "application/*+json": components["schemas"]["Gallery"];
                 };
             };
             responses: {
@@ -3932,9 +3932,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["GallerySet_DTO"][];
-                    "text/json": components["schemas"]["GallerySet_DTO"][];
-                    "application/*+json": components["schemas"]["GallerySet_DTO"][];
+                    "application/json": components["schemas"]["Gallery"][];
+                    "text/json": components["schemas"]["Gallery"][];
+                    "application/*+json": components["schemas"]["Gallery"][];
                 };
             };
             responses: {
@@ -3973,9 +3973,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["GallerySet_DTOApiRequest"];
-                    "text/json": components["schemas"]["GallerySet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["GallerySet_DTOApiRequest"];
+                    "application/json": components["schemas"]["GalleryApiRequest"];
+                    "text/json": components["schemas"]["GalleryApiRequest"];
+                    "application/*+json": components["schemas"]["GalleryApiRequest"];
                 };
             };
             responses: {
@@ -4378,9 +4378,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["MatCategoryDataSet_DTO"];
-                    "text/json": components["schemas"]["MatCategoryDataSet_DTO"];
-                    "application/*+json": components["schemas"]["MatCategoryDataSet_DTO"];
+                    "application/json": components["schemas"]["MatCategoryFormModel"];
+                    "text/json": components["schemas"]["MatCategoryFormModel"];
+                    "application/*+json": components["schemas"]["MatCategoryFormModel"];
                 };
             };
             responses: {
@@ -4420,9 +4420,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["MatCategoryDataSet_DTO"][];
-                    "text/json": components["schemas"]["MatCategoryDataSet_DTO"][];
-                    "application/*+json": components["schemas"]["MatCategoryDataSet_DTO"][];
+                    "application/json": components["schemas"]["MatCategoryFormModel"][];
+                    "text/json": components["schemas"]["MatCategoryFormModel"][];
+                    "application/*+json": components["schemas"]["MatCategoryFormModel"][];
                 };
             };
             responses: {
@@ -4461,9 +4461,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["MatCategoryDataSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["MatCategoryDataSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["MatCategoryDataSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["MatCategoryFormModelApiRequest"];
+                    "text/json": components["schemas"]["MatCategoryFormModelApiRequest"];
+                    "application/*+json": components["schemas"]["MatCategoryFormModelApiRequest"];
                 };
             };
             responses: {
@@ -4827,9 +4827,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["MaterialSet_DTO"];
-                    "text/json": components["schemas"]["MaterialSet_DTO"];
-                    "application/*+json": components["schemas"]["MaterialSet_DTO"];
+                    "application/json": components["schemas"]["Material"];
+                    "text/json": components["schemas"]["Material"];
+                    "application/*+json": components["schemas"]["Material"];
                 };
             };
             responses: {
@@ -4869,9 +4869,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["MaterialSet_DTO"][];
-                    "text/json": components["schemas"]["MaterialSet_DTO"][];
-                    "application/*+json": components["schemas"]["MaterialSet_DTO"][];
+                    "application/json": components["schemas"]["Material"][];
+                    "text/json": components["schemas"]["Material"][];
+                    "application/*+json": components["schemas"]["Material"][];
                 };
             };
             responses: {
@@ -4910,9 +4910,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["MaterialSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["MaterialSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["MaterialSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["MaterialApiRequest"];
+                    "text/json": components["schemas"]["MaterialApiRequest"];
+                    "application/*+json": components["schemas"]["MaterialApiRequest"];
                 };
             };
             responses: {
@@ -5255,6 +5255,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SystemAPI/Migration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    labelTag?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/PageManagement/GetUsedProgList": {
         parameters: {
             query?: never;
@@ -5312,9 +5350,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["PageManagementSet_DTO"];
-                    "text/json": components["schemas"]["PageManagementSet_DTO"];
-                    "application/*+json": components["schemas"]["PageManagementSet_DTO"];
+                    "application/json": components["schemas"]["PageManagement"];
+                    "text/json": components["schemas"]["PageManagement"];
+                    "application/*+json": components["schemas"]["PageManagement"];
                 };
             };
             responses: {
@@ -5354,9 +5392,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["PageManagementSet_DTO"][];
-                    "text/json": components["schemas"]["PageManagementSet_DTO"][];
-                    "application/*+json": components["schemas"]["PageManagementSet_DTO"][];
+                    "application/json": components["schemas"]["PageManagement"][];
+                    "text/json": components["schemas"]["PageManagement"][];
+                    "application/*+json": components["schemas"]["PageManagement"][];
                 };
             };
             responses: {
@@ -5395,9 +5433,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["PageManagementSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["PageManagementSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["PageManagementSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["PageManagementApiRequest"];
+                    "text/json": components["schemas"]["PageManagementApiRequest"];
+                    "application/*+json": components["schemas"]["PageManagementApiRequest"];
                 };
             };
             responses: {
@@ -5803,9 +5841,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["PersonSet_DTO"];
-                    "text/json": components["schemas"]["PersonSet_DTO"];
-                    "application/*+json": components["schemas"]["PersonSet_DTO"];
+                    "application/json": components["schemas"]["Person"];
+                    "text/json": components["schemas"]["Person"];
+                    "application/*+json": components["schemas"]["Person"];
                 };
             };
             responses: {
@@ -5845,9 +5883,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["PersonSet_DTO"][];
-                    "text/json": components["schemas"]["PersonSet_DTO"][];
-                    "application/*+json": components["schemas"]["PersonSet_DTO"][];
+                    "application/json": components["schemas"]["Person"][];
+                    "text/json": components["schemas"]["Person"][];
+                    "application/*+json": components["schemas"]["Person"][];
                 };
             };
             responses: {
@@ -5886,9 +5924,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["PersonSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["PersonSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["PersonSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["PersonApiRequest"];
+                    "text/json": components["schemas"]["PersonApiRequest"];
+                    "application/*+json": components["schemas"]["PersonApiRequest"];
                 };
             };
             responses: {
@@ -6292,9 +6330,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["RolePermissionSet_DTO"];
-                    "text/json": components["schemas"]["RolePermissionSet_DTO"];
-                    "application/*+json": components["schemas"]["RolePermissionSet_DTO"];
+                    "application/json": components["schemas"]["RoleData"];
+                    "text/json": components["schemas"]["RoleData"];
+                    "application/*+json": components["schemas"]["RoleData"];
                 };
             };
             responses: {
@@ -6334,9 +6372,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["RolePermissionSet_DTO"][];
-                    "text/json": components["schemas"]["RolePermissionSet_DTO"][];
-                    "application/*+json": components["schemas"]["RolePermissionSet_DTO"][];
+                    "application/json": components["schemas"]["RoleData"][];
+                    "text/json": components["schemas"]["RoleData"][];
+                    "application/*+json": components["schemas"]["RoleData"][];
                 };
             };
             responses: {
@@ -6375,9 +6413,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["RolePermissionSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["RolePermissionSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["RolePermissionSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["RoleDataApiRequest"];
+                    "text/json": components["schemas"]["RoleDataApiRequest"];
+                    "application/*+json": components["schemas"]["RoleDataApiRequest"];
                 };
             };
             responses: {
@@ -6829,9 +6867,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SiteMenuSet_DTO"];
-                    "text/json": components["schemas"]["SiteMenuSet_DTO"];
-                    "application/*+json": components["schemas"]["SiteMenuSet_DTO"];
+                    "application/json": components["schemas"]["SiteMenu_Index"];
+                    "text/json": components["schemas"]["SiteMenu_Index"];
+                    "application/*+json": components["schemas"]["SiteMenu_Index"];
                 };
             };
             responses: {
@@ -6871,9 +6909,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SiteMenuSet_DTO"][];
-                    "text/json": components["schemas"]["SiteMenuSet_DTO"][];
-                    "application/*+json": components["schemas"]["SiteMenuSet_DTO"][];
+                    "application/json": components["schemas"]["SiteMenu_Index"][];
+                    "text/json": components["schemas"]["SiteMenu_Index"][];
+                    "application/*+json": components["schemas"]["SiteMenu_Index"][];
                 };
             };
             responses: {
@@ -6912,9 +6950,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SiteMenuSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["SiteMenuSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["SiteMenuSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["SiteMenu_IndexApiRequest"];
+                    "text/json": components["schemas"]["SiteMenu_IndexApiRequest"];
+                    "application/*+json": components["schemas"]["SiteMenu_IndexApiRequest"];
                 };
             };
             responses: {
@@ -7539,7 +7577,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SiteViewCount/GetSiteViewCountSetSchema": {
+    "/Service/SiteViewCount/GetSiteViewCountHeaderSchema": {
         parameters: {
             query?: never;
             header?: never;
@@ -7564,9 +7602,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["SiteViewCountSet_DTOApiResponse"];
-                        "application/json": components["schemas"]["SiteViewCountSet_DTOApiResponse"];
-                        "text/json": components["schemas"]["SiteViewCountSet_DTOApiResponse"];
+                        "text/plain": components["schemas"]["SiteViewCountHeaderApiResponse"];
+                        "application/json": components["schemas"]["SiteViewCountHeaderApiResponse"];
+                        "text/json": components["schemas"]["SiteViewCountHeaderApiResponse"];
                     };
                 };
             };
@@ -7699,7 +7737,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/GetWeatherData": {
+    "/Service/SpecJournal/GetAuthorByOrcid": {
         parameters: {
             query?: never;
             header?: never;
@@ -7708,7 +7746,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    orcid?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -7724,9 +7764,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["SpecHomePageWeather_DTOApiResponse"];
-                        "application/json": components["schemas"]["SpecHomePageWeather_DTOApiResponse"];
-                        "text/json": components["schemas"]["SpecHomePageWeather_DTOApiResponse"];
+                        "text/plain": components["schemas"]["ORCIDDataApiResponse"];
+                        "application/json": components["schemas"]["ORCIDDataApiResponse"];
+                        "text/json": components["schemas"]["ORCIDDataApiResponse"];
                     };
                 };
             };
@@ -7739,91 +7779,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/Create": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecHomePage1820Set_DTO"];
-                    "text/json": components["schemas"]["SpecHomePage1820Set_DTO"];
-                    "application/*+json": components["schemas"]["SpecHomePage1820Set_DTO"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecHomePageApi/InitialCreateData": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecHomePage1820Set_DTO"][];
-                    "text/json": components["schemas"]["SpecHomePage1820Set_DTO"][];
-                    "application/*+json": components["schemas"]["SpecHomePage1820Set_DTO"][];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecHomePageApi/Update": {
+    "/Service/SpecJournal/PublishJournal": {
         parameters: {
             query?: never;
             header?: never;
@@ -7843,9 +7799,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecHomePage1820Set_DTOApiRequest"];
-                    "text/json": components["schemas"]["SpecHomePage1820Set_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["SpecHomePage1820Set_DTOApiRequest"];
+                    "application/json": components["schemas"]["PublishReq"];
+                    "text/json": components["schemas"]["PublishReq"];
+                    "application/*+json": components["schemas"]["PublishReq"];
                 };
             };
             responses: {
@@ -7865,7 +7821,175 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/Invalid/{pk}": {
+    "/Service/SpecJournal/UnpublishJournal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string;
+                    "text/json": string;
+                    "application/*+json": string;
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournal/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecJournal"];
+                    "text/json": components["schemas"]["SpecJournal"];
+                    "application/*+json": components["schemas"]["SpecJournal"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournal/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecJournal"][];
+                    "text/json": components["schemas"]["SpecJournal"][];
+                    "application/*+json": components["schemas"]["SpecJournal"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournal/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecJournalApiRequest"];
+                    "text/json": components["schemas"]["SpecJournalApiRequest"];
+                    "application/*+json": components["schemas"]["SpecJournalApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournal/Invalid/{pk}": {
         parameters: {
             query?: never;
             header?: never;
@@ -7906,7 +8030,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/Service/SpecHomePageApi/BatchInvalid": {
+    "/Service/SpecJournal/BatchInvalid": {
         parameters: {
             query?: never;
             header?: never;
@@ -7950,7 +8074,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/Service/SpecHomePageApi/Delete": {
+    "/Service/SpecJournal/Delete": {
         parameters: {
             query?: never;
             header?: never;
@@ -7988,7 +8112,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/BatchDelete": {
+    "/Service/SpecJournal/BatchDelete": {
         parameters: {
             query?: never;
             header?: never;
@@ -8030,7 +8154,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/QueryData": {
+    "/Service/SpecJournal/QueryData": {
         parameters: {
             query?: never;
             header?: never;
@@ -8068,7 +8192,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/QueryList": {
+    "/Service/SpecJournal/QueryList": {
         parameters: {
             query?: never;
             header?: never;
@@ -8110,7 +8234,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/GetTotalCounts": {
+    "/Service/SpecJournal/GetTotalCounts": {
         parameters: {
             query?: never;
             header?: never;
@@ -8152,7 +8276,456 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/GetModelDisplayName": {
+    "/Service/SpecJournal/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecJournalIndex"];
+                    "text/json": components["schemas"]["SpecJournalIndex"];
+                    "application/*+json": components["schemas"]["SpecJournalIndex"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecJournalIndex"][];
+                    "text/json": components["schemas"]["SpecJournalIndex"][];
+                    "application/*+json": components["schemas"]["SpecJournalIndex"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SpecJournalIndexApiRequest"];
+                    "text/json": components["schemas"]["SpecJournalIndexApiRequest"];
+                    "application/*+json": components["schemas"]["SpecJournalIndexApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecJournalIndex/GetModelDisplayName": {
         parameters: {
             query?: never;
             header?: never;
@@ -8209,9 +8782,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SurveySet_DTO"];
-                    "text/json": components["schemas"]["SurveySet_DTO"];
-                    "application/*+json": components["schemas"]["SurveySet_DTO"];
+                    "application/json": components["schemas"]["Survey"];
+                    "text/json": components["schemas"]["Survey"];
+                    "application/*+json": components["schemas"]["Survey"];
                 };
             };
             responses: {
@@ -8251,9 +8824,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SurveySet_DTO"][];
-                    "text/json": components["schemas"]["SurveySet_DTO"][];
-                    "application/*+json": components["schemas"]["SurveySet_DTO"][];
+                    "application/json": components["schemas"]["Survey"][];
+                    "text/json": components["schemas"]["Survey"][];
+                    "application/*+json": components["schemas"]["Survey"][];
                 };
             };
             responses: {
@@ -8292,9 +8865,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SurveySet_DTOApiRequest"];
-                    "text/json": components["schemas"]["SurveySet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["SurveySet_DTOApiRequest"];
+                    "application/json": components["schemas"]["SurveyApiRequest"];
+                    "text/json": components["schemas"]["SurveyApiRequest"];
+                    "application/*+json": components["schemas"]["SurveyApiRequest"];
                 };
             };
             responses: {
@@ -8727,9 +9300,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["SurveySubmissionsSet_DTOApiResponse"];
-                        "application/json": components["schemas"]["SurveySubmissionsSet_DTOApiResponse"];
-                        "text/json": components["schemas"]["SurveySubmissionsSet_DTOApiResponse"];
+                        "text/plain": components["schemas"]["SurveySubmissionsApiResponse"];
+                        "application/json": components["schemas"]["SurveySubmissionsApiResponse"];
+                        "text/json": components["schemas"]["SurveySubmissionsApiResponse"];
                     };
                 };
             };
@@ -8928,44 +9501,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SystemAPI/Migration": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: {
-                    labelTag?: string;
-                };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/Service/Tag/Create": {
         parameters: {
             query?: never;
@@ -8987,9 +9522,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["TagSet_DTO"];
-                    "text/json": components["schemas"]["TagSet_DTO"];
-                    "application/*+json": components["schemas"]["TagSet_DTO"];
+                    "application/json": components["schemas"]["TagData"];
+                    "text/json": components["schemas"]["TagData"];
+                    "application/*+json": components["schemas"]["TagData"];
                 };
             };
             responses: {
@@ -9029,9 +9564,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["TagSet_DTO"][];
-                    "text/json": components["schemas"]["TagSet_DTO"][];
-                    "application/*+json": components["schemas"]["TagSet_DTO"][];
+                    "application/json": components["schemas"]["TagData"][];
+                    "text/json": components["schemas"]["TagData"][];
+                    "application/*+json": components["schemas"]["TagData"][];
                 };
             };
             responses: {
@@ -9070,9 +9605,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["TagSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["TagSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["TagSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["TagDataApiRequest"];
+                    "text/json": components["schemas"]["TagDataApiRequest"];
+                    "application/*+json": components["schemas"]["TagDataApiRequest"];
                 };
             };
             responses: {
@@ -9436,9 +9971,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["TimelineSet_DTO"];
-                    "text/json": components["schemas"]["TimelineSet_DTO"];
-                    "application/*+json": components["schemas"]["TimelineSet_DTO"];
+                    "application/json": components["schemas"]["Timeline"];
+                    "text/json": components["schemas"]["Timeline"];
+                    "application/*+json": components["schemas"]["Timeline"];
                 };
             };
             responses: {
@@ -9478,9 +10013,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["TimelineSet_DTO"][];
-                    "text/json": components["schemas"]["TimelineSet_DTO"][];
-                    "application/*+json": components["schemas"]["TimelineSet_DTO"][];
+                    "application/json": components["schemas"]["Timeline"][];
+                    "text/json": components["schemas"]["Timeline"][];
+                    "application/*+json": components["schemas"]["Timeline"][];
                 };
             };
             responses: {
@@ -9519,9 +10054,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["TimelineSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["TimelineSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["TimelineSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["TimelineApiRequest"];
+                    "text/json": components["schemas"]["TimelineApiRequest"];
+                    "application/*+json": components["schemas"]["TimelineApiRequest"];
                 };
             };
             responses: {
@@ -9885,9 +10420,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["WebResourceSet_DTO"];
-                    "text/json": components["schemas"]["WebResourceSet_DTO"];
-                    "application/*+json": components["schemas"]["WebResourceSet_DTO"];
+                    "application/json": components["schemas"]["WebResource"];
+                    "text/json": components["schemas"]["WebResource"];
+                    "application/*+json": components["schemas"]["WebResource"];
                 };
             };
             responses: {
@@ -9927,9 +10462,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["WebResourceSet_DTO"][];
-                    "text/json": components["schemas"]["WebResourceSet_DTO"][];
-                    "application/*+json": components["schemas"]["WebResourceSet_DTO"][];
+                    "application/json": components["schemas"]["WebResource"][];
+                    "text/json": components["schemas"]["WebResource"][];
+                    "application/*+json": components["schemas"]["WebResource"][];
                 };
             };
             responses: {
@@ -9968,9 +10503,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["WebResourceSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["WebResourceSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["WebResourceSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["WebResourceApiRequest"];
+                    "text/json": components["schemas"]["WebResourceApiRequest"];
+                    "application/*+json": components["schemas"]["WebResourceApiRequest"];
                 };
             };
             responses: {
@@ -10317,430 +10852,268 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        AccountModel: {
+        Account: {
+            readonly InternalId?: string | null;
             /** Format: date-time */
-            CreateTime?: string | null;
-            CreateUser?: components["schemas"]["AccountModel"];
-            CreateUserId?: string | null;
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
             /** Format: date-time */
-            ModifyTime?: string | null;
-            ModifyUser?: components["schemas"]["AccountModel"];
-            ModifyUserId?: string | null;
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUser?: components["schemas"]["AccountModel"];
-            InvalidUserId?: string | null;
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
-            AccountId?: string | null;
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly AccountId?: string | null;
             AccountName?: string | null;
-            Person?: components["schemas"]["PersonModel"];
+            Person?: components["schemas"]["Person"];
             PersonId?: string | null;
-            Role?: components["schemas"]["RoleDataModel"];
+            Role?: components["schemas"]["RoleData"];
             RoleId?: string | null;
-            /** Format: byte */
-            PasswordHash?: string | null;
-            /** Format: byte */
-            PasswordSalt?: string | null;
-            /** Format: int32 */
-            PasswordAlgoVer?: number;
             AccountStatus?: components["schemas"]["AccountStatus"];
             /** Format: date */
-            PasswordChangeDate?: string;
+            PasswordChangeDate?: string | null;
+            Password?: string | null;
         };
-        AccountSet_DTO: {
-            Account?: components["schemas"]["Account_DTO"];
-        };
-        AccountSet_DTOApiRequest: {
+        AccountApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["AccountSet_DTO"];
+            Data?: components["schemas"]["Account"];
         };
         /**
          * Format: int32
          * @enum {integer}
          */
         AccountStatus: 0 | 1;
-        Account_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
+        Announcement: {
+            readonly InternalId?: string | null;
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 帳號 */
-            AccountId?: string | null;
-            /** @description 使用者名稱 */
-            AccountName?: string | null;
-            Person?: components["schemas"]["PersonModel_DTO"];
-            /** @description 人員編號 */
-            PersonId?: string | null;
-            Role?: components["schemas"]["RoleDataModel_DTO"];
-            /** @description 角色代號 */
-            RoleId?: string | null;
-            /** @description 密碼 */
-            Password?: string | null;
-            AccountStatus?: components["schemas"]["AccountStatus"];
-            /**
-             * Format: date
-             * @description 密碼最後修改日
-             */
-            PasswordChangeDate?: string;
-        };
-        AnnouncementDetailFile_DTO: {
-            /** @description 公告代碼 */
-            AnnouncementId?: string | null;
-            /**
-             * Format: int32
-             * @description 父行代碼
-             */
-            ParentRowId?: number | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            File?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 附件 */
-            FileId?: string | null;
-            /** @description 附件名稱 */
-            FileName?: string | null;
-            _AnnouncementDetail?: components["schemas"]["AnnouncementDetail_DTO"];
-        };
-        AnnouncementDetail_DTO: {
-            /** @description 公告代碼 */
-            AnnouncementId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            Lang?: components["schemas"]["LangCode"];
-            /** @description 標題 */
-            Title?: string | null;
-            /** @description 副標題 */
-            SubTitle?: string | null;
-            /** @description 內文 */
-            Content?: string | null;
-            /** @description 網址 */
-            Url?: string | null;
-            /** @description 網址描述 */
-            UrlDescription?: string | null;
-            _Announcement?: components["schemas"]["Announcement_DTO"];
-            _AnnouncementDetailFile?: components["schemas"]["AnnouncementDetailFile_DTO"][] | null;
-        };
-        AnnouncementSet_DTO: {
-            Announcement?: components["schemas"]["Announcement_DTO"];
-            AnnouncementDetail?: components["schemas"]["AnnouncementDetail_DTO"][] | null;
-            /** @description 公告附件明細 */
-            AnnouncementDetailFile?: components["schemas"]["AnnouncementDetailFile_DTO"][] | null;
-        };
-        AnnouncementSet_DTOApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["AnnouncementSet_DTO"];
-        };
-        Announcement_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 公告代碼 */
-            AnnouncementId?: string | null;
-            /** @description 類別 */
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly AnnouncementId?: string | null;
             Categories?: string | null;
-            /** @description 標籤 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description 封面圖片 */
+            Picture?: components["schemas"]["FileManage"];
             PictureId?: string | null;
-            /** @description 圖片說明 */
             PicDescription?: string | null;
-            /**
-             * Format: date-time
-             * @description 公告日期
-             */
+            /** Format: date-time */
             Validate_Start?: string | null;
-            /**
-             * Format: date-time
-             * @description 下架日期
-             */
+            /** Format: date-time */
             Validate_End?: string | null;
-            _AnnouncementDetail?: components["schemas"]["AnnouncementDetail_DTO"][] | null;
+            _AnnouncementDetail?: components["schemas"]["AnnouncementDetail"][] | null;
         };
-        BannerDetailInfo_DTO: {
-            /** @description 橫幅廣告 */
-            BannerId?: string | null;
-            /**
-             * Format: int32
-             * @description 父行代碼
-             */
-            ParentRowId?: number;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number;
-            Lang?: components["schemas"]["LangCode"];
-            /** @description 標題 */
-            Title?: string | null;
-            /** @description 內文 */
-            Content?: string | null;
-            /** @description 網址 */
-            URL?: string | null;
-            URL_Open?: components["schemas"]["WindowTarget"];
-            _BannerDetail?: components["schemas"]["BannerDetail_DTO"];
-        };
-        BannerDetail_DTO: {
-            /** @description 橫幅廣告 */
-            BannerId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number;
-            /** @description 圖片來源 */
-            PicSrcId?: string | null;
-            /** @description 標題顏色 */
-            FontColor?: string | null;
-            /**
-             * Format: date-time
-             * @description 上架日期
-             */
-            Validate_Start?: string | null;
-            /**
-             * Format: date-time
-             * @description 下架日期
-             */
-            Validate_End?: string | null;
-            /**
-             * Format: int32
-             * @description 排序編號
-             */
-            Sort?: number;
-            _Banner?: components["schemas"]["Banner_DTO"];
-            _BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
-        };
-        BannerSet_DTO: {
-            Banner?: components["schemas"]["Banner_DTO"];
-            BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
-            BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
-        };
-        BannerSet_DTOApiRequest: {
+        AnnouncementApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["BannerSet_DTO"];
+            Data?: components["schemas"]["Announcement"];
         };
-        Banner_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
+        AnnouncementDetail: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly AnnouncementId?: string | null;
+            Lang?: components["schemas"]["LangCode"];
+            Title?: string | null;
+            SubTitle?: string | null;
+            Content?: string | null;
+            Url?: string | null;
+            UrlDescription?: string | null;
+            _AnnouncementDetailFile?: components["schemas"]["AnnouncementDetailFile"][] | null;
+        };
+        AnnouncementDetailFile: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly AnnouncementId?: string | null;
+            /** Format: int32 */
+            readonly ParentRowId?: number;
+            File?: components["schemas"]["FileManage"];
+            FileId?: string | null;
+            FileName?: string | null;
+        };
+        Banner: {
+            readonly InternalId?: string | null;
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 橫幅廣告 */
-            BannerId?: string | null;
-            /** @description 橫幅類別名稱 */
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly BannerId?: string | null;
             BannerCategoryName?: string | null;
-            /**
-             * Format: int32
-             * @description 轉換間隔(s)
-             */
-            Interval?: number;
-            /**
-             * Format: int32
-             * @description 轉換速度(ms)
-             */
-            Speed?: number;
-            /**
-             * Format: int32
-             * @description 圖片高度(px)
-             */
-            Height?: number;
-            /**
-             * Format: int32
-             * @description 圖片寬度(px)
-             */
-            Width?: number;
-            _BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
-        };
-        CalendarDetail_DTO: {
             /** Format: int32 */
-            Year?: number | null;
+            Interval?: number | null;
+            /** Format: int32 */
+            Speed?: number | null;
+            /** Format: int32 */
+            Height?: number | null;
+            /** Format: int32 */
+            Width?: number | null;
+            _BannerDetail?: components["schemas"]["BannerDetail"][] | null;
+        };
+        BannerApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["Banner"];
+        };
+        BannerDetail: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly BannerId?: string | null;
+            PicSrcId?: string | null;
+            FontColor?: string | null;
+            /** Format: date-time */
+            Validate_Start?: string | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            /** Format: int32 */
+            Sort?: number | null;
+            _BannerDetailInfo?: components["schemas"]["BannerDetailInfo"][] | null;
+        };
+        BannerDetailInfo: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly BannerId?: string | null;
+            /** Format: int32 */
+            readonly ParentRowId?: number;
+            Lang?: components["schemas"]["LangCode"];
+            Title?: string | null;
+            Content?: string | null;
+            URL?: string | null;
+            URL_Open?: components["schemas"]["WindowTarget"];
+        };
+        Calendar: {
+            readonly InternalId?: string | null;
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            /** Format: int32 */
+            readonly Year?: number;
+            ImportSrc?: string | null;
+            /** Format: date-time */
+            LastImportTime?: string | null;
+            _CalendarDetail?: components["schemas"]["CalendarDetail"][] | null;
+        };
+        CalendarApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["Calendar"];
+        };
+        CalendarDetail: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly Year?: number;
             /** Format: date */
-            Date?: string | null;
+            readonly Date?: string;
             DayOfWeek?: components["schemas"]["DayOfWeek"];
             IsHoliday?: boolean | null;
             HolidayName?: string | null;
             Description?: string | null;
             IsEdit?: boolean | null;
             /** Format: date-time */
-            ModifyTime?: string | null;
-            ModifyUser?: components["schemas"]["AccountModel"];
-            ModifyUserId?: string | null;
-            _Calendar?: components["schemas"]["Calendar_DTO"];
-        };
-        CalendarSet_DTO: {
-            Calendar?: components["schemas"]["Calendar_DTO"];
-            CalendarDetail?: components["schemas"]["CalendarDetail_DTO"][] | null;
-        };
-        CalendarSet_DTOApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["CalendarSet_DTO"];
-        };
-        Calendar_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** Format: int32 */
-            Year?: number | null;
-            ImportSrc?: string | null;
-            /** Format: date-time */
-            LastImportTime?: string | null;
-            _CalendarDetail?: components["schemas"]["CalendarDetail_DTO"][] | null;
+            readonly ModifyTime?: string;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
         };
         CaptchaPublicConfig_DTO: {
-            Enabled?: boolean;
+            Enabled?: boolean | null;
             Provider?: string | null;
             SiteKey?: string | null;
         };
         CaptchaPublicConfig_DTOApiResponse: {
-            readonly IsSuccess?: boolean;
+            IsSuccess?: boolean | null;
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: components["schemas"]["CaptchaPublicConfig_DTO"][] | null;
         };
-        CategoryDataSet_DTO: {
-            Category?: components["schemas"]["Category_DTO"];
-            CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
-        };
-        CategoryDataSet_DTOApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["CategoryDataSet_DTO"];
-        };
-        CategoryDetail_DTO: {
-            /** @description 類別 */
-            CategoryId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number;
-            Lang?: components["schemas"]["LangCode"];
-            /** @description 類別名稱 */
-            CategoryName?: string | null;
-        };
-        Category_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
+        Category: {
+            readonly InternalId?: string | null;
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 類別 */
-            CategoryId?: string | null;
-            /** @description 功能模塊代碼 */
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly CategoryId?: string | null;
             ProgId?: string | null;
-            _CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
-            _MatCategoryInfoField?: components["schemas"]["MatCategoryInfoField_DTO"][] | null;
+            _CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
+        };
+        CategoryApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["Category"];
+        };
+        CategoryDetail: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly CategoryId?: string | null;
+            Lang?: components["schemas"]["LangCode"];
+            CategoryName?: string | null;
         };
         ChangePassword: {
             OldPassword?: string | null;
@@ -10761,165 +11134,97 @@ export interface components {
          * @enum {integer}
          */
         DayOfWeek: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-        FileArchiveDetail_DTO: {
-            /** @description 檔案室代碼 */
-            FileArchiveId?: string | null;
+        FileArchive: {
+            readonly InternalId?: string | null;
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly FileArchiveId: string;
+            ContentStatus?: components["schemas"]["ContentStatus"];
+            CategoriesId?: string | null;
+            TagsId?: string | null;
             /**
-             * Format: int32
-             * @description 父行代碼
+             * Format: date-time
+             * @deprecated
              */
-            ParentRowId?: number;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number;
-            FileSrc?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 檔案來源 */
+            Validate_Start?: string | null;
+            _FileArchiveInfo?: components["schemas"]["FileArchiveInfo"][] | null;
+        };
+        FileArchiveApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["FileArchive"];
+        };
+        FileArchiveDetail: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly FileArchiveId: string;
+            /** Format: int32 */
+            readonly ParentRowId?: number;
             FileSrcId?: string | null;
-            /** @description 檔案名稱 */
+            FileSrc?: components["schemas"]["FileManage"];
             FileName?: string | null;
         };
-        FileArchiveInfo_DTO: {
-            /** @description 檔案室代碼 */
-            FileArchiveId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number;
+        FileArchiveInfo: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly FileArchiveId: string;
             Lang?: components["schemas"]["LangCode"];
-            /** @description 標題 */
             Title?: string | null;
-            _FileArchiveDetail?: components["schemas"]["FileArchiveDetail_DTO"][] | null;
-            _FileArchiveUrlDetail?: components["schemas"]["FileArchiveUrlDetail_DTO"][] | null;
+            _FileArchiveDetail?: components["schemas"]["FileArchiveDetail"][] | null;
+            _FileArchiveUrlDetail?: components["schemas"]["FileArchiveUrlDetail"][] | null;
         };
-        FileArchiveSet_DTO: {
-            FileArchive?: components["schemas"]["FileArchive_DTO"];
-            FileArchiveInfo?: components["schemas"]["FileArchiveInfo_DTO"][] | null;
-            /** @description 檔案明細 */
-            FileArchiveDetail?: components["schemas"]["FileArchiveDetail_DTO"][] | null;
-            /** @description 超連結明細 */
-            FileArchiveUrlDetail?: components["schemas"]["FileArchiveUrlDetail_DTO"][] | null;
-        };
-        FileArchiveSet_DTOApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["FileArchiveSet_DTO"];
-        };
-        FileArchiveUrlDetail_DTO: {
-            /** @description 檔案室代碼 */
-            FileArchiveId?: string | null;
-            /**
-             * Format: int32
-             * @description 父行代碼
-             */
-            ParentRowId?: number;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number;
-            /** @description 網址 */
+        FileArchiveUrlDetail: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly FileArchiveId: string;
+            /** Format: int32 */
+            readonly ParentRowId?: number;
             Url?: string | null;
-            /** @description 網址描述 */
             UrlDescription?: string | null;
             WindowTarget?: components["schemas"]["WindowTarget"];
         };
-        FileArchive_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
+        FileManage: {
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 檔案室代碼 */
-            FileArchiveId?: string | null;
-            ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description 類別 */
-            CategoriesId?: string | null;
-            /** @description 標籤 */
-            TagsId?: string | null;
-            _FileArchiveInfo?: components["schemas"]["FileArchiveInfo_DTO"][] | null;
-        };
-        FileManageModel: {
-            /** Format: date-time */
-            CreateTime?: string | null;
-            CreateUser?: components["schemas"]["AccountModel"];
-            CreateUserId?: string | null;
-            /** Format: date-time */
-            ModifyTime?: string | null;
-            ModifyUser?: components["schemas"]["AccountModel"];
-            ModifyUserId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
-            InternalId?: string | null;
-            Path?: string | null;
-            FileName?: string | null;
-            FileExtension?: string | null;
-            FileDescription?: string | null;
-            MimeType?: string | null;
-            FileSHA256?: string | null;
-            /** Format: int64 */
-            FileSize?: number;
-            ProgId?: string | null;
-            ImportLabel?: string | null;
-            FileStatus?: components["schemas"]["FileStatus"];
-            /**
-             * Format: int32
-             * @description 下載次數
-             */
-            PublicDownloadCount?: number;
-            IsPublic?: boolean;
-            _FileManage_SyncInfo?: components["schemas"]["FileManage_SyncInfoModel"][] | null;
-            _FileManage_DownloadRecent?: components["schemas"]["FileManage_DownloadRecentModel"][] | null;
-        };
-        FileManageModel_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly InternalId?: string | null;
             Path?: string | null;
             FileName?: string | null;
             FileExtension?: string | null;
@@ -10931,67 +11236,35 @@ export interface components {
             ProgId?: string | null;
             ImportLabel?: string | null;
             FileStatus?: components["schemas"]["FileStatus"];
-            /**
-             * Format: int32
-             * @description 下載次數
-             */
-            PublicDownloadCount?: number;
-            IsPublic?: boolean;
-            _FileManage_DownloadRecent?: components["schemas"]["FileManage_DownloadRecentModel_DTO"][] | null;
-            _FileManage_SyncInfo?: components["schemas"]["FileManage_SyncInfoModel_DTO"][] | null;
+            /** Format: int32 */
+            PublicDownloadCount?: number | null;
+            IsPublic?: boolean | null;
+            _FileManage_SyncInfo?: components["schemas"]["FileManage_SyncInfo"][] | null;
+            _FileManage_DownloadRecent?: components["schemas"]["FileManage_DownloadRecent"][] | null;
         };
-        FileManageSet_DTO: {
-            FileManage?: components["schemas"]["FileManageModel_DTO"];
-            FileManage_DownloadRecent?: components["schemas"]["FileManage_DownloadRecentModel_DTO"][] | null;
-            FileManage_SyncInfo?: components["schemas"]["FileManage_SyncInfoModel_DTO"][] | null;
-        };
-        FileManageSet_DTOApiRequest: {
+        FileManageApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["FileManageSet_DTO"];
+            Data?: components["schemas"]["FileManage"];
         };
-        FileManage_DownloadRecentModel: {
+        FileManage_DownloadRecent: {
             RowState?: components["schemas"]["RowState"];
-            InternalId?: string | null;
             /** Format: int32 */
-            RowId?: number | null;
-            VisitorKey: string;
-            RefererURL?: string | null;
-            /** Format: date-time */
-            LastCountTime?: string;
-            _FileManage?: components["schemas"]["FileManageModel"];
-        };
-        FileManage_DownloadRecentModel_DTO: {
-            InternalId?: string | null;
+            readonly RowId?: number;
             /** Format: int32 */
-            RowId?: number | null;
+            RowNo?: number | null;
+            readonly InternalId?: string | null;
             VisitorKey?: string | null;
             RefererURL?: string | null;
             /** Format: date-time */
             LastCountTime?: string | null;
-            _FileManage?: components["schemas"]["FileManageModel_DTO"];
         };
-        FileManage_SyncInfoModel: {
+        FileManage_SyncInfo: {
             RowState?: components["schemas"]["RowState"];
-            InternalId?: string | null;
             /** Format: int32 */
-            RowId?: number | null;
-            FileStatus?: components["schemas"]["FileStatus"];
-            SrcIP?: string | null;
-            SrcNode?: string | null;
-            SrcFullPath?: string | null;
-            DestIP?: string | null;
-            DestNode?: string | null;
-            DestFullPath?: string | null;
-            ErrorCode?: string | null;
-            ErrorMessage?: string | null;
-            /** Format: date-time */
-            ExecuteTime?: string;
-            _FileManage?: components["schemas"]["FileManageModel"];
-        };
-        FileManage_SyncInfoModel_DTO: {
-            InternalId?: string | null;
+            readonly RowId?: number;
             /** Format: int32 */
-            RowId?: number | null;
+            RowNo?: number | null;
+            readonly InternalId?: string | null;
             FileStatus?: components["schemas"]["FileStatus"];
             SrcIP?: string | null;
             SrcNode?: string | null;
@@ -11003,7 +11276,6 @@ export interface components {
             ErrorMessage?: string | null;
             /** Format: date-time */
             ExecuteTime?: string | null;
-            _FileManage?: components["schemas"]["FileManageModel_DTO"];
         };
         /**
          * Format: int32
@@ -11020,108 +11292,78 @@ export interface components {
          * @enum {integer}
          */
         FuncAction: 0 | 1 | 2 | 4 | 7 | 8 | 16 | 32 | 63 | 64 | 127;
-        GalleryInfo_DTO: {
-            /** @description 相簿 */
-            GalleryId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number;
-            Lang?: components["schemas"]["LangCode"];
-            /** @description 標題 */
-            Title?: string | null;
-            /** @description 內文 */
-            Content?: string | null;
-        };
-        GalleryPhotosInfo_DTO: {
-            /** @description 相簿 */
-            GalleryId?: string | null;
-            /**
-             * Format: int32
-             * @description 父行代碼
-             */
-            ParentRowId?: number;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number;
-            Lang?: components["schemas"]["LangCode"];
-            /** @description 標題 */
-            Title?: string | null;
-            /** @description 描述 */
-            Description?: string | null;
-        };
-        GalleryPhotos_DTO: {
-            /** @description 相簿 */
-            GalleryId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number;
-            /** @description 相片來源 */
-            PicSrcId?: string | null;
-            /**
-             * Format: int32
-             * @description 排序編號
-             */
-            Sort?: number;
-            GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo_DTO"][] | null;
-        };
-        GallerySet_DTO: {
-            Gallery?: components["schemas"]["Gallery_DTO"];
-            GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
-            /** @description 相片 */
-            GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
-            GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo_DTO"][] | null;
-        };
-        GallerySet_DTOApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["GallerySet_DTO"];
-        };
-        Gallery_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
+        Gallery: {
+            readonly InternalId?: string | null;
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 相簿 */
-            GalleryId?: string | null;
-            /** @description 類別 */
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly GalleryId: string;
             Categories?: string | null;
-            /** @description 標籤 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description 相簿封面圖 */
-            CoverPicSrcId?: string | null;
-            /**
-             * Format: date-time
-             * @description 上架日期
-             */
+            /** Format: date-time */
             Validate_Start?: string | null;
-            _GalleryInfo?: components["schemas"]["GalleryInfo_DTO"][] | null;
-            _GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            CoverPicSrc?: components["schemas"]["FileManage"];
+            CoverPicSrcId?: string | null;
+            _GalleryInfo?: components["schemas"]["GalleryInfo"][] | null;
+            _GalleryPhotos?: components["schemas"]["GalleryPhotos"][] | null;
+        };
+        GalleryApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["Gallery"];
+        };
+        GalleryInfo: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly GalleryId: string;
+            Lang?: components["schemas"]["LangCode"];
+            Title?: string | null;
+            Content?: string | null;
+        };
+        GalleryPhotos: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly GalleryId: string;
+            PicSrc?: components["schemas"]["FileManage"];
+            PicSrcId?: string | null;
+            /** Format: int32 */
+            Sort?: number | null;
+            _GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo"][] | null;
+        };
+        GalleryPhotosInfo: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly GalleryId: string;
+            /** Format: int32 */
+            readonly ParentRowId?: number;
+            Lang?: components["schemas"]["LangCode"];
+            Title?: string | null;
+            Description?: string | null;
         };
         /**
          * Format: int32
@@ -11136,14 +11378,14 @@ export interface components {
         GetCurrentSiteOnlineCountResult_DTO: {
             SiteIndex?: string | null;
             /** Format: int32 */
-            Minutes?: number;
+            Minutes?: number | null;
             /** Format: int32 */
-            CurrentOnlineCount?: number;
+            CurrentOnlineCount?: number | null;
             /** Format: date-time */
-            QueryTime?: string;
+            QueryTime?: string | null;
         };
         GetCurrentSiteOnlineCountResult_DTOApiResponse: {
-            readonly IsSuccess?: boolean;
+            IsSuccess?: boolean | null;
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: components["schemas"]["GetCurrentSiteOnlineCountResult_DTO"][] | null;
         };
@@ -11159,139 +11401,103 @@ export interface components {
          *       "Password": "Z7](oRuh98Z3x1$"
          *     } */
         LoginDto: {
-            Account: string;
-            Password: string;
+            Account?: string | null;
+            Password?: string | null;
         };
-        MatCategoryDataSet_DTO: {
-            Category?: components["schemas"]["Category_DTO"];
-            CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
-            /** @description 物件類別欄位明細 */
-            MatCategoryInfoField?: components["schemas"]["MatCategoryInfoField_DTO"][] | null;
-            MatCategoryInfoFieldDisplay?: components["schemas"]["MatCategoryInfoFieldDisplay_DTO"][] | null;
+        MatCategoryFormModel: {
+            Category?: components["schemas"]["Category"];
+            MatCategoryInfoField?: components["schemas"]["MatCategoryInfoField"][] | null;
         };
-        MatCategoryDataSet_DTOApiRequest: {
+        MatCategoryFormModelApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["MatCategoryDataSet_DTO"];
+            Data?: components["schemas"]["MatCategoryFormModel"];
         };
-        MatCategoryInfoFieldDisplay_DTO: {
+        MatCategoryInfoField: {
             RowState?: components["schemas"]["RowState"];
-            CategoryId?: string | null;
-            /**
-             * Format: int32
-             * @description 父行代碼
-             */
-            ParentRowId?: number | null;
             /** Format: int32 */
-            RowId?: number | null;
-            Lang?: components["schemas"]["LangCode"];
-            /** @description 欄位顯示名稱 */
-            FieldDisplayName?: string | null;
-            _MatCategoryInfoField?: components["schemas"]["MatCategoryInfoField_DTO"];
-        };
-        MatCategoryInfoField_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            CategoryId?: string | null;
+            readonly RowId?: number;
             /** Format: int32 */
-            RowId?: number | null;
-            /** @description 欄位代號 */
+            RowNo?: number | null;
+            readonly CategoryId?: string | null;
             Field?: string | null;
-            _Category?: components["schemas"]["Category_DTO"];
-            _MatCategoryInfoFieldDisplay?: components["schemas"]["MatCategoryInfoFieldDisplay_DTO"][] | null;
+            _MatCategoryInfoFieldDisplay?: components["schemas"]["MatCategoryInfoFieldDisplay"][] | null;
         };
-        MaterialLangInfo_DTO: {
-            /** @description 物件代號 */
-            MaterialId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
+        MatCategoryInfoFieldDisplay: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly CategoryId?: string | null;
+            /** Format: int32 */
+            readonly ParentRowId?: number;
             Lang?: components["schemas"]["LangCode"];
-            /** @description 物件名稱 */
-            MaterialName?: string | null;
-            /** @description 物件資訊 */
-            MaterialInfoJson?: string | null;
-            /** @description 物件說明 */
-            Memo?: string | null;
-            _Material?: components["schemas"]["Material_DTO"];
+            FieldDisplayName?: string | null;
         };
-        MaterialPicture_DTO: {
-            /** @description 物件代號 */
-            MaterialId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            Picture?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 圖片 */
-            PictureId?: string | null;
-            /** @description 圖片名稱 */
-            PictureName?: string | null;
-            _Material?: components["schemas"]["Material_DTO"];
-        };
-        MaterialSet_DTO: {
-            Material?: components["schemas"]["Material_DTO"];
-            MaterialLangInfo?: components["schemas"]["MaterialLangInfo_DTO"][] | null;
-            /** @description 物件照片 */
-            MaterialPicture?: components["schemas"]["MaterialPicture_DTO"][] | null;
-            MaterialTags?: components["schemas"]["MaterialTags_DTO"][] | null;
-        };
-        MaterialSet_DTOApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["MaterialSet_DTO"];
-        };
-        MaterialTags_DTO: {
-            /** @description 物件代號 */
-            MaterialId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            Tag?: components["schemas"]["TagData_DTO"];
-            /** @description 標籤功能 */
-            TagId?: string | null;
-            _Material?: components["schemas"]["Material_DTO"];
-        };
-        Material_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
+        Material: {
+            readonly InternalId?: string | null;
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 物件代號 */
-            MaterialId?: string | null;
-            Category?: components["schemas"]["Category_DTO"];
-            /** @description 類別 */
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly MaterialId?: string | null;
+            Category?: components["schemas"]["Category"];
             CategoryId?: string | null;
-            /**
-             * Format: double
-             * @description 價格
-             */
+            /** Format: double */
             Price?: number | null;
-            _MaterialLangInfo?: components["schemas"]["MaterialLangInfo_DTO"][] | null;
-            _MaterialPicture?: components["schemas"]["MaterialPicture_DTO"][] | null;
-            _MaterialTags?: components["schemas"]["MaterialTags_DTO"][] | null;
+            _MaterialLangInfo?: components["schemas"]["MaterialLangInfo"][] | null;
+            _MaterialPicture?: components["schemas"]["MaterialPicture"][] | null;
+            _MaterialTags?: components["schemas"]["MaterialTags"][] | null;
+        };
+        MaterialApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["Material"];
+        };
+        MaterialLangInfo: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly MaterialId?: string | null;
+            Lang?: components["schemas"]["LangCode"];
+            MaterialName?: string | null;
+            MaterialInfoJson?: string | null;
+            Memo?: string | null;
+        };
+        MaterialPicture: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly MaterialId?: string | null;
+            Picture?: components["schemas"]["FileManage"];
+            PictureId?: string | null;
+            PictureName?: string | null;
+        };
+        MaterialTags: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly MaterialId?: string | null;
+            Tag?: components["schemas"]["TagData"];
+            TagId?: string | null;
         };
         /**
          * Format: int32
@@ -11308,64 +11514,65 @@ export interface components {
          * @enum {integer}
          */
         ModulePageType: 0 | 1;
+        ORCIDData: {
+            ORCID?: string | null;
+            AuthorName?: string | null;
+            AuthorName_en?: string | null;
+            JobTitle?: string | null;
+            Unit?: string | null;
+            Unit_en?: string | null;
+            Email?: string | null;
+            Country?: string | null;
+        };
+        ORCIDDataApiResponse: {
+            IsSuccess?: boolean | null;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["ORCIDData"][] | null;
+        };
         OrderBySpec: {
             Col?: string | null;
-            Desc?: boolean;
+            Desc?: boolean | null;
         };
-        PageManagementDetail_DTO: {
-            /** @description 頁面 */
-            PageId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            Lang?: components["schemas"]["LangCode"];
-            /** @description 標題 */
-            Title?: string | null;
-            /** @description 內文 */
-            Content?: string | null;
-        };
-        PageManagementSet_DTO: {
-            PageManagement?: components["schemas"]["PageManagement_DTO"];
-            PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
-        };
-        PageManagementSet_DTOApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["PageManagementSet_DTO"];
-        };
-        PageManagement_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
+        PageManagement: {
+            readonly InternalId?: string | null;
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 頁面 */
-            PageId?: string | null;
-            /** @description 功能模塊代碼 */
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            SiteIndex?: components["schemas"]["SiteMenu_Index"];
+            SiteIndexId?: string | null;
+            readonly PageId?: string | null;
             ProgId?: string | null;
-            /** @description 類別 */
             CategoryId?: string | null;
-            _PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
+            _PageManagementDetail?: components["schemas"]["PageManagementDetail"][] | null;
+        };
+        PageManagementApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["PageManagement"];
+        };
+        PageManagementDetail: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly PageId?: string | null;
+            Lang?: components["schemas"]["LangCode"];
+            Title?: string | null;
+            Content?: string | null;
         };
         PermissionCatalogModuleDTO: {
             ModuleCode?: string | null;
@@ -11373,7 +11580,7 @@ export interface components {
             Progs?: components["schemas"]["PermissionCatalogProgDTO"][] | null;
         };
         PermissionCatalogModuleDTOApiResponse: {
-            readonly IsSuccess?: boolean;
+            IsSuccess?: boolean | null;
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: components["schemas"]["PermissionCatalogModuleDTO"][] | null;
         };
@@ -11382,83 +11589,48 @@ export interface components {
             ProgTitle?: string | null;
             SupportMask?: components["schemas"]["FuncAction"];
         };
-        PersonModel: {
+        Person: {
+            readonly InternalId?: string | null;
             /** Format: date-time */
-            CreateTime?: string | null;
-            CreateUser?: components["schemas"]["AccountModel"];
-            CreateUserId?: string | null;
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
             /** Format: date-time */
-            ModifyTime?: string | null;
-            ModifyUser?: components["schemas"]["AccountModel"];
-            ModifyUserId?: string | null;
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUser?: components["schemas"]["AccountModel"];
-            InvalidUserId?: string | null;
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
-            PersonId?: string | null;
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly PersonId?: string | null;
             PersonName?: string | null;
-            PersonImg?: components["schemas"]["FileManageModel"];
+            PersonImg?: components["schemas"]["FileManage"];
             PersonImgId?: string | null;
             Gender?: components["schemas"]["Gender"];
             Email?: string | null;
             MobilePhone?: string | null;
             HomePhone?: string | null;
         };
-        PersonModel_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
+        PersonApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["Person"];
+        };
+        PublishReq: {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 人員編號 */
-            PersonId?: string | null;
-            /** @description 人員名稱 */
-            PersonName?: string | null;
-            PersonImg?: components["schemas"]["FileManageModel"];
-            /** @description 大頭貼 */
-            PersonImgId?: string | null;
-            Gender?: components["schemas"]["Gender"];
-            /** @description 常用Email */
-            Email?: string | null;
-            /** @description 手機號碼 */
-            MobilePhone?: string | null;
-            /** @description 聯絡電話 */
-            HomePhone?: string | null;
-        };
-        PersonSet_DTO: {
-            Person?: components["schemas"]["PersonModel_DTO"];
-        };
-        PersonSet_DTOApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["PersonSet_DTO"];
+            /** @description 期刊目次代號 */
+            JournalIndexId?: string | null;
+            /**
+             * Format: int32
+             * @description 卷期代號
+             */
+            JournalIndexRowId?: number | null;
         };
         QueryListParam: {
             Fields?: string[] | null;
@@ -11466,9 +11638,9 @@ export interface components {
             OrderBy?: components["schemas"]["OrderBySpec"][] | null;
             RankGroups?: components["schemas"]["RankGroupsSpec"][] | null;
             /** Format: int32 */
-            PageNumber?: number;
+            PageNumber?: number | null;
             /** Format: int32 */
-            PageSize?: number;
+            PageSize?: number | null;
         };
         RankGroupsSpec: {
             Condition?: string | null;
@@ -11478,95 +11650,43 @@ export interface components {
             UserInternalId?: string | null;
             NewPassword?: string | null;
         };
-        RoleDataModel: {
+        RoleData: {
+            readonly InternalId?: string | null;
             /** Format: date-time */
-            CreateTime?: string | null;
-            CreateUser?: components["schemas"]["AccountModel"];
-            CreateUserId?: string | null;
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
             /** Format: date-time */
-            ModifyTime?: string | null;
-            ModifyUser?: components["schemas"]["AccountModel"];
-            ModifyUserId?: string | null;
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUser?: components["schemas"]["AccountModel"];
-            InvalidUserId?: string | null;
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
-            RoleId?: string | null;
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly RoleId?: string | null;
             RoleName?: string | null;
-            IsAdmin?: boolean;
-            _RolePermission?: components["schemas"]["RolePermissionModel"][] | null;
-        };
-        RoleDataModel_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 角色代號 */
-            RoleId?: string | null;
-            /** @description 角色名稱 */
-            RoleName?: string | null;
-            /** @description 是否管理員 */
             IsAdmin?: boolean | null;
-            _RolePermission?: components["schemas"]["RolePermissionModel_DTO"][] | null;
+            _RolePermission?: components["schemas"]["RolePermission"][] | null;
         };
-        RolePermissionModel: {
-            RowState?: components["schemas"]["RowState"];
-            RoleId?: string | null;
-            /** Format: int32 */
-            RowId?: number | null;
-            PermissionKey?: string | null;
-            GrantMask?: components["schemas"]["FuncAction"];
-            _RoleData?: components["schemas"]["RoleDataModel"];
-        };
-        RolePermissionModel_DTO: {
-            /** @description 角色代號 */
-            RoleId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            /** @description 權限代號 */
-            PermissionKey?: string | null;
-            GrantMask?: components["schemas"]["FuncAction"];
-            _RoleData?: components["schemas"]["RoleDataModel_DTO"];
-        };
-        RolePermissionSet_DTO: {
-            RoleData?: components["schemas"]["RoleDataModel_DTO"];
-            RolePermission?: components["schemas"]["RolePermissionModel_DTO"][] | null;
-        };
-        RolePermissionSet_DTOApiRequest: {
+        RoleDataApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["RolePermissionSet_DTO"];
+            Data?: components["schemas"]["RoleData"];
+        };
+        RolePermission: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly RoleId?: string | null;
+            PermissionKey?: string | null;
+            GrantMask?: components["schemas"]["FuncAction"];
         };
         /**
          * Format: int32
@@ -11581,12 +11701,12 @@ export interface components {
         };
         SaveMenuItemResult_DTO: {
             /** Format: int32 */
-            RowId?: number;
+            RowId?: number | null;
             FullUrl?: string | null;
-            IsNewItem?: boolean;
+            IsNewItem?: boolean | null;
         };
         SaveMenuItemResult_DTOApiResponse: {
-            readonly IsSuccess?: boolean;
+            IsSuccess?: boolean | null;
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: components["schemas"]["SaveMenuItemResult_DTO"][] | null;
         };
@@ -11595,7 +11715,7 @@ export interface components {
             RowId?: number | null;
             Lang?: components["schemas"]["LangCode"];
             Title?: string | null;
-            IsShowOnMenu?: boolean;
+            IsShowOnMenu?: boolean | null;
         };
         SaveMenuItemUrl_DTO: {
             RedirectType?: components["schemas"]["MenuUrlType"];
@@ -11608,7 +11728,7 @@ export interface components {
             /** Format: int32 */
             ParentRowId?: number | null;
             /** Format: int32 */
-            DisplayOrder?: number;
+            DisplayOrder?: number | null;
             ItemSiteUrl?: string | null;
             ItemType?: components["schemas"]["MenuUrlType"];
             WindowTarget?: components["schemas"]["WindowTarget"];
@@ -11622,11 +11742,11 @@ export interface components {
         };
         SaveMenuStructureItem_DTO: {
             /** Format: int32 */
-            RowId?: number;
+            RowId?: number | null;
             /** Format: int32 */
             ParentRowId?: number | null;
             /** Format: int32 */
-            DisplayOrder?: number;
+            DisplayOrder?: number | null;
         };
         SaveMenuStructure_DTO: {
             InternalId?: string | null;
@@ -11639,475 +11759,405 @@ export interface components {
         };
         SaveSiteInfo_DTO: {
             InternalId?: string | null;
-            SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
-            SiteMenu_IndexInfo?: components["schemas"]["SiteMenu_IndexInfo_DTO"][] | null;
+            SiteMenu_Index?: components["schemas"]["SiteMenu_Index"];
+            SiteMenu_IndexInfo?: components["schemas"]["SiteMenu_IndexInfo"][] | null;
         };
         SaveSiteInfo_DTOApiRequest: {
             InternalId?: string | null;
             Data?: components["schemas"]["SaveSiteInfo_DTO"];
         };
-        SiteMenuSet_DTO: {
-            SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
-            SiteMenu_IndexInfo?: components["schemas"]["SiteMenu_IndexInfo_DTO"][] | null;
-            SiteMenu_Item?: components["schemas"]["SiteMenu_Item_DTO"][] | null;
-            SiteMenu_Item_Title?: components["schemas"]["SiteMenu_Item_Title_DTO"][] | null;
-            SiteMenu_Item_Url?: components["schemas"]["SiteMenu_Item_Url_DTO"][] | null;
-            SiteMenu_Item_Module?: components["schemas"]["SiteMenu_Item_Module_DTO"][] | null;
-        };
-        SiteMenuSet_DTOApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["SiteMenuSet_DTO"];
-        };
-        SiteMenu_IndexInfo_DTO: {
-            /** @description 首頁代碼 */
-            SiteIndex?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            Lang?: components["schemas"]["LangCode"];
-            /** @description 選單名稱 */
-            Title?: string | null;
-            /** @description 網站描述 */
-            Description?: string | null;
-            /** @description 橫幅廣告 */
-            BannerId?: string | null;
-            /** @description 網站標頭 */
-            SiteHeader?: string | null;
-            /** @description 網站標尾 */
-            SiteFooter?: string | null;
-            /** @description 網站標尾 */
-            Keyword?: string | null;
-            _SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
-        };
-        SiteMenu_Index_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
+        SiteMenu_Index: {
+            readonly InternalId?: string | null;
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 首頁代碼 */
-            SiteIndex?: string | null;
-            /** @description Google分析碼 */
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly SiteIndex?: string | null;
             GoogleAnalytics?: string | null;
-            /** @description 是否啟用站台 */
-            Enable?: boolean;
+            Enable?: boolean | null;
             DefaultLang?: components["schemas"]["LangCode"];
-            /** @description 支援語系 */
             SupportLangs?: string | null;
-            _SiteMenu_IndexInfo?: components["schemas"]["SiteMenu_IndexInfo_DTO"][] | null;
-            _SiteMenu_Item?: components["schemas"]["SiteMenu_Item_DTO"][] | null;
+            _SiteMenu_IndexInfo?: components["schemas"]["SiteMenu_IndexInfo"][] | null;
+            _SiteMenu_Item?: components["schemas"]["SiteMenu_Item"][] | null;
         };
-        SiteMenu_Item_DTO: {
-            /** @description 首頁代碼 */
-            SiteIndex?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
+        SiteMenu_IndexApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SiteMenu_Index"];
+        };
+        SiteMenu_IndexInfo: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly SiteIndex?: string | null;
+            Lang?: components["schemas"]["LangCode"];
+            Title?: string | null;
+            Description?: string | null;
+            SiteHeader?: string | null;
+            SiteFooter?: string | null;
+            Keyword?: string | null;
+            Banner?: components["schemas"]["Banner"];
+            BannerId?: string | null;
+        };
+        SiteMenu_Item: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly SiteIndex?: string | null;
             /** Format: int32 */
             ParentRowId?: number | null;
-            /** @description 選單ID */
             ItemSiteUrl?: string | null;
-            /** @description 完整路徑 */
-            FullUrl?: string | null;
-            /**
-             * Format: int32
-             * @description 網頁項目層級
-             */
-            Level?: number;
-            /**
-             * Format: int32
-             * @description 網頁項目排序
-             */
-            DisplayOrder?: number;
+            readonly FullUrl?: string | null;
+            /** Format: int32 */
+            readonly Level?: number;
+            /** Format: int32 */
+            DisplayOrder?: number | null;
             ItemType?: components["schemas"]["MenuUrlType"];
             WindowTarget?: components["schemas"]["WindowTarget"];
-            _SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
-            _SiteMenu_Item_Title?: components["schemas"]["SiteMenu_Item_Title_DTO"][] | null;
-            _SiteMenu_Item_Url?: components["schemas"]["SiteMenu_Item_Url_DTO"];
-            _SiteMenu_Item_Module?: components["schemas"]["SiteMenu_Item_Module_DTO"];
+            _SiteMenu_Item_Title?: components["schemas"]["SiteMenu_Item_Title"][] | null;
+            _SiteMenu_Item_Url?: components["schemas"]["SiteMenu_Item_Url"];
+            _SiteMenu_Item_Module?: components["schemas"]["SiteMenu_Item_Module"];
         };
-        SiteMenu_Item_Module_DTO: {
-            /** @description 首頁代碼 */
-            SiteIndex?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            ItemRowId?: number | null;
-            /** @description 橫幅廣告 */
+        SiteMenu_Item_Module: {
+            RowState?: components["schemas"]["RowState"];
+            readonly SiteIndex?: string | null;
+            /** Format: int32 */
+            readonly ItemRowId?: number;
+            Banner?: components["schemas"]["Banner"];
             BannerId?: string | null;
             PageType?: components["schemas"]["ModulePageType"];
-            /** @description 模型功能 */
             ModuleProgId?: string | null;
-            /** @description 網頁模型參數 */
             ModuleOptions?: string | null;
-            _SiteMenu_Index?: components["schemas"]["SiteMenu_Item_DTO"];
         };
-        SiteMenu_Item_Title_DTO: {
-            /** @description 首頁代碼 */
-            SiteIndex?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            ItemRowId?: number | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
+        SiteMenu_Item_Title: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly SiteIndex?: string | null;
+            /** Format: int32 */
+            readonly ItemRowId?: number;
             Lang?: components["schemas"]["LangCode"];
-            /** @description 網頁項目標題 */
             Title?: string | null;
-            /** @description 是否顯示在選單中 */
-            IsShowOnMenu?: boolean;
-            _SiteMenu_Index?: components["schemas"]["SiteMenu_Item_DTO"];
+            IsShowOnMenu?: boolean | null;
         };
-        SiteMenu_Item_Url_DTO: {
-            /** @description 首頁代碼 */
-            SiteIndex?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            ItemRowId?: number | null;
+        SiteMenu_Item_Url: {
+            RowState?: components["schemas"]["RowState"];
+            readonly SiteIndex?: string | null;
+            /** Format: int32 */
+            readonly ItemRowId?: number;
             RedirectType?: components["schemas"]["MenuUrlType"];
-            /** @description 網址 */
             RedirectUrl?: string | null;
-            _SiteMenu_Index?: components["schemas"]["SiteMenu_Item_DTO"];
         };
-        SiteViewCountDetailModel_DTO: {
+        SiteViewCountDetail: {
             RowState?: components["schemas"]["RowState"];
-            SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
-            SiteIndex: string;
-            ProgId: string;
-            TargetInternalId: string;
+            readonly SiteIndex: string;
+            readonly ProgId: string;
+            readonly TargetInternalId: string;
             /** Format: int32 */
-            PageViewCount?: number;
+            PageViewCount?: number | null;
             /** Format: int32 */
-            FilePreviewCount?: number;
+            FilePreviewCount?: number | null;
             /** Format: int32 */
-            FileDownloadCount?: number;
+            FileDownloadCount?: number | null;
             /** Format: int32 */
-            LinkClickCount?: number;
-            _SiteViewCountHeader?: components["schemas"]["SiteViewCountHeaderModel_DTO"];
+            LinkClickCount?: number | null;
         };
-        SiteViewCountHeaderModel_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
+        SiteViewCountHeader: {
+            readonly InternalId?: string | null;
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
-            SiteIndex?: string | null;
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            SiteMenu_Index?: components["schemas"]["SiteMenu_Index"];
+            readonly SiteIndex?: string | null;
             /** Format: int32 */
-            PublicViewCount?: number;
-            _SiteViewCountDetail?: components["schemas"]["SiteViewCountDetailModel_DTO"][] | null;
+            PublicViewCount?: number | null;
+            _SiteViewCountDetail?: components["schemas"]["SiteViewCountDetail"][] | null;
         };
-        SiteViewCountRecentlyModel_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
-            SiteIndex: string;
-            ProgId: string;
-            TargetInternalId: string;
-            TargetType: string;
-            ActionType?: components["schemas"]["ViewCountActionType"];
-            VisitorKey: string;
-            /** Format: date-time */
-            LastViewTime?: string;
-            RefererUrl?: string | null;
-        };
-        SiteViewCountSet_DTO: {
-            SiteViewCountHeader?: components["schemas"]["SiteViewCountHeaderModel_DTO"];
-            SiteViewCountDetail?: components["schemas"]["SiteViewCountDetailModel_DTO"][] | null;
-            SiteViewCountRecently?: components["schemas"]["SiteViewCountRecentlyModel_DTO"][] | null;
-        };
-        SiteViewCountSet_DTOApiResponse: {
-            readonly IsSuccess?: boolean;
+        SiteViewCountHeaderApiResponse: {
+            IsSuccess?: boolean | null;
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
-            Data?: components["schemas"]["SiteViewCountSet_DTO"][] | null;
+            Data?: components["schemas"]["SiteViewCountHeader"][] | null;
         };
-        SpecHomePage1820Model_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        SpecAuthorType: 0 | 1;
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        SpecDocumentType: 0 | 1 | 2 | 3 | 4;
+        SpecJournal: {
+            readonly InternalId?: string | null;
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 首頁設定表ID */
-            HomePageId?: string | null;
-            /** @description 語系 */
-            Lang?: string | null;
-            /** @description 橫幅左側標語 */
-            Section1Title_L?: string | null;
-            /** @description 橫幅中間標語 */
-            Section1Title_M?: string | null;
-            /** @description 橫幅右側標語 */
-            Section1Title_R?: string | null;
-            /** @description 主視覺文案 */
-            HeroText?: string | null;
-            /** @description 主視覺文案查看更多連結 */
-            HeroText_ViewMoreLink?: string | null;
-            /** @description 公告區塊標題 */
-            AnnouncementTitle?: string | null;
-            /** @description 公告區塊副標題 */
-            AnnouncementSubTitle?: string | null;
-            /** @description 公告類別篩選條件 */
-            AnnouncementCategoryIds?: string | null;
-            /** @description 公告區塊查看更多連結 */
-            Announcement_ViewMoreLink?: string | null;
-            /** @description 資源區塊標題 */
-            Resource_Title?: string | null;
-            /** @description 資源區塊副標題 */
-            Resource_SubTitle?: string | null;
-            _SpecHomePage1820_BannerMedia?: components["schemas"]["SpecHomePage1820_BannerMedia_DTO"][] | null;
-            _SpecHomePage1820_Detail?: components["schemas"]["SpecHomePage1820_Detail_DTO"][] | null;
-            _SpecHomePage1820_Marquee?: components["schemas"]["SpecHomePage1820_Marquee_DTO"][] | null;
-            _SpecHomePage1820_Resource?: components["schemas"]["SpecHomePage1820_Resource_DTO"][] | null;
-        };
-        SpecHomePage1820Set_DTO: {
-            SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
-            /** @description 1820首頁BannerMedia子表 */
-            SpecHomePage1820_BannerMedia?: components["schemas"]["SpecHomePage1820_BannerMedia_DTO"][] | null;
-            /** @description 1820首頁介紹清單列表 */
-            SpecHomePage1820_Detail?: components["schemas"]["SpecHomePage1820_Detail_DTO"][] | null;
-            /** @description 1820首頁跑馬燈子表 */
-            SpecHomePage1820_Marquee?: components["schemas"]["SpecHomePage1820_Marquee_DTO"][] | null;
-            /** @description 1820首頁資源連結子表 */
-            SpecHomePage1820_Resource?: components["schemas"]["SpecHomePage1820_Resource_DTO"][] | null;
-        };
-        SpecHomePage1820Set_DTOApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["SpecHomePage1820Set_DTO"];
-        };
-        SpecHomePage1820_BannerMedia_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description 首頁設定表ID */
-            HomePageId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            BannerFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 橫幅媒體來源 */
-            BannerFileId?: string | null;
-            /** @description 橫幅媒體檔案說明 */
-            BannerFileDescription?: string | null;
-            _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
-        };
-        SpecHomePage1820_Detail_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description 首頁設定表ID */
-            HomePageId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            /** @description 標題 */
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly JournalId?: string | null;
+            _JournalIndex?: components["schemas"]["SpecJournalIndex"];
+            JournalIndexId?: string | null;
+            _JournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail"];
+            /** Format: int32 */
+            JournalIndexRowId?: number | null;
             Title?: string | null;
-            /** @description 副標題 */
-            SubTitle?: string | null;
-            MainPicture?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 主視覺圖片來源 */
-            MainPictureId?: string | null;
-            /** @description 主視覺圖片說明 */
-            MainPictureDescription?: string | null;
-            SubPicture?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 延伸視覺圖片來源 */
-            SubPictureId?: string | null;
-            /** @description 延伸視覺圖片說明 */
-            SubPictureDescription?: string | null;
-            /** @description 內文說明 */
-            Intro?: string | null;
-            /** @description 主連結標題 */
-            MainLinkTitle?: string | null;
-            /** @description 主連結URL */
-            MainLink?: string | null;
-            /** @description 子連結標題(1) */
-            SubLinkTitle1?: string | null;
-            /** @description 子連結URL(1) */
-            SubLink1?: string | null;
-            /** @description 子連結標題(2) */
-            SubLinkTitle2?: string | null;
-            /** @description 子連結URL(2) */
-            SubLink2?: string | null;
-            /** @description 子連結標題(3) */
-            SubLinkTitle3?: string | null;
-            /** @description 子連結URL(3) */
-            SubLink3?: string | null;
-            _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
+            Title_en?: string | null;
+            /** Format: int32 */
+            PageStart?: number | null;
+            /** Format: int32 */
+            PageEnd?: number | null;
+            DOIUrl?: string | null;
+            JournalFile?: components["schemas"]["FileManage"];
+            JournalFileId?: string | null;
+            JournalFileName?: string | null;
+            InsightPointFile?: components["schemas"]["FileManage"];
+            InsightPointFileId?: string | null;
+            InsightPointFileName?: string | null;
+            ArticleLang?: components["schemas"]["LangCode"];
+            Memo?: string | null;
+            Memo_en?: string | null;
+            Bibliography?: string | null;
+            _SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor"][] | null;
+            _SpecJournalRefFormat?: components["schemas"]["SpecJournalRefFormat"][] | null;
+            _SpecJournalOpenPointFiles?: components["schemas"]["SpecJournalOpenPointFiles"][] | null;
+            _SpecJournalRefFiles?: components["schemas"]["SpecJournalRefFiles"][] | null;
+            _SpecJournalDocument?: components["schemas"]["SpecJournalDocument"][] | null;
+            _SpecJournalTypes?: components["schemas"]["SpecJournalTypes"][] | null;
+            _SpecJournalKeywords?: components["schemas"]["SpecJournalKeywords"][] | null;
         };
-        SpecHomePage1820_Marquee_DTO: {
+        SpecJournalApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SpecJournal"];
+        };
+        SpecJournalAuthor: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 首頁設定表ID */
-            HomePageId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            Picture?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 相片來源 */
-            PictureId?: string | null;
-            /** @description 標題 */
-            PictureTitle?: string | null;
-            /** @description 是否隱藏 */
-            IsHide?: boolean | null;
-            _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly JournalId?: string | null;
+            AuthorType?: components["schemas"]["SpecAuthorType"];
+            ORCID?: string | null;
+            AuthorName?: string | null;
+            AuthorName_en?: string | null;
+            JobTitle?: string | null;
+            Unit?: string | null;
+            Unit_en?: string | null;
+            Email?: string | null;
+            Country?: string | null;
         };
-        SpecHomePage1820_Resource_DTO: {
+        SpecJournalDocument: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 首頁設定表ID */
-            HomePageId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            /** @description 標題 */
-            PicTitle?: string | null;
-            /** @description 副標題 */
-            PicSubTitle?: string | null;
-            PicFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 資源圖片來源 */
-            PicFileId?: string | null;
-            /** @description [Spec_ResourcePictureDescription] */
-            PicFileDescription?: string | null;
-            /** @description 網址 */
-            Link?: string | null;
-            _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly JournalId?: string | null;
+            DocumentType?: components["schemas"]["SpecDocumentType"];
+            DocumentName?: string | null;
+            Document?: components["schemas"]["FileManage"];
+            DocumentId?: string | null;
         };
-        SpecHomePageWeather_DTO: {
-            CityCode?: string | null;
-            LocationName?: string | null;
-            Weather?: string | null;
-            Temperature?: string | null;
-            ApparentTemperature?: string | null;
-            RelativeHumidity?: string | null;
-            ProbabilityOfPrecipitation?: string | null;
+        SpecJournalIndex: {
+            readonly InternalId?: string | null;
             /** Format: date-time */
-            StartTime?: string | null;
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
             /** Format: date-time */
-            EndTime?: string | null;
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            FetchTime?: string;
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly IndexId?: string | null;
+            IndexName?: string | null;
+            _SpecJournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail"][] | null;
         };
-        SpecHomePageWeather_DTOApiResponse: {
-            readonly IsSuccess?: boolean;
-            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
-            Data?: components["schemas"]["SpecHomePageWeather_DTO"][] | null;
+        SpecJournalIndexApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SpecJournalIndex"];
+        };
+        SpecJournalIndexDetail: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly IndexId?: string | null;
+            /** Format: int32 */
+            Volume?: number | null;
+            Issue?: string | null;
+            IsSpecial?: boolean | null;
+            /** Format: date */
+            PublishDate?: string | null;
+            SeasonNo?: string | null;
+            SummaryFile?: components["schemas"]["FileManage"];
+            SummaryFileId?: string | null;
+            SummaryFileName?: string | null;
+        };
+        SpecJournalKeywords: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly JournalId?: string | null;
+            LangCode?: components["schemas"]["LangCode"];
+            Keyword?: string | null;
+        };
+        SpecJournalOpenPointFiles: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly JournalId?: string | null;
+            OpenPointFileName?: string | null;
+            OpenPointFile?: components["schemas"]["FileManage"];
+            OpenPointFileId?: string | null;
+        };
+        SpecJournalRefFiles: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly JournalId?: string | null;
+            RefFileName?: string | null;
+            RefFile?: components["schemas"]["FileManage"];
+            RefFileId?: string | null;
+        };
+        SpecJournalRefFormat: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly JournalId?: string | null;
+            Title?: string | null;
+            Content?: string | null;
+        };
+        SpecJournalTypes: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly JournalId?: string | null;
+            Tag?: components["schemas"]["TagData"];
+            TagId?: string | null;
         };
         StringApiResponse: {
-            readonly IsSuccess?: boolean;
+            IsSuccess?: boolean | null;
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: string[] | null;
         };
-        SurveyItemLang_DTO: {
-            SurveyId?: string | null;
-            /**
-             * Format: int32
-             * @description 父行代碼
-             */
-            ParentRowId?: number | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            Lang?: components["schemas"]["LangCode"];
-            /** @description 欄位顯示名稱 */
-            FieldName?: string | null;
-            _SurveyItem?: components["schemas"]["SurveyItem_DTO"];
+        Survey: {
+            readonly InternalId?: string | null;
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly SurveyId?: string | null;
+            SurveyName?: string | null;
+            SurveyDescription?: string | null;
+            SurveySuccessContent?: string | null;
+            _SurveyItem?: components["schemas"]["SurveyItem"][] | null;
         };
-        SurveyItem_DTO: {
-            /** @description 問卷代號 */
-            SurveyId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            /** @description 欄位代號 */
+        SurveyApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["Survey"];
+        };
+        SurveyItem: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly SurveyId?: string | null;
             FieldId?: string | null;
-            /** @description 是否必填 */
             IsRequired?: boolean | null;
             InputType?: components["schemas"]["LibInputType"];
-            /** @description 選項資料 */
             Options?: string | null;
-            _Survey?: components["schemas"]["Survey_DTO"];
-            _SurveyItemLang?: components["schemas"]["SurveyItemLang_DTO"][] | null;
+            _SurveyItemLang?: components["schemas"]["SurveyItemLang"][] | null;
         };
-        SurveySet_DTO: {
-            Survey?: components["schemas"]["Survey_DTO"];
-            SurveyItem?: components["schemas"]["SurveyItem_DTO"][] | null;
-            /** @description 語系資料 */
-            SurveyItemLang?: components["schemas"]["SurveyItemLang_DTO"][] | null;
-        };
-        SurveySet_DTOApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["SurveySet_DTO"];
+        SurveyItemLang: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly SurveyId?: string | null;
+            /** Format: int32 */
+            readonly ParentRowId?: number;
+            Lang?: components["schemas"]["LangCode"];
+            FieldName?: string | null;
         };
         SurveySubmissionRequest_DTO: {
             /** @description 問卷代號 */
@@ -12123,226 +12173,127 @@ export interface components {
             TimeZone?: string | null;
             CaptchaToken?: string | null;
         };
-        SurveySubmissionsSet_DTO: {
-            SurveySubmissions?: components["schemas"]["SurveySubmissions_DTO"];
-        };
-        SurveySubmissionsSet_DTOApiResponse: {
-            readonly IsSuccess?: boolean;
-            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
-            Data?: components["schemas"]["SurveySubmissionsSet_DTO"][] | null;
-        };
-        SurveySubmissions_DTO: {
-            /** @description 問卷回覆 ID */
-            SurveySubmissionId?: string | null;
-            /** @description 姓名 */
+        SurveySubmissions: {
+            readonly SurveySubmissionId?: string | null;
             UserName?: string | null;
-            /** @description 聯絡電話 */
             ContactPhone?: string | null;
-            /** @description 常用Email */
             Email?: string | null;
-            /** @description 動態欄位資料 */
             FormDataJson?: string | null;
-            /** @description 動態欄位快照 */
             FieldSnapshotJson?: string | null;
-            Survey?: components["schemas"]["Survey_DTO"];
-            /** @description 問卷代號 */
+            Survey?: components["schemas"]["Survey"];
             SurveyId?: string | null;
             Lang?: components["schemas"]["LangCode"];
-            /**
-             * Format: date-time
-             * @description 送出時間 (UTC)
-             */
+            /** Format: date-time */
             SubmitTime?: string | null;
-            /** @description 回覆狀態 */
             ReplyStatus?: boolean | null;
-            /** @description 瀏覽器 UserAgent */
             UserAgent?: string | null;
-            /** @description 瀏覽器偏好語系 */
             AcceptLanguage?: string | null;
-            /** @description 遮罩後用戶 IP */
             ClientIpMasked?: string | null;
-            /** @description 用戶 IP 雜湊值 */
             ClientIpHash?: string | null;
-            /** @description 瀏覽器名稱 */
             BrowserName?: string | null;
-            /** @description 瀏覽器版本 */
             BrowserVersion?: string | null;
-            /** @description 作業系統名稱 */
             OsName?: string | null;
-            /** @description 作業系統版本 */
             OsVersion?: string | null;
-            /** @description 裝置類型 */
             DeviceType?: string | null;
-            /** @description 使用者時區 */
             TimeZone?: string | null;
         };
-        Survey_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 問卷代號 */
-            SurveyId?: string | null;
-            /** @description 問卷名稱 */
-            SurveyName?: string | null;
-            /** @description 問卷描述 */
-            SurveyDescription?: string | null;
-            /** @description 問卷提交成功後的顯示內容 */
-            SurveySuccessContent?: string | null;
-            _SurveyItem?: components["schemas"]["SurveyItem_DTO"][] | null;
+        SurveySubmissionsApiResponse: {
+            IsSuccess?: boolean | null;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["SurveySubmissions"][] | null;
         };
         SysMessageModel: {
             Status?: components["schemas"]["MessageStatus"];
             MessageCode?: string | null;
             Message?: string | null;
         };
-        TagData_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
+        TagData: {
+            readonly InternalId?: string | null;
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 標籤功能 */
-            TagId?: string | null;
-            /** @description 功能模塊代碼 */
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly TagId?: string | null;
             ProgId?: string | null;
-            _TagDetail?: components["schemas"]["TagDetail_DTO"][] | null;
+            _TagDetail?: components["schemas"]["TagDetail"][] | null;
         };
-        TagDetail_DTO: {
-            /** @description 標籤功能 */
-            TagId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number;
+        TagDataApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["TagData"];
+        };
+        TagDetail: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly TagId?: string | null;
             Lang?: components["schemas"]["LangCode"];
-            /** @description 標籤名稱 */
             TagName?: string | null;
         };
-        TagSet_DTO: {
-            TagData?: components["schemas"]["TagData_DTO"];
-            TagDetail?: components["schemas"]["TagDetail_DTO"][] | null;
-        };
-        TagSet_DTOApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["TagSet_DTO"];
-        };
-        TimelineItem_DTO: {
-            /** @description 紀事表ID */
-            TimelineId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            /**
-             * Format: date-time
-             * @description 日期
-             */
-            Date?: string | null;
-            _Timeline?: components["schemas"]["Timeline_DTO"];
-            _TimelineLangDetail?: components["schemas"]["TimelineLangDetail_DTO"][] | null;
-        };
-        TimelineLangDetail_DTO: {
-            /** @description 紀事表ID */
-            TimelineId?: string | null;
-            /**
-             * Format: int32
-             * @description 父行代碼
-             */
-            ParentRowId?: number | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            Lang?: components["schemas"]["LangCode"];
-            /** @description 事件標題 */
-            Title?: string | null;
-            /** @description 事件內容 */
-            Content?: string | null;
-            _TimelineItem?: components["schemas"]["TimelineItem_DTO"];
-        };
-        TimelineSet_DTO: {
-            Timeline?: components["schemas"]["Timeline_DTO"];
-            TimelineItem?: components["schemas"]["TimelineItem_DTO"][] | null;
-            /** @description 語系資料 */
-            TimelineLangDetail?: components["schemas"]["TimelineLangDetail_DTO"][] | null;
-        };
-        TimelineSet_DTOApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["TimelineSet_DTO"];
-        };
-        Timeline_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
+        Timeline: {
+            readonly InternalId?: string | null;
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 紀事表ID */
-            TimelineId?: string | null;
-            /** @description 紀事表名稱 */
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly TimelineId?: string | null;
             TimelineName?: string | null;
-            _TimelineItem?: components["schemas"]["TimelineItem_DTO"][] | null;
+            _TimelineItem?: components["schemas"]["TimelineItem"][] | null;
+        };
+        TimelineApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["Timeline"];
+        };
+        TimelineItem: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly TimelineId?: string | null;
+            /** Format: date-time */
+            Date?: string | null;
+            _TimelineLangDetail?: components["schemas"]["TimelineLangDetail"][] | null;
+        };
+        TimelineLangDetail: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly TimelineId?: string | null;
+            /** Format: int32 */
+            readonly ParentRowId?: number;
+            Lang?: components["schemas"]["LangCode"];
+            Title?: string | null;
+            Content?: string | null;
         };
         TryCountDetailViewRequest_DTO: {
             SiteIndex?: string | null;
@@ -12350,95 +12301,62 @@ export interface components {
             InternalId?: string | null;
         };
         TryCountResult_DTO: {
-            IsCounted?: boolean;
+            IsCounted?: boolean | null;
             /** Format: int32 */
-            CurrentCount?: number;
+            CurrentCount?: number | null;
         };
         TryCountResult_DTOApiResponse: {
-            readonly IsSuccess?: boolean;
+            IsSuccess?: boolean | null;
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: components["schemas"]["TryCountResult_DTO"][] | null;
         };
         TryCountSiteViewRequest_DTO: {
             SiteIndex?: string | null;
         };
-        /**
-         * Format: int32
-         * @enum {integer}
-         */
-        ViewCountActionType: 1 | 2 | 3 | 4;
-        WebResourceInfo_DTO: {
-            /** @description 網路資源 */
-            WebResourceId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number;
-            Lang?: components["schemas"]["LangCode"];
-            /** @description 標題 */
-            Title?: string | null;
-            /** @description 內文 */
-            Content?: string | null;
-            /** @description 網址 */
-            ResUrl?: string | null;
-            Url_OpenType?: components["schemas"]["WindowTarget"];
-        };
-        WebResourceSet_DTO: {
-            WebResource?: components["schemas"]["WebResource_DTO"];
-            WebResourceInfo?: components["schemas"]["WebResourceInfo_DTO"][] | null;
-        };
-        WebResourceSet_DTOApiRequest: {
-            InternalId?: string | null;
-            Data?: components["schemas"]["WebResourceSet_DTO"];
-        };
-        WebResource_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
+        WebResource: {
+            readonly InternalId?: string | null;
+            /** Format: date-time */
+            readonly CreateTime?: string | null;
+            CreateUser?: components["schemas"]["Account"];
+            readonly CreateUserId?: string | null;
+            /** Format: date-time */
+            readonly ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["Account"];
+            readonly ModifyUserId?: string | null;
             FormStatus?: components["schemas"]["FormStatus"];
             DataStatus?: components["schemas"]["DataStatus"];
             /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description 網路資源 */
-            WebResourceId?: string | null;
-            /** @description 類別 */
+            readonly InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["Account"];
+            readonly InvalidUserId?: string | null;
+            /** Format: byte */
+            readonly DataVersion?: string | null;
+            readonly IsIniData?: boolean;
+            readonly WebResourceId: string;
             Categories?: string | null;
-            /** @description 標籤 */
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description 封面圖片 */
+            Pic?: components["schemas"]["FileManage"];
             PicId?: string | null;
-            /** @description 圖片說明 */
             PicDescription?: string | null;
-            /**
-             * Format: date-time
-             * @description 上架日期
-             */
-            Validate_Start?: string | null;
-            /**
-             * Format: date-time
-             * @description 下架日期
-             */
-            Validate_End?: string | null;
-            _WebResourceInfo?: components["schemas"]["WebResourceInfo_DTO"][] | null;
+            _WebResourceInfo?: components["schemas"]["WebResourceInfo"][] | null;
+        };
+        WebResourceApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["WebResource"];
+        };
+        WebResourceInfo: {
+            RowState?: components["schemas"]["RowState"];
+            /** Format: int32 */
+            readonly RowId?: number;
+            /** Format: int32 */
+            RowNo?: number | null;
+            readonly WebResourceId: string;
+            Lang?: components["schemas"]["LangCode"];
+            Title?: string | null;
+            Content?: string | null;
+            ResUrl?: string | null;
+            Url_OpenType?: components["schemas"]["WindowTarget"];
         };
         /**
          * Format: int32

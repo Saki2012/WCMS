@@ -5,6 +5,18 @@ public static partial class DisplayName
     #region 人員管理
 
     #region 帳號
+
+    /// <summary>
+    /// 中：帳號
+    /// 英：Account
+    /// </summary>
+    public const string Account = nameof(Account);
+    /// <summary>
+    /// 中：角色
+    /// 英：Role
+    /// </summary>
+    public const string RoleData = nameof(RoleData);
+
     /// <summary>
     /// 帳號表單
     /// </summary>

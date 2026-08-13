@@ -617,4 +617,146 @@ public static partial class DisplayName
     /// </summary>
     public const string SiteMenu_ModuleOptions = nameof(SiteMenu_ModuleOptions);
     #endregion
+
+    /// <summary>
+    /// 中：公告多語明細
+    /// 英：Announcement Translation
+    /// </summary>
+    public const string AnnouncementDetail = nameof(AnnouncementDetail);
+    /// <summary>
+    /// 中：橫幅
+    /// 英：Banner
+    /// </summary>
+    public const string Banner = nameof(Banner);
+    /// <summary>
+    /// 中：橫幅多語資訊
+    /// 英：Banner Translation
+    /// </summary>
+    public const string BannerDetailInfo = nameof(BannerDetailInfo);
+    /// <summary>
+    /// 中：檔案室
+    /// 英：File Archive
+    /// </summary>
+    public const string FileArchive = nameof(FileArchive);
+    /// <summary>
+    /// 中：檔案室多語資訊
+    /// 英：File Archive Translation
+    /// </summary>
+    public const string FileArchiveInfo = nameof(FileArchiveInfo);
+    /// <summary>
+    /// 中：相簿
+    /// 英：Gallery
+    /// </summary>
+    public const string Gallery = nameof(Gallery);
+    /// <summary>
+    /// 中：相簿多語資訊
+    /// 英：Gallery Translation
+    /// </summary>
+    public const string GalleryInfo = nameof(GalleryInfo);
+    /// <summary>
+    /// 中：相片多語資訊
+    /// 英：Photo Translation
+    /// </summary>
+    public const string GalleryPhotosInfo = nameof(GalleryPhotosInfo);
+    /// <summary>
+    /// 中：頁面
+    /// 英：Page
+    /// </summary>
+    public const string PageManagement = nameof(PageManagement);
+    /// <summary>
+    /// 中：頁面多語明細
+    /// 英：Page Translation
+    /// </summary>
+    public const string PageManagementDetail = nameof(PageManagementDetail);
+    /// <summary>
+    /// 中：站台選單
+    /// 英：Site Menu
+    /// </summary>
+    public const string SiteMenu_Index = nameof(SiteMenu_Index);
+    /// <summary>
+    /// 中：站台多語資訊
+    /// 英：Site Translation
+    /// </summary>
+    public const string SiteMenu_IndexInfo = nameof(SiteMenu_IndexInfo);
+    /// <summary>
+    /// 中：站台選單項目
+    /// 英：Site Menu Item
+    /// </summary>
+    public const string SiteMenu_Item = nameof(SiteMenu_Item);
+    /// <summary>
+    /// 中：選單多語標題
+    /// 英：Menu Title Translation
+    /// </summary>
+    public const string SiteMenu_Item_Title = nameof(SiteMenu_Item_Title);
+    /// <summary>
+    /// 中：網址型選單設定
+    /// 英：URL Menu Settings
+    /// </summary>
+    public const string SiteMenu_Item_Url = nameof(SiteMenu_Item_Url);
+    /// <summary>
+    /// 中：模組型選單設定
+    /// 英：Module Menu Settings
+    /// </summary>
+    public const string SiteMenu_Item_Module = nameof(SiteMenu_Item_Module);
+    /// <summary>
+    /// 中：站台瀏覽統計
+    /// 英：Site View Statistics
+    /// </summary>
+    public const string SiteViewCountHeader = nameof(SiteViewCountHeader);
+    /// <summary>
+    /// 中：內容瀏覽統計
+    /// 英：Content View Statistics
+    /// </summary>
+    public const string SiteViewCountDetail = nameof(SiteViewCountDetail);
+    /// <summary>
+    /// 中：最近瀏覽計次紀錄
+    /// 英：Recent View Count Record
+    /// </summary>
+    public const string SiteViewCountRecently = nameof(SiteViewCountRecently);
+    /// <summary>
+    /// 中：問卷
+    /// 英：Survey
+    /// </summary>
+    public const string Survey = nameof(Survey);
+    /// <summary>
+    /// 中：問卷欄位
+    /// 英：Survey Field
+    /// </summary>
+    public const string SurveyItem = nameof(SurveyItem);
+    /// <summary>
+    /// 中：問卷欄位多語資訊
+    /// 英：Survey Field Translation
+    /// </summary>
+    public const string SurveyItemLang = nameof(SurveyItemLang);
+    /// <summary>
+    /// 中：問卷回覆
+    /// 英：Survey Submission
+    /// </summary>
+    public const string SurveySubmissions = nameof(SurveySubmissions);
+    /// <summary>
+    /// 中：紀事表
+    /// 英：Timeline
+    /// </summary>
+    public const string Timeline = nameof(Timeline);
+    /// <summary>
+    /// 中：紀事項目
+    /// 英：Timeline Item
+    /// </summary>
+    public const string TimelineItem = nameof(TimelineItem);
+    /// <summary>
+    /// 中：網路資源
+    /// 英：Web Resource
+    /// </summary>
+    public const string WebResource = nameof(WebResource);
+    /// <summary>
+    /// 中：網路資源多語資訊
+    /// 英：Web Resource Translation
+    /// </summary>
+    public const string WebResourceInfo = nameof(WebResourceInfo);
+
+    /// <summary>
+    /// 中：瀏覽次數
+    /// 英：View Count
+    /// </summary>
+    public const string SiteViewCount_PageViewCount = nameof(SiteViewCount_PageViewCount);
 }

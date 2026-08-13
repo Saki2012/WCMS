@@ -1,6 +1,6 @@
 // 使用套件 DatePicker
 import { useId, useMemo, useRef, useState } from "react";
-import type { SyntheticEvent } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format, isSameDay, isValid, parse, parseISO } from "date-fns";
@@ -8,6 +8,8 @@ import type { ILibCalendarProp } from "./LibCalendar_Data";
 
 // #region Property
 const OUTPUT_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+
+type DatePickerRawEvent = ReactKeyboardEvent<HTMLElement> | ReactMouseEvent<HTMLElement>;
 
 const SUPPORTED_FORMATS = [
     // 顯示格式
@@ -67,10 +69,13 @@ export const LibCalendar = (prop: ILibCalendarProp) =>
         return parseDateValue(prop.InputValue);
     }, [prop.InputValue]);
 
-    const handleChangeRaw = (e?: SyntheticEvent<HTMLInputElement>) =>
+    /** 同步 DatePicker 原始輸入文字並清除舊的格式錯誤。 */
+    const handleChangeRaw = (event?: DatePickerRawEvent) =>
     {
-        const input = e?.target as HTMLInputElement | null;
-        setText(input?.value ?? "");
+        const target = event?.target;
+        const inputValue = target instanceof HTMLInputElement ? target.value : "";
+
+        setText(inputValue);
         if (invalid) setInvalid(false);
     };
 
@@ -186,7 +191,7 @@ export const LibCalendar = (prop: ILibCalendarProp) =>
                                 commitTextIfPossible();
                             }
                         }}
-                        onChangeRaw={(e) => handleChangeRaw(e as SyntheticEvent<HTMLInputElement>)}
+                        onChangeRaw={handleChangeRaw}
                         value={text !== "" ? text : undefined}
                         dateFormat="yyyy / MM / dd"
                         placeholderText="YYYY / MM / DD"
@@ -206,7 +211,7 @@ export const LibCalendar = (prop: ILibCalendarProp) =>
                         }}
                         isClearable
                         popperClassName="wcms-datepicker-popper"
-                        ariaInvalid={invalid}
+                        ariaInvalid={invalid ? "true" : undefined}
                         ariaDescribedBy={invalid ? `${inputId}-err` : undefined}
                     />
 

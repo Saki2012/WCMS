@@ -1,15 +1,23 @@
-import { bannerSliderEmptyData, type BannerSliderFormRefs, toBannerPictureCellValue, useBannerDetailEditGrid, useBannerDetailInfoEditGrid, useBannerSliderFormTemplate } from "@/Features/Pages/Server/BizFunc/WEB/Banner/Server_BannerSlider_Form_Hook";
+import {
+    type BannerDetailInfoEditGridExtension,
+    bannerSliderEmptyData,
+    type BannerSliderFormRefs,
+    toBannerPictureCellValue,
+    useBannerDetailEditGrid,
+    useBannerDetailInfoEditGrid,
+    useBannerSliderFormTemplate,
+} from "@/Features/Pages/Server/BizFunc/WEB/Banner/Server_BannerSlider_Form_Hook";
 import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
 import type { EditGridCellRenderArgs, EditGridCellValue, EditGridEditingStateArgs, GridRow, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
 import { getEditGridRowId, useEditGridSubDetailState } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
-import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
 import { useFormModelField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
 import { BannerFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
@@ -23,6 +31,8 @@ interface BannerSliderFormCompProps
     theme: IBETheme;
     /** 目前語系 */
     lang: Lang;
+    /** 客製層可選的 Banner 語系明細擴充。 */
+    detailInfoExtension?: BannerDetailInfoEditGridExtension;
 }
 interface BannerContentProps
 {
@@ -34,6 +44,8 @@ interface BannerContentProps
     binding: ServerFormBinding<BannerFormModel>;
     /** Banner Hook 整理後的參照資料 */
     refs: BannerSliderFormRefs;
+    /** 客製層可選的 Banner 語系明細擴充。 */
+    detailInfoExtension?: BannerDetailInfoEditGridExtension;
 }
 interface HeaderSectionProps
 {
@@ -79,7 +91,7 @@ export const BannerSliderFormComp = (props: BannerSliderFormCompProps) =>
         return { onBackToList };
     }, [onBackToList]);
     const template = useBannerSliderFormTemplate({ lang: props.lang, theme: props.theme, internalId: internalId ?? "", emptyData: bannerSliderEmptyData, actionsOpt });
-    return <Server_FormTemplate_Comp template={template} renderContent={({ vm }) => <BannerContentComp theme={props.theme} lang={props.lang} binding={vm.binding} refs={vm.refs} />} />;
+    return <Server_FormTemplate_Comp template={template} renderContent={({ vm }) => <BannerContentComp theme={props.theme} lang={props.lang} binding={vm.binding} refs={vm.refs} detailInfoExtension={props.detailInfoExtension} />} />;
 };
 // #endregion
 
@@ -90,7 +102,7 @@ const BannerContentComp = (props: BannerContentProps) =>
     return (
         <>
             <HeaderSectionComp theme={props.theme} binding={props.binding} />
-            <DetailSectionComp theme={props.theme} lang={props.lang} binding={props.binding} refs={props.refs} />
+            <DetailSectionComp theme={props.theme} lang={props.lang} binding={props.binding} refs={props.refs} detailInfoExtension={props.detailInfoExtension} />
         </>
     );
 };
@@ -133,9 +145,17 @@ const DetailSectionComp = (props: DetailSectionProps) =>
     );
     const renderSubDetail = useCallback(
         (args: { row: GridRow; rowIndex: number; }) => (
-            <DetailInfoSubDetailGridComp theme={props.theme} lang={props.lang} binding={props.binding} refs={props.refs} parentRowId={getEditGridRowId(args.row, args.rowIndex)} onEditingStateChange={subDetailState.onSubDetailEditingStateChange} />
+            <DetailInfoSubDetailGridComp
+                theme={props.theme}
+                lang={props.lang}
+                binding={props.binding}
+                refs={props.refs}
+                detailInfoExtension={props.detailInfoExtension}
+                parentRowId={getEditGridRowId(args.row, args.rowIndex)}
+                onEditingStateChange={subDetailState.onSubDetailEditingStateChange}
+            />
         ),
-        [props.binding, props.lang, props.refs, props.theme, subDetailState.onSubDetailEditingStateChange],
+        [props.binding, props.detailInfoExtension, props.lang, props.refs, props.theme, subDetailState.onSubDetailEditingStateChange],
     );
     const detailGrid = useBannerDetailEditGrid({
         binding: props.binding,
@@ -162,6 +182,7 @@ const DetailInfoSubDetailGridComp = (props: DetailInfoSubDetailProps) =>
         lang: props.lang,
         windowTargetOpts: props.refs.windowTargetOpts,
         style: editGridStyle,
+        extension: props.detailInfoExtension,
     });
     return (
         <div className="p-3" style={{ backgroundColor: "#fafafa", border: "1px solid #dee2e6" }}>

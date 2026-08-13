@@ -1,6 +1,7 @@
 // ✅ 自動產生，請勿手動修改
 
-export const AccountModelFields = {
+export const AccountFields = {
+  InternalId: 'InternalId',
   CreateTime: 'CreateTime',
   CreateUser: 'CreateUser',
   CreateUserId: 'CreateUserId',
@@ -12,124 +13,48 @@ export const AccountModelFields = {
   InvalidTime: 'InvalidTime',
   InvalidUser: 'InvalidUser',
   InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
+  DataVersion: 'DataVersion',
   IsIniData: 'IsIniData',
-  Validate_Start: 'Validate_Start',
-  Validate_End: 'Validate_End',
   AccountId: 'AccountId',
   AccountName: 'AccountName',
   Person: 'Person',
   PersonId: 'PersonId',
   Role: 'Role',
   RoleId: 'RoleId',
-  PasswordHash: 'PasswordHash',
-  PasswordSalt: 'PasswordSalt',
-  PasswordAlgoVer: 'PasswordAlgoVer',
   AccountStatus: 'AccountStatus',
   PasswordChangeDate: 'PasswordChangeDate',
-} as const;
-
-export type AccountModelFieldKey = keyof typeof AccountModelFields;
-
-export const AccountSetFields = {
-  Account: 'Account',
-} as const;
-
-export type AccountSetFieldKey = keyof typeof AccountSetFields;
-
-export const AccountSet_DTOApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type AccountSet_DTOApiRequestFieldKey = keyof typeof AccountSet_DTOApiRequestFields;
-
-export const AccountFields = {
-  CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
-  CreateUser: 'CreateUser',
-  ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
-  ModifyUser: 'ModifyUser',
-  FormStatus: 'FormStatus',
-  DataStatus: 'DataStatus',
-  InvalidTime: 'InvalidTime',
-  InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
-  AccountId: 'AccountId',
-  AccountName: 'AccountName',
-  Person: 'Person',
-  PersonId: 'PersonId',
-  Role: 'Role',
-  RoleId: 'RoleId',
   Password: 'Password',
-  AccountStatus: 'AccountStatus',
-  PasswordChangeDate: 'PasswordChangeDate',
 } as const;
 
 export type AccountFieldKey = keyof typeof AccountFields;
 
-export const AnnouncementDetailFileFields = {
-  AnnouncementId: 'AnnouncementId',
-  ParentRowId: 'ParentRowId',
-  RowId: 'RowId',
-  File: 'File',
-  FileId: 'FileId',
-  FileName: 'FileName',
-  _AnnouncementDetail: '_AnnouncementDetail',
-} as const;
-
-export type AnnouncementDetailFileFieldKey = keyof typeof AnnouncementDetailFileFields;
-
-export const AnnouncementDetailFields = {
-  AnnouncementId: 'AnnouncementId',
-  RowId: 'RowId',
-  Lang: 'Lang',
-  Title: 'Title',
-  SubTitle: 'SubTitle',
-  Content: 'Content',
-  Url: 'Url',
-  UrlDescription: 'UrlDescription',
-  _Announcement: '_Announcement',
-  _AnnouncementDetailFile: '_AnnouncementDetailFile',
-} as const;
-
-export type AnnouncementDetailFieldKey = keyof typeof AnnouncementDetailFields;
-
-export const AnnouncementSetFields = {
-  Announcement: 'Announcement',
-  AnnouncementDetail: 'AnnouncementDetail',
-  AnnouncementDetailFile: 'AnnouncementDetailFile',
-} as const;
-
-export type AnnouncementSetFieldKey = keyof typeof AnnouncementSetFields;
-
-export const AnnouncementSet_DTOApiRequestFields = {
+export const AccountApiRequestFields = {
   InternalId: 'InternalId',
   Data: 'Data',
 } as const;
 
-export type AnnouncementSet_DTOApiRequestFieldKey = keyof typeof AnnouncementSet_DTOApiRequestFields;
+export type AccountApiRequestFieldKey = keyof typeof AccountApiRequestFields;
 
 export const AnnouncementFields = {
+  InternalId: 'InternalId',
   CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
   InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
   AnnouncementId: 'AnnouncementId',
   Categories: 'Categories',
   Tags: 'Tags',
   ContentStatus: 'ContentStatus',
+  Picture: 'Picture',
   PictureId: 'PictureId',
   PicDescription: 'PicDescription',
   Validate_Start: 'Validate_Start',
@@ -139,62 +64,57 @@ export const AnnouncementFields = {
 
 export type AnnouncementFieldKey = keyof typeof AnnouncementFields;
 
-export const BannerDetailInfoFields = {
-  BannerId: 'BannerId',
-  ParentRowId: 'ParentRowId',
-  RowId: 'RowId',
-  Lang: 'Lang',
-  Title: 'Title',
-  Content: 'Content',
-  URL: 'URL',
-  URL_Open: 'URL_Open',
-  _BannerDetail: '_BannerDetail',
-} as const;
-
-export type BannerDetailInfoFieldKey = keyof typeof BannerDetailInfoFields;
-
-export const BannerDetailFields = {
-  BannerId: 'BannerId',
-  RowId: 'RowId',
-  PicSrcId: 'PicSrcId',
-  FontColor: 'FontColor',
-  Validate_Start: 'Validate_Start',
-  Validate_End: 'Validate_End',
-  Sort: 'Sort',
-  _Banner: '_Banner',
-  _BannerDetailInfo: '_BannerDetailInfo',
-} as const;
-
-export type BannerDetailFieldKey = keyof typeof BannerDetailFields;
-
-export const BannerSetFields = {
-  Banner: 'Banner',
-  BannerDetail: 'BannerDetail',
-  BannerDetailInfo: 'BannerDetailInfo',
-} as const;
-
-export type BannerSetFieldKey = keyof typeof BannerSetFields;
-
-export const BannerSet_DTOApiRequestFields = {
+export const AnnouncementApiRequestFields = {
   InternalId: 'InternalId',
   Data: 'Data',
 } as const;
 
-export type BannerSet_DTOApiRequestFieldKey = keyof typeof BannerSet_DTOApiRequestFields;
+export type AnnouncementApiRequestFieldKey = keyof typeof AnnouncementApiRequestFields;
+
+export const AnnouncementDetailFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  AnnouncementId: 'AnnouncementId',
+  Lang: 'Lang',
+  Title: 'Title',
+  SubTitle: 'SubTitle',
+  Content: 'Content',
+  Url: 'Url',
+  UrlDescription: 'UrlDescription',
+  _AnnouncementDetailFile: '_AnnouncementDetailFile',
+} as const;
+
+export type AnnouncementDetailFieldKey = keyof typeof AnnouncementDetailFields;
+
+export const AnnouncementDetailFileFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  AnnouncementId: 'AnnouncementId',
+  ParentRowId: 'ParentRowId',
+  File: 'File',
+  FileId: 'FileId',
+  FileName: 'FileName',
+} as const;
+
+export type AnnouncementDetailFileFieldKey = keyof typeof AnnouncementDetailFileFields;
 
 export const BannerFields = {
+  InternalId: 'InternalId',
   CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
   InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
   BannerId: 'BannerId',
   BannerCategoryName: 'BannerCategoryName',
   Interval: 'Interval',
@@ -206,7 +126,75 @@ export const BannerFields = {
 
 export type BannerFieldKey = keyof typeof BannerFields;
 
+export const BannerApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type BannerApiRequestFieldKey = keyof typeof BannerApiRequestFields;
+
+export const BannerDetailFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  BannerId: 'BannerId',
+  PicSrcId: 'PicSrcId',
+  FontColor: 'FontColor',
+  Validate_Start: 'Validate_Start',
+  Validate_End: 'Validate_End',
+  Sort: 'Sort',
+  _BannerDetailInfo: '_BannerDetailInfo',
+} as const;
+
+export type BannerDetailFieldKey = keyof typeof BannerDetailFields;
+
+export const BannerDetailInfoFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  BannerId: 'BannerId',
+  ParentRowId: 'ParentRowId',
+  Lang: 'Lang',
+  Title: 'Title',
+  Content: 'Content',
+  URL: 'URL',
+  URL_Open: 'URL_Open',
+} as const;
+
+export type BannerDetailInfoFieldKey = keyof typeof BannerDetailInfoFields;
+
+export const CalendarFields = {
+  InternalId: 'InternalId',
+  CreateTime: 'CreateTime',
+  CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
+  ModifyTime: 'ModifyTime',
+  ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
+  InvalidUserId: 'InvalidUserId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
+  Year: 'Year',
+  ImportSrc: 'ImportSrc',
+  LastImportTime: 'LastImportTime',
+  _CalendarDetail: '_CalendarDetail',
+} as const;
+
+export type CalendarFieldKey = keyof typeof CalendarFields;
+
+export const CalendarApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type CalendarApiRequestFieldKey = keyof typeof CalendarApiRequestFields;
+
 export const CalendarDetailFields = {
+  RowState: 'RowState',
   Year: 'Year',
   Date: 'Date',
   DayOfWeek: 'DayOfWeek',
@@ -217,45 +205,9 @@ export const CalendarDetailFields = {
   ModifyTime: 'ModifyTime',
   ModifyUser: 'ModifyUser',
   ModifyUserId: 'ModifyUserId',
-  _Calendar: '_Calendar',
 } as const;
 
 export type CalendarDetailFieldKey = keyof typeof CalendarDetailFields;
-
-export const CalendarSetFields = {
-  Calendar: 'Calendar',
-  CalendarDetail: 'CalendarDetail',
-} as const;
-
-export type CalendarSetFieldKey = keyof typeof CalendarSetFields;
-
-export const CalendarSet_DTOApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type CalendarSet_DTOApiRequestFieldKey = keyof typeof CalendarSet_DTOApiRequestFields;
-
-export const CalendarFields = {
-  CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
-  CreateUser: 'CreateUser',
-  ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
-  ModifyUser: 'ModifyUser',
-  FormStatus: 'FormStatus',
-  DataStatus: 'DataStatus',
-  InvalidTime: 'InvalidTime',
-  InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
-  Year: 'Year',
-  ImportSrc: 'ImportSrc',
-  LastImportTime: 'LastImportTime',
-  _CalendarDetail: '_CalendarDetail',
-} as const;
-
-export type CalendarFieldKey = keyof typeof CalendarFields;
 
 export const CaptchaPublicConfigFields = {
   Enabled: 'Enabled',
@@ -273,49 +225,45 @@ export const CaptchaPublicConfig_DTOApiResponseFields = {
 
 export type CaptchaPublicConfig_DTOApiResponseFieldKey = keyof typeof CaptchaPublicConfig_DTOApiResponseFields;
 
-export const CategoryDataSetFields = {
-  Category: 'Category',
-  CategoryDetail: 'CategoryDetail',
+export const CategoryFields = {
+  InternalId: 'InternalId',
+  CreateTime: 'CreateTime',
+  CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
+  ModifyTime: 'ModifyTime',
+  ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
+  InvalidUserId: 'InvalidUserId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
+  CategoryId: 'CategoryId',
+  ProgId: 'ProgId',
+  _CategoryDetail: '_CategoryDetail',
 } as const;
 
-export type CategoryDataSetFieldKey = keyof typeof CategoryDataSetFields;
+export type CategoryFieldKey = keyof typeof CategoryFields;
 
-export const CategoryDataSet_DTOApiRequestFields = {
+export const CategoryApiRequestFields = {
   InternalId: 'InternalId',
   Data: 'Data',
 } as const;
 
-export type CategoryDataSet_DTOApiRequestFieldKey = keyof typeof CategoryDataSet_DTOApiRequestFields;
+export type CategoryApiRequestFieldKey = keyof typeof CategoryApiRequestFields;
 
 export const CategoryDetailFields = {
-  CategoryId: 'CategoryId',
+  RowState: 'RowState',
   RowId: 'RowId',
+  RowNo: 'RowNo',
+  CategoryId: 'CategoryId',
   Lang: 'Lang',
   CategoryName: 'CategoryName',
 } as const;
 
 export type CategoryDetailFieldKey = keyof typeof CategoryDetailFields;
-
-export const CategoryFields = {
-  CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
-  CreateUser: 'CreateUser',
-  ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
-  ModifyUser: 'ModifyUser',
-  FormStatus: 'FormStatus',
-  DataStatus: 'DataStatus',
-  InvalidTime: 'InvalidTime',
-  InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
-  CategoryId: 'CategoryId',
-  ProgId: 'ProgId',
-  _CategoryDetail: '_CategoryDetail',
-  _MatCategoryInfoField: '_MatCategoryInfoField',
-} as const;
-
-export type CategoryFieldKey = keyof typeof CategoryFields;
 
 export const ChangePasswordFields = {
   OldPassword: 'OldPassword',
@@ -324,20 +272,56 @@ export const ChangePasswordFields = {
 
 export type ChangePasswordFieldKey = keyof typeof ChangePasswordFields;
 
+export const FileArchiveFields = {
+  InternalId: 'InternalId',
+  CreateTime: 'CreateTime',
+  CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
+  ModifyTime: 'ModifyTime',
+  ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
+  InvalidUserId: 'InvalidUserId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
+  FileArchiveId: 'FileArchiveId',
+  ContentStatus: 'ContentStatus',
+  CategoriesId: 'CategoriesId',
+  TagsId: 'TagsId',
+  Validate_Start: 'Validate_Start',
+  _FileArchiveInfo: '_FileArchiveInfo',
+} as const;
+
+export type FileArchiveFieldKey = keyof typeof FileArchiveFields;
+
+export const FileArchiveApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type FileArchiveApiRequestFieldKey = keyof typeof FileArchiveApiRequestFields;
+
 export const FileArchiveDetailFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
   FileArchiveId: 'FileArchiveId',
   ParentRowId: 'ParentRowId',
-  RowId: 'RowId',
-  FileSrc: 'FileSrc',
   FileSrcId: 'FileSrcId',
+  FileSrc: 'FileSrc',
   FileName: 'FileName',
 } as const;
 
 export type FileArchiveDetailFieldKey = keyof typeof FileArchiveDetailFields;
 
 export const FileArchiveInfoFields = {
-  FileArchiveId: 'FileArchiveId',
+  RowState: 'RowState',
   RowId: 'RowId',
+  RowNo: 'RowNo',
+  FileArchiveId: 'FileArchiveId',
   Lang: 'Lang',
   Title: 'Title',
   _FileArchiveDetail: '_FileArchiveDetail',
@@ -346,26 +330,12 @@ export const FileArchiveInfoFields = {
 
 export type FileArchiveInfoFieldKey = keyof typeof FileArchiveInfoFields;
 
-export const FileArchiveSetFields = {
-  FileArchive: 'FileArchive',
-  FileArchiveInfo: 'FileArchiveInfo',
-  FileArchiveDetail: 'FileArchiveDetail',
-  FileArchiveUrlDetail: 'FileArchiveUrlDetail',
-} as const;
-
-export type FileArchiveSetFieldKey = keyof typeof FileArchiveSetFields;
-
-export const FileArchiveSet_DTOApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type FileArchiveSet_DTOApiRequestFieldKey = keyof typeof FileArchiveSet_DTOApiRequestFields;
-
 export const FileArchiveUrlDetailFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
   FileArchiveId: 'FileArchiveId',
   ParentRowId: 'ParentRowId',
-  RowId: 'RowId',
   Url: 'Url',
   UrlDescription: 'UrlDescription',
   WindowTarget: 'WindowTarget',
@@ -373,39 +343,20 @@ export const FileArchiveUrlDetailFields = {
 
 export type FileArchiveUrlDetailFieldKey = keyof typeof FileArchiveUrlDetailFields;
 
-export const FileArchiveFields = {
+export const FileManageFields = {
   CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
   InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
-  FileArchiveId: 'FileArchiveId',
-  ContentStatus: 'ContentStatus',
-  CategoriesId: 'CategoriesId',
-  TagsId: 'TagsId',
-  _FileArchiveInfo: '_FileArchiveInfo',
-} as const;
-
-export type FileArchiveFieldKey = keyof typeof FileArchiveFields;
-
-export const FileManageModelFields = {
-  CreateTime: 'CreateTime',
-  CreateUser: 'CreateUser',
-  CreateUserId: 'CreateUserId',
-  ModifyTime: 'ModifyTime',
-  ModifyUser: 'ModifyUser',
-  ModifyUserId: 'ModifyUserId',
-  OrgLvId: 'OrgLvId',
+  DataVersion: 'DataVersion',
   IsIniData: 'IsIniData',
-  Validate_Start: 'Validate_Start',
-  Validate_End: 'Validate_End',
   InternalId: 'InternalId',
   Path: 'Path',
   FileName: 'FileName',
@@ -423,39 +374,32 @@ export const FileManageModelFields = {
   _FileManage_DownloadRecent: '_FileManage_DownloadRecent',
 } as const;
 
-export type FileManageModelFieldKey = keyof typeof FileManageModelFields;
+export type FileManageFieldKey = keyof typeof FileManageFields;
 
-export const FileManageSetFields = {
-  FileManage: 'FileManage',
-  FileManage_DownloadRecent: 'FileManage_DownloadRecent',
-  FileManage_SyncInfo: 'FileManage_SyncInfo',
-} as const;
-
-export type FileManageSetFieldKey = keyof typeof FileManageSetFields;
-
-export const FileManageSet_DTOApiRequestFields = {
+export const FileManageApiRequestFields = {
   InternalId: 'InternalId',
   Data: 'Data',
 } as const;
 
-export type FileManageSet_DTOApiRequestFieldKey = keyof typeof FileManageSet_DTOApiRequestFields;
+export type FileManageApiRequestFieldKey = keyof typeof FileManageApiRequestFields;
 
-export const FileManage_DownloadRecentModelFields = {
+export const FileManage_DownloadRecentFields = {
   RowState: 'RowState',
-  InternalId: 'InternalId',
   RowId: 'RowId',
+  RowNo: 'RowNo',
+  InternalId: 'InternalId',
   VisitorKey: 'VisitorKey',
   RefererURL: 'RefererURL',
   LastCountTime: 'LastCountTime',
-  _FileManage: '_FileManage',
 } as const;
 
-export type FileManage_DownloadRecentModelFieldKey = keyof typeof FileManage_DownloadRecentModelFields;
+export type FileManage_DownloadRecentFieldKey = keyof typeof FileManage_DownloadRecentFields;
 
-export const FileManage_SyncInfoModelFields = {
+export const FileManage_SyncInfoFields = {
   RowState: 'RowState',
-  InternalId: 'InternalId',
   RowId: 'RowId',
+  RowNo: 'RowNo',
+  InternalId: 'InternalId',
   FileStatus: 'FileStatus',
   SrcIP: 'SrcIP',
   SrcNode: 'SrcNode',
@@ -466,14 +410,51 @@ export const FileManage_SyncInfoModelFields = {
   ErrorCode: 'ErrorCode',
   ErrorMessage: 'ErrorMessage',
   ExecuteTime: 'ExecuteTime',
-  _FileManage: '_FileManage',
 } as const;
 
-export type FileManage_SyncInfoModelFieldKey = keyof typeof FileManage_SyncInfoModelFields;
+export type FileManage_SyncInfoFieldKey = keyof typeof FileManage_SyncInfoFields;
+
+export const GalleryFields = {
+  InternalId: 'InternalId',
+  CreateTime: 'CreateTime',
+  CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
+  ModifyTime: 'ModifyTime',
+  ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
+  InvalidUserId: 'InvalidUserId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
+  GalleryId: 'GalleryId',
+  Categories: 'Categories',
+  Tags: 'Tags',
+  ContentStatus: 'ContentStatus',
+  Validate_Start: 'Validate_Start',
+  Validate_End: 'Validate_End',
+  CoverPicSrc: 'CoverPicSrc',
+  CoverPicSrcId: 'CoverPicSrcId',
+  _GalleryInfo: '_GalleryInfo',
+  _GalleryPhotos: '_GalleryPhotos',
+} as const;
+
+export type GalleryFieldKey = keyof typeof GalleryFields;
+
+export const GalleryApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type GalleryApiRequestFieldKey = keyof typeof GalleryApiRequestFields;
 
 export const GalleryInfoFields = {
-  GalleryId: 'GalleryId',
+  RowState: 'RowState',
   RowId: 'RowId',
+  RowNo: 'RowNo',
+  GalleryId: 'GalleryId',
   Lang: 'Lang',
   Title: 'Title',
   Content: 'Content',
@@ -481,67 +462,31 @@ export const GalleryInfoFields = {
 
 export type GalleryInfoFieldKey = keyof typeof GalleryInfoFields;
 
+export const GalleryPhotosFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  GalleryId: 'GalleryId',
+  PicSrc: 'PicSrc',
+  PicSrcId: 'PicSrcId',
+  Sort: 'Sort',
+  _GalleryPhotosInfo: '_GalleryPhotosInfo',
+} as const;
+
+export type GalleryPhotosFieldKey = keyof typeof GalleryPhotosFields;
+
 export const GalleryPhotosInfoFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
   GalleryId: 'GalleryId',
   ParentRowId: 'ParentRowId',
-  RowId: 'RowId',
   Lang: 'Lang',
   Title: 'Title',
   Description: 'Description',
 } as const;
 
 export type GalleryPhotosInfoFieldKey = keyof typeof GalleryPhotosInfoFields;
-
-export const GalleryPhotosFields = {
-  GalleryId: 'GalleryId',
-  RowId: 'RowId',
-  PicSrcId: 'PicSrcId',
-  Sort: 'Sort',
-  GalleryPhotosInfo: 'GalleryPhotosInfo',
-} as const;
-
-export type GalleryPhotosFieldKey = keyof typeof GalleryPhotosFields;
-
-export const GallerySetFields = {
-  Gallery: 'Gallery',
-  GalleryInfo: 'GalleryInfo',
-  GalleryPhotos: 'GalleryPhotos',
-  GalleryPhotosInfo: 'GalleryPhotosInfo',
-} as const;
-
-export type GallerySetFieldKey = keyof typeof GallerySetFields;
-
-export const GallerySet_DTOApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type GallerySet_DTOApiRequestFieldKey = keyof typeof GallerySet_DTOApiRequestFields;
-
-export const GalleryFields = {
-  CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
-  CreateUser: 'CreateUser',
-  ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
-  ModifyUser: 'ModifyUser',
-  FormStatus: 'FormStatus',
-  DataStatus: 'DataStatus',
-  InvalidTime: 'InvalidTime',
-  InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
-  GalleryId: 'GalleryId',
-  Categories: 'Categories',
-  Tags: 'Tags',
-  ContentStatus: 'ContentStatus',
-  CoverPicSrcId: 'CoverPicSrcId',
-  Validate_Start: 'Validate_Start',
-  _GalleryInfo: '_GalleryInfo',
-  _GalleryPhotos: '_GalleryPhotos',
-} as const;
-
-export type GalleryFieldKey = keyof typeof GalleryFields;
 
 export const GetCurrentSiteOnlineCountRequestFields = {
   SiteIndex: 'SiteIndex',
@@ -574,107 +519,58 @@ export const LoginDtoFields = {
 
 export type LoginDtoFieldKey = keyof typeof LoginDtoFields;
 
-export const MatCategoryDataSetFields = {
+export const MatCategoryFormModelFields = {
   Category: 'Category',
-  CategoryDetail: 'CategoryDetail',
   MatCategoryInfoField: 'MatCategoryInfoField',
-  MatCategoryInfoFieldDisplay: 'MatCategoryInfoFieldDisplay',
 } as const;
 
-export type MatCategoryDataSetFieldKey = keyof typeof MatCategoryDataSetFields;
+export type MatCategoryFormModelFieldKey = keyof typeof MatCategoryFormModelFields;
 
-export const MatCategoryDataSet_DTOApiRequestFields = {
+export const MatCategoryFormModelApiRequestFields = {
   InternalId: 'InternalId',
   Data: 'Data',
 } as const;
 
-export type MatCategoryDataSet_DTOApiRequestFieldKey = keyof typeof MatCategoryDataSet_DTOApiRequestFields;
-
-export const MatCategoryInfoFieldDisplayFields = {
-  RowState: 'RowState',
-  CategoryId: 'CategoryId',
-  ParentRowId: 'ParentRowId',
-  RowId: 'RowId',
-  Lang: 'Lang',
-  FieldDisplayName: 'FieldDisplayName',
-  _MatCategoryInfoField: '_MatCategoryInfoField',
-} as const;
-
-export type MatCategoryInfoFieldDisplayFieldKey = keyof typeof MatCategoryInfoFieldDisplayFields;
+export type MatCategoryFormModelApiRequestFieldKey = keyof typeof MatCategoryFormModelApiRequestFields;
 
 export const MatCategoryInfoFieldFields = {
   RowState: 'RowState',
-  CategoryId: 'CategoryId',
   RowId: 'RowId',
+  RowNo: 'RowNo',
+  CategoryId: 'CategoryId',
   Field: 'Field',
-  _Category: '_Category',
   _MatCategoryInfoFieldDisplay: '_MatCategoryInfoFieldDisplay',
 } as const;
 
 export type MatCategoryInfoFieldFieldKey = keyof typeof MatCategoryInfoFieldFields;
 
-export const MaterialLangInfoFields = {
-  MaterialId: 'MaterialId',
+export const MatCategoryInfoFieldDisplayFields = {
+  RowState: 'RowState',
   RowId: 'RowId',
+  RowNo: 'RowNo',
+  CategoryId: 'CategoryId',
+  ParentRowId: 'ParentRowId',
   Lang: 'Lang',
-  MaterialName: 'MaterialName',
-  MaterialInfoJson: 'MaterialInfoJson',
-  Memo: 'Memo',
-  _Material: '_Material',
+  FieldDisplayName: 'FieldDisplayName',
 } as const;
 
-export type MaterialLangInfoFieldKey = keyof typeof MaterialLangInfoFields;
-
-export const MaterialPictureFields = {
-  MaterialId: 'MaterialId',
-  RowId: 'RowId',
-  Picture: 'Picture',
-  PictureId: 'PictureId',
-  PictureName: 'PictureName',
-  _Material: '_Material',
-} as const;
-
-export type MaterialPictureFieldKey = keyof typeof MaterialPictureFields;
-
-export const MaterialSetFields = {
-  Material: 'Material',
-  MaterialLangInfo: 'MaterialLangInfo',
-  MaterialPicture: 'MaterialPicture',
-  MaterialTags: 'MaterialTags',
-} as const;
-
-export type MaterialSetFieldKey = keyof typeof MaterialSetFields;
-
-export const MaterialSet_DTOApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type MaterialSet_DTOApiRequestFieldKey = keyof typeof MaterialSet_DTOApiRequestFields;
-
-export const MaterialTagsFields = {
-  MaterialId: 'MaterialId',
-  RowId: 'RowId',
-  Tag: 'Tag',
-  TagId: 'TagId',
-  _Material: '_Material',
-} as const;
-
-export type MaterialTagsFieldKey = keyof typeof MaterialTagsFields;
+export type MatCategoryInfoFieldDisplayFieldKey = keyof typeof MatCategoryInfoFieldDisplayFields;
 
 export const MaterialFields = {
+  InternalId: 'InternalId',
   CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
   InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
   MaterialId: 'MaterialId',
   Category: 'Category',
   CategoryId: 'CategoryId',
@@ -686,6 +582,70 @@ export const MaterialFields = {
 
 export type MaterialFieldKey = keyof typeof MaterialFields;
 
+export const MaterialApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type MaterialApiRequestFieldKey = keyof typeof MaterialApiRequestFields;
+
+export const MaterialLangInfoFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  MaterialId: 'MaterialId',
+  Lang: 'Lang',
+  MaterialName: 'MaterialName',
+  MaterialInfoJson: 'MaterialInfoJson',
+  Memo: 'Memo',
+} as const;
+
+export type MaterialLangInfoFieldKey = keyof typeof MaterialLangInfoFields;
+
+export const MaterialPictureFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  MaterialId: 'MaterialId',
+  Picture: 'Picture',
+  PictureId: 'PictureId',
+  PictureName: 'PictureName',
+} as const;
+
+export type MaterialPictureFieldKey = keyof typeof MaterialPictureFields;
+
+export const MaterialTagsFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  MaterialId: 'MaterialId',
+  Tag: 'Tag',
+  TagId: 'TagId',
+} as const;
+
+export type MaterialTagsFieldKey = keyof typeof MaterialTagsFields;
+
+export const ORCIDDataFields = {
+  ORCID: 'ORCID',
+  AuthorName: 'AuthorName',
+  AuthorName_en: 'AuthorName_en',
+  JobTitle: 'JobTitle',
+  Unit: 'Unit',
+  Unit_en: 'Unit_en',
+  Email: 'Email',
+  Country: 'Country',
+} as const;
+
+export type ORCIDDataFieldKey = keyof typeof ORCIDDataFields;
+
+export const ORCIDDataApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
+} as const;
+
+export type ORCIDDataApiResponseFieldKey = keyof typeof ORCIDDataApiResponseFields;
+
 export const OrderBySpecFields = {
   Col: 'Col',
   Desc: 'Desc',
@@ -693,43 +653,23 @@ export const OrderBySpecFields = {
 
 export type OrderBySpecFieldKey = keyof typeof OrderBySpecFields;
 
-export const PageManagementDetailFields = {
-  PageId: 'PageId',
-  RowId: 'RowId',
-  Lang: 'Lang',
-  Title: 'Title',
-  Content: 'Content',
-} as const;
-
-export type PageManagementDetailFieldKey = keyof typeof PageManagementDetailFields;
-
-export const PageManagementSetFields = {
-  PageManagement: 'PageManagement',
-  PageManagementDetail: 'PageManagementDetail',
-} as const;
-
-export type PageManagementSetFieldKey = keyof typeof PageManagementSetFields;
-
-export const PageManagementSet_DTOApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type PageManagementSet_DTOApiRequestFieldKey = keyof typeof PageManagementSet_DTOApiRequestFields;
-
 export const PageManagementFields = {
+  InternalId: 'InternalId',
   CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
   InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
+  SiteIndex: 'SiteIndex',
+  SiteIndexId: 'SiteIndexId',
   PageId: 'PageId',
   ProgId: 'ProgId',
   CategoryId: 'CategoryId',
@@ -737,6 +677,25 @@ export const PageManagementFields = {
 } as const;
 
 export type PageManagementFieldKey = keyof typeof PageManagementFields;
+
+export const PageManagementApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type PageManagementApiRequestFieldKey = keyof typeof PageManagementApiRequestFields;
+
+export const PageManagementDetailFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  PageId: 'PageId',
+  Lang: 'Lang',
+  Title: 'Title',
+  Content: 'Content',
+} as const;
+
+export type PageManagementDetailFieldKey = keyof typeof PageManagementDetailFields;
 
 export const PermissionCatalogModuleDTOFields = {
   ModuleCode: 'ModuleCode',
@@ -762,7 +721,8 @@ export const PermissionCatalogProgDTOFields = {
 
 export type PermissionCatalogProgDTOFieldKey = keyof typeof PermissionCatalogProgDTOFields;
 
-export const PersonModelFields = {
+export const PersonFields = {
+  InternalId: 'InternalId',
   CreateTime: 'CreateTime',
   CreateUser: 'CreateUser',
   CreateUserId: 'CreateUserId',
@@ -774,11 +734,8 @@ export const PersonModelFields = {
   InvalidTime: 'InvalidTime',
   InvalidUser: 'InvalidUser',
   InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
+  DataVersion: 'DataVersion',
   IsIniData: 'IsIniData',
-  Validate_Start: 'Validate_Start',
-  Validate_End: 'Validate_End',
   PersonId: 'PersonId',
   PersonName: 'PersonName',
   PersonImg: 'PersonImg',
@@ -789,20 +746,22 @@ export const PersonModelFields = {
   HomePhone: 'HomePhone',
 } as const;
 
-export type PersonModelFieldKey = keyof typeof PersonModelFields;
+export type PersonFieldKey = keyof typeof PersonFields;
 
-export const PersonSetFields = {
-  Person: 'Person',
-} as const;
-
-export type PersonSetFieldKey = keyof typeof PersonSetFields;
-
-export const PersonSet_DTOApiRequestFields = {
+export const PersonApiRequestFields = {
   InternalId: 'InternalId',
   Data: 'Data',
 } as const;
 
-export type PersonSet_DTOApiRequestFieldKey = keyof typeof PersonSet_DTOApiRequestFields;
+export type PersonApiRequestFieldKey = keyof typeof PersonApiRequestFields;
+
+export const PublishReqFields = {
+  InternalId: 'InternalId',
+  JournalIndexId: 'JournalIndexId',
+  JournalIndexRowId: 'JournalIndexRowId',
+} as const;
+
+export type PublishReqFieldKey = keyof typeof PublishReqFields;
 
 export const QueryListParamFields = {
   Fields: 'Fields',
@@ -829,7 +788,8 @@ export const ResetPasswordFields = {
 
 export type ResetPasswordFieldKey = keyof typeof ResetPasswordFields;
 
-export const RoleDataModelFields = {
+export const RoleDataFields = {
+  InternalId: 'InternalId',
   CreateTime: 'CreateTime',
   CreateUser: 'CreateUser',
   CreateUserId: 'CreateUserId',
@@ -841,43 +801,33 @@ export const RoleDataModelFields = {
   InvalidTime: 'InvalidTime',
   InvalidUser: 'InvalidUser',
   InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
+  DataVersion: 'DataVersion',
   IsIniData: 'IsIniData',
-  Validate_Start: 'Validate_Start',
-  Validate_End: 'Validate_End',
   RoleId: 'RoleId',
   RoleName: 'RoleName',
   IsAdmin: 'IsAdmin',
   _RolePermission: '_RolePermission',
 } as const;
 
-export type RoleDataModelFieldKey = keyof typeof RoleDataModelFields;
+export type RoleDataFieldKey = keyof typeof RoleDataFields;
 
-export const RolePermissionModelFields = {
-  RowState: 'RowState',
-  RoleId: 'RoleId',
-  RowId: 'RowId',
-  PermissionKey: 'PermissionKey',
-  GrantMask: 'GrantMask',
-  _RoleData: '_RoleData',
-} as const;
-
-export type RolePermissionModelFieldKey = keyof typeof RolePermissionModelFields;
-
-export const RolePermissionSetFields = {
-  RoleData: 'RoleData',
-  RolePermission: 'RolePermission',
-} as const;
-
-export type RolePermissionSetFieldKey = keyof typeof RolePermissionSetFields;
-
-export const RolePermissionSet_DTOApiRequestFields = {
+export const RoleDataApiRequestFields = {
   InternalId: 'InternalId',
   Data: 'Data',
 } as const;
 
-export type RolePermissionSet_DTOApiRequestFieldKey = keyof typeof RolePermissionSet_DTOApiRequestFields;
+export type RoleDataApiRequestFieldKey = keyof typeof RoleDataApiRequestFields;
+
+export const RolePermissionFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  RoleId: 'RoleId',
+  PermissionKey: 'PermissionKey',
+  GrantMask: 'GrantMask',
+} as const;
+
+export type RolePermissionFieldKey = keyof typeof RolePermissionFields;
 
 export const SaveMenuItemModuleFields = {
   BannerId: 'BannerId',
@@ -980,52 +930,21 @@ export const SaveSiteInfo_DTOApiRequestFields = {
 
 export type SaveSiteInfo_DTOApiRequestFieldKey = keyof typeof SaveSiteInfo_DTOApiRequestFields;
 
-export const SiteMenuSetFields = {
-  SiteMenu_Index: 'SiteMenu_Index',
-  SiteMenu_IndexInfo: 'SiteMenu_IndexInfo',
-  SiteMenu_Item: 'SiteMenu_Item',
-  SiteMenu_Item_Title: 'SiteMenu_Item_Title',
-  SiteMenu_Item_Url: 'SiteMenu_Item_Url',
-  SiteMenu_Item_Module: 'SiteMenu_Item_Module',
-} as const;
-
-export type SiteMenuSetFieldKey = keyof typeof SiteMenuSetFields;
-
-export const SiteMenuSet_DTOApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type SiteMenuSet_DTOApiRequestFieldKey = keyof typeof SiteMenuSet_DTOApiRequestFields;
-
-export const SiteMenu_IndexInfoFields = {
-  SiteIndex: 'SiteIndex',
-  RowId: 'RowId',
-  Lang: 'Lang',
-  Title: 'Title',
-  Description: 'Description',
-  BannerId: 'BannerId',
-  SiteHeader: 'SiteHeader',
-  SiteFooter: 'SiteFooter',
-  Keyword: 'Keyword',
-  _SiteMenu_Index: '_SiteMenu_Index',
-} as const;
-
-export type SiteMenu_IndexInfoFieldKey = keyof typeof SiteMenu_IndexInfoFields;
-
 export const SiteMenu_IndexFields = {
+  InternalId: 'InternalId',
   CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
   InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
   SiteIndex: 'SiteIndex',
   GoogleAnalytics: 'GoogleAnalytics',
   Enable: 'Enable',
@@ -1037,9 +956,35 @@ export const SiteMenu_IndexFields = {
 
 export type SiteMenu_IndexFieldKey = keyof typeof SiteMenu_IndexFields;
 
-export const SiteMenu_ItemFields = {
-  SiteIndex: 'SiteIndex',
+export const SiteMenu_IndexApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SiteMenu_IndexApiRequestFieldKey = keyof typeof SiteMenu_IndexApiRequestFields;
+
+export const SiteMenu_IndexInfoFields = {
+  RowState: 'RowState',
   RowId: 'RowId',
+  RowNo: 'RowNo',
+  SiteIndex: 'SiteIndex',
+  Lang: 'Lang',
+  Title: 'Title',
+  Description: 'Description',
+  SiteHeader: 'SiteHeader',
+  SiteFooter: 'SiteFooter',
+  Keyword: 'Keyword',
+  Banner: 'Banner',
+  BannerId: 'BannerId',
+} as const;
+
+export type SiteMenu_IndexInfoFieldKey = keyof typeof SiteMenu_IndexInfoFields;
+
+export const SiteMenu_ItemFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  SiteIndex: 'SiteIndex',
   ParentRowId: 'ParentRowId',
   ItemSiteUrl: 'ItemSiteUrl',
   FullUrl: 'FullUrl',
@@ -1047,7 +992,6 @@ export const SiteMenu_ItemFields = {
   DisplayOrder: 'DisplayOrder',
   ItemType: 'ItemType',
   WindowTarget: 'WindowTarget',
-  _SiteMenu_Index: '_SiteMenu_Index',
   _SiteMenu_Item_Title: '_SiteMenu_Item_Title',
   _SiteMenu_Item_Url: '_SiteMenu_Item_Url',
   _SiteMenu_Item_Module: '_SiteMenu_Item_Module',
@@ -1056,42 +1000,43 @@ export const SiteMenu_ItemFields = {
 export type SiteMenu_ItemFieldKey = keyof typeof SiteMenu_ItemFields;
 
 export const SiteMenu_Item_ModuleFields = {
+  RowState: 'RowState',
   SiteIndex: 'SiteIndex',
   ItemRowId: 'ItemRowId',
+  Banner: 'Banner',
   BannerId: 'BannerId',
   PageType: 'PageType',
   ModuleProgId: 'ModuleProgId',
   ModuleOptions: 'ModuleOptions',
-  _SiteMenu_Index: '_SiteMenu_Index',
 } as const;
 
 export type SiteMenu_Item_ModuleFieldKey = keyof typeof SiteMenu_Item_ModuleFields;
 
 export const SiteMenu_Item_TitleFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
   SiteIndex: 'SiteIndex',
   ItemRowId: 'ItemRowId',
-  RowId: 'RowId',
   Lang: 'Lang',
   Title: 'Title',
   IsShowOnMenu: 'IsShowOnMenu',
-  _SiteMenu_Index: '_SiteMenu_Index',
 } as const;
 
 export type SiteMenu_Item_TitleFieldKey = keyof typeof SiteMenu_Item_TitleFields;
 
 export const SiteMenu_Item_UrlFields = {
+  RowState: 'RowState',
   SiteIndex: 'SiteIndex',
   ItemRowId: 'ItemRowId',
   RedirectType: 'RedirectType',
   RedirectUrl: 'RedirectUrl',
-  _SiteMenu_Index: '_SiteMenu_Index',
 } as const;
 
 export type SiteMenu_Item_UrlFieldKey = keyof typeof SiteMenu_Item_UrlFields;
 
-export const SiteViewCountDetailModelFields = {
+export const SiteViewCountDetailFields = {
   RowState: 'RowState',
-  SiteMenu_Index: 'SiteMenu_Index',
   SiteIndex: 'SiteIndex',
   ProgId: 'ProgId',
   TargetInternalId: 'TargetInternalId',
@@ -1099,202 +1044,227 @@ export const SiteViewCountDetailModelFields = {
   FilePreviewCount: 'FilePreviewCount',
   FileDownloadCount: 'FileDownloadCount',
   LinkClickCount: 'LinkClickCount',
-  _SiteViewCountHeader: '_SiteViewCountHeader',
 } as const;
 
-export type SiteViewCountDetailModelFieldKey = keyof typeof SiteViewCountDetailModelFields;
+export type SiteViewCountDetailFieldKey = keyof typeof SiteViewCountDetailFields;
 
-export const SiteViewCountHeaderModelFields = {
+export const SiteViewCountHeaderFields = {
+  InternalId: 'InternalId',
   CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
   InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
   SiteMenu_Index: 'SiteMenu_Index',
   SiteIndex: 'SiteIndex',
   PublicViewCount: 'PublicViewCount',
   _SiteViewCountDetail: '_SiteViewCountDetail',
 } as const;
 
-export type SiteViewCountHeaderModelFieldKey = keyof typeof SiteViewCountHeaderModelFields;
+export type SiteViewCountHeaderFieldKey = keyof typeof SiteViewCountHeaderFields;
 
-export const SiteViewCountRecentlyModelFields = {
-  RowState: 'RowState',
-  SiteMenu_Index: 'SiteMenu_Index',
-  SiteIndex: 'SiteIndex',
-  ProgId: 'ProgId',
-  TargetInternalId: 'TargetInternalId',
-  TargetType: 'TargetType',
-  ActionType: 'ActionType',
-  VisitorKey: 'VisitorKey',
-  LastViewTime: 'LastViewTime',
-  RefererUrl: 'RefererUrl',
-} as const;
-
-export type SiteViewCountRecentlyModelFieldKey = keyof typeof SiteViewCountRecentlyModelFields;
-
-export const SiteViewCountSetFields = {
-  SiteViewCountHeader: 'SiteViewCountHeader',
-  SiteViewCountDetail: 'SiteViewCountDetail',
-  SiteViewCountRecently: 'SiteViewCountRecently',
-} as const;
-
-export type SiteViewCountSetFieldKey = keyof typeof SiteViewCountSetFields;
-
-export const SiteViewCountSet_DTOApiResponseFields = {
+export const SiteViewCountHeaderApiResponseFields = {
   IsSuccess: 'IsSuccess',
   SysMessage: 'SysMessage',
   Data: 'Data',
 } as const;
 
-export type SiteViewCountSet_DTOApiResponseFieldKey = keyof typeof SiteViewCountSet_DTOApiResponseFields;
+export type SiteViewCountHeaderApiResponseFieldKey = keyof typeof SiteViewCountHeaderApiResponseFields;
 
-export const SpecHomePage1820ModelFields = {
+export const SpecJournalFields = {
+  InternalId: 'InternalId',
   CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
   InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
-  HomePageId: 'HomePageId',
-  Lang: 'Lang',
-  Section1Title_L: 'Section1Title_L',
-  Section1Title_M: 'Section1Title_M',
-  Section1Title_R: 'Section1Title_R',
-  HeroText: 'HeroText',
-  HeroText_ViewMoreLink: 'HeroText_ViewMoreLink',
-  AnnouncementTitle: 'AnnouncementTitle',
-  AnnouncementSubTitle: 'AnnouncementSubTitle',
-  AnnouncementCategoryIds: 'AnnouncementCategoryIds',
-  Announcement_ViewMoreLink: 'Announcement_ViewMoreLink',
-  Resource_Title: 'Resource_Title',
-  Resource_SubTitle: 'Resource_SubTitle',
-  _SpecHomePage1820_BannerMedia: '_SpecHomePage1820_BannerMedia',
-  _SpecHomePage1820_Detail: '_SpecHomePage1820_Detail',
-  _SpecHomePage1820_Marquee: '_SpecHomePage1820_Marquee',
-  _SpecHomePage1820_Resource: '_SpecHomePage1820_Resource',
-} as const;
-
-export type SpecHomePage1820ModelFieldKey = keyof typeof SpecHomePage1820ModelFields;
-
-export const SpecHomePage1820SetFields = {
-  SpecHomePage1820: 'SpecHomePage1820',
-  SpecHomePage1820_BannerMedia: 'SpecHomePage1820_BannerMedia',
-  SpecHomePage1820_Detail: 'SpecHomePage1820_Detail',
-  SpecHomePage1820_Marquee: 'SpecHomePage1820_Marquee',
-  SpecHomePage1820_Resource: 'SpecHomePage1820_Resource',
-} as const;
-
-export type SpecHomePage1820SetFieldKey = keyof typeof SpecHomePage1820SetFields;
-
-export const SpecHomePage1820Set_DTOApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type SpecHomePage1820Set_DTOApiRequestFieldKey = keyof typeof SpecHomePage1820Set_DTOApiRequestFields;
-
-export const SpecHomePage1820_BannerMediaFields = {
-  RowState: 'RowState',
-  HomePageId: 'HomePageId',
-  RowId: 'RowId',
-  BannerFile: 'BannerFile',
-  BannerFileId: 'BannerFileId',
-  BannerFileDescription: 'BannerFileDescription',
-  _SpecHomePage1820: '_SpecHomePage1820',
-} as const;
-
-export type SpecHomePage1820_BannerMediaFieldKey = keyof typeof SpecHomePage1820_BannerMediaFields;
-
-export const SpecHomePage1820_DetailFields = {
-  RowState: 'RowState',
-  HomePageId: 'HomePageId',
-  RowId: 'RowId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
+  JournalId: 'JournalId',
+  _JournalIndex: '_JournalIndex',
+  JournalIndexId: 'JournalIndexId',
+  _JournalIndexDetail: '_JournalIndexDetail',
+  JournalIndexRowId: 'JournalIndexRowId',
   Title: 'Title',
-  SubTitle: 'SubTitle',
-  MainPicture: 'MainPicture',
-  MainPictureId: 'MainPictureId',
-  MainPictureDescription: 'MainPictureDescription',
-  SubPicture: 'SubPicture',
-  SubPictureId: 'SubPictureId',
-  SubPictureDescription: 'SubPictureDescription',
-  Intro: 'Intro',
-  MainLinkTitle: 'MainLinkTitle',
-  MainLink: 'MainLink',
-  SubLinkTitle1: 'SubLinkTitle1',
-  SubLink1: 'SubLink1',
-  SubLinkTitle2: 'SubLinkTitle2',
-  SubLink2: 'SubLink2',
-  SubLinkTitle3: 'SubLinkTitle3',
-  SubLink3: 'SubLink3',
-  _SpecHomePage1820: '_SpecHomePage1820',
+  Title_en: 'Title_en',
+  PageStart: 'PageStart',
+  PageEnd: 'PageEnd',
+  DOIUrl: 'DOIUrl',
+  JournalFile: 'JournalFile',
+  JournalFileId: 'JournalFileId',
+  JournalFileName: 'JournalFileName',
+  InsightPointFile: 'InsightPointFile',
+  InsightPointFileId: 'InsightPointFileId',
+  InsightPointFileName: 'InsightPointFileName',
+  ArticleLang: 'ArticleLang',
+  Memo: 'Memo',
+  Memo_en: 'Memo_en',
+  Bibliography: 'Bibliography',
+  _SpecJournalAuthor: '_SpecJournalAuthor',
+  _SpecJournalRefFormat: '_SpecJournalRefFormat',
+  _SpecJournalOpenPointFiles: '_SpecJournalOpenPointFiles',
+  _SpecJournalRefFiles: '_SpecJournalRefFiles',
+  _SpecJournalDocument: '_SpecJournalDocument',
+  _SpecJournalTypes: '_SpecJournalTypes',
+  _SpecJournalKeywords: '_SpecJournalKeywords',
 } as const;
 
-export type SpecHomePage1820_DetailFieldKey = keyof typeof SpecHomePage1820_DetailFields;
+export type SpecJournalFieldKey = keyof typeof SpecJournalFields;
 
-export const SpecHomePage1820_MarqueeFields = {
-  RowState: 'RowState',
-  HomePageId: 'HomePageId',
-  RowId: 'RowId',
-  Picture: 'Picture',
-  PictureId: 'PictureId',
-  PictureTitle: 'PictureTitle',
-  IsHide: 'IsHide',
-  _SpecHomePage1820: '_SpecHomePage1820',
-} as const;
-
-export type SpecHomePage1820_MarqueeFieldKey = keyof typeof SpecHomePage1820_MarqueeFields;
-
-export const SpecHomePage1820_ResourceFields = {
-  RowState: 'RowState',
-  HomePageId: 'HomePageId',
-  RowId: 'RowId',
-  PicTitle: 'PicTitle',
-  PicSubTitle: 'PicSubTitle',
-  PicFile: 'PicFile',
-  PicFileId: 'PicFileId',
-  PicFileDescription: 'PicFileDescription',
-  Link: 'Link',
-  _SpecHomePage1820: '_SpecHomePage1820',
-} as const;
-
-export type SpecHomePage1820_ResourceFieldKey = keyof typeof SpecHomePage1820_ResourceFields;
-
-export const SpecHomePageWeatherFields = {
-  CityCode: 'CityCode',
-  LocationName: 'LocationName',
-  Weather: 'Weather',
-  Temperature: 'Temperature',
-  ApparentTemperature: 'ApparentTemperature',
-  RelativeHumidity: 'RelativeHumidity',
-  ProbabilityOfPrecipitation: 'ProbabilityOfPrecipitation',
-  StartTime: 'StartTime',
-  EndTime: 'EndTime',
-  FetchTime: 'FetchTime',
-} as const;
-
-export type SpecHomePageWeatherFieldKey = keyof typeof SpecHomePageWeatherFields;
-
-export const SpecHomePageWeather_DTOApiResponseFields = {
-  IsSuccess: 'IsSuccess',
-  SysMessage: 'SysMessage',
+export const SpecJournalApiRequestFields = {
+  InternalId: 'InternalId',
   Data: 'Data',
 } as const;
 
-export type SpecHomePageWeather_DTOApiResponseFieldKey = keyof typeof SpecHomePageWeather_DTOApiResponseFields;
+export type SpecJournalApiRequestFieldKey = keyof typeof SpecJournalApiRequestFields;
+
+export const SpecJournalAuthorFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  JournalId: 'JournalId',
+  AuthorType: 'AuthorType',
+  ORCID: 'ORCID',
+  AuthorName: 'AuthorName',
+  AuthorName_en: 'AuthorName_en',
+  JobTitle: 'JobTitle',
+  Unit: 'Unit',
+  Unit_en: 'Unit_en',
+  Email: 'Email',
+  Country: 'Country',
+} as const;
+
+export type SpecJournalAuthorFieldKey = keyof typeof SpecJournalAuthorFields;
+
+export const SpecJournalDocumentFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  JournalId: 'JournalId',
+  DocumentType: 'DocumentType',
+  DocumentName: 'DocumentName',
+  Document: 'Document',
+  DocumentId: 'DocumentId',
+} as const;
+
+export type SpecJournalDocumentFieldKey = keyof typeof SpecJournalDocumentFields;
+
+export const SpecJournalIndexFields = {
+  InternalId: 'InternalId',
+  CreateTime: 'CreateTime',
+  CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
+  ModifyTime: 'ModifyTime',
+  ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
+  InvalidUserId: 'InvalidUserId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
+  IndexId: 'IndexId',
+  IndexName: 'IndexName',
+  _SpecJournalIndexDetail: '_SpecJournalIndexDetail',
+} as const;
+
+export type SpecJournalIndexFieldKey = keyof typeof SpecJournalIndexFields;
+
+export const SpecJournalIndexApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SpecJournalIndexApiRequestFieldKey = keyof typeof SpecJournalIndexApiRequestFields;
+
+export const SpecJournalIndexDetailFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  IndexId: 'IndexId',
+  Volume: 'Volume',
+  Issue: 'Issue',
+  IsSpecial: 'IsSpecial',
+  PublishDate: 'PublishDate',
+  SeasonNo: 'SeasonNo',
+  SummaryFile: 'SummaryFile',
+  SummaryFileId: 'SummaryFileId',
+  SummaryFileName: 'SummaryFileName',
+} as const;
+
+export type SpecJournalIndexDetailFieldKey = keyof typeof SpecJournalIndexDetailFields;
+
+export const SpecJournalKeywordsFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  JournalId: 'JournalId',
+  LangCode: 'LangCode',
+  Keyword: 'Keyword',
+} as const;
+
+export type SpecJournalKeywordsFieldKey = keyof typeof SpecJournalKeywordsFields;
+
+export const SpecJournalOpenPointFilesFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  JournalId: 'JournalId',
+  OpenPointFileName: 'OpenPointFileName',
+  OpenPointFile: 'OpenPointFile',
+  OpenPointFileId: 'OpenPointFileId',
+} as const;
+
+export type SpecJournalOpenPointFilesFieldKey = keyof typeof SpecJournalOpenPointFilesFields;
+
+export const SpecJournalRefFilesFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  JournalId: 'JournalId',
+  RefFileName: 'RefFileName',
+  RefFile: 'RefFile',
+  RefFileId: 'RefFileId',
+} as const;
+
+export type SpecJournalRefFilesFieldKey = keyof typeof SpecJournalRefFilesFields;
+
+export const SpecJournalRefFormatFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  JournalId: 'JournalId',
+  Title: 'Title',
+  Content: 'Content',
+} as const;
+
+export type SpecJournalRefFormatFieldKey = keyof typeof SpecJournalRefFormatFields;
+
+export const SpecJournalTypesFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  JournalId: 'JournalId',
+  Tag: 'Tag',
+  TagId: 'TagId',
+} as const;
+
+export type SpecJournalTypesFieldKey = keyof typeof SpecJournalTypesFields;
 
 export const StringApiResponseFields = {
   IsSuccess: 'IsSuccess',
@@ -1304,44 +1274,62 @@ export const StringApiResponseFields = {
 
 export type StringApiResponseFieldKey = keyof typeof StringApiResponseFields;
 
-export const SurveyItemLangFields = {
+export const SurveyFields = {
+  InternalId: 'InternalId',
+  CreateTime: 'CreateTime',
+  CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
+  ModifyTime: 'ModifyTime',
+  ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
+  InvalidUserId: 'InvalidUserId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
   SurveyId: 'SurveyId',
-  ParentRowId: 'ParentRowId',
-  RowId: 'RowId',
-  Lang: 'Lang',
-  FieldName: 'FieldName',
+  SurveyName: 'SurveyName',
+  SurveyDescription: 'SurveyDescription',
+  SurveySuccessContent: 'SurveySuccessContent',
   _SurveyItem: '_SurveyItem',
 } as const;
 
-export type SurveyItemLangFieldKey = keyof typeof SurveyItemLangFields;
+export type SurveyFieldKey = keyof typeof SurveyFields;
+
+export const SurveyApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SurveyApiRequestFieldKey = keyof typeof SurveyApiRequestFields;
 
 export const SurveyItemFields = {
-  SurveyId: 'SurveyId',
+  RowState: 'RowState',
   RowId: 'RowId',
+  RowNo: 'RowNo',
+  SurveyId: 'SurveyId',
   FieldId: 'FieldId',
   IsRequired: 'IsRequired',
   InputType: 'InputType',
   Options: 'Options',
-  _Survey: '_Survey',
   _SurveyItemLang: '_SurveyItemLang',
 } as const;
 
 export type SurveyItemFieldKey = keyof typeof SurveyItemFields;
 
-export const SurveySetFields = {
-  Survey: 'Survey',
-  SurveyItem: 'SurveyItem',
-  SurveyItemLang: 'SurveyItemLang',
+export const SurveyItemLangFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  SurveyId: 'SurveyId',
+  ParentRowId: 'ParentRowId',
+  Lang: 'Lang',
+  FieldName: 'FieldName',
 } as const;
 
-export type SurveySetFieldKey = keyof typeof SurveySetFields;
-
-export const SurveySet_DTOApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type SurveySet_DTOApiRequestFieldKey = keyof typeof SurveySet_DTOApiRequestFields;
+export type SurveyItemLangFieldKey = keyof typeof SurveyItemLangFields;
 
 export const SurveySubmissionRequestFields = {
   SurveyId: 'SurveyId',
@@ -1355,20 +1343,6 @@ export const SurveySubmissionRequestFields = {
 } as const;
 
 export type SurveySubmissionRequestFieldKey = keyof typeof SurveySubmissionRequestFields;
-
-export const SurveySubmissionsSetFields = {
-  SurveySubmissions: 'SurveySubmissions',
-} as const;
-
-export type SurveySubmissionsSetFieldKey = keyof typeof SurveySubmissionsSetFields;
-
-export const SurveySubmissionsSet_DTOApiResponseFields = {
-  IsSuccess: 'IsSuccess',
-  SysMessage: 'SysMessage',
-  Data: 'Data',
-} as const;
-
-export type SurveySubmissionsSet_DTOApiResponseFieldKey = keyof typeof SurveySubmissionsSet_DTOApiResponseFields;
 
 export const SurveySubmissionsFields = {
   SurveySubmissionId: 'SurveySubmissionId',
@@ -1396,27 +1370,13 @@ export const SurveySubmissionsFields = {
 
 export type SurveySubmissionsFieldKey = keyof typeof SurveySubmissionsFields;
 
-export const SurveyFields = {
-  CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
-  CreateUser: 'CreateUser',
-  ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
-  ModifyUser: 'ModifyUser',
-  FormStatus: 'FormStatus',
-  DataStatus: 'DataStatus',
-  InvalidTime: 'InvalidTime',
-  InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
-  SurveyId: 'SurveyId',
-  SurveyName: 'SurveyName',
-  SurveyDescription: 'SurveyDescription',
-  SurveySuccessContent: 'SurveySuccessContent',
-  _SurveyItem: '_SurveyItem',
+export const SurveySubmissionsApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
 } as const;
 
-export type SurveyFieldKey = keyof typeof SurveyFields;
+export type SurveySubmissionsApiResponseFieldKey = keyof typeof SurveySubmissionsApiResponseFields;
 
 export const SysMessageModelFields = {
   Status: 'Status',
@@ -1427,18 +1387,20 @@ export const SysMessageModelFields = {
 export type SysMessageModelFieldKey = keyof typeof SysMessageModelFields;
 
 export const TagDataFields = {
+  InternalId: 'InternalId',
   CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
   InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
   TagId: 'TagId',
   ProgId: 'ProgId',
   _TagDetail: '_TagDetail',
@@ -1446,85 +1408,76 @@ export const TagDataFields = {
 
 export type TagDataFieldKey = keyof typeof TagDataFields;
 
+export const TagDataApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type TagDataApiRequestFieldKey = keyof typeof TagDataApiRequestFields;
+
 export const TagDetailFields = {
-  TagId: 'TagId',
+  RowState: 'RowState',
   RowId: 'RowId',
+  RowNo: 'RowNo',
+  TagId: 'TagId',
   Lang: 'Lang',
   TagName: 'TagName',
 } as const;
 
 export type TagDetailFieldKey = keyof typeof TagDetailFields;
 
-export const TagSetFields = {
-  TagData: 'TagData',
-  TagDetail: 'TagDetail',
-} as const;
-
-export type TagSetFieldKey = keyof typeof TagSetFields;
-
-export const TagSet_DTOApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type TagSet_DTOApiRequestFieldKey = keyof typeof TagSet_DTOApiRequestFields;
-
-export const TimelineItemFields = {
-  TimelineId: 'TimelineId',
-  RowId: 'RowId',
-  Date: 'Date',
-  _Timeline: '_Timeline',
-  _TimelineLangDetail: '_TimelineLangDetail',
-} as const;
-
-export type TimelineItemFieldKey = keyof typeof TimelineItemFields;
-
-export const TimelineLangDetailFields = {
-  TimelineId: 'TimelineId',
-  ParentRowId: 'ParentRowId',
-  RowId: 'RowId',
-  Lang: 'Lang',
-  Title: 'Title',
-  Content: 'Content',
-  _TimelineItem: '_TimelineItem',
-} as const;
-
-export type TimelineLangDetailFieldKey = keyof typeof TimelineLangDetailFields;
-
-export const TimelineSetFields = {
-  Timeline: 'Timeline',
-  TimelineItem: 'TimelineItem',
-  TimelineLangDetail: 'TimelineLangDetail',
-} as const;
-
-export type TimelineSetFieldKey = keyof typeof TimelineSetFields;
-
-export const TimelineSet_DTOApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type TimelineSet_DTOApiRequestFieldKey = keyof typeof TimelineSet_DTOApiRequestFields;
-
 export const TimelineFields = {
+  InternalId: 'InternalId',
   CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
   InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
   TimelineId: 'TimelineId',
   TimelineName: 'TimelineName',
   _TimelineItem: '_TimelineItem',
 } as const;
 
 export type TimelineFieldKey = keyof typeof TimelineFields;
+
+export const TimelineApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type TimelineApiRequestFieldKey = keyof typeof TimelineApiRequestFields;
+
+export const TimelineItemFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  TimelineId: 'TimelineId',
+  Date: 'Date',
+  _TimelineLangDetail: '_TimelineLangDetail',
+} as const;
+
+export type TimelineItemFieldKey = keyof typeof TimelineItemFields;
+
+export const TimelineLangDetailFields = {
+  RowState: 'RowState',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  TimelineId: 'TimelineId',
+  ParentRowId: 'ParentRowId',
+  Lang: 'Lang',
+  Title: 'Title',
+  Content: 'Content',
+} as const;
+
+export type TimelineLangDetailFieldKey = keyof typeof TimelineLangDetailFields;
 
 export const TryCountDetailViewRequestFields = {
   SiteIndex: 'SiteIndex',
@@ -1555,9 +1508,45 @@ export const TryCountSiteViewRequestFields = {
 
 export type TryCountSiteViewRequestFieldKey = keyof typeof TryCountSiteViewRequestFields;
 
-export const WebResourceInfoFields = {
+export const WebResourceFields = {
+  InternalId: 'InternalId',
+  CreateTime: 'CreateTime',
+  CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
+  ModifyTime: 'ModifyTime',
+  ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
+  InvalidUserId: 'InvalidUserId',
+  DataVersion: 'DataVersion',
+  IsIniData: 'IsIniData',
   WebResourceId: 'WebResourceId',
+  Categories: 'Categories',
+  Tags: 'Tags',
+  ContentStatus: 'ContentStatus',
+  Pic: 'Pic',
+  PicId: 'PicId',
+  PicDescription: 'PicDescription',
+  _WebResourceInfo: '_WebResourceInfo',
+} as const;
+
+export type WebResourceFieldKey = keyof typeof WebResourceFields;
+
+export const WebResourceApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type WebResourceApiRequestFieldKey = keyof typeof WebResourceApiRequestFields;
+
+export const WebResourceInfoFields = {
+  RowState: 'RowState',
   RowId: 'RowId',
+  RowNo: 'RowNo',
+  WebResourceId: 'WebResourceId',
   Lang: 'Lang',
   Title: 'Title',
   Content: 'Content',
@@ -1566,46 +1555,6 @@ export const WebResourceInfoFields = {
 } as const;
 
 export type WebResourceInfoFieldKey = keyof typeof WebResourceInfoFields;
-
-export const WebResourceSetFields = {
-  WebResource: 'WebResource',
-  WebResourceInfo: 'WebResourceInfo',
-} as const;
-
-export type WebResourceSetFieldKey = keyof typeof WebResourceSetFields;
-
-export const WebResourceSet_DTOApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type WebResourceSet_DTOApiRequestFieldKey = keyof typeof WebResourceSet_DTOApiRequestFields;
-
-export const WebResourceFields = {
-  CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
-  CreateUser: 'CreateUser',
-  ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
-  ModifyUser: 'ModifyUser',
-  FormStatus: 'FormStatus',
-  DataStatus: 'DataStatus',
-  InvalidTime: 'InvalidTime',
-  InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
-  WebResourceId: 'WebResourceId',
-  Categories: 'Categories',
-  Tags: 'Tags',
-  ContentStatus: 'ContentStatus',
-  PicId: 'PicId',
-  PicDescription: 'PicDescription',
-  Validate_Start: 'Validate_Start',
-  Validate_End: 'Validate_End',
-  _WebResourceInfo: '_WebResourceInfo',
-} as const;
-
-export type WebResourceFieldKey = keyof typeof WebResourceFields;
 
 // ==============================
 // ✅ PGID (from OpenAPI paths)
@@ -1634,7 +1583,8 @@ export const PGID = {
     RolePermission: "RolePermission",
     SiteMenu: "SiteMenu",
     SiteViewCount: "SiteViewCount",
-    SpecHomePageApi: "SpecHomePageApi",
+    SpecJournal: "SpecJournal",
+    SpecJournalIndex: "SpecJournalIndex",
     Survey: "Survey",
     SurveySubmission: "SurveySubmission",
     SystemAPI: "SystemAPI",

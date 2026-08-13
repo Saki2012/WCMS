@@ -17,7 +17,7 @@ export interface UniversalApiOptions
 {
     /** 只在 SSR 使用；不傳則用 process.env.SSR_API_ORIGIN，且不轉發 Cookie */
     ssr?: { origin?: string; cookie?: string; acceptLanguage?: string; };
-    /** 只在 CSR 使用；不傳則用 import.meta.env.VITE_API_BASE_URL 或 /Service */
+    /** 只在 CSR 使用；不傳則固定使用同源 /Service。 */
     csr?: { baseURL?: string; };
     timeoutMs?: number;
 }
@@ -49,13 +49,6 @@ interface SsrRequestHeaders
 
 /** XSRF 初始化處理函式 */
 type EnsureXsrfHandler = () => Promise<void>;
-
-/** Vite import.meta.env 使用的最小型別 */
-type WcmsImportMeta = ImportMeta & {
-    env?: {
-        VITE_API_BASE_URL?: string;
-    };
-};
 
 /** 預設 API timeout 毫秒數 */
 const DEFAULT_API_TIMEOUT_MS = 30000;
@@ -217,12 +210,10 @@ const setupCsrXsrfRetryInterceptor = (instance: AxiosInstance, ensureXsrf: Ensur
 // #endregion
 
 // #region Private
-/** 解析 CSR API base url。 */
+/** 解析 CSR API Base URL，預設固定走同源 /Service。 */
 const resolveCsrBaseUrl = (opts?: UniversalApiOptions): string =>
 {
-    const env = import.meta as WcmsImportMeta;
-    const baseURL = opts?.csr?.baseURL ?? env.env?.VITE_API_BASE_URL ?? DEFAULT_CSR_BASE_URL;
-
+    const baseURL = opts?.csr?.baseURL ?? DEFAULT_CSR_BASE_URL;
     return baseURL;
 };
 

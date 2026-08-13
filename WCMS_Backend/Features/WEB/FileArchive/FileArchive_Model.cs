@@ -10,6 +10,7 @@ using WCMS.SysCore.I18n.Metadata;
 using WCMS.SysCore.PlatformServices.FileManagement;
 namespace WCMS.Features.WEB.FileArchive;
 
+[LibDesc(DisplayName.FileArchive)]
 public class FileArchive : HeaderModel
 {
     /// <summary>
@@ -48,6 +49,7 @@ public class FileArchive : HeaderModel
     public List<FileArchiveInfo> _FileArchiveInfo { get; set; } = [];
     #endregion
 }
+[LibDesc(DisplayName.FileArchiveInfo)]
 public class FileArchiveInfo : FormDetailModel
 {
     /// <summary>
@@ -92,7 +94,7 @@ public class FileArchiveDetail : FormDetailModel
     /// 父行主鍵 (_FileArchiveInfo)
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 檔案來源
@@ -127,7 +129,7 @@ public class FileArchiveUrlDetail : FormDetailModel
     /// 父行主鍵 (_FileArchiveInfo)
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 檔案來源

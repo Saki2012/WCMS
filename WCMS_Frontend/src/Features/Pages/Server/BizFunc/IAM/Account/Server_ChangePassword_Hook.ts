@@ -14,7 +14,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 // #region Property
 type ChangePassword = components["schemas"]["ChangePassword"];
 
-
 export interface UseServerChangePasswordResult
 {
     prop: FormCompProp;
@@ -63,7 +62,7 @@ export const useServerChangePassword = (theme: IBETheme): UseServerChangePasswor
         {
             const res = await AuthAPI.me();
             const data = res.data;
-            setDisplayName(data ? `${data.Id}, ${data.Name}` : "");
+            setDisplayName(data ? `${data.User.UserId}, ${data.User.UserName}` : "");
         };
 
         void loadUserName();

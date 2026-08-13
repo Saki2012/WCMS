@@ -7,12 +7,14 @@ using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Metadata;
 using WCMS.SysCore.PlatformServices.FileManagement;
 namespace WCMS.Features.MAT.Material;
 
 /// <summary>
 /// 物件主表
 /// </summary>
+[LibDesc(DisplayName.Material)]
 public class Material : HeaderModel
 {
     /// <summary>
@@ -32,7 +34,7 @@ public class Material : HeaderModel
     /// <summary>
     /// 商品價格 (未來要移動到商品資料，而非物件資料)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.Product_Price)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.Product_Price)]
     public decimal Price { get; set; }
 
     #region 主子表關聯
@@ -52,6 +54,7 @@ public class Material : HeaderModel
 /// <summary>
 /// 物件資訊
 /// </summary>
+[LibDesc(DisplayName.MaterialLangInfo)]
 public class MaterialLangInfo : FormDetailModel
 {
     /// <summary>
@@ -90,6 +93,7 @@ public class MaterialLangInfo : FormDetailModel
 /// <summary>
 /// 物件照片
 /// </summary>
+[LibDesc(DisplayName.MaterialPicture)]
 public class MaterialPicture : FormDetailModel
 {
     /// <summary>
@@ -121,6 +125,7 @@ public class MaterialPicture : FormDetailModel
 /// <summary>
 /// 物件標籤
 /// </summary>
+[LibDesc(DisplayName.MaterialTags)]
 public class MaterialTags : FormDetailModel
 {
     /// <summary>

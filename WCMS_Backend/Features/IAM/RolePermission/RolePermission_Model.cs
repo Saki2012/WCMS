@@ -5,12 +5,14 @@ using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.SysCore.I18n.Metadata;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.IAM.RolePermission;
 
 /// <summary>
 /// 角色資料
 /// </summary>
+[LibDesc(DisplayName.RoleData)]
 public class RoleData : HeaderModel
 {
     /// <summary>
@@ -41,6 +43,7 @@ public class RoleData : HeaderModel
 /// 角色權限資料
 /// </summary>
 [Index(nameof(RoleId), nameof(PermissionKey), IsUnique = true, Name = "UX_PermissionKey_NaturalKey")]
+[LibDesc(DisplayName.RolePermission)]
 public class RolePermission : FormDetailModel
 {
     /// <summary>

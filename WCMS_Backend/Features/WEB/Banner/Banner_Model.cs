@@ -9,6 +9,7 @@ using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.Features.WEB.Banner;
 
+[LibDesc(DisplayName.Banner)]
 public partial class Banner : HeaderModel
 {
     /// <summary>
@@ -25,22 +26,22 @@ public partial class Banner : HeaderModel
     /// <summary>
     /// 轉換間隔
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_Interval)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.Banner_Interval)]
     public short Interval { get; set; }
     /// <summary>
     /// 轉換速度
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_Speed)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.Banner_Speed)]
     public short Speed { get; set; }
     /// <summary>
     /// 橫幅高度
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_Height)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.Banner_Height)]
     public short Height { get; set; }
     /// <summary>
     /// 橫幅寬度
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_Width)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.Banner_Width)]
     public short Width { get; set; }
 
     #region 主子表關聯
@@ -77,11 +78,11 @@ public partial class BannerDetail : FormDetailModel
     /// 資料有效日期-迄
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_EndDate)]
-    public DateTime Validate_End { get; set; }
+    public DateTime? Validate_End { get; set; }
     /// <summary>
     /// 播放順序
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_Sort)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.Banner_Sort)]
     public ushort Sort { get; set; }
 
     #region 主子表關聯
@@ -93,6 +94,7 @@ public partial class BannerDetail : FormDetailModel
     public List<BannerDetailInfo> _BannerDetailInfo { get; set; } = [];
     #endregion
 }
+[LibDesc(DisplayName.BannerDetailInfo)]
 public partial class BannerDetailInfo : FormDetailModel
 {
     /// <summary>
@@ -105,7 +107,7 @@ public partial class BannerDetailInfo : FormDetailModel
     /// 
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 語系
@@ -122,7 +124,9 @@ public partial class BannerDetailInfo : FormDetailModel
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Common_Content)]
     public string Content { get; set; } = string.Empty;
-
+    /// <summary>
+    /// 
+    /// </summary>
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Url, DisplayName.Common_Url)]
     public string URL { get; set; } = string.Empty;
     /// <summary>

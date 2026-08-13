@@ -1,10 +1,10 @@
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
+import { useMenuNavigationAction } from "@/Features/Hooks/UIAction/Navigation/useMenuNavigationAction";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import { isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
-import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import clsx from "clsx";
 import { type CSSProperties, type MouseEvent, type ReactNode, type TransitionEvent, useEffect, useMemo, useRef, useState } from "react";
@@ -127,6 +127,7 @@ const ParentMenuButton = (props: { item: MenuItemData; expanded: boolean; depth:
 /** 選單葉節點，依內外連結輸出正確連結元件。 */
 const LeafMenuItem = (props: { item: MenuItemData; active: boolean; }) =>
 {
+    const menuNavigation = useMenuNavigationAction();
     const icon = <LinkIcon url={props.item.Url} />;
 
     if (!props.item.Url)
@@ -150,7 +151,7 @@ const LeafMenuItem = (props: { item: MenuItemData; active: boolean; }) =>
             title={props.item.SrcData}
             className={({ isActive }) => clsx("list-group-item", (isActive || props.active) && "active")}
             aria-current={props.active ? "page" : undefined}
-            onClick={handleInternalMenuLinkClick}
+            onClick={menuNavigation.onMenuNavigate}
         >
             {icon}
             {props.item.SrcData}
@@ -158,26 +159,9 @@ const LeafMenuItem = (props: { item: MenuItemData; active: boolean; }) =>
     );
 };
 
-
-/** 站內 Menu 導頁時重設目標清單狀態；目前頁面不重複導頁。 */
-const handleInternalMenuLinkClick = (e: MouseEvent<HTMLAnchorElement>): void =>
-{
-    const targetPath = normalizePath(e.currentTarget.pathname);
-    const currentPath = normalizePath(window.location.pathname);
-
-    if (targetPath === currentPath)
-    {
-        e.preventDefault();
-        return;
-    }
-
-    markPageStateMemoryEntry(targetPath, "reset");
-};
-
 /** 阻止 Preview fake node 連結導頁。 */
 const preventSafeMenuLinkClick = (e: MouseEvent<HTMLAnchorElement>): void =>
 {
-    // 執行 function
     e.preventDefault();
 };
 

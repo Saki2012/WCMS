@@ -8,7 +8,6 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 import crypto from "node:crypto";
 import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
-import https from "node:https";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import serveStatic from "serve-static";
@@ -19,11 +18,12 @@ import { buildProdCsp, type CspStyleMode } from "./CSPSetting";
 type SsrConfig = Readonly<{
     port: number;
     isProd: boolean;
-    apiTarget: string; // 後端 origin，例如 https://localhost:7030
-    allowInsecureBackendTls: boolean;
+    apiTarget: string;
 }>;
 
 type ProdPaths = Readonly<{ clientRoot: string; serverEntry: string; indexPath: string; }>;
+
+type SpecAssetLoaderFile = Readonly<{ filePath: string; publicBase: string; }>;
 
 type HeaderValue = string | number | readonly string[];
 
@@ -58,29 +58,6 @@ const setNoStoreHeaders = (res: Response): void =>
     res.setHeader("Cache-Control", noStoreHeaderValue);
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
-};
-
-/** 讀取布林環境參數，讓弱掃與相容性可逐案微調。 */
-const readBoolEnv = (key: string, defaultValue = false): boolean =>
-{
-    const raw = String(process.env[key] ?? "").trim().toLowerCase();
-    if (!raw) return defaultValue;
-    return raw === "1" || raw === "true" || raw === "yes" || raw === "y";
-};
-
-/** 讀取 CSP style 模式，預設 balanced：保留 inline style attribute，但不開放 inline style element。 */
-const readStyleModeEnv = (): CspStyleMode =>
-{
-    const raw = String(process.env.SSR_CSP_STYLE_MODE || "balanced").trim().toLowerCase();
-    if (raw === "legacy" || raw === "strict") return raw;
-    return "balanced";
-};
-
-/** 取得 Referrer-Policy；預設兼顧安全與 Google/外部服務相容性。 */
-const getReferrerPolicy = (): string =>
-{
-    const raw = String(process.env.SSR_REFERRER_POLICY || "").trim();
-    return raw || defaultReferrerPolicy;
 };
 
 /** 移除由 Node/Proxy 可控制的技術洩漏標頭。 */
@@ -125,40 +102,9 @@ const getResponseNonce = (res: Response): string =>
 {
     const current = res.locals.cspNonce;
     if (typeof current === "string" && current.trim()) return current;
-
     const nonce = crypto.randomBytes(16).toString("base64");
     res.locals.cspNonce = nonce;
     return nonce;
-};
-
-const readHeaderFirstValue = (value: string | string[] | undefined): string =>
-{
-    const raw = Array.isArray(value) ? value[0] : value;
-    return String(raw || "").split(",")[0].trim();
-};
-
-const sanitizeRequestProto = (value: string): string =>
-{
-    const proto = String(value || "").toLowerCase();
-    return proto === "http" || proto === "https" ? proto : "https";
-};
-
-const sanitizeRequestHost = (value: string): string =>
-{
-    const host = String(value || "").trim();
-    return /^[a-z0-9.-]+(?::\d+)?$/i.test(host) ? host : "";
-};
-
-/** 取得目前對外 Origin，讓 CSP script 可以收斂到同網域指定路徑。 */
-const getRequestPublicOrigin = (req: Request): string =>
-{
-    const envOrigin = String(process.env.SSR_PUBLIC_ORIGIN || "").trim().replace(/\/+$/, "");
-    if (envOrigin) return envOrigin;
-
-    const proto = sanitizeRequestProto(readHeaderFirstValue(req.headers["x-forwarded-proto"] as string | string[] | undefined) || req.protocol);
-    const host = sanitizeRequestHost(readHeaderFirstValue(req.headers["x-forwarded-host"] as string | string[] | undefined) || String(req.headers.host || ""));
-
-    return host ? `${proto}://${host}` : "";
 };
 
 /** 建立正式環境 HTML CSP 的調整參數。 */
@@ -166,20 +112,14 @@ const getHtmlCspOptions = (req: Request) =>
 {
     const pathname = String(req.path || "");
     const isServerPage = /^\/server(?:\/|$)/i.test(pathname);
-
-    return {
-        enforceTrustedTypes: isServerPage ? false : readBoolEnv("SSR_ENFORCE_TRUSTED_TYPES", false),
-        styleMode: isServerPage ? "legacy" as CspStyleMode : readStyleModeEnv(),
-        scriptBaseOrigin: getRequestPublicOrigin(req),
-    };
+    return { styleMode: isServerPage ? "legacy" as CspStyleMode : "balanced" as CspStyleMode };
 };
-
 /** 設定 HTML、靜態資源共用的基礎安全標頭，不在這裡塞 CSP。 */
 const setBaseSecurityHeaders = (res: Response, cfg: SsrConfig): void =>
 {
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-Frame-Options", "SAMEORIGIN");
-    res.setHeader("Referrer-Policy", getReferrerPolicy());
+    res.setHeader("Referrer-Policy", defaultReferrerPolicy);
     res.setHeader("Permissions-Policy", defaultPermissionsPolicy);
     res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
     res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
@@ -229,7 +169,7 @@ const setProxySecurityHeaders = (proxyRes: ProxyResponseLike, cfg: SsrConfig): v
     proxyRes.headers["expires"] = "0";
     proxyRes.headers["x-content-type-options"] = "nosniff";
     proxyRes.headers["x-frame-options"] = "SAMEORIGIN";
-    proxyRes.headers["referrer-policy"] = getReferrerPolicy();
+    proxyRes.headers["referrer-policy"] = defaultReferrerPolicy;
     proxyRes.headers["permissions-policy"] = defaultPermissionsPolicy;
     proxyRes.headers["cross-origin-opener-policy"] = "same-origin";
     proxyRes.headers["x-permitted-cross-domain-policies"] = "none";
@@ -327,105 +267,51 @@ const tryBuildProdPaths = (root: string): ProdPaths | null =>
 
 const getProdPaths = (): ProdPaths =>
 {
-    // 宣告變數
-    const appRoot = process.env.SSR_APP_ROOT?.trim();
-
-    // 執行 function
-    if (appRoot)
-    {
-        const p = tryBuildProdPaths(appRoot);
-        if (p) return p;
-    }
-
     // 情境1：直接在 dist/ 內啟動（cwd 就是 dist）
     const p1 = tryBuildProdPaths(process.cwd());
     if (p1) return p1;
-
     // 情境2：在專案根目錄啟動（讀 root/dist）
     const p2 = tryBuildProdPaths(path.resolve(process.cwd(), "dist"));
     if (p2) return p2;
-
     // fallback：維持舊行為（相對 SSR-Server.ts 的位置）
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     const p3 = tryBuildProdPaths(path.resolve(__dirname, "../../dist"));
     if (p3) return p3;
-
     throw new Error("Cannot resolve prod paths: missing CSR/client or SSR/server build output.");
 };
 
-const tryParseUrl = (s: string): URL | null =>
+/** 依目前模式載入 SSR Server 所需環境檔，讓 Spec 與 Feature 使用相同判斷。 */
+const loadRuntimeEnvFiles = (cwd: string, isDistRuntime: boolean): void =>
 {
-    // 宣告變數
-    const raw = String(s || "").trim();
-
-    // 執行 function
-    if (!raw) return null;
-
-    try
-    {
-        return new URL(raw);
-    } catch
-    {
-        return null;
-    }
-};
-
-const isLocalhostHost = (host: string): boolean =>
-{
-    const h = String(host || "").toLowerCase();
-    return h === "localhost" || h === "127.0.0.1" || h === "::1";
-};
-
-const shouldAllowInsecureBackendTls = (isProd: boolean, apiTarget: string, allowInsecureTls: boolean): boolean =>
-{
-    const u = tryParseUrl(apiTarget);
-    const isHttps = u?.protocol === "https:";
-    const isLocalhost = isLocalhostHost(u?.hostname ?? "");
-
-    if (!isHttps) return false;
-    if (!isProd) return true;
-    return allowInsecureTls && isLocalhost;
-};
-
-const applyProdTlsGuard = (isProd: boolean, apiTarget: string, allowInsecureTls: boolean): boolean =>
-{
-    const allowBackendTls = shouldAllowInsecureBackendTls(isProd, apiTarget, allowInsecureTls);
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = allowBackendTls ? "0" : "1";
-
-    if (allowBackendTls && isProd)
-    {
-        console.warn(`[SSR] Insecure TLS allowed ONLY for localhost backend: ${apiTarget}`);
-    }
-
-    if (isProd && allowInsecureTls && !allowBackendTls)
-    {
-        console.warn(`[SSR] SSR_ALLOW_INSECURE_TLS ignored. Only https localhost backend may use it. apiTarget=${apiTarget}`);
-    }
-
-    return allowBackendTls;
-};
-
-// 讀 env 並整理成 config
-const getConfig = (): SsrConfig =>
-{
-    const cwd = process.cwd();
-    const isDistRuntime = existsSync(path.resolve(cwd, "CSR")) && existsSync(path.resolve(cwd, "SSR"));
-
     if (isDistRuntime)
     {
         const hasDotEnv = existsSync(path.resolve(cwd, ".env"));
         const prodEnvPath = path.resolve(cwd, ".env.production");
         if (!hasDotEnv && existsSync(prodEnvPath)) dotenvConfig({ path: prodEnvPath });
+        return;
     }
 
+    const mode = String(process.env.NODE_ENV || "development") === "production" ? "production" : "development";
+    const candidates = [`.env.${mode}.local`, `.env.${mode}`];
+
+    for (const fileName of candidates)
+    {
+        const envPath = path.resolve(cwd, fileName);
+        if (existsSync(envPath)) dotenvConfig({ path: envPath });
+    }
+};
+
+/** 讀取 SSR 執行環境設定。 */
+const getConfig = (): SsrConfig =>
+{
+    const cwd = process.cwd();
+    const isDistRuntime = existsSync(path.resolve(cwd, "CSR")) && existsSync(path.resolve(cwd, "SSR"));
+    loadRuntimeEnvFiles(cwd, isDistRuntime);
     const nodeEnv = String(process.env.NODE_ENV || "development");
     const isProd = nodeEnv === "production" || isDistRuntime;
-    const port = Number(process.env.SSR_PORT || process.env.PORT || 5174);
-    const apiTarget = String(process.env.SSR_API_TARGET || "https://localhost:7030").replace(/\/+$/, "");
-    const allowInsecureTls = readBoolEnv("SSR_ALLOW_INSECURE_TLS", false);
-    const allowInsecureBackendTls = applyProdTlsGuard(isProd, apiTarget, allowInsecureTls);
-
-    return { port, isProd, apiTarget, allowInsecureBackendTls };
+    const port = Number(process.env.PORT || 5174);
+    const apiTarget = String(process.env.SSR_API_TARGET || "http://localhost:5098").replace(/\/+$/, "");
+    return { port, isProd, apiTarget };
 };
 
 const isPathSegmentPrefix = (pathname: string, segment: string): boolean =>
@@ -461,6 +347,8 @@ const shouldSSR = (req: Request): boolean =>
 const readCssImportHrefs = async (absTsFilePath: string, devPublicBase: string): Promise<string[]> =>
 {
     // 宣告變數
+    if (!existsSync(absTsFilePath)) return [];
+
     const text = await fs.readFile(absTsFilePath, "utf-8");
     const re = /^\s*import\s+["'](.+?)["'];\s*$/gm;
     const hrefs: string[] = [];
@@ -470,12 +358,33 @@ const readCssImportHrefs = async (absTsFilePath: string, devPublicBase: string):
     {
         const p = String(m[1] || "");
         if (!p.endsWith(".css")) continue;
-        const rel = p.replace(/^\.\//, ""); // "./Client/xx.css" -> "Client/xx.css"
+        const rel = p.replace(/^\.\//, "");
         hrefs.push(`${devPublicBase}/${rel}`.replace(/\/{2,}/g, "/"));
     }
 
     // return
     return hrefs;
+};
+
+/** 取得目前啟用的 SpecCode；空值代表純 Feature 模式。 */
+const getActiveSpecCode = (): string =>
+{
+    return String(process.env.VITE_SPEC_CODE ?? "").trim();
+};
+
+/** 尋找 Spec 的 CSS loader，並相容既有兩種資料夾拼字。 */
+const resolveSpecAssetLoaderFile = (specCode: string, fileName: string): SpecAssetLoaderFile | null =>
+{
+    if (!specCode) return null;
+
+    const folders = ["SpecFetures", "SpecFeatures"];
+    for (const folder of folders)
+    {
+        const filePath = path.resolve(process.cwd(), "src", folder, specCode, "Assets", fileName);
+        if (existsSync(filePath)) return { filePath, publicBase: `/src/${folder}/${specCode}/Assets` };
+    }
+
+    return null;
 };
 
 const normalizeCssHref = (href: string): string =>
@@ -627,19 +536,20 @@ const getProdCssHrefsFromManifest = (m: ViteManifest, spec: string, isServer: bo
         addIfExists(["src/Features/Assets/LoadFeaturesCss.ts"]);
     }
 
-    // 3) ✅ Spec Css：用「精準 key」避免把整個 spec 資產都掃進來
-    if (isServer)
+    // 3) Spec Css：Feature 模式略過；Spec 模式只抓目前 Case
+    if (isServer && spec)
     {
         addIfExists([`src/SpecFetures/${spec}/Assets/LoadSpecCss_Server.ts`, `src/SpecFeatures/${spec}/Assets/LoadSpecCss_Server.ts`]);
     } else
     {
-        // addIfExists([`src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`, `src/SpecFeatures/${spec}/Assets/LoadSpecCss.ts`]);
-        addIfExists([
-            `src/Features/Assets/LoadFeaturesCss_Client.ts`,
-            `src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`,
-            `src/SpecFeatures/${spec}/Assets/LoadSpecCss.ts`,
-        ]);
-        // cara
+        addIfExists(["src/Features/Assets/LoadFeaturesCss_Client.ts"]);
+        if (spec)
+        {
+            addIfExists([
+                `src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`,
+                `src/SpecFeatures/${spec}/Assets/LoadSpecCss.ts`,
+            ]);
+        }
     }
 
     // 4) fallback：真的抓不到時才全掃（把 css-only chunk 也納入）
@@ -756,10 +666,19 @@ const injectAppHtmlToRoot = (html: string, appHtml: string): string =>
     return html;
 };
 
-// 組 SSR HTML（dev/prod 共用）
-const buildHtml = (template: string, payload: { appHtml: string; headTags?: string; initialState?: unknown; }, _nonce: string, _isProd: boolean): string =>
+/** 將 CSP nonce 僅加入靜態 Template 既有 script，避免授權 SSR / CMS 後續注入內容。 */
+const injectCspNonceToTemplateScripts = (html: string, nonce: string): string =>
 {
-    let html = template;
+    const normalizedNonce = String(nonce || "").trim();
+    if (!normalizedNonce) throw new Error("[WCMS] SSR CSP nonce 不可為空。");
+
+    return html.replace(/<script\b(?![^>]*\bnonce=)([^>]*)>/gi, `<script nonce="${normalizedNonce}"$1>`);
+};
+
+// 組 SSR HTML（dev/prod 共用）
+const buildHtml = (template: string, payload: { appHtml: string; headTags?: string; initialState?: unknown; }, nonce: string, isProd: boolean): string =>
+{
+    let html = isProd ? injectCspNonceToTemplateScripts(template, nonce) : template;
     const cleanHtml = removeStaticRouterHydrationScripts(payload.appHtml ?? "");
     html = html.replace("<!--app-head-->", payload.headTags ?? "");
     html = injectAppHtmlToRoot(html, cleanHtml);
@@ -813,29 +732,30 @@ const setupDevSSR = async (app: express.Express, cfg: SsrConfig) =>
             template = await vite.transformIndexHtml(url, template);
 
             // 宣告變數
-            const spec = String(process.env.VITE_SPEC_CODE);
+            const specCode = getActiveSpecCode();
             const isServer = String(req.path || "").toLowerCase().startsWith("/server");
 
             // 執行 function
             if (isServer)
             {
-                // 後台：Features + Spec(Server)
                 const featuresCssTs = path.resolve(process.cwd(), "src/Features/Assets/LoadFeaturesCss.ts");
-                const specServerCssTs = path.resolve(process.cwd(), `src/SpecFetures/${spec}/Assets/LoadSpecCss_Server.ts`);
+                const specCssFile = resolveSpecAssetLoaderFile(specCode, "LoadSpecCss_Server.ts");
+                const featureHrefs = await readCssImportHrefs(featuresCssTs, "/src/Features/Assets");
+                const specHrefs = specCssFile
+                    ? await readCssImportHrefs(specCssFile.filePath, specCssFile.publicBase)
+                    : [];
 
-                const fHrefs = await readCssImportHrefs(featuresCssTs, "/src/Features/Assets");
-                const sHrefs = await readCssImportHrefs(specServerCssTs, `/src/SpecFetures/${spec}/Assets`);
-
-                template = injectCssLinksToHead(template, [...fHrefs, ...sHrefs]);
+                template = injectCssLinksToHead(template, [...featureHrefs, ...specHrefs]);
             } else
             {
-                // 前台：Spec(Client)
-                const featuresClientCssTs = path.resolve(process.cwd(), "src/Features/Assets/LoadFeaturesCss_Client.ts");
-                const specCssTs = path.resolve(process.cwd(), `src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`);
-                const Fhrefs = await readCssImportHrefs(featuresClientCssTs, "/src/Features/Assets");
-                const Shrefs = await readCssImportHrefs(specCssTs, `/src/SpecFetures/${spec}/Assets`);
+                const featuresCssTs = path.resolve(process.cwd(), "src/Features/Assets/LoadFeaturesCss_Client.ts");
+                const specCssFile = resolveSpecAssetLoaderFile(specCode, "LoadSpecCss.ts");
+                const featureHrefs = await readCssImportHrefs(featuresCssTs, "/src/Features/Assets");
+                const specHrefs = specCssFile
+                    ? await readCssImportHrefs(specCssFile.filePath, specCssFile.publicBase)
+                    : [];
 
-                template = injectCssLinksToHead(template, [...Fhrefs, ...Shrefs]);
+                template = injectCssLinksToHead(template, [...featureHrefs, ...specHrefs]);
             }
 
             const mod = await vite.ssrLoadModule("/src/SSR/Entry-Server.tsx");
@@ -881,7 +801,7 @@ const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>
             if (trySendResponseResult(res, result)) return;
             const payload = toPayload(result);
             let template = await fs.readFile(indexPath, "utf-8");
-            const spec = String(process.env.VITE_SPEC_CODE || "_default");
+            const spec = getActiveSpecCode();
             const isServer = String(req.path || "").toLowerCase().startsWith("/server");
             const manifest = await manifestPromise;
             if (manifest)
@@ -903,14 +823,13 @@ const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>
     });
 };
 
-// API Proxy：/Service -> cfg.apiTarget（後端）
+/** 建立後端 API Proxy，HTTPS Backend 一律驗證正式憑證。 */
 const setupApiProxy = (app: express.Express, cfg: SsrConfig) =>
 {
-    const isHttpsTarget = cfg.apiTarget.startsWith("https://");
     const options = {
         target: cfg.apiTarget,
         changeOrigin: true,
-        ...(isHttpsTarget ? { secure: !cfg.allowInsecureBackendTls, agent: new https.Agent({ rejectUnauthorized: !cfg.allowInsecureBackendTls }) } : {}),
+        secure: true,
         logLevel: "warn",
         pathRewrite: (p: string) => `/Service${p}`,
         onProxyRes: (proxyRes: ProxyResponseLike) =>

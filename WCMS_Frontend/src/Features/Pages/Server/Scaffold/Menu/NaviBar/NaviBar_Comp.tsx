@@ -21,8 +21,8 @@ export const NavibarMenu = () =>
         const loadUserName = async () =>
         {
             const res = await AuthAPI.me();
-            const name = (res?.data)?.Name ?? "";
-            const internalId = (res?.data)?.InternalId ?? "";
+            const name = (res?.data)?.User.UserName ?? "";
+            const internalId = (res?.data)?.User.InternalId ?? "";
             setUserName(name);
             setuserInternalId(internalId);
         };

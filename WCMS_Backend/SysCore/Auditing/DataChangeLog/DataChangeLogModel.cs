@@ -1,21 +1,22 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
+using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.SysCore.Auditing.DataChangeLog;
 
 /// <summary>
 /// 資料變更日誌
 /// </summary>
-[LibDesc]
+[LibDesc(DisplayName.DataChangeLog)]
 public class DataChangeLog
 {
     /// <summary>
     /// 序號
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibNum(ApiFieldMode.ReadOnly)]
     public long DataChangeId { get; set; }
     /// <summary>
     /// 使用者ID
@@ -41,7 +42,7 @@ public class DataChangeLog
 /// <summary>
 /// 資料變更日誌明細
 /// </summary>
-[LibDesc]
+[LibDesc(DisplayName.DataChangeLogDetail)]
 public class DataChangeLogDetail
 {
     /// <summary>
@@ -54,18 +55,18 @@ public class DataChangeLogDetail
     /// 序號
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibNum(ApiFieldMode.ReadOnly)]
     public long DataChangeId { get; set; }
     /// <summary>
     /// 行序號
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibNum(ApiFieldMode.ReadOnly)]
     public long RowId { get; set; }
     /// <summary>
     /// 表單索引
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int TableIndex { get; set; }
     /// <summary>
     /// 變更前後資料
@@ -78,4 +79,3 @@ public class DataChangeLogDetail
     [LibField(ApiFieldMode.ReadWrite)]
     public RowState RowState { get; set; }
 }
-

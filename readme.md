@@ -1,279 +1,154 @@
-網站整合管理後台代號：Web Content Management System(WCMS)
+# WCMS
 
-一、開發規劃
-程式上版使用：GIT
-資料庫會因應功能新增欄位、舊資料庫轉置資料庫
+> Web Content Management System
 
-二、時程規劃
-前期：台藝大研發處換版(6大常用模組+2客製模組)
-中期：第一套公版標準規格開發(金流、訂單、課程、購物..等)
-後期：專案客製化功能(由專案RD各自開發)
-反饋：常用功能回饋標準版、優化功能開發
+WCMS 是一套前後端分離的網站內容管理系統翻新專案，整合前台網站、後台管理、CSR／SSR、多國語系、無障礙與專案客製化能力。
 
+目前共用功能與架構開發以 `Feature/Dev` 為主要核對分支；實際工作前仍須確認本次來源分支、目標分支與 Spec 範圍。
 
-三、開發工具與環境:
-**後端:**
-- .net core 8.0
-    - Entity Framwork DTO (透過該方式實現在不同DB上運作)
-- Redis
+> [!IMPORTANT]
+> 本 README 僅提供專案入口與快速導覽。完整架構、開發規範、品質驗證與資料來源規則，請由 [`Docs/README.md`](./Docs/README.md) 進入。
 
-**前端:**
-- Vite + React
-- Typescript
+## 專案目標
 
-**UI_UX:**
-- Bootstrap
-- Javascript
-- css
+- 建立可供多站台共用、並允許個別專案延伸的 WCMS 架構。
+- 支援前台 CSR 與 SSR，供一般瀏覽及 Freego 等檢測情境使用。
+- 納入 AA 無障礙、多國語系、權限、安全與弱點掃描要求。
+- 以 Feature 作為共用能力，透過 Spec 延伸個別客戶或站台需求。
+- 目前以前後端 RESTful API 對接為主，GraphQL 為中後期評估方向。
 
-**中介:**
-- GraphQL (暫無)(中期)
+## 目前技術基準
 
-**環境建置:**
-- Docker(後期視需求規劃)
+| 領域 | 目前基準 |
+|---|---|
+| 前端 | React 18、TypeScript 5.8、Vite 6、React Router 6 |
+| 前端執行模式 | CSR、Node／Express SSR、Hydration |
+| 前端執行環境 | Node.js 22.16.x、npm 10.9.x |
+| 後端 | ASP.NET Core Web API、.NET 10 |
+| 資料存取 | Entity Framework Core 10、SQL Server |
+| API | RESTful API、Swagger／OpenAPI；前端型別由 OpenAPI Schema 產生 |
+| 身分驗證 | JWT、Cookie、後端 Token State Cache |
+| 品質要求 | AA、SSR／CSR 一致性、Freego、弱點掃描、多國語系 |
+| Cache | 應用程式 Cache、Output Cache；Redis／Container 化仍屬後續規劃 |
 
-四、系統架構
-        ┌──────────────────┐    
-        │     Frontend     │ ←  渲染畫面，透過API打入，暫不做任何資料面上的檢查/處理，一率先由後端處理，
-        └────────┬─────────┘    在接收data時將有兩種情形:正常、異常，再根據狀況顯示結果或是彈出錯誤訊息
-                 ▼
-        ┌──────────────────┐
-        │ REST Controller  │  ← REST API 入口
-        └──────────────────┘
-        ┌──────────────────┐
-        │ GraphQL Resolver │  ← GraphQL Query / Mutation
-        └──────────────────┘
-                  ▼
-     ┌───────────────────────────┐
-     │        Service 層         │  ← 資料驗證、商業邏輯
-     └───────────────────────────┘
-                  ▼
-     ┌───────────────────────────┐
-     │       Repository 層       │  ← 只做資料存取
-     └───────────────────────────┘
-                  ▼
-     ┌───────────────────────────┐
-     │   資料庫 / Dapper / EF    │
-     └───────────────────────────┘
-     
-     User temp採JWT與Redis處理
+實際套件與版本以 [`WCMS_Frontend/package.json`](./WCMS_Frontend/package.json) 與 [`WCMS_Backend/WCMS.csproj`](./WCMS_Backend/WCMS.csproj) 為準。
 
-後端程式架構
-- SysCore
-    - Library
-    - Enum
-    - Model
-    - Resx (系統多語系包)
-    - BasicRepository (核心資料存取邏輯)
-    - IBizService (API導至服務邏輯處理)
-- Features
-    - BizResx (WCMS功能多語系包)(前期)
-    - Finance (金流)(中期)
-    - SiteEdit  (客戶自定義網頁設計)
-        - Announcement (公告)
-        - Banner (廣告輪播)
-        - Category (類別)
-        - FileArchive (檔案管理)
-        - Gallery (相簿管理)
-        - PageManagement (頁面管理)
-        - PCS_Sites (子母網站設定)
-        - Tag (標籤)
-        - WebResource (網路資源)
-    - SysSetting (網站系統資訊及設定)
-        - SiteInfo (網站資訊)
-            - EnvConfig (環境參數配置修改)
-            - SEO
-            - SiteArch (網站架構)
-            - SystemInfo (網站系統資訊)
-- SpecFeatures (專案客製化功能)
-    - 請照對應模塊分類功能
-    - 如需在原本功能二次開發，請繼承後討論是否開出Virtual Function處理
-    - 新增的任何單元，皆以Spec作為開頭
+## 系統關係
 
-DB表格欄位版本衝突解決方式:
+```mermaid
+flowchart LR
+    User[使用者瀏覽器]
+    Frontend[WCMS Frontend<br/>React CSR / Node SSR]
+    Backend[WCMS Backend<br/>ASP.NET Core REST API]
+    Database[(SQL Server)]
+    Cache[(Application / Output Cache)]
+    Files[檔案與公開資源]
 
-1. 產生BaseLine版本
-dotnet ef migrations add Baseline --context ApplicationDbContext
+    User -->|HTML / JS / CSS| Frontend
+    Frontend -->|/Service API| Backend
+    Backend --> Database
+    Backend --> Cache
+    Backend --> Files
+```
 
-2. 剛生成的快照Baseline.cs要把Up/Down的內容清空
-dotnet ef database update
+詳細請求流程、Feature／Spec 邊界與模組責任，請參閱 [`WCMS 整體專案架構`](./Docs/01_研發與技術文件/01_系統架構/01_整體專案架構.md)。
 
-3. 透過完整連線字串去讀舊DB的當前版本：
-$settings = Get-Content .\appsettings.Development.json -Raw | ConvertFrom-Json
-$conn = $settings.ConnectionStrings.SqlConnection
-dotnet ef dbcontext scaffold "$conn" Microsoft.EntityFrameworkCore.SqlServer --context TempBaselineDbContext --startup-project .\WCMS.csproj --project .\WCMS.csproj --output-dir Migrations/_BaselineScaffold --use-database-names --no-pluralize --schema dbo
-dotnet ef migrations add TempSnap_1_1 --context WCMS.Migrations._BaselineScaffold.TempBaselineDbContext --startup-project .\WCMS.csproj --project .\WCMS.csproj --output-dir Migrations/_BaselineScaffold/__TempMigrations
+## Repository 結構
 
-4. 把 v1.1 模型「植入」正式 Snapshot：
-A. 開 Migrations/_BaselineScaffold/__TempMigrations/..._TempSnap_1_1.Designer.cs，複製 BuildTargetModel 大括號內全部內容。
-B. 開 Migrations/ApplicationDbContextModelSnapshot.cs，把 BuildModel(...) 方法內原有內容 整段換成 第 1 步複製的內容。
-C. 建置一次（缺 using 就補：Microsoft.EntityFrameworkCore.*、Metadata 等）。
+```text
+WCMS/
+├─ WCMS_Frontend/                 # React 前台、後台、CSR／SSR 與前端 Spec
+├─ WCMS_Backend/                  # ASP.NET Core API、SysCore、Feature 與後端 Spec
+├─ Docs/                          # 架構、規範、品質驗證與交付文件
+└─ readme.md                      # Repository 快速入口
+```
 
-5. 產生「當前DB → 最新」真正差異遷移並套用：
-dotnet ef migrations add Upgrade_1_1_to_Latest --context ApplicationDbContext
-dotnet ef database update --context ApplicationDbContext
+前後端皆以共用 Feature 為主線，個別專案差異放在對應的 `SpecFeatures` 範圍。不得在未確認既有 Library、Hook、Template、FeatureDriver、Service 或相近 Spec 前，建立重複的平行實作。
 
+## 分支角色
 
-後端開發規範
-1. 所有顯示說明的文字，皆透過.resx做動態多語系處理
-2. 禁止在邏輯區寫固定的定義值，若需要仍要用宣告方式處理
-3. 務必區分出公開的API時機(Public)、業務流程(Protect)、以及實作過程(Private)
-4. 有寫到Try-catch時，除非真的異常結果需要無視後繼續往下走之外，一律throw給ErrorHandlingMiddleware處理
-5. 有關時區存儲一律寫UTC作為依據，以作為之後跨區需求
-6. Spec的Model/API層用Partial來追加Feature客製需求/Biz用繼承
+| 分支 | 主要用途 |
+|---|---|
+| `main` | Repository 預設分支；不可直接視為最新開發進度 |
+| `Feature/Dev` | 共用 Feature、SysCore、架構與一般功能開發 |
+| `Feature/Release` | 發布前整合、版本確認、發布資料整理與必要 Hotfix |
+| `Spec####` | 個別客戶、站台或客製需求 |
 
-前端程式架構
-- src
-    - SysCore (WCMS核心)
-        - Components (動態渲染元控件)
-            - Banner (橫幅)
-            - BannerSlider (橫幅跑馬燈)
-            - BreadCrumb (網頁導覽)
-            - Calendar (行事曆)
-            - Grid (資料表格)
-            - Header (網站Header，用來設計meta、script等)
-            - Marquee (跑馬燈)
-            - MediaList (圖文顯示列表)
-            - MenuList (菜單列表)
-            - NaviBar (導覽列(Menu上用))
-            - QuickNaviSlider (快速導覽)
-            - SearchBar (搜尋功能)
-            - SiteInfo (網站資訊)
-            - TabsList (清單分類列表)
-        - Theme (主題風格) - 中長期後開始處理
-            - 用來組裝每一個環節所用的css風格
-        - Utils (自家Library、非第三方包)
+Branch、Commit、Issue 與 PR 規則，以 [`Git 與 PR 規範`](./Docs/01_研發與技術文件/02_開發規範/04_Git與PR規範.md) 為準。
 
-    - Features (WCMS系統公版)
-        - Assets (資源檔，如.css/.js/圖片等)
-            - Client (前台)
-            - Server (後台)
-        - Hooks (功能)
-        - Pages (功能畫面模板)
-            - Client (前台)
-            - Server (後台)
-                - BizFunc (功能)
-                    - Teacher (教師外掛 暫定)
-                    - Finance (金融相關功能 暫定)
-                    - WebManagement (網站功能)
-                        - Announcement(公告)
-                        - FileArchive (檔案室)
-                        - ...
-                - Scaffold (畫面框架，如Menu、Header、Footer等)
-                    - MainPage (首頁)
-                    - SubPages (子頁)
-                    - Header
-                    - Footer
-                    - GoogleAnalysis (Google SEO相關)
-                    - Menu
-                    - ...
-                - Theme (css標籤主題)
-    - **SpecFeatures**
-        - 專案別名(e.x. 1810 台藝大研發處)
-            - Assets (For當前專案才使用的客製資源檔)
-            - Hooks
-            - Pages
-                - Client (前台)
-                    - USR計劃
-                    - 研究計劃
-                - Server (後台)
-                    - USR計劃
-                    - 研究計劃
+## 開發環境
 
+### 前端
 
+```powershell
+cd WCMS_Frontend
+npm ci
+npm run dev
+```
+常用檢查與建置：
 
-    
-- public
-    - Legacy (底下擺放舊專案原本/file/fonts/image)
-        
-前端開發規範
-1. 在對應元件底下建立功能依序為
-    - XXX_Comp.tsx (渲染元件)
-        - 主格式為 const
-    - XXX_Data.ts (資料來源)
-        - 主格式為 interface
-    - XXX_Hook.ts (自定義操作行為)
-        - 主格式為 const
-        - function以 use作為開頭
-    - XXX_Clsx.ts (Css風格)
-    ...
-2. 前端打資料分兩種:API / Mock Data
-    - 在xxx_Data 需寫 getData、getMock，並判斷config是否啟用mock來決定平時來源資料為何
-3. CSS風格使用clsx來處理?(待研究)
-    - 控件風格和主題風格在Features那邊製作，
-4. 客製化的Router注入與移除
-    - 透過Interface的觀念繼承引用及在app.tsx注入
-5. 前端的資料模型透過以下語法在Powershell來獲取後端模型(後端Service需啟動)
-    1. Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass;
-    2. $env:NODE_TLS_REJECT_UNAUTHORIZED = "0";
-    3. npx openapi-typescript https://localhost:7030/swagger/v1/swagger.json -o src/types/api.d.ts;
-    4. 成功後再至types資料夾中執行 npx tsx ./src/types/generate-fields.ts 產生SchemaNameFields
-`
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass;
-$env:NODE_TLS_REJECT_UNAUTHORIZED = "0";
-npx openapi-typescript https://localhost:7030/swagger/v1/swagger.json -o src/types/api.d.ts;
-npx tsx ./src/types/generate-fields.ts
-`
-6. 若是在前端的系統連結，透過Link to來達到SPA效果，避免不斷刷新造成效能及使用體驗低落
-7. 控鍵與資料流程: Component(.tsx) -> Hook(.ts) -> Api(.ts)
-    - Component 不寫任何有關useEffect等相關時機
-    - 一律由Hook撰寫useEffect等相關時機
-    - 當需要額外處理一些DOM渲染，接收到Hook結果後，再從Components撰寫DOM渲染邏輯
+```powershell
+npm run typecheck
+npm run check
+npm run build
+```
 
-部屬流程:
-前端:
-    1. 執行 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass;
-    2. 執行 npm run build:csr   (#如果是ssr，改為build:ssr)
-    3. 會產生dist-csr資料夾，將底下的所有資料打包覆蓋至Server上的部屬環境資料夾
-    注意:不要覆蓋掉webconfig
-後端:
-    1. 執行 if (Test-Path .\Publish) { Remove-Item .\Publish -Recurse -Force }; dotnet publish WCMS.csproj -c Release -r win-x64 -o Publish
-    2. 會產生publish資料夾，將底下的所有資料打包覆蓋至Server上的部屬環境資料夾
-    注意:不要覆蓋掉webconfig和appsettingjson
+### 後端
 
+```powershell
+cd WCMS_Backend
+dotnet restore
+dotnet run
+```
 
-IIS與環境設定:
-    - 前端站台:
-    1. web.config中的url是要導向後端的系統，故路徑要調成對應的port(如http://127.0.0.1:xxxx)
-    2. IIS的Url Rewrite須新增兩個伺服器變數
-        A. 選取IIS前端站台
-        B. 點擊右邊的檢視伺服器變數
-        C. 新增 HTTP_X_FORWARDED_PROTO 和 HTTP_X_FORWARDED_HOST 變數
-    - 後端站台
-    1. 繫結設定http://127.0.0.1:xxxx
-    2. appsettings.Production.json 設定 Whitelist (FE和BE設置一樣即可，要填寫的是【前端】對外的網址)
-    3. appsettings.Production.json 設定 SqlConnection 指向DB
-    IIS站台本身:
-    1. 安裝ARR (Application Request Routing Cache)
-    2. 啟用Proxy
-        A. 點擊右邊 Server Proxy Settings
-        B. 打勾 Enable proxy
-		
+後端會依環境設定檔中的 `SpecCode` 處理 SpecFeatures 條件編譯。執行前須確認：
 
-*
-Hydration後，前端流程為
-IIS去指定前端的webconfig->該webconfig是轉交給SSR Server
-*
+- SQL Server 連線與必要設定已完成。
+- 開發環境設定檔未包含可提交的密碼、Token 或其他 Secret。
+- 本次啟動的 SpecCode 與目標專案一致。
 
----中間版本衝突處理方式：
-1. 產生BaseLine版本
-dotnet ef migrations add Baseline --context ApplicationDbContext
-剛生成的快照Baseline.cs要把Up/Down的內容清空
-dotnet ef database update
+> [!NOTE]
+> 部署、IIS、資料庫 Migration 與既有資料升級流程，不再直接維護於根 README，避免與實際腳本及正式文件產生版本落差。
 
-2. 透過完整連線字串去讀舊DB的當前版本：
+## 文件入口
 
-$settings = Get-Content .\appsettings.Development.json -Raw | ConvertFrom-Json
-$conn = $settings.ConnectionStrings.SqlConnection
-dotnet ef dbcontext scaffold "$conn" Microsoft.EntityFrameworkCore.SqlServer --context TempBaselineDbContext --startup-project .\WCMS.csproj --project .\WCMS.csproj --output-dir Migrations/_BaselineScaffold --use-database-names --no-pluralize --schema dbo
-dotnet ef migrations add TempSnap_1_1 --context WCMS.Migrations._BaselineScaffold.TempBaselineDbContext --startup-project .\WCMS.csproj --project .\WCMS.csproj --output-dir Migrations/_BaselineScaffold/__TempMigrations
+### AI／整體分析
 
+- [`WCMS AI 專案資料讀取入口`](./Docs/WCMS_AI資料讀取入口.md)
+- [`WCMS Docs`](./Docs/README.md)
 
-3. 把 v1.1 模型「植入」正式 Snapshot：
-A. 開 Migrations/_BaselineScaffold/__TempMigrations/..._TempSnap_1_1.Designer.cs，複製 BuildTargetModel 大括號內全部內容。
-B. 開 Migrations/ApplicationDbContextModelSnapshot.cs，把 BuildModel(...) 方法內原有內容 整段換成 第 1 步複製的內容。
-C. 建置一次（缺 using 就補：Microsoft.EntityFrameworkCore.*、Metadata 等）。
+### 系統架構
 
-4. 產生「當前DB → 最新」真正差異遷移並套用：
-dotnet ef migrations add Upgrade_1_1_to_Latest --context ApplicationDbContext
-dotnet ef database update --context ApplicationDbContext
+- [`整體專案架構`](./Docs/01_研發與技術文件/01_系統架構/01_整體專案架構.md)
+- [`前端專案架構`](./Docs/01_研發與技術文件/01_系統架構/02_前端專案架構.md)
+- [`後端專案架構`](./Docs/01_研發與技術文件/01_系統架構/03_後端專案架構.md)
+
+### 開發規範
+
+- [`共通開發規範`](./Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md)
+- [`前端開發規範`](./Docs/01_研發與技術文件/02_開發規範/02_前端開發規範.md)
+- [`後端開發規範`](./Docs/01_研發與技術文件/02_開發規範/03_後端開發規範.md)
+- [`Git 與 PR 規範`](./Docs/01_研發與技術文件/02_開發規範/04_Git與PR規範.md)
+
+### 品質與版本資料
+
+- [`品質與驗證文件`](./Docs/03_品質與驗證文件/README.md)
+- [`開發歷程與版本紀錄`](./Docs/01_研發與技術文件/03_開發歷程與版本紀錄/README.md)
+
+## 資料來源原則
+
+資料發生落差時，依責任判斷：
+
+1. 程式目前如何運作：以 GitHub 指定分支的程式碼與設定為準。
+2. 系統應如何設計與開發：以 `Docs` 內有效的 Markdown 為準。
+3. 待辦、收斂與複驗狀態：以 Google Sheet「WCMS_整合收斂管理表」最新內容為準。
+4. 某次修改的原因與範圍：以 Commit、PR、Issue 與相關決策紀錄為準。
+5. Word、Excel、PowerPoint、PDF 與 ZIP：作為交付、報告、快照或指定版本的輔助資料。
+
+發現程式、文件與管理資料不一致時，應明確指出差異，不得直接假設三者已同步。
+
+## 專案狀態說明
+
+WCMS 目前仍持續進行架構收斂、Feature／Spec 整合、API 契約、品質流程與安全驗證。文件中標示為「規劃中」、「待驗證」或「尚未全面落地」的內容，不得視為已完成。
+
+未實際執行 Build、測試、Freego、弱點掃描或部署時，也不得宣稱相關項目已通過。

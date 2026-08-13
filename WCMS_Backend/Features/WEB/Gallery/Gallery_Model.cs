@@ -13,6 +13,7 @@ namespace WCMS.Features.WEB.Gallery;
 /// <summary>
 /// 相簿
 /// </summary>
+[LibDesc(DisplayName.Gallery)]
 public class Gallery : HeaderModel
 {
     /// <summary>
@@ -47,7 +48,7 @@ public class Gallery : HeaderModel
     /// 資料有效日期迄。
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite)]
-    public DateTime Validate_End { get; set; }
+    public DateTime? Validate_End { get; set; }
     /// <summary>
     /// 封面照 (透過功能從相簿裡的PicSrcId直接取得，保存時紀錄，供之後List查看時減少效能使用)
     /// </summary>
@@ -69,6 +70,7 @@ public class Gallery : HeaderModel
 /// <summary>
 /// 相簿資訊
 /// </summary>
+[LibDesc(DisplayName.GalleryInfo)]
 public class GalleryInfo : FormDetailModel
 {
     /// <summary>
@@ -122,7 +124,7 @@ public class GalleryPhotos : FormDetailModel
     /// <summary>
     /// 相片排序
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.Gallery_Sort)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.Gallery_Sort)]
     public int Sort { get; set; }
 
     #region 主子表關聯
@@ -137,6 +139,7 @@ public class GalleryPhotos : FormDetailModel
 /// <summary>
 /// 相簿裡的相片資訊
 /// </summary>
+[LibDesc(DisplayName.GalleryPhotosInfo)]
 public class GalleryPhotosInfo : FormDetailModel
 {
     /// <summary>
@@ -149,7 +152,7 @@ public class GalleryPhotosInfo : FormDetailModel
     /// 父行主鍵 - (_GalleryPhotos)
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 語系 LangCode

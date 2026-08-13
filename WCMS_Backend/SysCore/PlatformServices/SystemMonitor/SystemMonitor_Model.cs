@@ -18,7 +18,7 @@ public class SystemMonitorSnapshotModel
     /// 快照流水號
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibNum(ApiFieldMode.ReadOnly)]
     public long SnapshotId { get; set; }
     /// <summary>
     /// 站台代碼
@@ -58,27 +58,27 @@ public class SystemMonitorSnapshotModel
     /// <summary>
     /// 主機 CPU 使用率
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public decimal HostCpuPercent { get; set; }
     /// <summary>
     /// 主機總記憶體(MB)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public long HostRamTotalMB { get; set; }
     /// <summary>
     /// 主機已用記憶體(MB)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public long HostRamUsedMB { get; set; }
     /// <summary>
     /// 主機剩餘記憶體(MB)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public long HostRamFreeMB { get; set; }
     /// <summary>
     /// 主機記憶體使用率
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public decimal HostRamUsedPercent { get; set; }
     /// <summary>
     /// 系統槽代號(通常為 C)
@@ -89,17 +89,17 @@ public class SystemMonitorSnapshotModel
     /// <summary>
     /// 系統槽總容量(GB)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public decimal SystemDriveTotalGB { get; set; }
     /// <summary>
     /// 系統槽剩餘容量(GB)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public decimal SystemDriveFreeGB { get; set; }
     /// <summary>
     /// 系統槽使用率
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public decimal SystemDriveUsedPercent { get; set; }
     /// <summary>
     /// 應用槽代號(通常為 F，可為空)
@@ -110,42 +110,42 @@ public class SystemMonitorSnapshotModel
     /// <summary>
     /// 應用槽總容量(GB)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public decimal AppDriveTotalGB { get; set; }
     /// <summary>
     /// 應用槽剩餘容量(GB)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public decimal AppDriveFreeGB { get; set; }
     /// <summary>
     /// 應用槽使用率
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public decimal AppDriveUsedPercent { get; set; }
     /// <summary>
     /// 當前節點 CPU 使用率
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public decimal AppCpuPercent { get; set; }
     /// <summary>
     /// 當前節點記憶體使用量(MB)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public long AppRamUsedMB { get; set; }
     /// <summary>
     /// 當前節點 Working Set(MB)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public long AppWorkingSetMB { get; set; }
     /// <summary>
     /// 執行緒數
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int AppThreadCount { get; set; }
     /// <summary>
     /// Handle 數
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int AppHandleCount { get; set; }
     /// <summary>
     /// 服務是否存活
@@ -160,7 +160,7 @@ public class SystemMonitorSnapshotModel
     /// <summary>
     /// 健康檢查回應時間(ms)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int HealthResponseMs { get; set; }
     /// <summary>
     /// 健康狀態
@@ -189,7 +189,7 @@ public class DependencyMonitorSnapshotModel
     /// 快照流水號
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibNum(ApiFieldMode.ReadOnly)]
     public long SnapshotId { get; set; }
     /// <summary>
     /// 站台代碼
@@ -243,7 +243,7 @@ public class DependencyMonitorSnapshotModel
     /// <summary>
     /// 目標連接埠
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int TargetPort { get; set; }
     /// <summary>
     /// 快照時間
@@ -258,7 +258,7 @@ public class DependencyMonitorSnapshotModel
     /// <summary>
     /// 回應時間(ms)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int ResponseMs { get; set; }
     /// <summary>
     /// 健康狀態
@@ -274,31 +274,31 @@ public class DependencyMonitorSnapshotModel
     /// <summary>
     /// DB 資料檔大小(MB)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public decimal DbDataSizeMB { get; set; }
     /// <summary>
     /// DB Log 檔大小(MB)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public decimal DbLogSizeMB { get; set; }
     /// <summary>
     /// DB Log 使用率
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public decimal DbLogUsedPercent { get; set; }
     /// <summary>
     /// Redis 已用記憶體(MB)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public decimal RedisUsedMemoryMB { get; set; }
     /// <summary>
     /// Redis 連線數
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int RedisConnectedClients { get; set; }
     /// <summary>
     /// 第三方 HTTP 狀態碼
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int ExternalStatusCode { get; set; }
 }

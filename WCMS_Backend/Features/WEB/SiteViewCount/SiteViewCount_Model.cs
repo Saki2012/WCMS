@@ -5,10 +5,13 @@ using WCMS.Features.WEB.SiteMenuSetting;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
+using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.Features.WEB.SiteViewCount;
 
 /// 站台瀏覽次數
 /// </summary>
+[LibDesc(DisplayName.SiteViewCountHeader)]
 public class SiteViewCountHeader : HeaderModel
 {
     /// <summary>
@@ -23,7 +26,7 @@ public class SiteViewCountHeader : HeaderModel
     /// <summary>
     /// 前台正式瀏覽次數
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int PublicViewCount { get; set; } = 0;
 
     #region 主子表關聯
@@ -38,6 +41,7 @@ public class SiteViewCountHeader : HeaderModel
 /// <summary>
 /// 頁面/公告/功能內容瀏覽次數
 /// </summary>
+[LibDesc(DisplayName.SiteViewCountDetail)]
 public class SiteViewCountDetail : DetailModel
 {
     /// <summary>
@@ -61,22 +65,22 @@ public class SiteViewCountDetail : DetailModel
     /// <summary>
     /// 前台頁面瀏覽次數
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite, DisplayName.SiteViewCount_PageViewCount)]
     public int PageViewCount { get; set; } = 0;
     /// <summary>
     /// 檔案預覽次數(PDF/Office檔等內嵌預覽的次數)
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int FilePreviewCount { get; set; } = 0;
     /// <summary>
     /// 檔案下載次數
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int FileDownloadCount { get; set; } = 0;
     /// <summary>
     /// 連結點擊次數
     /// </summary>
-    [LibField(ApiFieldMode.ReadWrite)]
+    [LibNum(ApiFieldMode.ReadWrite)]
     public int LinkClickCount { get; set; } = 0;
 
     #region 主子表關聯
@@ -94,6 +98,7 @@ public class SiteViewCountDetail : DetailModel
 /// 直接獨立一張表來記錄最近的計次紀錄，定期清理過期紀錄即可
 /// </summary>
 [Index(nameof(LastViewTime), Name = "IX_ViewCountRecently_LastViewTime")]
+[LibDesc(DisplayName.SiteViewCountRecently)]
 public class SiteViewCountRecently : DetailModel
 {
     /// <summary>

@@ -21,8 +21,7 @@
     "jsx": "react-jsx",
 
     "paths": {
-      "@/*": ["./src/*"],
-      "SpecFeature/*": ["./src/SpecFetures/_default/*"]
+      "@/*": ["./src/*"]
     }
   },
   "ts-node": {

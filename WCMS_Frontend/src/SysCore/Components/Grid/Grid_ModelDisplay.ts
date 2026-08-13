@@ -7,20 +7,14 @@ export type ModelDisplayTableSource = string | readonly string[];
 // #region Public
 /**
  * 從後端 Model Metadata 取得欄位顯示名稱。
- * 找不到指定 Table 時，會再以 ColumnId 搜尋所有 Table，最後才使用 fallback。
+ * 找不到指定 Table 時，會再依 ColumnId 搜尋所有後端 Table。
  */
-export const getModelColumnDisplayName = (
-    model: ModelDisplaySchema | null | undefined,
-    tableIds: ModelDisplayTableSource,
-    columnId: string,
-    fallback: string,
-): string =>
+export const getModelColumnDisplayName = (model: ModelDisplaySchema | null | undefined, tableIds: ModelDisplayTableSource, columnId: string, fallback = ""): string =>
 {
     const preferredColumn = findPreferredColumn(model, tableIds, columnId);
     if (preferredColumn?.ColumnDisplayName) return preferredColumn.ColumnDisplayName;
-
     const fallbackColumn = findColumnFromAllTables(model, columnId);
-    return fallbackColumn?.ColumnDisplayName || fallback;
+    return fallbackColumn?.ColumnDisplayName ?? fallback;
 };
 
 /** 取得指定資料表的顯示名稱，並相容前端底線屬性與後端 TableId。 */

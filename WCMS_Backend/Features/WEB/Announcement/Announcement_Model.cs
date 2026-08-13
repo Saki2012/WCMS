@@ -59,7 +59,7 @@ public partial class Announcement : HeaderModel
     /// 資料有效日期-迄
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Announcement_EndDate)]
-    public DateTime Validate_End { get; set; }
+    public DateTime? Validate_End { get; set; }
 
     #region 主子表關聯
     [InverseProperty(nameof(AnnouncementDetail._Announcement))]
@@ -70,6 +70,7 @@ public partial class Announcement : HeaderModel
 /// <summary>
 /// 公告明細
 /// </summary>
+[LibDesc(DisplayName.AnnouncementDetail)]
 public partial class AnnouncementDetail : FormDetailModel
 {
     /// <summary>
@@ -133,7 +134,7 @@ public partial class AnnouncementDetailFile : FormDetailModel
     /// 父行代碼
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 檔案來源

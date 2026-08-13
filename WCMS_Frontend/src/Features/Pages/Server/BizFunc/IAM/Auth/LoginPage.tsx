@@ -1,17 +1,18 @@
 // Features/Server/Pages/LoginPage.tsx
 import { loadLoginParticles } from "@/Features/Assets/LoadFeaturesJs";
+import featureLoginLogo from "@/Features/Assets/Server/images/logo/iteasygo/logo_PC_640x192.svg";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { setAuthContextSnapshot } from "@/SysCore/Components/Auth/AuthContext";
 import { AuthAPI } from "@/SysCore/Utils/API/AuthClient";
 import { SysCurrentDate } from "@/SysCore/Utils/SystemInfo/GetServerInfo";
+import { resolveSpecAsset } from "@/SysCore/Utils/Library/SlotResolver";
 import { buildSystemVersionText } from "@/SysCore/Utils/SystemInfo/SystemVersionText";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 // #region Initialization
-const logoModules = import.meta.glob("SpecFeature/Assets/Server/login_logo_PC.{svg,png,jpg,jpeg,gif,webp}", { eager: true, query: "?url", import: "default" }) as Record<string, string>;
-// 只拿第一個（實務上這個 pattern 只會 match 一個檔案）
-const logImg = Object.values(logoModules)[0] ?? "";
+/** Spec 有提供登入 Logo 時覆寫，純 Feature 模式使用通用 Logo。 */
+const logImg = resolveSpecAsset("Assets/Server/login_logo_PC", featureLoginLogo);
 // #endregion
 
 // #region Public

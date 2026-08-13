@@ -60,6 +60,7 @@ public class MatCategoryFormModel : IFormModel<Category>
 /// <summary>
 /// MAT 類別自訂欄位。
 /// </summary>
+[LibDesc(DisplayName.MatCategoryInfoField)]
 public class MatCategoryInfoField : FormDetailModel
 {
     #region Property
@@ -92,6 +93,7 @@ public class MatCategoryInfoField : FormDetailModel
 /// <summary>
 /// MAT 類別自訂欄位多語顯示名稱。
 /// </summary>
+[LibDesc(DisplayName.MatCategoryInfoFieldDisplay)]
 public class MatCategoryInfoFieldDisplay : FormDetailModel
 {
     #region Property
@@ -104,7 +106,7 @@ public class MatCategoryInfoFieldDisplay : FormDetailModel
     /// <summary>
     /// 父行主鍵。
     /// </summary>
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 語系。

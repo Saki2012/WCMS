@@ -5,11 +5,13 @@ using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
+using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.Features.WEB.Timeline;
 
 /// <summary>
 /// 紀事表
 /// </summary>
+[LibDesc(DisplayName.Timeline)]
 public class Timeline : HeaderModel
 {
     /// <summary>
@@ -33,6 +35,7 @@ public class Timeline : HeaderModel
 /// <summary>
 /// 紀事發生日
 /// </summary>
+[LibDesc(DisplayName.TimelineItem)]
 public class TimelineItem : FormDetailModel
 {
     /// <summary>
@@ -59,6 +62,7 @@ public class TimelineItem : FormDetailModel
 /// <summary>
 /// 紀事說明
 /// </summary>
+[LibDesc(DisplayName.TimelineLangDetail)]
 public class TimelineLangDetail : FormDetailModel
 {
     /// <summary>
@@ -71,7 +75,7 @@ public class TimelineLangDetail : FormDetailModel
     /// 父行代碼
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 語系
