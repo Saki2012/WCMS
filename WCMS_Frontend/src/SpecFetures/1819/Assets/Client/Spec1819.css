@@ -856,3 +856,9 @@ a:focus:not(:focus-visible):not(:active) {
 }*/
 /* ------  新增左右邊 顏色條 區 ------------------- */
 /* ============================================= */
+
+.copyright_section .container-copyright .copyright_wrapper .info_box_1 .content,
+.copyright_section .container-copyright .copyright_wrapper .info_box_2 .content,
+.copyright_section .container-copyright .copyright_wrapper .info_box_2 .design_by{
+  color: var(--FFFcolor) !important;
+}
