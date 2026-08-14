@@ -16,7 +16,7 @@ const turnstileSource = "https://challenges.cloudflare.com";
 // #region Public
 /**
  * 建立正式環境 CSP。
- * script 不使用 nonce / strict-dynamic / unsafe-inline / self，改用同網域路徑級白名單，避免 /Service 或其他動態端點被納入可執行 script 來源。
+ * main 為升級前 Hotfix 分支，暫時保留 Google Translate 舊式 Widget 所需的 inline 相容性；Feature/Dev 仍維持 Balanced 主線。
  */
 export const buildProdCsp = (_nonce: string, options: BuildProdCspOptions = {}): string =>
 {
@@ -31,6 +31,7 @@ export const buildProdCsp = (_nonce: string, options: BuildProdCspOptions = {}):
         "data:",
         "blob:",
         "https://www.gstatic.com",
+        "https://fonts.gstatic.com",
         "https://www.google.com",
         "https://i.ytimg.com",
         "https://img.youtube.com",
@@ -133,17 +134,18 @@ const trimEndSlash = (value: string): string =>
 };
 
 
-/** 建立 script 可載入來源；保留現有本機白名單並熱修 Google Translate 與 Turnstile。 */
+/** 建立 script 可載入來源；main Hotfix 暫時允許 Google Translate Widget 產生的 inline script。 */
 const buildScriptSources = (scriptBaseOrigin?: string): string[] =>
 {
     const origin = trimEndSlash(scriptBaseOrigin ?? "");
-    const externalSources = [...googleTranslateSources, turnstileSource];
+    const externalSources = ["'unsafe-inline'", ...googleTranslateSources, turnstileSource];
     if (!origin) return ["'self'", ...externalSources];
 
     return [`${origin}/assets/`, `${origin}/tinymce/`, `${origin}/tinymce-i18n/`, ...externalSources];
 };
 
 
+/** 建立樣式來源；main Hotfix 的 Balanced/Legacy 暫時允許 Google Translate Widget 產生的 inline style。 */
 const buildStyleSources = (styleMode: CspStyleMode): string[] =>
 {
     const sources = [
@@ -155,7 +157,7 @@ const buildStyleSources = (styleMode: CspStyleMode): string[] =>
         "https://maps.gstatic.com",
     ];
 
-    return styleMode === "legacy" ? [...sources, "'unsafe-inline'"] : sources;
+    return styleMode === "strict" ? sources : [...sources, "'unsafe-inline'"];
 };
 
 
