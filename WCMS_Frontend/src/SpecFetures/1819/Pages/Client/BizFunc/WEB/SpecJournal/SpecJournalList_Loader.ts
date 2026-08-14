@@ -348,7 +348,7 @@ const buildBaseParam = (p: BuildBaseParamArgs): QueryListParam =>
         ],
         Condition: condition,
         OrderBy: [{ Col: SpecJournalFields.PageStart, Desc: false }],
-        RankGroups: [{ Condition: `${SpecJournalFields.PageStart} != 0`, OrderBy: [{ Col: SpecJournalFields.PageStart, Desc: false }] }, { Condition: `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorType} = 0` }],
+        RankGroups: [{ Condition: `${SpecJournalFields.PageStart} != 0`, OrderBy: [{ Col: SpecJournalFields.PageStart, Desc: false }] }],
         PageNumber: 1,
         PageSize: p.pageSize,
     };

@@ -246,7 +246,6 @@ const buildBaseParam = (journalId: string): QueryListParam =>
             `${SpecJournalFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentType}`,
         ],
         Condition: condition,
-        RankGroups: [{ Condition: `${SpecJournalFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorType} = 0` }],
         PageNumber: 1,
         PageSize: 1,
     };
