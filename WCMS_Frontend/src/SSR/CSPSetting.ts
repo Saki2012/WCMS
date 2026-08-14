@@ -5,6 +5,10 @@ export type CspStyleMode = "balanced" | "legacy" | "strict";
 export type BuildProdCspOptions = Readonly<{ enforceTrustedTypes?: boolean; styleMode?: CspStyleMode; scriptBaseOrigin?: string; }>;
 
 
+/** Google Translate 前台翻譯元件會使用的 Script 來源。 */
+const googleTranslateSources = ["https://translate.google.com", "https://translate.googleapis.com", "https://translate-pa.googleapis.com"] as const;
+
+
 /** Cloudflare Turnstile 前台驗證碼來源；需允許 script 與 iframe 載入。 */
 const turnstileSource = "https://challenges.cloudflare.com";
 // #endregion
@@ -129,13 +133,14 @@ const trimEndSlash = (value: string): string =>
 };
 
 
-/** 建立 script 可載入來源；只允許正式靜態 bundle、自架 TinyMCE 與 Turnstile 驗證碼來源。 */
+/** 建立 script 可載入來源；保留現有本機白名單並熱修 Google Translate 與 Turnstile。 */
 const buildScriptSources = (scriptBaseOrigin?: string): string[] =>
 {
     const origin = trimEndSlash(scriptBaseOrigin ?? "");
-    if (!origin) return ["'self'", turnstileSource];
+    const externalSources = [...googleTranslateSources, turnstileSource];
+    if (!origin) return ["'self'", ...externalSources];
 
-    return [`${origin}/assets/`, `${origin}/tinymce/`, `${origin}/tinymce-i18n/`, turnstileSource];
+    return [`${origin}/assets/`, `${origin}/tinymce/`, `${origin}/tinymce-i18n/`, ...externalSources];
 };
 
 
