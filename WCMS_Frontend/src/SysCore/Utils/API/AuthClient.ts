@@ -3,42 +3,27 @@ import type { AxiosRequestConfig } from "axios";
 // #region Property
 type AnyConfig = import("axios").InternalAxiosRequestConfig & { _retry?: boolean; };
 
-// --------------------
-// 401 Refresh + Replay
-// --------------------
-
-// 單例刷新鎖＋排隊
-let isRefreshing = false;
-
-let waitQueue: Array<() => void> = [];
-
-// --------------------
-// Idle 30 min logout + activity keep-alive
-// --------------------
-
 export interface IAuthIdleOptions
 {
     /** 閒置多久登出（預設 30 分鐘） */
     idleMs?: number;
-
     /** 有動作時，refresh 節流間隔（預設 5 分鐘最多一次） */
     refreshThrottleMs?: number;
-
     /** 閒置登出後通知 UI（例如導去 /login） */
     onIdleLogout?: () => void;
 }
 
 export interface ICreateUserDto
 {
-    UserId: string; // 帳號
-    UserName: string; // 使用者名稱
-    Email: string; // Email
-    Password: string; // 密碼（後端會做 Hash/Salt）
+    UserId: string;
+    UserName: string;
+    Email: string;
+    Password: string;
 }
 
 export interface ICreateUserResult
 {
-    ok?: boolean; // 你若有回應格式可補強；先保留最小回傳
+    ok?: boolean;
 }
 
 export interface ICurrentUserDto
@@ -55,27 +40,83 @@ export interface ICurrentUserContextDto
     IsAdmin: boolean;
     Permissions: Record<string, number>;
 }
+
+/** Development 診斷 API 的安全輸出，不含 Token 原文。 */
+export interface IAuthSessionDiagnosticsDto
+{
+    ServerTimeUtc: string;
+    AccessExpiresAtUtc: string | null;
+    AccessRemainingSeconds: number | null;
+    AccessTokenMinutes: number;
+    RefreshTokenDays: number;
+    AccessCookiePresent: boolean;
+    RefreshCookiePresent: boolean;
+    RefreshCacheHit: boolean;
+    RefreshOwnerMatchesCurrentUser: boolean;
+    XsrfCookiePresent: boolean;
+    AccessBlacklisted: boolean;
+    AccessJtiFingerprint: string;
+    RefreshFingerprint: string;
+    AuthenticationType: string;
+    EnvironmentName: string;
+}
+
+/** 前端 Idle Guard 執行狀態，供 Development 診斷畫面觀察。 */
+export interface IAuthRuntimeSnapshot
+{
+    IdleTimeoutMs: number;
+    RefreshThrottleMs: number;
+    LastActivityAt: number | null;
+    IdleDeadlineAt: number | null;
+    LastRefreshAttemptAt: number | null;
+    LastRefreshSuccessAt: number | null;
+    LastRefreshErrorAt: number | null;
+    RefreshSuccessCount: number;
+}
+
+const authRuntimeSnapshot: IAuthRuntimeSnapshot = {
+    IdleTimeoutMs: 30 * 60 * 1000,
+    RefreshThrottleMs: 5 * 60 * 1000,
+    LastActivityAt: null,
+    IdleDeadlineAt: null,
+    LastRefreshAttemptAt: null,
+    LastRefreshSuccessAt: null,
+    LastRefreshErrorAt: null,
+    RefreshSuccessCount: 0,
+};
+
+let isRefreshing = false;
+let waitQueue: Array<() => void> = [];
 // #endregion
 
 // #region Public
 export const AuthAPI = {
     me: () => api.get<ICurrentUserContextDto>("/Auth/Me"),
     login: (p: { account: string; password: string; }) => api.post<ICurrentUserContextDto>("/Auth/Login", p),
-    logout: () => postWithXsrf("/Auth/Logout"), // ✅ 建議帶 XSRF
-    refresh: () => postWithXsrf("/Auth/Refresh"), // ✅ 建議帶 XSRF
+    logout: () => postWithXsrf("/Auth/Logout"),
+    refresh: () => postWithXsrf("/Auth/Refresh"),
+    sessionDiagnostics: () => api.get<IAuthSessionDiagnosticsDto>("/Auth/SessionDiagnostics"),
 } as const;
 
-/** ✅ 啟用：閒置 30 分鐘登出；有動作就 refresh（節流） */
+/** 取得目前 Idle Guard Runtime 快照，僅供診斷 UI 顯示。 */
+export const getAuthRuntimeSnapshot = (): IAuthRuntimeSnapshot =>
+{
+    return { ...authRuntimeSnapshot };
+};
+
+/** 啟用閒置登出與活動續期機制。 */
 export const startAuthIdleGuard = (opt?: IAuthIdleOptions) =>
 {
     const idleMs = opt?.idleMs ?? 30 * 60 * 1000;
     const refreshThrottleMs = opt?.refreshThrottleMs ?? 5 * 60 * 1000;
-
     if (typeof window === "undefined") return { stop: () => void 0 };
 
     let idleTimer: number | null = null;
     let lastRefreshAt = 0;
+    authRuntimeSnapshot.IdleTimeoutMs = idleMs;
+    authRuntimeSnapshot.RefreshThrottleMs = refreshThrottleMs;
 
+    /** 清除目前閒置登出計時器。 */
     const clearIdleTimer = () =>
     {
         if (idleTimer === null) return;
@@ -83,57 +124,62 @@ export const startAuthIdleGuard = (opt?: IAuthIdleOptions) =>
         idleTimer = null;
     };
 
+    /** 依最後活動時間重新安排閒置登出。 */
     const scheduleIdleLogout = () =>
     {
         clearIdleTimer();
+        authRuntimeSnapshot.IdleDeadlineAt = Date.now() + idleMs;
         idleTimer = window.setTimeout(async () =>
         {
             try
             {
-                // NOTE: 不管 token 還在不在，都視為「使用者閒置」→ 主動登出
                 await AuthAPI.logout();
-            } finally
+            }
+            finally
             {
                 opt?.onIdleLogout?.();
             }
         }, idleMs);
     };
 
+    /** 使用節流規則執行 Refresh，並保存可觀測的執行結果。 */
     const tryKeepAlive = async () =>
     {
-        // NOTE: 避免太頻繁 refresh
         const now = Date.now();
-        if (now - lastRefreshAt < refreshThrottleMs) return;
-        if (isRefreshing) return;
-
+        if (now - lastRefreshAt < refreshThrottleMs || isRefreshing) return;
         lastRefreshAt = now;
+        authRuntimeSnapshot.LastRefreshAttemptAt = now;
         try
         {
             await AuthAPI.refresh();
-        } catch
+            authRuntimeSnapshot.LastRefreshSuccessAt = Date.now();
+            authRuntimeSnapshot.RefreshSuccessCount += 1;
+        }
+        catch
         {
-            // NOTE: refresh 失敗通常表示已失效；交給 RequireAuth 或 onIdleLogout 處理即可
+            authRuntimeSnapshot.LastRefreshErrorAt = Date.now();
         }
     };
 
+    /** 記錄使用者活動、延後 Idle Deadline，並依節流規則嘗試 Refresh。 */
     const onActivity = () =>
     {
-        // NOTE: 有動作 → 重排 idle timer + 嘗試 keep-alive（節流）
+        authRuntimeSnapshot.LastActivityAt = Date.now();
         scheduleIdleLogout();
         void tryKeepAlive();
     };
 
-    // 初次啟用就先排一次
+    authRuntimeSnapshot.LastActivityAt = Date.now();
     scheduleIdleLogout();
-
     const events: Array<keyof WindowEventMap> = ["mousemove", "keydown", "scroll", "click", "touchstart"];
-    events.forEach((e) => window.addEventListener(e, onActivity, { passive: true }));
+    events.forEach((eventName) => window.addEventListener(eventName, onActivity, { passive: true }));
 
     return {
         stop: () =>
         {
-            events.forEach((e) => window.removeEventListener(e, onActivity));
+            events.forEach((eventName) => window.removeEventListener(eventName, onActivity));
             clearIdleTimer();
+            authRuntimeSnapshot.IdleDeadlineAt = null;
         },
     };
 };
@@ -145,85 +191,79 @@ export const UserAPI = { create: (dto: ICreateUserDto) => api.post<ICreateUserRe
 import { LibCookie } from "../Library/LibData";
 import { api } from "./APIBase";
 
-/** ✅ 是否啟用 Bearer（預設關閉：Cookie auth） */
+/** 判斷是否明確啟用 Bearer 模式。 */
 const isBearerMode = (): boolean =>
 {
-    // NOTE: 只有你明確設 VITE_AUTH_MODE=bearer 才會塞 Authorization
     return import.meta.env.VITE_AUTH_MODE === "bearer";
 };
 
-/** ✅ 取得 localStorage Bearer token（SSR safe） */
+/** 取得 localStorage Bearer Token。 */
 const getLocalAccessToken = (): string | null =>
 {
     if (typeof window === "undefined") return null;
     return localStorage.getItem("access_token");
 };
 
-/** ✅ 取得 XSRF cookie（SSR safe） */
+/** 取得目前 XSRF Cookie。 */
 const getXsrf = (): string | null =>
 {
-    const value = LibCookie.readClientCookieValue("XSRF-TOKEN");
-    return value;
+    return LibCookie.readClientCookieValue("XSRF-TOKEN");
 };
 
-/** ✅ 統一：用 XSRF header 呼叫（Refresh / Logout 建議走這個） */
+/** 統一以 XSRF Header 呼叫 Refresh 與 Logout。 */
 const postWithXsrf = async (url: string, data?: unknown) =>
 {
     const xsrf = getXsrf();
     return api.post(url, data ?? null, { headers: xsrf ? { "X-XSRF-Token": xsrf } : undefined });
 };
 
-// ✅ request：Cookie auth 預設不塞 Bearer，避免舊 token 造成快速掉登
 api.interceptors.request.use((cfg) =>
 {
-    // NOTE: bearer 模式才塞 Authorization
     if (!isBearerMode()) return cfg;
-
     const token = getLocalAccessToken();
     if (token) cfg.headers.Authorization = `Bearer ${token}`;
     return cfg;
 });
 
-/** ✅ 幫忙把 axios config 重送（保留原本設定） */
+/** 重新送出原 Axios Request，並標示已經重試。 */
 const replay = (cfg: AnyConfig) =>
 {
     return api({ ...(cfg as AxiosRequestConfig), _retry: true } as AxiosRequestConfig);
 };
 
-// --- 🚦 重點：401 自動 refresh + 重送 ---
 api.interceptors.response.use((res) => res, async (err) =>
 {
     const status = err?.response?.status;
     const cfg: AnyConfig = err?.config ?? {};
-
-    // 不是 401 或者已重送過，就直接丟出去
     if (status !== 401 || cfg._retry) throw err;
 
-    // 自己打 refresh / login / logout 失敗不重試，避免循環
     const url = (cfg.url || "").toLowerCase();
-    if (url.endsWith("/refresh") || url.endsWith("/login") || url.endsWith("/logout"))
-    {
-        throw err;
-    }
+    if (url.endsWith("/refresh") || url.endsWith("/login") || url.endsWith("/logout")) throw err;
 
-    // 並發控制：第一個觸發 refresh，其他排隊
     if (!isRefreshing)
     {
         isRefreshing = true;
+        authRuntimeSnapshot.LastRefreshAttemptAt = Date.now();
         try
         {
-            await postWithXsrf("/Auth/Refresh"); // ✅ 更新 access/rtid/XSRF Cookie
-            // 喚醒佇列
+            await postWithXsrf("/Auth/Refresh");
+            authRuntimeSnapshot.LastRefreshSuccessAt = Date.now();
+            authRuntimeSnapshot.RefreshSuccessCount += 1;
             waitQueue.forEach(fn => fn());
             waitQueue = [];
-            return replay(cfg); // 重送原請求
-        } finally
+            return replay(cfg);
+        }
+        catch (refreshError)
+        {
+            authRuntimeSnapshot.LastRefreshErrorAt = Date.now();
+            throw refreshError;
+        }
+        finally
         {
             isRefreshing = false;
         }
     }
 
-    // 其他 401 先排隊，等 refresh 完成後重送
     return new Promise((resolve, reject) =>
     {
         waitQueue.push(() =>
