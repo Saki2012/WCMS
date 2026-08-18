@@ -1,12 +1,13 @@
 # WCMS 前端同裝置 Shared State 與多分頁架構
 
-> 文件版本：Version 1.0  
+> 文件版本：Version 1.1  
 > 對標分支：`Feature/Dev`  
 > 建立日期：2026-08-14  
+> 最後更新：2026-08-18  
 > 適用範圍：前端登入 Session、SaaS 會員狀態、購物車、權限、通知、草稿與其他同 Origin／同裝置共享狀態
 
 > [!NOTE]
-> 本文件補充 [`02_前端專案架構.md`](./02_前端專案架構.md) 的 Runtime State Scope。重點是先定義「狀態屬於哪一層、誰可以修改、修改後如何同步」，不強制指定 `BroadcastChannel`、`storage` event 或特定第三方狀態管理工具。
+> 本文件補充 [`02_前端專案架構.md`](./02_前端專案架構.md) 的 Runtime State Scope。重點是先定義「狀態屬於哪一層、誰可以修改、修改後如何同步」，不要求所有 Feature 綁死同一種 Browser API。Auth 已完成的具體實作另見 [`05_AuthSession與RefreshTokenRotation架構.md`](./05_AuthSession與RefreshTokenRotation架構.md)。
 
 ---
 
@@ -138,7 +139,24 @@ Shared Cookie / Shared Refresh Token
 
 不得只以單一 Tab Module Variable 當成跨 Browser Session 的並發保護。
 
-### 3.4 同步事件不得攜帶不必要敏感資料
+### 3.4 Frontend Coordination 不等於 Backend Atomicity
+
+Frontend Lock／Coordinator 的用途是：
+
+- 減少正常使用者流程的重複 Request。
+- 讓多 Tab UX 與 Browser Shared State 保持一致。
+
+但它不能阻止：
+
+- 手工 Request。
+- Retry／Proxy 重送。
+- 不同 Browser Runtime。
+- 舊版本 Frontend。
+- 未來不同 Client。
+
+因此會修改 Backend Shared State 的安全性，必須由 Backend／Shared Store 自己保證。
+
+### 3.5 同步事件不得攜帶不必要敏感資料
 
 跨 Tab 同步原則上傳遞「事件與狀態變更訊號」，而不是 Token 原文。
 
@@ -147,6 +165,7 @@ Shared Cookie / Shared Refresh Token
 ```text
 auth:activity
 auth:logout
+auth:refresh-completed
 session:invalidated
 cart:changed
 permission:changed
@@ -155,10 +174,11 @@ tenant:changed
 
 Access Token、Refresh Token、Secret 或其他敏感原文仍應依既有 Cookie／Backend Security 邊界處理。
 
-### 3.5 不預先綁死同步技術
+### 3.6 不預先綁死所有 Shared State 同步技術
 
 可依需求選擇：
 
+- Web Locks API。
 - `BroadcastChannel`。
 - `storage` event。
 - Shared Worker／Service Worker。
@@ -172,9 +192,11 @@ Feature／Spec 不得自行建立另一套平行 Shared State Coordinator。
 
 ---
 
-## 4. Auth／Idle／Refresh 的目前已知案例
+## 4. Auth／Idle／Refresh 的 #23 已確認案例
 
-2026-08-14 針對 #23 的 Development 雙 Tab 實測已重現：
+### 4.1 Multi-tab Idle Scope 不一致：已修正並 Runtime 驗收
+
+2026-08-14 Development 雙 Tab 實測曾重現：
 
 ```text
 Tab A 持續操作
@@ -189,32 +211,78 @@ Tab B Idle 到期
 Tab A 下一次 API / Save 發生 401 並失去登入狀態
 ```
 
-因此目前已確認：
-
-- Idle Timer 屬於 Tab Local。
-- Auth Cookie／Refresh State 屬於 Browser／Backend Shared。
-- Tab A Activity 不會自然重設 Tab B 的 Idle Timer。
-- 背景 Tab 的 Idle Logout 會影響仍在操作的其他 Tab。
-
-這是已實測的 #23 問題案例，不代表本文件只適用 Auth。
-
-### 4.1 Refresh 另有多入口與多 Tab 競態風險
-
-Refresh 還需同時考慮：
+2026-08-18 已由 `AuthSessionCoordinator` 收斂 Browser Shared Idle／Logout Scope，並完成 Runtime 驗收：
 
 ```text
-單一 Tab
-├─ Activity KeepAlive Refresh
-└─ API 401 Interceptor Refresh
+Case A：Tab A 持續操作 + Tab B Idle
+→ 兩邊 Idle Deadline 同步重置
+→ 不登出
 
-多個 Tab
-├─ Tab A Refresh
-└─ Tab B Refresh
+Case B：所有 Tab 都超過 Idle Timeout
+→ 同步登出
+
+Case C：任一 Tab Manual Logout
+→ 其他 Tab 同步登出
 ```
 
-當 Backend 使用 Refresh Token Rotation 時，多個入口若沒有一致的協調與原子性保護，可能同時操作同一份 Refresh State。
+因此 #23 第一階段狀態為：
 
-此項目前屬靜態可確認的 Race Window；實際 Runtime Root Cause 與最終修正方案仍依 #23 後續驗證與 RD 判定為準。
+- Runtime Root Cause Confirmed。
+- Fix Implemented。
+- Multi-tab Runtime Regression Passed。
+
+### 4.2 Refresh Token Rotation Race：Runtime 已確認
+
+2026-08-18 以同一 Browser Session 同時送出兩支 `/Auth/Refresh`，已確認同一 old RTID 可產生兩個不同 new RTID，且兩支皆回 `200`：
+
+```text
+R1 ─┬→ R2 → 200
+    └→ R3 → 200
+```
+
+因此 Refresh Race 已從「靜態 Race Window」提升為 Runtime Confirmed Defect。
+
+根因為：
+
+- Activity Refresh 與 401 Interceptor 原本沒有共用同一個真正 Single-flight。
+- 不同 Tab 的 module-level Refresh Lock 互相不可見。
+- Backend Rotation 原本是 `Get → Store new → Revoke old` 的分離操作，沒有 Atomic State Exchange。
+
+### 4.3 Refresh 第二階段實作
+
+Frontend：
+
+```text
+Activity Refresh ─┐
+401 Refresh ───────┤
+                  ↓
+AuthRefreshCoordinator
+├─ 同 Tab in-flight Promise Single-flight
+├─ Browser 支援時使用 Web Locks 跨 Tab 序列化
+└─ localStorage 只共享 LastRefreshCompletedAt timestamp
+```
+
+Backend：
+
+```text
+TokenService.TryRotateRefreshAsync
+→ TokenStateCache.TryRotateRefreshAsync
+→ Local Single Process Rotation Lock
+→ old RTID Owner 再確認
+→ Store new RTID
+→ Revoke old RTID
+```
+
+修正後預期：
+
+```text
+R1 ─┬→ R2 → 200
+    └→ 401 Refresh already consumed
+```
+
+此第二階段已實作，仍需 Runtime Regression 重新驗證後才能標示「Regression Passed」。
+
+具體架構、Local 限制與未來 Redis 替換點見 [`05_AuthSession與RefreshTokenRotation架構.md`](./05_AuthSession與RefreshTokenRotation架構.md)。
 
 ---
 
@@ -269,10 +337,11 @@ Backend Cart State
 
 跨 Tab 協調通常依賴 Browser API，因此仍須遵循前端 SSR 規範：
 
-- 不在模組載入階段直接使用 `window`、`document`、`BroadcastChannel` 或 Storage API。
-- Client Coordinator 應在 Client Effect、事件時機或正式 Adapter 內初始化。
+- 不在模組載入階段直接無條件使用 `window`、`document`、`navigator.locks`、`BroadcastChannel` 或 Storage API。
+- Client Coordinator 應在 Client Effect、事件時機或正式 Adapter 內初始化／呼叫。
 - SSR 與 CSR 第一次 Render 不得因 Shared State Coordinator 是否存在而產生不同主要 DOM。
 - Hydration 後才同步的共享狀態，必須有明確 Loading／Stale／Ready 契約，避免畫面無提示跳動。
+- Browser API 不支援時必須有明確降級語意，不得讓安全性只存在於 Browser API。
 
 ---
 
@@ -286,10 +355,12 @@ Backend Cart State
 4. 其他 Tab 如何收到更新、失效或登出訊號？
 5. 多 Tab 同時修改是否有 Race？
 6. 非冪等操作是否有 Single-flight／Atomic／Version 保護？
-7. Tab 關閉、重新整理、Background、Focus 後是否一致？
-8. 是否會外洩 Token、Cookie 或敏感資料？
-9. SSR 是否安全？
-10. 單一 Tab Happy Path 正常是否掩蓋 Multi-tab 問題？
+7. Frontend Lock 若失效，Backend 是否仍能保證資料一致？
+8. Tab 關閉、重新整理、Background、Focus 後是否一致？
+9. 是否會外洩 Token、Cookie 或敏感資料？
+10. SSR 是否安全？
+11. 單一 Tab Happy Path 正常是否掩蓋 Multi-tab 問題？
+12. 若部署從 Single Process 轉為 LB／Multi-instance，原本 Local Lock 是否仍有效？
 
 ---
 
@@ -307,24 +378,32 @@ Case D：Tab A 修改後 Tab B Focus / Visibility 回復
 Case E：其中一個 Tab Logout / Session Invalidated
 Case F：Refresh / Save / Checkout 等非冪等操作同時發生
 Case G：Refresh Page / Close Tab / Reopen
+Case H：繞過 Frontend Coordinator 直接並行呼叫 Backend
 ```
 
 若功能涉及 SaaS Tenant、購物車、會員或權限，應依相同模式增加業務情境。
 
+若 Backend Concurrency 依賴 Local Process Lock，部署架構變成 LB／Multi-instance 時必須重新執行 Backend Shared State Concurrency Review。
+
 ---
 
-## 9. 目前責任邊界
+## 9. Auth 目前責任邊界
 
-本文件目前確立的是：
+目前已確立：
 
-- Shared State Scope 必須被明確設計與檢查。
-- 共用資源不能由互不協調的 per-tab Controller 任意修改。
+- `AuthSessionCoordinator` 管理 Browser Shared Activity、Idle Deadline 與跨 Tab Logout。
+- `AuthRefreshCoordinator` 管理同 Tab Refresh Single-flight，並在 Browser 支援時以 Web Locks 協調同 Origin Refresh。
+- Refresh Shared Browser State 只保存完成時間，不保存 Token 原文。
+- Backend `TryRotateRefreshAsync` 是 Refresh Token 單次 Rotation 的最終安全契約。
+- 現階段 Backend Atomicity 保證限定在 Single Backend Process + Local Token State。
+- 未來 LB + Redis 必須把 Rotation 底層替換成 Redis Atomic Operation，Process Lock 不得被當成多 Instance 保證。
 - Multi-tab 必須納入 Auth、SaaS、會員、購物車等共用能力的架構與白箱檢測。
 
-目前尚未確立：
+目前尚未確立或尚未完成：
 
-- WCMS 最終統一採用哪一種跨 Tab Coordinator。
-- #23 Refresh Token Rotation 的最終 Backend Concurrency 策略。
+- Redis Atomic Rotation 的實際 Client／Lua／Transaction 選型。
 - 未來 SaaS／購物車是否採 Server Push、Polling 或其他同步方式。
+- RequireAuth 的 401／403／5xx／Network／Timeout Error Classification。
+- 是否需要更完整的 Session Family／Generation Model 來涵蓋所有 Logout／Disable／Force Logout Concurrency。
 
 上述項目在實作定案後再同步更新架構與端別開發規範，不將規劃中的能力描述成已完成。

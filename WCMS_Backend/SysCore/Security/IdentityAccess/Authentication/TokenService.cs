@@ -71,6 +71,13 @@ public sealed class TokenService(TokenStateCache tokenStateCache, IConfiguration
         return TokenStateCache.GetUserIdByRefreshIdAsync(tokenId, ct);
     }
     /// <summary>
+    /// 嘗試將指定 old Refresh Token 交換為 new Refresh Token；同一 old RTID 只能成功一次。
+    /// </summary>
+    public Task<bool> TryRotateRefreshAsync(string userId, string oldTokenId, string newTokenId, DateTime newExpires, CancellationToken ct = default)
+    {
+        return TokenStateCache.TryRotateRefreshAsync(userId, oldTokenId, newTokenId, newExpires, ct);
+    }
+    /// <summary>
     /// 撤銷指定 Refresh Token。
     /// </summary>
     public Task RevokeRefreshAsync(string tokenId, CancellationToken ct = default)

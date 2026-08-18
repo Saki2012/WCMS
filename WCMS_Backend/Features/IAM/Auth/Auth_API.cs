@@ -109,8 +109,8 @@ public class AuthController(
         if (user is null) return Unauthorized("User disabled.");
         var (access, _, accessExp) = _tokenSvc.IssueAccessToken(user);
         var (newRtid, refreshExp) = _tokenSvc.IssueRefreshToken();
-        await _tokenSvc.StoreRefreshAsync(user.UserId, newRtid, refreshExp, ct);
-        await _tokenSvc.RevokeRefreshAsync(oldRtid, ct);
+        bool rotated = await _tokenSvc.TryRotateRefreshAsync(user.UserId, oldRtid, newRtid, refreshExp, ct);
+        if (!rotated) return Unauthorized("Refresh already consumed.");
         Response.Cookies.Append(SysParam.CookieNames.RefreshTokenId, newRtid, new CookieOptions
         {
             HttpOnly = true,

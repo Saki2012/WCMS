@@ -1,5 +1,5 @@
-version: "1.4"
-updated_at: "2026-08-14"
+version: "1.5"
+updated_at: "2026-08-18"
 purpose: "WCMS AI 快速定位索引；只提供導覽與搜尋入口，不取代正式架構、開發規範或實際程式碼。"
 
 repository:
@@ -23,6 +23,7 @@ reading_order:
   - "Docs/01_研發與技術文件/01_系統架構/01_整體專案架構.md"
   - "依任務閱讀前端或後端專案架構"
   - "涉及登入、SaaS Membership、購物車、多分頁或同裝置共享 Browser State 時，追加閱讀 04_前端同裝置SharedState與多分頁架構.md"
+  - "涉及 Auth Session、Refresh Token Rotation、Refresh Race、LB 或 Redis Token State 時，追加閱讀 05_AuthSession與RefreshTokenRotation架構.md"
   - "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
   - "依任務閱讀前端或後端開發規範"
   - "視任務閱讀 Git 與 Commit、品質驗證或開發歷程文件"
@@ -39,6 +40,7 @@ navigation:
     frontend_architecture: "Docs/01_研發與技術文件/01_系統架構/02_前端專案架構.md"
     backend_architecture: "Docs/01_研發與技術文件/01_系統架構/03_後端專案架構.md"
     frontend_shared_state_architecture: "Docs/01_研發與技術文件/01_系統架構/04_前端同裝置SharedState與多分頁架構.md"
+    auth_session_refresh_architecture: "Docs/01_研發與技術文件/01_系統架構/05_AuthSession與RefreshTokenRotation架構.md"
     common_rules: "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
     frontend_rules: "Docs/01_研發與技術文件/02_開發規範/02_前端開發規範.md"
     backend_rules: "Docs/01_研發與技術文件/02_開發規範/03_後端開發規範.md"
@@ -65,6 +67,9 @@ navigation:
     api_base: "WCMS_Frontend/src/SysCore/Utils/API/APIBase.ts"
     api_client: "WCMS_Frontend/src/SysCore/Utils/API/APIClient.ts"
     api_adapter: "WCMS_Frontend/src/SysCore/Utils/API/APIAdapter.ts"
+    auth_client: "WCMS_Frontend/src/SysCore/Utils/API/AuthClient.ts"
+    auth_session_coordinator: "WCMS_Frontend/src/SysCore/Components/Auth/AuthSessionCoordinator.ts"
+    auth_refresh_coordinator: "WCMS_Frontend/src/SysCore/Components/Auth/AuthRefreshCoordinator.ts"
     form_template: "WCMS_Frontend/src/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook.ts"
     feature_roots:
       - "WCMS_Frontend/src/Features"
@@ -89,9 +94,13 @@ navigation:
     persistence_setup: "WCMS_Backend/SysCore/Persistence/PersistenceModuleSetup.cs"
     db_context: "WCMS_Backend/SysCore/Persistence/ApplicationDbContext.cs"
     cache_setup: "WCMS_Backend/SysCore/PlatformServices/Cache/CacheModuleSetup.cs"
+    cache_route: "WCMS_Backend/SysCore/PlatformServices/Cache/CacheRoute.cs"
     auditing_setup: "WCMS_Backend/SysCore/Auditing/AuditingModuleSetup.cs"
     hardening_setup: "WCMS_Backend/SysCore/Security/Hardening/HardeningSetup.cs"
     identity_access_setup: "WCMS_Backend/SysCore/Security/IdentityAccess/IdentityAccessSetup.cs"
+    auth_api: "WCMS_Backend/Features/IAM/Auth/Auth_API.cs"
+    token_service: "WCMS_Backend/SysCore/Security/IdentityAccess/Authentication/TokenService.cs"
+    token_state_cache: "WCMS_Backend/SysCore/Security/IdentityAccess/Authentication/TokenStateCache.cs"
 
 path_patterns:
   frontend_feature_api: "WCMS_Frontend/src/Features/Hooks/BizFunc/<DOMAIN>/<FEATURE>_Api.ts"
@@ -111,6 +120,8 @@ search_sequence:
   - "搜尋 SysCore、Library、Helper、Template、FeatureDriver、Service 與 Repository 的共用能力。"
   - "搜尋目前 Spec 與相近 Spec 的延伸實作，但不得直接複製客製邏輯。"
   - "涉及 Cookie、Session、Refresh、SaaS Membership、Cart 或其他共享 State 時，建立 Tab／Browser／Backend Scope Map。"
+  - "涉及 Refresh Rotation 時，追蹤 Frontend Single-flight／跨 Tab Coordination，並一路追到 Backend old RTID Atomic Guarantee。"
+  - "涉及 LB／Redis Token State 時，確認 Process-local Lock 不被誤當 Distributed Guarantee，並核對 Redis Required／Fail Closed 契約。"
   - "白箱任務依 RULE_REGISTRY.yml 篩選 active Rule，並核對其正式來源與適用範圍。"
   - "QA 任務依 WCMS-QA-GOV-001 核對 Issue 歷史、版本鏈、修正與複驗證據。"
   - "搜尋相關 Issue、PR 與 Commit，確認修改原因及歷史決策。"
@@ -119,9 +130,9 @@ search_sequence:
 risk_tags:
   accessibility: ["AA", "keyboard", "focus", "ARIA", "CMS content"]
   rendering: ["SSR", "CSR", "hydration", "loader", "browser API"]
-  security: ["weakness scan", "CSP", "XSRF", "CORS", "JWT", "cookie"]
+  security: ["weakness scan", "CSP", "XSRF", "CORS", "JWT", "cookie", "refresh rotation"]
   data_contract: ["OpenAPI", "ApiResponse", "nullable", "optional", "DateOnly", "UTC"]
-  runtime_state: ["cache", "token state", "permission", "output cache", "multi-tab", "shared state", "browser session", "SaaS membership", "cart state"]
+  runtime_state: ["cache", "token state", "permission", "output cache", "multi-tab", "shared state", "browser session", "refresh race", "atomic rotation", "LB", "Redis", "SaaS membership", "cart state"]
   customization: ["Feature", "Spec", "fallback", "slot", "override"]
   localization: ["route language", "Accept-Language", "i18n", "multilingual data"]
   auditing: ["operation log", "change log", "NLog", "transaction"]

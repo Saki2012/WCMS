@@ -4,6 +4,11 @@ import {
     type AuthSessionLogoutReason,
     type IAuthSessionCoordinatorHandle,
 } from "@/SysCore/Components/Auth/AuthSessionCoordinator";
+import {
+    getLastAuthRefreshCompletedAt,
+    runAuthRefresh,
+    type IAuthRefreshRunResult,
+} from "@/SysCore/Components/Auth/AuthRefreshCoordinator";
 import type { AxiosRequestConfig } from "axios";
 
 // #region Property
@@ -96,9 +101,6 @@ const authRuntimeSnapshot: IAuthRuntimeSnapshot = {
     LastRefreshErrorAt: null,
     RefreshSuccessCount: 0,
 };
-
-let isRefreshing = false;
-let waitQueue: Array<() => void> = [];
 // #endregion
 
 // #region Public
@@ -106,7 +108,7 @@ export const AuthAPI = {
     me: () => api.get<ICurrentUserContextDto>("/Auth/Me"),
     login: (p: { account: string; password: string; }) => api.post<ICurrentUserContextDto>("/Auth/Login", p),
     logout: () => postWithXsrf("/Auth/Logout"),
-    refresh: () => postWithXsrf("/Auth/Refresh"),
+    refresh: () => refreshAuthSession(),
     sessionDiagnostics: () => api.get<IAuthSessionDiagnosticsDto>("/Auth/SessionDiagnostics"),
 } as const;
 
@@ -170,23 +172,56 @@ const stopAuthIdleGuard = (coordinator: IAuthSessionCoordinatorHandle): void =>
     authRuntimeSnapshot.IdleDeadlineAt = null;
 };
 
-/** 使用節流規則執行目前 Tab 的 Activity Refresh，並保存診斷結果。 */
+/** 使用 Browser Shared 節流資訊執行 Activity Refresh。 */
 const tryKeepAlive = async (runtime: IAuthIdleRuntime): Promise<void> =>
 {
     const now = Date.now();
-    if (now - runtime.LastRefreshAt < runtime.RefreshThrottleMs || isRefreshing) return;
+    const sharedRefreshAt = getLastAuthRefreshCompletedAt() ?? 0;
+    syncSharedRefreshRuntime(sharedRefreshAt);
+    const effectiveRefreshAt = Math.max(runtime.LastRefreshAt, sharedRefreshAt);
+    if (now - effectiveRefreshAt < runtime.RefreshThrottleMs) return;
+
     runtime.LastRefreshAt = now;
-    authRuntimeSnapshot.LastRefreshAttemptAt = now;
     try
     {
         await AuthAPI.refresh();
-        authRuntimeSnapshot.LastRefreshSuccessAt = Date.now();
-        authRuntimeSnapshot.RefreshSuccessCount += 1;
     }
     catch
     {
-        authRuntimeSnapshot.LastRefreshErrorAt = Date.now();
+        // KeepAlive 失敗交由後續 API 401／Auth Probe 判定，不在 Activity Event 強制導頁。
     }
+};
+
+/** 透過 Refresh Coordinator 執行同 Tab Single-flight 與跨 Tab 協調。 */
+const refreshAuthSession = async (): Promise<IAuthRefreshRunResult> =>
+{
+    const result = await runAuthRefresh(requestAuthRefresh);
+    syncSharedRefreshRuntime(result.CompletedAt);
+    return result;
+};
+
+/** 執行真正的 Refresh HTTP Request，並保存本 Tab 診斷資訊。 */
+const requestAuthRefresh = async (): Promise<void> =>
+{
+    authRuntimeSnapshot.LastRefreshAttemptAt = Date.now();
+    try
+    {
+        await postWithXsrf("/Auth/Refresh");
+        authRuntimeSnapshot.LastRefreshSuccessAt = Date.now();
+        authRuntimeSnapshot.RefreshSuccessCount += 1;
+    }
+    catch (error)
+    {
+        authRuntimeSnapshot.LastRefreshErrorAt = Date.now();
+        throw error;
+    }
+};
+
+/** 將其他 Tab 已完成的 Refresh 時間同步進目前診斷狀態。 */
+const syncSharedRefreshRuntime = (completedAt: number): void =>
+{
+    const current = authRuntimeSnapshot.LastRefreshSuccessAt ?? 0;
+    if (completedAt > current) authRuntimeSnapshot.LastRefreshSuccessAt = completedAt;
 };
 
 /** 判斷是否明確啟用 Bearer 模式。 */
@@ -238,36 +273,7 @@ api.interceptors.response.use((res) => res, async (err) =>
     const url = (cfg.url || "").toLowerCase();
     if (url.endsWith("/refresh") || url.endsWith("/login") || url.endsWith("/logout")) throw err;
 
-    if (!isRefreshing)
-    {
-        isRefreshing = true;
-        authRuntimeSnapshot.LastRefreshAttemptAt = Date.now();
-        try
-        {
-            await postWithXsrf("/Auth/Refresh");
-            authRuntimeSnapshot.LastRefreshSuccessAt = Date.now();
-            authRuntimeSnapshot.RefreshSuccessCount += 1;
-            waitQueue.forEach(fn => fn());
-            waitQueue = [];
-            return replay(cfg);
-        }
-        catch (refreshError)
-        {
-            authRuntimeSnapshot.LastRefreshErrorAt = Date.now();
-            throw refreshError;
-        }
-        finally
-        {
-            isRefreshing = false;
-        }
-    }
-
-    return new Promise((resolve, reject) =>
-    {
-        waitQueue.push(() =>
-        {
-            replay(cfg).then(resolve).catch(reject);
-        });
-    });
+    await AuthAPI.refresh();
+    return replay(cfg);
 });
 // #endregion
