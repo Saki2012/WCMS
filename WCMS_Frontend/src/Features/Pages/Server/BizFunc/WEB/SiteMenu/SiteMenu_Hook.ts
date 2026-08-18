@@ -260,7 +260,7 @@ export const useSiteMenuFetchData = (opt: { lang: Lang; }): UseFetchDataResult<S
 // #region Private
 const useSiteMenuMainDataByAdapter = (adapter: ReturnType<typeof SiteMenuAdapter>, onError: (e: ApiAdapterError) => void): SiteMenuMainDataResult =>
 {
-    const siteList = adapter.hooks.useQueryList({ condition: { Fields: [SiteMenu_IndexFields.InternalId], PageNumber: 0, PageSize: 50 }, deps: [], onError });
+    const siteList = adapter.hooks.useSiteMenuIndexList({ deps: [], onError });
 
     const internalId = useMemo(() =>
     {
