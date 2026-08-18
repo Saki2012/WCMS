@@ -1,3 +1,9 @@
+import {
+    publishAuthSessionLogout,
+    startAuthSessionCoordinator,
+    type AuthSessionLogoutReason,
+    type IAuthSessionCoordinatorHandle,
+} from "@/SysCore/Components/Auth/AuthSessionCoordinator";
 import type { AxiosRequestConfig } from "axios";
 
 // #region Property
@@ -9,8 +15,8 @@ export interface IAuthIdleOptions
     idleMs?: number;
     /** 有動作時，refresh 節流間隔（預設 5 分鐘最多一次） */
     refreshThrottleMs?: number;
-    /** 閒置登出後通知 UI（例如導去 /login） */
-    onIdleLogout?: () => void;
+    /** Browser Session 登出後通知 UI（例如導去 /login） */
+    onSessionLogout?: (reason: AuthSessionLogoutReason) => void;
 }
 
 export interface ICreateUserDto
@@ -74,6 +80,12 @@ export interface IAuthRuntimeSnapshot
     RefreshSuccessCount: number;
 }
 
+interface IAuthIdleRuntime
+{
+    LastRefreshAt: number;
+    RefreshThrottleMs: number;
+}
+
 const authRuntimeSnapshot: IAuthRuntimeSnapshot = {
     IdleTimeoutMs: 30 * 60 * 1000,
     RefreshThrottleMs: 5 * 60 * 1000,
@@ -104,84 +116,24 @@ export const getAuthRuntimeSnapshot = (): IAuthRuntimeSnapshot =>
     return { ...authRuntimeSnapshot };
 };
 
-/** 啟用閒置登出與活動續期機制。 */
+/** 啟用 Browser Shared 閒置登出與目前 Tab 活動續期機制。 */
 export const startAuthIdleGuard = (opt?: IAuthIdleOptions) =>
 {
     const idleMs = opt?.idleMs ?? 30 * 60 * 1000;
     const refreshThrottleMs = opt?.refreshThrottleMs ?? 5 * 60 * 1000;
     if (typeof window === "undefined") return { stop: () => void 0 };
 
-    let idleTimer: number | null = null;
-    let lastRefreshAt = 0;
+    const runtime: IAuthIdleRuntime = { LastRefreshAt: 0, RefreshThrottleMs: refreshThrottleMs };
     authRuntimeSnapshot.IdleTimeoutMs = idleMs;
     authRuntimeSnapshot.RefreshThrottleMs = refreshThrottleMs;
-
-    /** 清除目前閒置登出計時器。 */
-    const clearIdleTimer = () =>
-    {
-        if (idleTimer === null) return;
-        window.clearTimeout(idleTimer);
-        idleTimer = null;
-    };
-
-    /** 依最後活動時間重新安排閒置登出。 */
-    const scheduleIdleLogout = () =>
-    {
-        clearIdleTimer();
-        authRuntimeSnapshot.IdleDeadlineAt = Date.now() + idleMs;
-        idleTimer = window.setTimeout(async () =>
-        {
-            try
-            {
-                await AuthAPI.logout();
-            }
-            finally
-            {
-                opt?.onIdleLogout?.();
-            }
-        }, idleMs);
-    };
-
-    /** 使用節流規則執行 Refresh，並保存可觀測的執行結果。 */
-    const tryKeepAlive = async () =>
-    {
-        const now = Date.now();
-        if (now - lastRefreshAt < refreshThrottleMs || isRefreshing) return;
-        lastRefreshAt = now;
-        authRuntimeSnapshot.LastRefreshAttemptAt = now;
-        try
-        {
-            await AuthAPI.refresh();
-            authRuntimeSnapshot.LastRefreshSuccessAt = Date.now();
-            authRuntimeSnapshot.RefreshSuccessCount += 1;
-        }
-        catch
-        {
-            authRuntimeSnapshot.LastRefreshErrorAt = Date.now();
-        }
-    };
-
-    /** 記錄使用者活動、延後 Idle Deadline，並依節流規則嘗試 Refresh。 */
-    const onActivity = () =>
-    {
-        authRuntimeSnapshot.LastActivityAt = Date.now();
-        scheduleIdleLogout();
-        void tryKeepAlive();
-    };
-
-    authRuntimeSnapshot.LastActivityAt = Date.now();
-    scheduleIdleLogout();
-    const events: Array<keyof WindowEventMap> = ["mousemove", "keydown", "scroll", "click", "touchstart"];
-    events.forEach((eventName) => window.addEventListener(eventName, onActivity, { passive: true }));
-
-    return {
-        stop: () =>
-        {
-            events.forEach((eventName) => window.removeEventListener(eventName, onActivity));
-            clearIdleTimer();
-            authRuntimeSnapshot.IdleDeadlineAt = null;
-        },
-    };
+    const coordinator = startAuthSessionCoordinator({
+        idleMs,
+        onLocalActivity: () => void tryKeepAlive(runtime),
+        onActivityChanged: syncAuthActivityRuntime,
+        onIdle: handleIdleLogout,
+        onSessionLogout: (reason) => opt?.onSessionLogout?.(reason),
+    });
+    return { stop: () => stopAuthIdleGuard(coordinator) };
 };
 
 export const UserAPI = { create: (dto: ICreateUserDto) => api.post<ICreateUserResult>("/User/Create", dto).then(r => r.data) } as const;
@@ -190,6 +142,52 @@ export const UserAPI = { create: (dto: ICreateUserDto) => api.post<ICreateUserRe
 // #region Private
 import { LibCookie } from "../Library/LibData";
 import { api } from "./APIBase";
+
+/** 同步 Browser Shared Activity 至 Development Runtime Snapshot。 */
+const syncAuthActivityRuntime = (activityAt: number | null, idleDeadlineAt: number | null): void =>
+{
+    authRuntimeSnapshot.LastActivityAt = activityAt;
+    authRuntimeSnapshot.IdleDeadlineAt = idleDeadlineAt;
+};
+
+/** Browser Session 確認 Idle 後登出後端，並同步通知所有 Tab。 */
+const handleIdleLogout = async (): Promise<void> =>
+{
+    try
+    {
+        await AuthAPI.logout();
+    }
+    finally
+    {
+        publishAuthSessionLogout("idle");
+    }
+};
+
+/** 停止目前 Tab 的 Auth Idle Guard 並清除診斷 Deadline。 */
+const stopAuthIdleGuard = (coordinator: IAuthSessionCoordinatorHandle): void =>
+{
+    coordinator.stop();
+    authRuntimeSnapshot.IdleDeadlineAt = null;
+};
+
+/** 使用節流規則執行目前 Tab 的 Activity Refresh，並保存診斷結果。 */
+const tryKeepAlive = async (runtime: IAuthIdleRuntime): Promise<void> =>
+{
+    const now = Date.now();
+    if (now - runtime.LastRefreshAt < runtime.RefreshThrottleMs || isRefreshing) return;
+    runtime.LastRefreshAt = now;
+    authRuntimeSnapshot.LastRefreshAttemptAt = now;
+    try
+    {
+        await AuthAPI.refresh();
+        authRuntimeSnapshot.LastRefreshSuccessAt = Date.now();
+        authRuntimeSnapshot.RefreshSuccessCount += 1;
+    }
+    catch
+    {
+        authRuntimeSnapshot.LastRefreshErrorAt = Date.now();
+    }
+};
 
 /** 判斷是否明確啟用 Bearer 模式。 */
 const isBearerMode = (): boolean =>

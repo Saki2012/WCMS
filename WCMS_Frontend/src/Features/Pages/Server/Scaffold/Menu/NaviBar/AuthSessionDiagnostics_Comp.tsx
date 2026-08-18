@@ -80,15 +80,16 @@ export const AuthSessionDiagnosticsComp = () =>
             openButtonClassName="btn-link border-0 bg-transparent text-dark text-decoration-none shadow-none m-0"
         >
             <div className="alert alert-warning py-2" role="status">
-                本視窗僅在 Development 顯示；不回傳 Access Token、Refresh Token、RTID 或 XSRF Token 原文。
+                本視窗僅在 Development 顯示；Browser Idle 為同 Origin 多分頁共享狀態，且不回傳 Access Token、Refresh Token、RTID 或 XSRF Token 原文。
             </div>
             {error && <div className="alert alert-danger py-2">{error}</div>}
             <div className="table-responsive">
                 <table className="table table-sm table-bordered align-middle mb-0">
                     <tbody>
-                        <DiagnosticsRow label="Idle 剩餘時間" value={formatDuration(idleRemainingSeconds)} />
-                        <DiagnosticsRow label="Idle Timeout" value={formatDurationMs(runtime.IdleTimeoutMs)} />
-                        <DiagnosticsRow label="最後使用者活動" value={formatClientTime(runtime.LastActivityAt)} />
+                        <DiagnosticsRow label="Browser Idle 剩餘時間" value={formatDuration(idleRemainingSeconds)} />
+                        <DiagnosticsRow label="Browser Idle Timeout" value={formatDurationMs(runtime.IdleTimeoutMs)} />
+                        <DiagnosticsRow label="Browser 最後使用者活動" value={formatClientTime(runtime.LastActivityAt)} />
+                        <DiagnosticsRow label="Browser Idle Deadline" value={formatClientTime(runtime.IdleDeadlineAt)} />
                         <DiagnosticsRow label="最後 Refresh 嘗試" value={formatClientTime(runtime.LastRefreshAttemptAt)} />
                         <DiagnosticsRow label="最後 Refresh 成功" value={formatClientTime(runtime.LastRefreshSuccessAt)} />
                         <DiagnosticsRow label="最後 Refresh 失敗" value={formatClientTime(runtime.LastRefreshErrorAt)} />

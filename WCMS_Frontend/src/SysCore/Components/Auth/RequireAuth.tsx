@@ -83,7 +83,7 @@ export const RequireAuth = ({ children }: Props) =>
         const idle = startAuthIdleGuard({
             idleMs: AUTH_IDLE_TIMEOUT_MS,
             refreshThrottleMs: AUTH_REFRESH_THROTTLE_MS,
-            onIdleLogout: () =>
+            onSessionLogout: () =>
             {
                 resetAuthProbe();
                 setCurrent(null);
