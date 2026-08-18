@@ -5,6 +5,7 @@ import { resolveSpecAsset } from "@/SysCore/Utils/Library/SlotResolver";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_Hooks/useOptionalSpecAssetUrl";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
+import { AuthSessionDiagnosticsComp } from "./AuthSessionDiagnostics_Comp";
 
 // #region Initialization
 const logoImg = resolveSpecAsset("Assets/Server/menu_logo_PC", "");
@@ -18,6 +19,7 @@ export const NavibarMenu = () =>
     const [userInternalId, setuserInternalId] = useState<string>("");
     useEffect(() =>
     {
+        /** 載入目前登入使用者顯示名稱與內部識別碼。 */
         const loadUserName = async () =>
         {
             const res = await AuthAPI.me();
@@ -87,6 +89,9 @@ export const NavibarMenu = () =>
                         </a>
                         <div className="Customize_collapse + collapse navbar-collapse" id="navbar_right">
                             <ul className={clsx("navbar-nav", "me-auto", "mb-2", "mb-lg-0")}>
+                                <li className={clsx("nav-item", "d-flex", "align-items-center")}>
+                                    <AuthSessionDiagnosticsComp />
+                                </li>
                                 <li className={clsx("nav-item")}>
                                     <div className="nav-link">
                                         <h2>

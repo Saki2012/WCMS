@@ -20,7 +20,7 @@ public class Account : HeaderModel
     /// 帳戶Id
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.Account_AccountId)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.AccountId, DisplayName.Account_AccountId)]
     public string AccountId { get; set; } = string.Empty;
     /// <summary>
     /// 帳戶名稱

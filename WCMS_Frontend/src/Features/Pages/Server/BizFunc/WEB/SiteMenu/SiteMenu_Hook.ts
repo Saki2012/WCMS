@@ -260,7 +260,7 @@ export const useSiteMenuFetchData = (opt: { lang: Lang; }): UseFetchDataResult<S
 // #region Private
 const useSiteMenuMainDataByAdapter = (adapter: ReturnType<typeof SiteMenuAdapter>, onError: (e: ApiAdapterError) => void): SiteMenuMainDataResult =>
 {
-    const siteList = adapter.hooks.useQueryList({ condition: { Fields: [SiteMenu_IndexFields.InternalId], PageNumber: 0, PageSize: 50 }, deps: [], onError });
+    const siteList = adapter.hooks.useSiteMenuIndexList({ deps: [], onError });
 
     const internalId = useMemo(() =>
     {
@@ -728,7 +728,7 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
                 `${CategoryFields._CategoryDetail}.${CategoryDetailFields.CategoryName}`,
             ],
             PageNumber: 0,
-            PageSize: 5000,
+            PageSize: 200,
         },
         deps: [lang],
         onError,
@@ -743,7 +743,7 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
                 `${TagDataFields._TagDetail}.${TagDetailFields.TagName}`,
             ],
             PageNumber: 0,
-            PageSize: 5000,
+            PageSize: 200,
         },
         deps: [lang],
         onError,
@@ -758,7 +758,7 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
                 `${PageManagementFields._PageManagementDetail}.${PageManagementDetailFields.Title}`,
             ],
             PageNumber: 0,
-            PageSize: 5000,
+            PageSize: 200,
         },
         deps: [lang],
         onError,
