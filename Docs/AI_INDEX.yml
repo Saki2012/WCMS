@@ -1,5 +1,5 @@
-version: "1.5"
-updated_at: "2026-08-18"
+version: "1.6"
+updated_at: "2026-08-20"
 purpose: "WCMS AI 快速定位索引；只提供導覽與搜尋入口，不取代正式架構、開發規範或實際程式碼。"
 
 repository:
@@ -22,8 +22,8 @@ reading_order:
   - "Docs/AI_INDEX.yml"
   - "Docs/01_研發與技術文件/01_系統架構/01_整體專案架構.md"
   - "依任務閱讀前端或後端專案架構"
-  - "涉及登入、SaaS Membership、購物車、多分頁或同裝置共享 Browser State 時，追加閱讀 04_前端同裝置SharedState與多分頁架構.md"
-  - "涉及 Auth Session、Refresh Token Rotation、Refresh Race、LB 或 Redis Token State 時，追加閱讀 05_AuthSession與RefreshTokenRotation架構.md"
+  - "涉及登入、多分頁、同裝置 Browser Shared State、SaaS Membership 或購物車時，核對 01_整體專案架構.md 與 02_前端專案架構.md 的 Shared State／Auth Session 契約"
+  - "涉及 Refresh Token Rotation、Refresh Race、LB 或 Redis Token State 時，追加核對 03_後端專案架構.md 的 IAM／Refresh Rotation 契約"
   - "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
   - "依任務閱讀前端或後端開發規範"
   - "視任務閱讀 Git 與 Commit、品質驗證或開發歷程文件"
@@ -39,8 +39,6 @@ navigation:
     overall_architecture: "Docs/01_研發與技術文件/01_系統架構/01_整體專案架構.md"
     frontend_architecture: "Docs/01_研發與技術文件/01_系統架構/02_前端專案架構.md"
     backend_architecture: "Docs/01_研發與技術文件/01_系統架構/03_後端專案架構.md"
-    frontend_shared_state_architecture: "Docs/01_研發與技術文件/01_系統架構/04_前端同裝置SharedState與多分頁架構.md"
-    auth_session_refresh_architecture: "Docs/01_研發與技術文件/01_系統架構/05_AuthSession與RefreshTokenRotation架構.md"
     common_rules: "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
     frontend_rules: "Docs/01_研發與技術文件/02_開發規範/02_前端開發規範.md"
     backend_rules: "Docs/01_研發與技術文件/02_開發規範/03_後端開發規範.md"
@@ -68,8 +66,10 @@ navigation:
     api_client: "WCMS_Frontend/src/SysCore/Utils/API/APIClient.ts"
     api_adapter: "WCMS_Frontend/src/SysCore/Utils/API/APIAdapter.ts"
     auth_client: "WCMS_Frontend/src/SysCore/Utils/API/AuthClient.ts"
+    auth_context: "WCMS_Frontend/src/SysCore/Components/Auth/AuthContext.tsx"
     auth_session_coordinator: "WCMS_Frontend/src/SysCore/Components/Auth/AuthSessionCoordinator.ts"
     auth_refresh_coordinator: "WCMS_Frontend/src/SysCore/Components/Auth/AuthRefreshCoordinator.ts"
+    require_auth: "WCMS_Frontend/src/SysCore/Components/Auth/RequireAuth.tsx"
     form_template: "WCMS_Frontend/src/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook.ts"
     feature_roots:
       - "WCMS_Frontend/src/Features"
@@ -132,7 +132,7 @@ risk_tags:
   rendering: ["SSR", "CSR", "hydration", "loader", "browser API"]
   security: ["weakness scan", "CSP", "XSRF", "CORS", "JWT", "cookie", "refresh rotation"]
   data_contract: ["OpenAPI", "ApiResponse", "nullable", "optional", "DateOnly", "UTC"]
-  runtime_state: ["cache", "token state", "permission", "output cache", "multi-tab", "shared state", "browser session", "refresh race", "atomic rotation", "LB", "Redis", "SaaS membership", "cart state"]
+  runtime_state: ["cache", "token state", "permission", "output cache", "multi-tab", "shared state", "browser session", "last activity", "refresh race", "atomic rotation", "LB", "Redis", "SaaS membership", "cart state"]
   customization: ["Feature", "Spec", "fallback", "slot", "override"]
   localization: ["route language", "Accept-Language", "i18n", "multilingual data"]
   auditing: ["operation log", "change log", "NLog", "transaction"]

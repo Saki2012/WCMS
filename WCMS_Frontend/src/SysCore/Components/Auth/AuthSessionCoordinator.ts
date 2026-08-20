@@ -1,5 +1,6 @@
 // #region Property
 export type AuthSessionLogoutReason = "idle" | "manual";
+export type AuthSessionInitialState = "active" | "missing" | "expired";
 
 export interface IAuthSessionCoordinatorOptions
 {
@@ -18,6 +19,7 @@ export interface IAuthSessionCoordinatorOptions
 export interface IAuthSessionCoordinatorHandle
 {
     stop: () => void;
+    initialState: AuthSessionInitialState;
 }
 
 interface IAuthSessionLogoutEvent
@@ -33,7 +35,7 @@ interface IAuthSessionCoordinatorRuntime
     IdleTimer: number | null;
     ActivityFlushTimer: number | null;
     PendingActivityAt: number | null;
-    LatestActivityAt: number;
+    LatestActivityAt: number | null;
     LastSharedWriteAt: number;
     IdleRunning: boolean;
     IsLoggedOut: boolean;
@@ -47,21 +49,37 @@ const LOGOUT_EVENT_KEY = "wcms:auth:session:logout-event";
 const LOCAL_LOGOUT_EVENT_NAME = "wcms:auth:session:logout-local";
 const ACTIVITY_WRITE_THROTTLE_MS = 1_000;
 const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = ["keydown", "scroll", "click", "touchstart"];
+let memoryLastActivityAt: number | null = null;
 // #endregion
 
 // #region Public
+/** 登入成功後建立新的 Browser Auth Session Activity 起點。 */
+export const initializeAuthSessionActivity = (): void =>
+{
+    if (typeof window === "undefined") return;
+    writeSharedActivityAt(Date.now());
+};
+
 /** 啟用同 Browser／Origin 的 Auth Session Activity、Idle 與 Logout 協調。 */
 export const startAuthSessionCoordinator = (options: IAuthSessionCoordinatorOptions): IAuthSessionCoordinatorHandle =>
 {
-    if (typeof window === "undefined") return { stop: () => void 0 };
+    if (typeof window === "undefined") return { stop: () => void 0, initialState: "missing" };
 
-    const runtime = createCoordinatorRuntime(options);
-    writeSharedActivityAt(runtime.LatestActivityAt);
-    runtime.LastSharedWriteAt = runtime.LatestActivityAt;
-    applyActivity(runtime, runtime.LatestActivityAt);
-    bindCoordinatorEvents(runtime);
+    const activityAt = readSharedActivityAt();
+    const initialState = resolveInitialState(activityAt, options.idleMs);
+    const runtime = createCoordinatorRuntime(options, activityAt);
+    if (initialState === "active" && activityAt !== null)
+    {
+        applyActivity(runtime, activityAt);
+        bindCoordinatorEvents(runtime);
+    }
+    else
+    {
+        runtime.IsLoggedOut = true;
+        options.onActivityChanged?.(null, null);
+    }
 
-    return { stop: () => stopCoordinator(runtime) };
+    return { stop: () => stopCoordinator(runtime), initialState };
 };
 
 /** 發布 Browser Session Logout，讓同 Origin 其他 Tab 同步清除登入狀態。 */
@@ -82,25 +100,32 @@ export const publishAuthSessionLogout = (reason: AuthSessionLogoutReason): void 
 
 // #region Private
 /** 建立目前 Tab 使用的 Auth Session Coordinator Runtime。 */
-const createCoordinatorRuntime = (options: IAuthSessionCoordinatorOptions): IAuthSessionCoordinatorRuntime =>
+const createCoordinatorRuntime = (options: IAuthSessionCoordinatorOptions, activityAt: number | null): IAuthSessionCoordinatorRuntime =>
 {
     const runtime: IAuthSessionCoordinatorRuntime = {
         Options: options,
         IdleTimer: null,
         ActivityFlushTimer: null,
         PendingActivityAt: null,
-        LatestActivityAt: Date.now(),
-        LastSharedWriteAt: 0,
+        LatestActivityAt: activityAt,
+        LastSharedWriteAt: activityAt ?? 0,
         IdleRunning: false,
         IsLoggedOut: false,
         OnLocalActivity: (() => void 0) as EventListener,
         OnStorage: (_event: StorageEvent) => void 0,
         OnLocalLogout: (() => void 0) as EventListener,
     };
-    runtime.OnLocalActivity = () => handleLocalActivity(runtime);
+    runtime.OnLocalActivity = (event) => handleLocalActivity(runtime, event);
     runtime.OnStorage = (event) => handleStorage(runtime, event);
     runtime.OnLocalLogout = (event) => handleLocalLogout(runtime, event);
     return runtime;
+};
+
+/** 判斷既有 Shared LastActivity 是否仍在 Idle 有效期限內。 */
+const resolveInitialState = (activityAt: number | null, idleMs: number): AuthSessionInitialState =>
+{
+    if (activityAt === null) return "missing";
+    return Date.now() - activityAt >= idleMs ? "expired" : "active";
 };
 
 /** 綁定目前 Tab 的使用者操作與跨 Tab Session 事件。 */
@@ -124,7 +149,7 @@ const stopCoordinator = (runtime: IAuthSessionCoordinatorRuntime): void =>
 /** 套用最新 Browser Activity 並依 Deadline 重排 Idle Timer。 */
 const applyActivity = (runtime: IAuthSessionCoordinatorRuntime, activityAt: number): void =>
 {
-    if (runtime.IsLoggedOut || activityAt < runtime.LatestActivityAt) return;
+    if (runtime.IsLoggedOut || (runtime.LatestActivityAt !== null && activityAt < runtime.LatestActivityAt)) return;
     runtime.LatestActivityAt = activityAt;
     const idleDeadlineAt = activityAt + runtime.Options.idleMs;
     runtime.Options.onActivityChanged?.(activityAt, idleDeadlineAt);
@@ -133,10 +158,10 @@ const applyActivity = (runtime: IAuthSessionCoordinatorRuntime, activityAt: numb
     runtime.IdleTimer = window.setTimeout(() => void handleIdleTimer(runtime), delay);
 };
 
-/** 記錄目前 Tab 的真實使用者操作，並通知 Browser Shared Session。 */
-const handleLocalActivity = (runtime: IAuthSessionCoordinatorRuntime): void =>
+/** 記錄目前 Tab 的可信任使用者操作，並通知 Browser Shared Session。 */
+const handleLocalActivity = (runtime: IAuthSessionCoordinatorRuntime, event: Event): void =>
 {
-    if (runtime.IsLoggedOut) return;
+    if (runtime.IsLoggedOut || !event.isTrusted) return;
     const activityAt = Date.now();
     applyActivity(runtime, activityAt);
     queueSharedActivity(runtime, activityAt);
@@ -173,8 +198,8 @@ const handleIdleTimer = async (runtime: IAuthSessionCoordinatorRuntime): Promise
 {
     if (runtime.IsLoggedOut || runtime.IdleRunning) return;
     const sharedActivityAt = readSharedActivityAt();
-    const effectiveActivityAt = Math.max(runtime.LatestActivityAt, sharedActivityAt ?? 0);
-    if (Date.now() - effectiveActivityAt < runtime.Options.idleMs)
+    const effectiveActivityAt = Math.max(runtime.LatestActivityAt ?? 0, sharedActivityAt ?? 0);
+    if (effectiveActivityAt > 0 && Date.now() - effectiveActivityAt < runtime.Options.idleMs)
     {
         applyActivity(runtime, effectiveActivityAt);
         return;
@@ -219,7 +244,7 @@ const handleSessionLogout = (runtime: IAuthSessionCoordinatorRuntime, reason: Au
     clearIdleTimer(runtime);
     clearActivityFlushTimer(runtime);
     runtime.PendingActivityAt = null;
-    runtime.LatestActivityAt = 0;
+    runtime.LatestActivityAt = null;
     runtime.Options.onActivityChanged?.(null, null);
     runtime.Options.onSessionLogout?.(reason);
 };
@@ -240,22 +265,25 @@ const clearActivityFlushTimer = (runtime: IAuthSessionCoordinatorRuntime): void 
     runtime.ActivityFlushTimer = null;
 };
 
-/** 讀取 Browser Shared 的最後活動時間。 */
+/** 讀取 Browser Shared 的最後活動時間；Storage 不可用時沿用目前 Tab Memory。 */
 const readSharedActivityAt = (): number | null =>
 {
     try
     {
-        return parseTimestamp(window.localStorage.getItem(LAST_ACTIVITY_KEY));
+        const stored = parseTimestamp(window.localStorage.getItem(LAST_ACTIVITY_KEY));
+        if (stored !== null) memoryLastActivityAt = stored;
+        return stored ?? memoryLastActivityAt;
     }
     catch
     {
-        return null;
+        return memoryLastActivityAt;
     }
 };
 
 /** 寫入 Browser Shared 的最後活動時間，只允許時間往前推進。 */
 const writeSharedActivityAt = (activityAt: number): void =>
 {
+    memoryLastActivityAt = Math.max(memoryLastActivityAt ?? 0, activityAt);
     try
     {
         const current = parseTimestamp(window.localStorage.getItem(LAST_ACTIVITY_KEY));
@@ -264,13 +292,14 @@ const writeSharedActivityAt = (activityAt: number): void =>
     }
     catch
     {
-        // localStorage 不可用時維持單 Tab Runtime，不讓 Auth UI 因 Storage 例外中斷。
+        // localStorage 不可用時維持單 Tab Memory，不讓 Auth UI 因 Storage 例外中斷。
     }
 };
 
 /** 清除 Browser Shared Activity，避免新 Session 沿用舊 Deadline。 */
 const removeSharedActivity = (): void =>
 {
+    memoryLastActivityAt = null;
     try
     {
         window.localStorage.removeItem(LAST_ACTIVITY_KEY);
@@ -290,7 +319,7 @@ const writeLogoutEvent = (logoutEvent: IAuthSessionLogoutEvent): void =>
     }
     catch
     {
-        // localStorage 不可用時仍透過 Local CustomEvent 完成本 Tab 登出。
+        // localStorage 不可用時仍保留目前 Tab 的登出流程。
     }
 };
 
