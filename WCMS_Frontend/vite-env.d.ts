@@ -5,6 +5,8 @@ interface ImportMetaEnv
     readonly VITE_APP_VERSION?: string;
     /** 目前啟用的 Spec Code；Feature 模式不設定。 */
     readonly VITE_SPEC_CODE?: string;
+    /** 明確切換 Bearer 模式；未設定時使用 Cookie Auth。 */
+    readonly VITE_AUTH_MODE?: string;
 }
 interface ImportMeta
 {

@@ -1,5 +1,5 @@
-version: "1.3"
-updated_at: "2026-08-10"
+version: "1.4"
+updated_at: "2026-08-14"
 purpose: "WCMS AI 快速定位索引；只提供導覽與搜尋入口，不取代正式架構、開發規範或實際程式碼。"
 
 repository:
@@ -22,10 +22,12 @@ reading_order:
   - "Docs/AI_INDEX.yml"
   - "Docs/01_研發與技術文件/01_系統架構/01_整體專案架構.md"
   - "依任務閱讀前端或後端專案架構"
+  - "涉及登入、SaaS Membership、購物車、多分頁或同裝置共享 Browser State 時，追加閱讀 04_前端同裝置SharedState與多分頁架構.md"
   - "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
   - "依任務閱讀前端或後端開發規範"
   - "視任務閱讀 Git 與 Commit、品質驗證或開發歷程文件"
   - "白箱任務追加閱讀 AI 白箱 README、RULE_REGISTRY.yml 與對應檢測規範"
+  - "Shared State／Multi-Tab 白箱追加閱讀 Topics/BrowserSharedState.md"
   - "QA 任務追加閱讀 QA README 與 WCMS-QA-GOV-001 正式生命週期"
   - "核對指定分支的實際程式碼、Issue、PR 與 Commit"
 
@@ -36,6 +38,7 @@ navigation:
     overall_architecture: "Docs/01_研發與技術文件/01_系統架構/01_整體專案架構.md"
     frontend_architecture: "Docs/01_研發與技術文件/01_系統架構/02_前端專案架構.md"
     backend_architecture: "Docs/01_研發與技術文件/01_系統架構/03_後端專案架構.md"
+    frontend_shared_state_architecture: "Docs/01_研發與技術文件/01_系統架構/04_前端同裝置SharedState與多分頁架構.md"
     common_rules: "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
     frontend_rules: "Docs/01_研發與技術文件/02_開發規範/02_前端開發規範.md"
     backend_rules: "Docs/01_研發與技術文件/02_開發規範/03_後端開發規範.md"
@@ -45,6 +48,7 @@ navigation:
     whitebox_rule_registry: "Docs/03_品質與驗證文件/01_AI白箱檢測/RULE_REGISTRY.yml"
     whitebox_unit: "Docs/03_品質與驗證文件/01_AI白箱檢測/01_需求與單元白箱檢測.md"
     whitebox_focused: "Docs/03_品質與驗證文件/01_AI白箱檢測/02_專項白箱檢測.md"
+    whitebox_browser_shared_state_topic: "Docs/03_品質與驗證文件/01_AI白箱檢測/Topics/BrowserSharedState.md"
     whitebox_regression: "Docs/03_品質與驗證文件/01_AI白箱檢測/03_全專案白箱回歸檢測.md"
     qa_root: "Docs/03_品質與驗證文件/02_QA測試/README.md"
     qa_lifecycle: "Docs/03_品質與驗證文件/02_QA測試/01_WCMS_QA_RD_AI協作與開單驗證生命週期.md"
@@ -106,6 +110,7 @@ search_sequence:
   - "搜尋 Feature 的既有 Model、Biz、API、Hook、Loader、Component 與 Adapter。"
   - "搜尋 SysCore、Library、Helper、Template、FeatureDriver、Service 與 Repository 的共用能力。"
   - "搜尋目前 Spec 與相近 Spec 的延伸實作，但不得直接複製客製邏輯。"
+  - "涉及 Cookie、Session、Refresh、SaaS Membership、Cart 或其他共享 State 時，建立 Tab／Browser／Backend Scope Map。"
   - "白箱任務依 RULE_REGISTRY.yml 篩選 active Rule，並核對其正式來源與適用範圍。"
   - "QA 任務依 WCMS-QA-GOV-001 核對 Issue 歷史、版本鏈、修正與複驗證據。"
   - "搜尋相關 Issue、PR 與 Commit，確認修改原因及歷史決策。"
@@ -116,7 +121,7 @@ risk_tags:
   rendering: ["SSR", "CSR", "hydration", "loader", "browser API"]
   security: ["weakness scan", "CSP", "XSRF", "CORS", "JWT", "cookie"]
   data_contract: ["OpenAPI", "ApiResponse", "nullable", "optional", "DateOnly", "UTC"]
-  runtime_state: ["cache", "token state", "permission", "output cache"]
+  runtime_state: ["cache", "token state", "permission", "output cache", "multi-tab", "shared state", "browser session", "SaaS membership", "cart state"]
   customization: ["Feature", "Spec", "fallback", "slot", "override"]
   localization: ["route language", "Accept-Language", "i18n", "multilingual data"]
   auditing: ["operation log", "change log", "NLog", "transaction"]

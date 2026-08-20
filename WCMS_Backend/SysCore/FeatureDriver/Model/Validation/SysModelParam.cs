@@ -2,6 +2,10 @@
 
 public static class DbStrLen
 {
+    /// <summary>
+    /// 帳號長度(前台跟後台，只要登入的都要用到)
+    /// </summary>
+    public const int AccountId = 64;
     public const int ID = 20;
     public const int Name= 50;
     public const int Name_Eng= 150;
