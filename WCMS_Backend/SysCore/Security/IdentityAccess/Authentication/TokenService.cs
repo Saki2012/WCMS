@@ -14,7 +14,7 @@ public sealed class TokenService(TokenStateCache tokenStateCache, IConfiguration
 {
     #region Property
     private const string TokenIdFormat = "N";
-    private const string DefaultAccessTokenMinutes = "15";
+    private const string DefaultAccessTokenMinutes = "30";
     private const string DefaultRefreshTokenDays = "7";
     private TokenStateCache TokenStateCache { get; } = tokenStateCache;
     private IConfiguration Configuration { get; } = cfg;

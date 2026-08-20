@@ -147,7 +147,7 @@ public class AuthController(
     {
         CancellationToken ct = HttpContext.RequestAborted;
         var jti = User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
-        var ttl = TimeSpan.FromMinutes(int.Parse(_cfg[SysParam.Configuration.Jwt.AccessTokenMinutesPath] ?? "15"));
+        var ttl = TimeSpan.FromMinutes(int.Parse(_cfg[SysParam.Configuration.Jwt.AccessTokenMinutesPath] ?? "30"));
         if (!string.IsNullOrEmpty(jti)) await _tokenSvc.BlacklistAccessAsync(jti, ttl, ct);
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
         if (Request.Cookies.TryGetValue(SysParam.CookieNames.RefreshTokenId, out var rtid) && !string.IsNullOrEmpty(userId)) await _tokenSvc.RevokeRefreshAsync(rtid, ct);
@@ -227,7 +227,7 @@ public class AuthController(
             ServerTimeUtc = now,
             AccessExpiresAtUtc = accessExpires,
             AccessRemainingSeconds = remaining,
-            AccessTokenMinutes = int.Parse(_cfg[SysParam.Configuration.Jwt.AccessTokenMinutesPath] ?? "15"),
+            AccessTokenMinutes = int.Parse(_cfg[SysParam.Configuration.Jwt.AccessTokenMinutesPath] ?? "30"),
             RefreshTokenDays = int.Parse(_cfg[SysParam.Configuration.Jwt.RefreshTokenDaysPath] ?? "7"),
             AccessCookiePresent = !string.IsNullOrEmpty(accessToken),
             RefreshCookiePresent = !string.IsNullOrEmpty(refreshId),

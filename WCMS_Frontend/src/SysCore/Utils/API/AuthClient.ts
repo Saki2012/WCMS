@@ -1,6 +1,8 @@
 import {
+    initializeAuthSessionActivity,
     publishAuthSessionLogout,
     startAuthSessionCoordinator,
+    type AuthSessionInitialState,
     type AuthSessionLogoutReason,
     type IAuthSessionCoordinatorHandle,
 } from "@/SysCore/Components/Auth/AuthSessionCoordinator";
@@ -91,6 +93,12 @@ interface IAuthIdleRuntime
     RefreshThrottleMs: number;
 }
 
+export interface IAuthIdleGuardHandle
+{
+    stop: () => void;
+    initialState: AuthSessionInitialState;
+}
+
 const authRuntimeSnapshot: IAuthRuntimeSnapshot = {
     IdleTimeoutMs: 30 * 60 * 1000,
     RefreshThrottleMs: 5 * 60 * 1000,
@@ -106,7 +114,12 @@ const authRuntimeSnapshot: IAuthRuntimeSnapshot = {
 // #region Public
 export const AuthAPI = {
     me: () => api.get<ICurrentUserContextDto>("/Auth/Me"),
-    login: (p: { account: string; password: string; }) => api.post<ICurrentUserContextDto>("/Auth/Login", p),
+    login: async (p: { account: string; password: string; }) =>
+    {
+        const response = await api.post<ICurrentUserContextDto>("/Auth/Login", p);
+        initializeAuthSessionActivity();
+        return response;
+    },
     logout: () => postWithXsrf("/Auth/Logout"),
     refresh: () => refreshAuthSession(),
     sessionDiagnostics: () => api.get<IAuthSessionDiagnosticsDto>("/Auth/SessionDiagnostics"),
@@ -119,11 +132,11 @@ export const getAuthRuntimeSnapshot = (): IAuthRuntimeSnapshot =>
 };
 
 /** 啟用 Browser Shared 閒置登出與目前 Tab 活動續期機制。 */
-export const startAuthIdleGuard = (opt?: IAuthIdleOptions) =>
+export const startAuthIdleGuard = (opt?: IAuthIdleOptions): IAuthIdleGuardHandle =>
 {
     const idleMs = opt?.idleMs ?? 30 * 60 * 1000;
     const refreshThrottleMs = opt?.refreshThrottleMs ?? 5 * 60 * 1000;
-    if (typeof window === "undefined") return { stop: () => void 0 };
+    if (typeof window === "undefined") return { stop: () => void 0, initialState: "missing" };
 
     const runtime: IAuthIdleRuntime = { LastRefreshAt: 0, RefreshThrottleMs: refreshThrottleMs };
     authRuntimeSnapshot.IdleTimeoutMs = idleMs;
@@ -135,7 +148,8 @@ export const startAuthIdleGuard = (opt?: IAuthIdleOptions) =>
         onIdle: handleIdleLogout,
         onSessionLogout: (reason) => opt?.onSessionLogout?.(reason),
     });
-    return { stop: () => stopAuthIdleGuard(coordinator) };
+    if (coordinator.initialState !== "active") void handleIdleLogout();
+    return { stop: () => stopAuthIdleGuard(coordinator), initialState: coordinator.initialState };
 };
 
 export const UserAPI = { create: (dto: ICreateUserDto) => api.post<ICreateUserResult>("/User/Create", dto).then(r => r.data) } as const;
