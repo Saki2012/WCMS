@@ -125,8 +125,8 @@ Frontend Auth Context
 - `click` 等既定有效操作是否能重置 Idle；`mousemove` 是否被錯誤當成無限續命來源。
 - Timer 到期時是否重新確認 Shared LastActivityAt，而不是直接 Logout。
 - Background Tab 的 Idle 是否可能登出整個 Browser Session。
-- Reload／F5／新 Tab／Browser Reopen 是否錯誤把 `Date.now()` 當成新 Activity。
-- Reload 時是否沿用原 LastActivity／剩餘 Deadline，而非重給完整 Idle Window。
+- F5／Ctrl+R 等若由真實使用者 `keydown` 觸發，可依產品規則視為有效 Activity；但 Reload 完成後的 Coordinator mount 不得再額外以 `Date.now()` 建立 Activity。
+- 新 Tab／Browser Reopen 在沒有真實使用者 Activity 時，不得因初始化把 `Date.now()` 當成新 LastActivity。
 - LastActivity 缺失或已過期時，是否先做 Idle Gate，再決定能否執行 `/Auth/Me`／Refresh。
 - `/Auth/Me`、Refresh、focus、visibilitychange 本身是否錯誤延長 Idle。
 - Logout 的語意是 Tab、Browser Session 還是 Account／Device Session。
@@ -243,7 +243,7 @@ Tab B Checkout
 - Background Tab Timer throttling 對實際 Timeout 的影響。
 - Web Locks／storage event 的 Browser 支援與實際時序。
 - 修正後是否真的只送一支 Refresh，或 Backend 是否只允許一支成功。
-- Reload／Browser Reopen 是否真的沿用原 Idle Deadline，而非重新取得完整 Timeout。
+- Browser Close／Reopen 是否真的不會自行重設 LastActivity；F5 若由可信任 `keydown` 觸發則可依 Session Policy 視為有效 Activity。
 
 不得把靜態 Race Window 直接描述成已實機重現，也不得把 Code 已修改直接描述成 Runtime Regression Passed。
 
@@ -275,7 +275,7 @@ Auth 專項另外觀察：
 - Token／RTID Fingerprint Rotation。
 - Cookie 是否存在。
 - Idle Deadline 與 Last Activity。
-- Reload 前後 Idle Deadline 是否維持原生命週期。
+- F5 若由可信任 `keydown` 觸發可重設 Idle；Browser Close／Reopen 不得在初始化時自行產生新的 LastActivity。
 - Browser 是否支援 Web Locks。
 
 ---
@@ -348,24 +348,38 @@ R1 → R3 → 200
 
 ### 8.3 LastActivity Reload／Reopen 生命週期
 
-2026-08-20 收斂規則：
+2026-08-20 最終收斂規則：
 
 ```text
 Login 成功 → 建立 LastActivity
 有效 click / keydown / scroll / touchstart → 延後 Idle
+F5 / Ctrl+R 等真實 keydown → 視為 User Activity，可延後 Idle
 mousemove → 不延後 Idle
-Reload / F5 / 新 Tab / Browser Reopen / Me / Refresh → 不得自行延後 Idle
+Coordinator mount / 新 Tab / Browser Reopen / Me / Refresh → 不得自行延後 Idle
 ```
 
 程式已改為 Coordinator 啟動先讀既有 LastActivity；缺失或過期時不先執行 Auth Probe／Refresh 續命。
 
-目前狀態：
+2026-08-20 實機 Regression：
+
+```text
+Case 1：DEV Idle 剩餘約 30 秒時由使用者按 F5
+→ Idle 重設為完整 2 分鐘
+→ 因 F5 會產生可信任 keydown，依產品規則視為有效使用者 Activity
+→ PASS
+
+Case 2：登入後關閉 Browser，超過 DEV 2 分鐘後重新進入 /Server
+→ LastActivity 沒有因 Browser Reopen 重設
+→ 超過 Idle 後進入 Logout / Login
+→ 未被 Auth Probe / Refresh 救回
+→ PASS
+```
+
+因此本階段可標示：
 
 - Policy Confirmed。
 - Fix Implemented。
-- Reload／Reopen Runtime Regression Pending。
-
-在實際驗證「剩餘 Idle 時 F5 不重回完整 Timeout」及「Browser 關閉超過 Idle 再開回 Login」前，不得標示 Regression Passed。
+- Runtime Regression Passed。
 
 ---
 
