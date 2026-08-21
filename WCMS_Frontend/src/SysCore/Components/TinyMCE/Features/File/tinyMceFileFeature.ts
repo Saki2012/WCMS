@@ -465,19 +465,11 @@ const getSelectedText = (
         .trim();
 };
 
-/** 檔案選取後，以不含副檔名的檔名補上文字與標題預設值。 */
-const buildFallbackDialogData = (
-    data: TinyMceFileLinkDialogData,
-    file: File,
-): TinyMceFileLinkDialogData =>
+/** 選擇檔案後，一律以不含副檔名的檔名重設文字與標題。 */
+const buildFallbackDialogData = (data: TinyMceFileLinkDialogData, file: File): TinyMceFileLinkDialogData =>
 {
     const fallbackName = removeFileExtension(file.name);
-
-    return {
-        ...data,
-        text: data.text?.trim() || fallbackName,
-        title: data.title?.trim() || fallbackName,
-    };
+    return { ...data, text: fallbackName, title: fallbackName };
 };
 
 /** 依下載/預覽模式產生公開網址並插入連結。 */
