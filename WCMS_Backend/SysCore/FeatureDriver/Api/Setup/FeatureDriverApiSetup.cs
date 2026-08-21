@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.OpenApi;
 using System.ComponentModel.DataAnnotations;
@@ -41,13 +41,14 @@ internal static class FeatureDriverApiSetup
     private const string RequiredErrorKey = "WCMS_REQUIRED";
 
     /// <summary>
-    /// 註冊 Controller、Spec Filter 與 System.Text.Json 規則。
+    /// 註冊 Controller、共用安全 Filter、Spec Filter 與 System.Text.Json 規則。
     /// </summary>
     private static void AddControllers(IServiceCollection services)
     {
         services.AddControllers(options =>
         {
             options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+            options.Filters.Add<WriteInputSecurityFilter>();
             options.Filters.Add<SpecApiAccessFilter>();
         }).AddJsonOptions(options =>
         {
@@ -128,8 +129,18 @@ internal static class FeatureDriverApiSetup
         PropertyInfo? property = FindModelProperty(context, key);
         string displayName = property == null ? GetFieldName(key) : i18n.GetLabel(property);
         string errorText = context.ModelState[key]?.Errors.FirstOrDefault()?.ErrorMessage ?? string.Empty;
+        if (TryAddUnsafeInputMessage(message, errorText, displayName)) return;
         if (TryAddLibNumMessage(message, property, errorText, displayName)) return;
         AddDefaultInvalidModelMessage(message, property, errorText, displayName);
+    }
+    /// <summary>
+    /// 將共用寫入安全檢核轉成一般欄位格式錯誤，避免回傳 SQL 偵測細節。
+    /// </summary>
+    private static bool TryAddUnsafeInputMessage(ErrorHelper message, string errorText, string displayName)
+    {
+        if (errorText != WriteInputSecurityFilter.UnsafeInputErrorKey) return false;
+        message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00035, displayName);
+        return true;
     }
     /// <summary>
     /// 將 LibNum 驗證錯誤轉成對應的 SysMessage。
