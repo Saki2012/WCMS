@@ -26,9 +26,24 @@ internal sealed class FormConditionExpressionBuilder(ModelTypeMetadataCache mode
         var param = Expression.Parameter(modelType, "x");
         string normalized = NormalizeCondition(modelType, condition, out object[] args);
         if (string.IsNullOrWhiteSpace(normalized)) return Expression.Lambda(Expression.Constant(true), param);
-        var config = new ParsingConfig { ResolveTypesBySimpleName = true, AllowNewToEvaluateAnyType = true, UseParameterizedNamesInDynamicQuery = true, CustomTypeProvider = new WcmsTypeProvider() };
+        ParsingConfig config = CreateParsingConfig();
         var lambda = DynamicExpressionParser.ParseLambda(config, new[] { param }, typeof(bool), normalized, args);
         return lambda;
+    }
+    /// <summary>
+    /// 建立受限的 Dynamic LINQ 解析設定，避免查詢字串建立任意型別。
+    /// </summary>
+    private static ParsingConfig CreateParsingConfig()
+    {
+        return new ParsingConfig
+        {
+            ResolveTypesBySimpleName = true,
+            AllowNewToEvaluateAnyType = false,
+            DisallowNewKeyword = true,
+            AllowEqualsAndToStringMethodsOnObject = false,
+            UseParameterizedNamesInDynamicQuery = true,
+            CustomTypeProvider = new WcmsTypeProvider()
+        };
     }
     // 1) 取代原本的 NormalizeCondition
     private string NormalizeCondition(Type modelType, string rawCondition, out object[] args)
