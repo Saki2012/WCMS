@@ -122,26 +122,29 @@ public class BizService<TFormModel> : BizBase
             ct);
     }
     /// <summary>
-    /// 新增 Form Aggregate。
+    /// 新增 Form Aggregate，成功後回傳 DB 最終完整資料。
     /// </summary>
     public async Task<TFormModel> BizCreateDataAsync(TFormModel data, CancellationToken ct = default)
     {
-        return await ExecTransactionAsync(token => CreateInTransactionAsync(data, token), async (_, token) =>
+        TFormModel result = await ExecTransactionAsync(token => CreateInTransactionAsync(data, token), async (_, token) =>
             {
                 await AfterSaveChanges(FuncAction.Create, token);
                 Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
             }, ct);
+        string internalId = GraphCollector.GetHeader(result).InternalId;
+        return await ReloadCommittedDataAsync(internalId, result, ct);
     }
     /// <summary>
-    /// 修改 Form Aggregate。
+    /// 修改 Form Aggregate，成功後回傳 DB 最終完整資料。
     /// </summary>
     public async Task<TFormModel> BizUpdateDataAsync(string internalId, TFormModel newData, CancellationToken ct = default)
     {
-        return await ExecTransactionAsync(token => UpdateInTransactionAsync(internalId, newData, token), async (_, token) =>
+        TFormModel result = await ExecTransactionAsync(token => UpdateInTransactionAsync(internalId, newData, token), async (_, token) =>
             {
                 await AfterSaveChanges(FuncAction.Update, token);
                 Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00006);
             }, ct);
+        return await ReloadCommittedDataAsync(internalId, result, ct);
     }
     /// <summary>
     /// 刪除 Form Aggregate。
@@ -155,11 +158,11 @@ public class BizService<TFormModel> : BizBase
             }, ct);
     }
     /// <summary>
-    /// 作廢或恢復 Form Aggregate。
+    /// 作廢或恢復 Form Aggregate，成功後回傳 DB 最終完整資料。
     /// </summary>
     public async Task<TFormModel> BizInvalidDataAsync(string internalId, bool status, CancellationToken ct = default)
     {
-        return await ExecTransactionAsync(
+        TFormModel result = await ExecTransactionAsync(
             token => InvalidInTransactionAsync(internalId, status, token),
             async (_, token) =>
             {
@@ -167,6 +170,7 @@ public class BizService<TFormModel> : BizBase
                 Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00008);
             },
             ct);
+        return await ReloadCommittedDataAsync(internalId, result, ct);
     }
     /// <summary>
     /// 查詢單筆 Form Aggregate。
@@ -337,7 +341,7 @@ public class BizService<TFormModel> : BizBase
         return Task.CompletedTask;
     }
     /// <summary>
-    /// Repository 寫入後、Commit 前 Feature Hook。
+    /// SaveChanges / Commit 前 Feature Hook；newSet 代表本次最終待保存資料。
     /// </summary>
     protected virtual Task AfterUpdate(TFormModel? oldSet, TFormModel? newSet, FuncAction action, TransStatus status, CancellationToken ct = default)
     {
@@ -417,9 +421,10 @@ public class BizService<TFormModel> : BizBase
         if (Message.HasError) return newData;
         FormDetailRowNoAllocator.NormalizeRowNos(GraphCollector.CollectDetailCollections(newData));
         TFormModel snapshot = oldData.Snapshot();
+        await AfterUpdate(snapshot, newData, FuncAction.Update, TransStatus.Difference, ct);
+        if (Message.HasError) return newData;
         await DoUpdateAsync(oldData, newData, ct);
-        await AfterUpdate(snapshot, oldData, FuncAction.Update, TransStatus.Difference, ct);
-        return Message.HasError ? newData : oldData;
+        return newData;
     }
     /// <summary>
     /// 執行刪除交易內流程。
@@ -447,11 +452,21 @@ public class BizService<TFormModel> : BizBase
         TFormModel snapshot = oldData.Snapshot();
         TFormModel newData = oldData.Snapshot();
         DoInvalidSet(newData, status);
-        await BeforeUpdate(oldData, FuncAction.Invalid, ct);
+        await BeforeUpdate(newData, FuncAction.Invalid, ct);
+        if (Message.HasError) return newData;
+        await AfterUpdate(snapshot, newData, FuncAction.Invalid, TransStatus.Difference, ct);
         if (Message.HasError) return newData;
         await DoUpdateAsync(oldData, newData, ct);
-        await AfterUpdate(snapshot, oldData, FuncAction.Invalid, TransStatus.Difference, ct);
-        return Message.HasError ? newData : oldData;
+        return newData;
+    }
+    /// <summary>
+    /// 成功提交後重新查詢完整 Aggregate，確保回傳 DB 最終狀態。
+    /// </summary>
+    private async Task<TFormModel> ReloadCommittedDataAsync(string internalId, TFormModel fallback, CancellationToken ct)
+    {
+        if (Message.HasError || fallback == null || string.IsNullOrWhiteSpace(internalId)) return fallback;
+        TFormModel committed = await DoQueryDataAsync(internalId, ct);
+        return committed ?? fallback;
     }
     /// <summary>
     /// 建立 Graph Collector。

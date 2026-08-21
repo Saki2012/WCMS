@@ -34,9 +34,7 @@ internal sealed class FormWriteOperations<TFormModel>(
     {
         DbModel rootModel = FormModelMetadataResolver.GetRootModel(data);
         await ((dynamic)GraphRepo.RootRepo).CreateAsync((dynamic)rootModel, ct);
-        foreach (object item in GraphCollector.CollectDetailItems(data))
-            await ((dynamic)ResolveRepo(item.GetType()))
-                .CreateAsync((dynamic)item, ct);
+        foreach (object item in GraphCollector.CollectDetailItems(data)) await ((dynamic)ResolveRepo(item.GetType())).CreateAsync((dynamic)item, ct);
     }
     /// <summary>
     /// 更新 Form Aggregate Root 與所有 Detail / SubDetail。
@@ -47,8 +45,7 @@ internal sealed class FormWriteOperations<TFormModel>(
         LifecycleFieldApplier.PreserveCreateInfo(oldData, newData);
         DbModel oldRoot = FormModelMetadataResolver.GetRootModel(oldData);
         DbModel newRoot = FormModelMetadataResolver.GetRootModel(newData);
-        await ((dynamic)GraphRepo.RootRepo)
-            .UpdateAsync((dynamic)oldRoot, (dynamic)newRoot, ct);
+        await ((dynamic)GraphRepo.RootRepo).UpdateAsync((dynamic)oldRoot, (dynamic)newRoot, ct);
         await AggregateSynchronizer.SyncAsync(oldData, newData, ct);
     }
     /// <summary>
@@ -56,13 +53,8 @@ internal sealed class FormWriteOperations<TFormModel>(
     /// </summary>
     internal async Task DeleteAsync(TFormModel oldData, CancellationToken ct = default)
     {
-        IEnumerable<object> items = GraphCollector
-            .CollectDetailItems(oldData)
-            .AsEnumerable()
-            .Reverse();
-        foreach (object item in items)
-            await ((dynamic)ResolveRepo(item.GetType()))
-                .DeleteAsync((dynamic)item, ct);
+        IEnumerable<object> items = GraphCollector.CollectDetailItems(oldData).AsEnumerable().Reverse();
+        foreach (object item in items) await ((dynamic)ResolveRepo(item.GetType())).DeleteAsync((dynamic)item, ct);
         DbModel rootModel = FormModelMetadataResolver.GetRootModel(oldData);
         await ((dynamic)GraphRepo.RootRepo).DeleteAsync((dynamic)rootModel, ct);
     }

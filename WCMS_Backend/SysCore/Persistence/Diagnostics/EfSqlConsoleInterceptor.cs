@@ -50,6 +50,80 @@ public sealed class EfSqlConsoleInterceptor : DbCommandInterceptor
         return base.NonQueryExecuted(command, eventData, result);
     }
 
+    /// <summary>
+    /// 攔截非同步 Reader SQL，輸出 CommandText 與 Parameters。
+    /// </summary>
+    public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+        DbCommand command,
+        CommandEventData eventData,
+        InterceptionResult<DbDataReader> result,
+        CancellationToken cancellationToken = default)
+    {
+        Start(command);
+        Write(command, eventData);
+
+        return base.ReaderExecutingAsync(
+            command,
+            eventData,
+            result,
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// 完成非同步 Reader SQL 後輸出執行時間。
+    /// </summary>
+    public override ValueTask<DbDataReader> ReaderExecutedAsync(
+        DbCommand command,
+        CommandExecutedEventData eventData,
+        DbDataReader result,
+        CancellationToken cancellationToken = default)
+    {
+        Stop(command, eventData);
+
+        return base.ReaderExecutedAsync(
+            command,
+            eventData,
+            result,
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// 攔截非同步 NonQuery SQL，輸出 CommandText 與 Parameters。
+    /// </summary>
+    public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
+        DbCommand command,
+        CommandEventData eventData,
+        InterceptionResult<int> result,
+        CancellationToken cancellationToken = default)
+    {
+        Start(command);
+        Write(command, eventData);
+
+        return base.NonQueryExecutingAsync(
+            command,
+            eventData,
+            result,
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// 完成非同步 NonQuery SQL 後輸出執行時間。
+    /// </summary>
+    public override ValueTask<int> NonQueryExecutedAsync(
+        DbCommand command,
+        CommandExecutedEventData eventData,
+        int result,
+        CancellationToken cancellationToken = default)
+    {
+        Stop(command, eventData);
+
+        return base.NonQueryExecutedAsync(
+            command,
+            eventData,
+            result,
+            cancellationToken);
+    }
+
     private void Start(DbCommand command)
     {
         var sw = new Stopwatch();
