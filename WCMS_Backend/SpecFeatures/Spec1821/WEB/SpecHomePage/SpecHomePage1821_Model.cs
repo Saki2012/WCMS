@@ -99,8 +99,6 @@ public class SpecHomePage1821_Shortcut : FormDetailModel
     [Key]
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, SpecModelDisplayName.HomePageId)]
     public string HomePageId { get; set; } = string.Empty;
-    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, SpecModelDisplayName.ShortcutCode)]
-    public string ShortcutCode { get; set; } = string.Empty;
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Title, DisplayName.Common_Title)]
     public string Title { get; set; } = string.Empty;
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Title, DisplayName.Common_SubTitle)]

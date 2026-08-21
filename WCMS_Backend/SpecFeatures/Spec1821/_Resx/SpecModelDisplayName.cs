@@ -44,8 +44,6 @@ public static class SpecModelDisplayName
     public const string BannerFileId = "Spec_BannerFileId";
     /// <summary>Banner 圖片說明</summary>
     public const string BannerFileDescription = "Spec_BannerFileDescription";
-    /// <summary>快捷按鈕代碼</summary>
-    public const string ShortcutCode = "Spec_ShortcutCode";
     /// <summary>圖示檔案</summary>
     public const string IconFileId = "Spec_IconFileId";
     /// <summary>圖示檔案說明</summary>
