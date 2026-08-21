@@ -9,7 +9,7 @@ import { useCallback, useMemo, useRef } from "react";
 import { INTERNAL_ATTR } from "./Core/tinyMceConstants";
 import type { TinyMCEEditor } from "./Core/tinyMceTypes";
 import { useContentTransform } from "./Core/useContentTransform";
-import { applyFileLinkToSelection, pickLocalFile, registerDownloadLinkTargetFieldBehavior } from "./Features/File/tinyMceFileFeature";
+import { applyFileLinkToSelection, openFileLinkDialog, pickLocalFile, registerDownloadLinkTargetFieldBehavior } from "./Features/File/tinyMceFileFeature";
 import { registerTinyMceFormatControls } from "./Features/Format/tinyMceFormatFeature";
 import { registerTinyMceParagraphIndentFeature } from "./Features/Format/tinyMceParagraphIndentFeature";
 import { openInsertIframeDialog } from "./Features/Iframe/tinyMceIframeFeature";
@@ -292,26 +292,11 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
 
                 editor.ui.registry.addButton("wcmsHr", { text: "HR", tooltip: "插入水平線", onAction: () => editor.insertContent("<hr />") });
 
-                // ★01 檔案連結插入按鈕（除了工具列外也提供）
+                // ★01 檔案連結插入按鈕：改由 TinyMCE Dialog 處理檔案、文字、標題、Target 與下載/預覽模式。
                 editor.ui.registry.addButton("filepicker", {
                     icon: "new-document",
-                    tooltip: "上傳檔案並插入下載連結",
-                    onAction: () =>
-                    {
-                        pickLocalFile(async (file) =>
-                        {
-                            try
-                            {
-                                const { isSuccess, internalId, name } = await uploadAndReturn(file);
-                                if (!isSuccess) return;
-                                const href = toUrl(internalId, "file");
-                                applyFileLinkToSelection(editor, { href, title: name ?? file.name, internalId, download: true });
-                            } catch
-                            {
-                                alert("上傳失敗");
-                            }
-                        });
-                    },
+                    tooltip: "上傳檔案並插入連結",
+                    onAction: () => openFileLinkDialog(editor, uploadAndReturn),
                 });
                 // AA：連結預設帶 title（以文字當 title，使用者可再改）
                 editor.on("ExecCommand", (cmd) =>
