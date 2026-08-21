@@ -28,7 +28,8 @@ internal sealed class FormLifecycleFieldApplier<TFormModel>(Func<User_DTO> opera
         if (header.CreateTime == null) header.CreateTime = now;
         header.ModifyUserId = user.UserId;
         if (header.ModifyTime == null) header.ModifyTime = now;
-        header.InternalId = Guid.NewGuid().ToString();
+        // 業務流程已預先建立 InternalId 時必須保留，避免 DB 與實體資源識別碼不一致。
+        if (string.IsNullOrWhiteSpace(header.InternalId)) header.InternalId = Guid.NewGuid().ToString();
     }
     /// <summary>
     /// 套用修改時的使用者與時間。

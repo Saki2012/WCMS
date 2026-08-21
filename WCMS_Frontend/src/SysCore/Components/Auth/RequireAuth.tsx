@@ -83,13 +83,22 @@ export const RequireAuth = ({ children }: Props) =>
         const idle = startAuthIdleGuard({
             idleMs: AUTH_IDLE_TIMEOUT_MS,
             refreshThrottleMs: AUTH_REFRESH_THROTTLE_MS,
-            onIdleLogout: () =>
+            onSessionLogout: () =>
             {
                 resetAuthProbe();
                 setCurrent(null);
                 setStatus("unauth");
             },
         });
+
+        if (idle.initialState !== "active")
+        {
+            resetAuthProbe();
+            setCurrent(null);
+            setStatus("unauth");
+            skipInitialCheckRef.current = false;
+            return () => idle.stop();
+        }
 
         if (!skipInitialCheckRef.current) void checkAuth({ force: true });
         skipInitialCheckRef.current = false;
@@ -146,7 +155,8 @@ const loadCurrentAuthContext = async (
         setAuthContextSnapshot(next);
         setCurrent(next);
         setStatus("ok");
-    } catch
+    }
+    catch
     {
         lastOK = false;
         lastCheckAt = Date.now();

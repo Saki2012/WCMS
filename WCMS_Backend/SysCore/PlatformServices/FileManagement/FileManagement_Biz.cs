@@ -758,8 +758,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     {
         if (file == null || file.Length == 0) return;
         string fullPath = BuildPhysicalFilePath(set);
-        string directory = Path.GetDirectoryName(fullPath)
-            ?? throw new InvalidOperationException("無法取得檔案儲存目錄。");
+        string directory = Path.GetDirectoryName(fullPath) ?? throw new InvalidOperationException("無法取得檔案儲存目錄。");
         Directory.CreateDirectory(directory);
         using var stream = new FileStream(fullPath, FileMode.Create);
         await file.CopyToAsync(stream);
@@ -1016,12 +1015,8 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// </summary>
     private static string BuildPhysicalFilePath(string path, string internalId, string fileExtension)
     {
-        string extension = (fileExtension ?? string.Empty)
-            .Trim()
-            .TrimStart('.');
-        string fileName = string.IsNullOrWhiteSpace(extension)
-            ? internalId
-            : $"{internalId}.{extension}";
+        string extension = (fileExtension ?? string.Empty).Trim().TrimStart('.');
+        string fileName = string.IsNullOrWhiteSpace(extension) ? internalId : $"{internalId}.{extension}";
         return Path.GetFullPath(Path.Combine(path ?? string.Empty, fileName));
     }
 

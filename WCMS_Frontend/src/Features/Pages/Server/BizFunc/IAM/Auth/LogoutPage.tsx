@@ -1,3 +1,4 @@
+import { publishAuthSessionLogout } from "@/SysCore/Components/Auth/AuthSessionCoordinator";
 import { resetAuthProbe } from "@/SysCore/Components/Auth/RequireAuth";
 import { AuthAPI } from "@/SysCore/Utils/API/AuthClient";
 import { useEffect } from "react";
@@ -21,6 +22,7 @@ export const LogoutPage = () => {
                 // 後端失敗就算了，前端仍視為已登出
             } finally
             {
+                publishAuthSessionLogout("manual"); // 同步通知同 Origin 其他 Tab 清除登入狀態
                 resetAuthProbe(); // 清掉 RequireAuth 的 5 分鐘快取
                 if (!alive) return;
                 nav("/Server/Login", { replace: true, state: { from: loc } });
