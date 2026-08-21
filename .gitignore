@@ -14,14 +14,22 @@ WCMS_Frontend/dist-ssr/
 WCMS_Frontend/dist-csr/
 # WCMS_Frontend/src/SpecFetures/3001
 
+# Frontend / Backend document & archive artifacts
+WCMS_Backend/**/*.docx
+WCMS_Backend/**/*.zip
+WCMS_Backend/**/*.rar
+WCMS_Backend/**/*.7z
+WCMS_Backend/**/*.html
+WCMS_Backend/**/*.PNG
+WCMS_Frontend/**/*.docx
+WCMS_Frontend/**/*.zip
+WCMS_Frontend/**/*.rar
+WCMS_Frontend/**/*.7z
+WCMS_Frontend/**/*.html
+WCMS_Frontend/**/*.PNG
+
 # Common
 /AGENTS.md
-*.docx
-*.zip
-*.rar
-*.7z
-*.html
-*.PNG
 prototype
 
 # Local test artifacts
