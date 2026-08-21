@@ -68,7 +68,7 @@ public class MatCategoryInfoField : FormDetailModel
     /// 類別 ID。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.CategoryId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.CategoryId)]
     public string CategoryId { get; set; } = string.Empty;
     /// <summary>
     /// 動態欄位 ID。
@@ -101,12 +101,12 @@ public class MatCategoryInfoFieldDisplay : FormDetailModel
     /// 類別 ID。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.CategoryId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.CategoryId)]
     public string CategoryId { get; set; } = string.Empty;
     /// <summary>
     /// 父行主鍵。
     /// </summary>
-    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.Reference, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 語系。

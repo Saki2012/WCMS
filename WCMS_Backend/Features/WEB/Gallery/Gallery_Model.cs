@@ -20,7 +20,7 @@ public class Gallery : HeaderModel
     /// 檔案分類ID
     /// </summary>
     [Required, Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.GalleryId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.GalleryId)]
     public string GalleryId { get; set; } = string.Empty;
     /// <summary>
     /// 類別ID(多個)
@@ -77,7 +77,7 @@ public class GalleryInfo : FormDetailModel
     /// 檔案分類ID
     /// </summary>
     [Required, Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.GalleryId)]
+    [LibField(ApiFieldMode.Reference, DisplayName.GalleryId)]
     public string GalleryId { get; set; } = string.Empty;
     /// <summary>
     /// 語系 LangCode
@@ -111,7 +111,7 @@ public class GalleryPhotos : FormDetailModel
     /// 檔案分類ID
     /// </summary>
     [Required, Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.GalleryId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.GalleryId)]
     public string GalleryId { get; set; } = string.Empty;
     /// <summary>
     /// 圖片來源
@@ -146,13 +146,13 @@ public class GalleryPhotosInfo : FormDetailModel
     /// 檔案分類ID
     /// </summary>
     [Required, Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.GalleryId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.GalleryId)]
     public string GalleryId { get; set; } = string.Empty;
     /// <summary>
     /// 父行主鍵 - (_GalleryPhotos)
     /// </summary>
     [Key]
-    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.Reference, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 語系 LangCode

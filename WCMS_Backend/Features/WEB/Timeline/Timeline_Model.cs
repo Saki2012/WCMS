@@ -18,7 +18,7 @@ public class Timeline : HeaderModel
     /// 紀事表ID
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.TimelineId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.TimelineId)]
     public string TimelineId { get; set; } = string.Empty;
     /// <summary>
     /// 紀事表名稱
@@ -42,7 +42,7 @@ public class TimelineItem : FormDetailModel
     /// 紀事代碼
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.TimelineId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.TimelineId)]
     public string TimelineId { get; set; } = string.Empty;
     /// <summary>
     /// 日期
@@ -69,13 +69,13 @@ public class TimelineLangDetail : FormDetailModel
     /// 紀事代碼
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.TimelineId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.TimelineId)]
     public string TimelineId { get; set; } = string.Empty;
     /// <summary>
     /// 父行代碼
     /// </summary>
     [Key]
-    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.Reference, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 語系

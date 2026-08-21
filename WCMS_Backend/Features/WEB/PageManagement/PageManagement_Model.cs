@@ -16,7 +16,7 @@ public class PageManagement : WEBModel
     /// 靜態客製頁面ID
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.PageId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.PageId)]
     public string PageId { get; set; } = string.Empty;
     /// <summary>
     /// 所屬功能模塊
@@ -42,7 +42,7 @@ public class PageManagementDetail : FormDetailModel
     /// 靜態客製頁面ID
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.PageId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.PageId)]
     public string PageId { get; set; } = string.Empty;
     /// <summary>
     /// 語系 LangCode

@@ -16,7 +16,7 @@ public class TagData : HeaderModel
     /// 標籤ID
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.TagId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.TagId)]
     public string TagId { get; set; } = string.Empty;
     /// <summary>
     /// 對應功能模塊ID
@@ -38,7 +38,7 @@ public class TagDetail : FormDetailModel
     /// 靜態客製頁面ID
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.TagId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.TagId)]
     public string TagId { get; set; } = string.Empty;
     /// <summary>
     /// 語系 LangCode
