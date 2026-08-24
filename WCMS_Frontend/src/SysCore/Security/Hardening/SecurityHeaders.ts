@@ -19,6 +19,8 @@ const defaultReferrerPolicy = "strict-origin-when-cross-origin";
 const defaultPermissionsPolicy = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
 
 const htmlPermissionsPolicy = "geolocation=(), microphone=(), camera=(), fullscreen=(self \"https://www.youtube.com\" \"https://www.youtube-nocookie.com\")";
+
+const staticScriptCspValue = "default-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'";
 // #endregion
 
 // #region Public
@@ -93,6 +95,20 @@ const isPdfPath = (pathname: string): boolean =>
     return path.endsWith(".pdf");
 };
 
+/** 判斷路徑是否為需要補 CSP 的 JavaScript 靜態資源。 */
+const isJavaScriptPath = (pathname: string): boolean =>
+{
+    const path = String(pathname || "").trim().toLowerCase();
+    return path.endsWith(".js") || path.endsWith(".mjs");
+};
+
+/** 正式環境僅替 JavaScript 靜態資源補最小 CSP，避免影響 HTML、PDF 與其他資源。 */
+const setStaticResourceSecurityHeaders = (req: Request, res: Response, cfg: SecurityHeaderConfig): void =>
+{
+    if (!cfg.isProd || !isJavaScriptPath(req.path)) return;
+    res.setHeader("Content-Security-Policy", staticScriptCspValue);
+};
+
 /** 判斷 Proxy Response 是否為 PDF。 */
 const isPdfProxyResponse = (headers: ProxyHeaderMap): boolean =>
 {
@@ -121,6 +137,7 @@ const applyBaseSecurityHeaders = (req: Request, res: Response, next: NextFunctio
     }
 
     setBaseSecurityHeaders(res, cfg, !isPdfPath(req.path));
+    setStaticResourceSecurityHeaders(req, res, cfg);
     next();
 };
 
