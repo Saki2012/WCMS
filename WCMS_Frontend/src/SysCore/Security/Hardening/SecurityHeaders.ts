@@ -16,6 +16,8 @@ const defaultReferrerPolicy = "strict-origin-when-cross-origin";
 const defaultPermissionsPolicy = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
 
 const htmlPermissionsPolicy = "geolocation=(), microphone=(), camera=(), fullscreen=(self \"https://www.youtube.com\" \"https://www.youtube-nocookie.com\")";
+
+const crossOriginEmbedderPolicyValue = "require-corp";
 // #endregion
 
 // #region Public
@@ -103,6 +105,7 @@ const setBaseSecurityHeaders = (res: Response, cfg: SecurityHeaderConfig): void 
     res.setHeader("Referrer-Policy", defaultReferrerPolicy);
     res.setHeader("Permissions-Policy", defaultPermissionsPolicy);
     res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+    res.setHeader("Cross-Origin-Embedder-Policy", crossOriginEmbedderPolicyValue);
     res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
     if (cfg.isProd) res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
     stripDisclosureHeaders(res);
@@ -133,6 +136,7 @@ const stripProxyOwnedHeaders = (headers: ProxyHeaderMap): void =>
         "content-security-policy",
         "content-security-policy-report-only",
         "cross-origin-opener-policy",
+        "cross-origin-embedder-policy",
         "permissions-policy",
         "referrer-policy",
         "strict-transport-security",
@@ -162,6 +166,7 @@ const setProxyBaseHeaders = (headers: ProxyHeaderMap): void =>
     headers["referrer-policy"] = defaultReferrerPolicy;
     headers["permissions-policy"] = defaultPermissionsPolicy;
     headers["cross-origin-opener-policy"] = "same-origin";
+    headers["cross-origin-embedder-policy"] = crossOriginEmbedderPolicyValue;
     headers["x-permitted-cross-domain-policies"] = "none";
     headers["content-security-policy"] = "default-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'; form-action 'none'";
 };
