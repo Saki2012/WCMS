@@ -72,14 +72,6 @@ public class AuthController(
             Path = baseOpt.Path,
             Expires = refreshExp
         });
-        Response.Cookies.Append(SysParam.CookieNames.XsrfToken, Guid.NewGuid().ToString(SysParam.Formats.GuidCompact), new CookieOptions
-        {
-            HttpOnly = false,
-            Secure = baseOpt.Secure,
-            SameSite = baseOpt.SameSite,
-            Path = baseOpt.Path,
-            Expires = refreshExp
-        });
         Response.Cookies.Append(SysParam.CookieNames.AccessToken, accessToken, new CookieOptions
         {
             HttpOnly = true,
@@ -116,14 +108,6 @@ public class AuthController(
         Response.Cookies.Append(SysParam.CookieNames.RefreshTokenId, newRtid, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Lax,
-            Path = SysParam.CookiePaths.Root,
-            Expires = refreshExp
-        });
-        Response.Cookies.Append(SysParam.CookieNames.XsrfToken, xsrfCookie!, new CookieOptions
-        {
-            HttpOnly = false,
             Secure = true,
             SameSite = SameSiteMode.Lax,
             Path = SysParam.CookiePaths.Root,
