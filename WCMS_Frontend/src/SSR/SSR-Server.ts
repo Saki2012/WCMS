@@ -5,14 +5,21 @@ import compression from "compression";
 import { config as dotenvConfig } from "dotenv";
 import express, { type NextFunction, type Request, type Response } from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
-import crypto from "node:crypto";
 import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import serveStatic from "serve-static";
+import {
+    getResponseNonce,
+    setHtmlSecurityHeaders,
+    setNoStoreHeaders,
+    setProxySecurityHeaders,
+    setupSecurityHeaders,
+    stripDisclosureHeaders,
+    type ProxyResponseLike,
+} from "../SysCore/Security/Hardening/SecurityHeaders";
 import { LibType } from "../SysCore/Utils/Library/LibData";
-import { buildProdCsp, type CspStyleMode } from "./CSPSetting";
 
 // #region Property
 type SsrConfig = Readonly<{
@@ -29,18 +36,6 @@ type HeaderValue = string | number | readonly string[];
 
 type HeadersMap = Record<string, HeaderValue>;
 
-type ProxyHeaderMap = Record<string, string | string[] | undefined>;
-
-type ProxyResponseLike = { headers: ProxyHeaderMap; };
-
-const noStoreHeaderValue = "no-store, no-cache, must-revalidate, proxy-revalidate";
-
-const defaultReferrerPolicy = "strict-origin-when-cross-origin";
-
-const defaultPermissionsPolicy = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
-
-const htmlPermissionsPolicy = "geolocation=(), microphone=(), camera=(), fullscreen=(self \"https://www.youtube.com\" \"https://www.youtube-nocookie.com\")";
-
 type ViteManifestEntry = Readonly<{ file: string; css?: string[]; imports?: string[]; isEntry?: boolean; }>;
 
 type ViteManifest = Record<string, ViteManifestEntry>;
@@ -52,132 +47,6 @@ const INITIAL_STATE_TEMPLATE_RE = /<template\b[^>]*\bid=["']wcms-initial-state["
 // #endregion
 
 // #region Private
-/** 設定 HTML/API 不落地快取，避免 SSL 頁面被弱掃判定可快取。 */
-const setNoStoreHeaders = (res: Response): void =>
-{
-    res.setHeader("Cache-Control", noStoreHeaderValue);
-    res.setHeader("Pragma", "no-cache");
-    res.setHeader("Expires", "0");
-};
-
-/** 移除由 Node/Proxy 可控制的技術洩漏標頭。 */
-const stripDisclosureHeaders = (res: Response): void =>
-{
-    res.removeHeader("X-Powered-By");
-    res.removeHeader("Server");
-};
-
-/** 從 proxy header map 移除指定標頭，避免後端/IIS/Node 重複輸出。 */
-const deleteProxyHeader = (headers: ProxyHeaderMap, name: string): void =>
-{
-    const lower = name.toLowerCase();
-    for (const key of Object.keys(headers))
-    {
-        if (key.toLowerCase() === lower) delete headers[key];
-    }
-};
-
-/** 移除後端 proxy 回來、但應由 Node 對外統一管理的安全標頭。 */
-const stripProxyOwnedHeaders = (headers: ProxyHeaderMap): void =>
-{
-    const names = [
-        "content-security-policy",
-        "content-security-policy-report-only",
-        "cross-origin-opener-policy",
-        "permissions-policy",
-        "referrer-policy",
-        "strict-transport-security",
-        "x-content-type-options",
-        "x-frame-options",
-        "x-permitted-cross-domain-policies",
-        "x-powered-by",
-        "server",
-    ];
-
-    for (const name of names) deleteProxyHeader(headers, name);
-};
-
-/** 取得同一個 response 生命週期共用的 CSP nonce。 */
-const getResponseNonce = (res: Response): string =>
-{
-    const current = res.locals.cspNonce;
-    if (typeof current === "string" && current.trim()) return current;
-    const nonce = crypto.randomBytes(16).toString("base64");
-    res.locals.cspNonce = nonce;
-    return nonce;
-};
-
-/** 建立正式環境 HTML CSP 的調整參數。 */
-const getHtmlCspOptions = (req: Request) =>
-{
-    const pathname = String(req.path || "");
-    const isServerPage = /^\/server(?:\/|$)/i.test(pathname);
-    return { styleMode: isServerPage ? "legacy" as CspStyleMode : "balanced" as CspStyleMode };
-};
-/** 設定 HTML、靜態資源共用的基礎安全標頭，不在這裡塞 CSP。 */
-const setBaseSecurityHeaders = (res: Response, cfg: SsrConfig): void =>
-{
-    res.setHeader("X-Content-Type-Options", "nosniff");
-    res.setHeader("X-Frame-Options", "SAMEORIGIN");
-    res.setHeader("Referrer-Policy", defaultReferrerPolicy);
-    res.setHeader("Permissions-Policy", defaultPermissionsPolicy);
-    res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-    res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
-
-    if (cfg.isProd) res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-
-    stripDisclosureHeaders(res);
-};
-
-/** 設定 SSR HTML 專用安全標頭；CSP 只放在 HTML response。 */
-const setHtmlSecurityHeaders = (req: Request, res: Response, cfg: SsrConfig, nonce: string): void =>
-{
-    setBaseSecurityHeaders(res, cfg);
-    res.setHeader("Permissions-Policy", htmlPermissionsPolicy);
-    if (!cfg.isProd) return;
-
-    res.setHeader("Content-Security-Policy", buildProdCsp(nonce, getHtmlCspOptions(req)));
-};
-
-/** 讓 HTML/靜態資源先帶基礎安全標頭；API proxy 由 onProxyRes 統一重寫。 */
-const setupSecurityHeaders = (app: express.Express, cfg: SsrConfig): void =>
-{
-    app.disable("x-powered-by");
-    app.set("trust proxy", true);
-
-    app.use((req: Request, res: Response, next: NextFunction) =>
-    {
-        if (isPathSegmentPrefix(req.path, "/Service"))
-        {
-            stripDisclosureHeaders(res);
-            next();
-            return;
-        }
-
-        setBaseSecurityHeaders(res, cfg);
-        next();
-    });
-};
-
-/** 清掉後端 Proxy 轉回來的重複標頭，並讓 API 採用 Node 統一安全標頭。 */
-const setProxySecurityHeaders = (proxyRes: ProxyResponseLike, cfg: SsrConfig): void =>
-{
-    stripProxyOwnedHeaders(proxyRes.headers);
-
-    proxyRes.headers["cache-control"] = noStoreHeaderValue;
-    proxyRes.headers["pragma"] = "no-cache";
-    proxyRes.headers["expires"] = "0";
-    proxyRes.headers["x-content-type-options"] = "nosniff";
-    proxyRes.headers["x-frame-options"] = "SAMEORIGIN";
-    proxyRes.headers["referrer-policy"] = defaultReferrerPolicy;
-    proxyRes.headers["permissions-policy"] = defaultPermissionsPolicy;
-    proxyRes.headers["cross-origin-opener-policy"] = "same-origin";
-    proxyRes.headers["x-permitted-cross-domain-policies"] = "none";
-    proxyRes.headers["content-security-policy"] = "default-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'; form-action 'none'";
-
-    if (cfg.isProd) proxyRes.headers["strict-transport-security"] = "max-age=31536000; includeSubDomains";
-};
-
 const coerceHeaderValue = (v: unknown): HeaderValue | null =>
 {
     // 宣告變數
