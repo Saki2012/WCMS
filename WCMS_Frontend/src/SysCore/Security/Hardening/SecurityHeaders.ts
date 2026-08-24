@@ -3,6 +3,7 @@ import express, { type NextFunction, type Request, type Response } from "express
 import { crossOriginEmbedderPolicyValue } from "./COEPSetting";
 import { crossOriginResourcePolicyValue } from "./CORPSetting";
 import { buildProdCsp, type CspStyleMode } from "./CSPSetting";
+import { setupHostValidation } from "./HostValidation";
 
 // #region Property
 export type ProxyHeaderMap = Record<string, string | string[] | undefined>;
@@ -57,10 +58,11 @@ export const setHtmlSecurityHeaders = (req: Request, res: Response, cfg: Securit
     res.setHeader("Content-Security-Policy", buildProdCsp(nonce, getHtmlCspOptions(req)));
 };
 
-/** 讓 HTML/靜態資源帶基礎安全標頭；API Proxy 由 setProxySecurityHeaders 重寫。 */
+/** 先驗證 Host，再讓 HTML/靜態資源帶基礎安全標頭；API Proxy 由 setProxySecurityHeaders 重寫。 */
 export const setupSecurityHeaders = (app: express.Express, cfg: SecurityHeaderConfig): void =>
 {
     app.disable("x-powered-by");
+    setupHostValidation(app, cfg);
     app.set("trust proxy", true);
     app.use((req: Request, res: Response, next: NextFunction) => applyBaseSecurityHeaders(req, res, next, cfg));
 };
