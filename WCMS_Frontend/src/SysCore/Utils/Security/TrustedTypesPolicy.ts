@@ -30,8 +30,14 @@ const devAllowedSameOriginScriptPrefixes = [
     "/src/specfeatures/",
 ] as const;
 
-const allowedExternalScriptUrls = [
+/** Trusted Types 下允許動態建立的外部 Script URL；僅保留既有整合需要的來源。 */
+const allowedExternalScriptPrefixes = [
     "https://translate.google.com/translate_a/element.js",
+    "https://translate.googleapis.com/translate_a/",
+    "https://translate.googleapis.com/translate_static/",
+    "https://translate-pa.googleapis.com/translate_a/",
+    "https://translate-pa.googleapis.com/translate_static/",
+    "https://challenges.cloudflare.com/turnstile/",
 ] as const;
 // #endregion
 
@@ -102,7 +108,7 @@ const isAllowedScriptUrl = (value: string): boolean =>
         return getAllowedSameOriginScriptPrefixes().some(prefix => pathname.startsWith(prefix.toLowerCase()));
     }
 
-    return allowedExternalScriptUrls.some(allowed => url.href.startsWith(allowed));
+    return allowedExternalScriptPrefixes.some(prefix => url.href.startsWith(prefix));
 };
 
 /** 清理需要寫入 innerHTML 的內容，避免 Trusted Types 強制模式擋住 TinyMCE。 */

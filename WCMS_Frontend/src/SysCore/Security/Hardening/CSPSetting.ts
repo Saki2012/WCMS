@@ -35,7 +35,7 @@ const turnstileSource = "https://challenges.cloudflare.com";
 // #region Public
 /**
  * 建立正式環境 CSP。
- * Script 採每次 Response nonce + strict-dynamic；Balanced 保留 Style Attribute 相容性，但不開放 inline Style Element。
+ * Script 採每次 Response nonce + strict-dynamic 並強制 Trusted Types；Balanced 保留 Style Attribute 相容性，但不開放 inline Style Element。
  */
 export const buildProdCsp = (nonce: string, options: BuildProdCspOptions = {}): string =>
 {
@@ -53,6 +53,7 @@ export const buildProdCsp = (nonce: string, options: BuildProdCspOptions = {}): 
         "default-src 'none'",
         `script-src ${scriptSrc}`,
         "script-src-attr 'none'",
+        "require-trusted-types-for 'script'",
         `style-src ${styleSrc}`,
         `style-src-elem ${styleSrc}`,
         `style-src-attr ${styleAttrSrc}`,
