@@ -14,6 +14,7 @@ internal static class SecurityHeadersSetup
     private const string ReferrerPolicyHeader = "Referrer-Policy";
     private const string PermissionsPolicyHeader = "Permissions-Policy";
     private const string CrossOriginOpenerPolicyHeader = "Cross-Origin-Opener-Policy";
+    private const string CrossOriginResourcePolicyHeader = "Cross-Origin-Resource-Policy";
     private const string CrossDomainPoliciesHeader = "X-Permitted-Cross-Domain-Policies";
     private const string ContentSecurityPolicyHeader = "Content-Security-Policy";
     private const string CacheControlHeader = "Cache-Control";
@@ -26,6 +27,8 @@ internal static class SecurityHeadersSetup
     private const string NoSniffValue = "nosniff";
     private const string SameOriginValue = "SAMEORIGIN";
     private const string CrossOriginOpenerPolicyValue = "same-origin";
+    private const string CrossOriginResourcePolicyValue = "same-origin";
+    private const string PdfContentType = "application/pdf";
     private const string NoReferrerValue = "no-referrer";
     private const string PermissionsPolicyValue = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
     private const string NoneValue = "none";
@@ -63,7 +66,7 @@ internal static class SecurityHeadersSetup
     }
 
     /// <summary>
-    /// 設定共用安全標頭，並在送出前移除伺服器資訊標頭。
+    /// 設定共用安全標頭，並在送出前完成 PDF 例外與資訊洩漏清理。
     /// </summary>
     private static void PrepareSecurityHeaders(WebApplication app, HttpContext context)
     {
@@ -71,7 +74,7 @@ internal static class SecurityHeadersSetup
         SetPathSecurityHeaders(app, context);
         context.Response.OnStarting(() =>
         {
-            RemoveLeakyHeaders(context.Response);
+            FinalizeSecurityHeaders(context.Response);
             return Task.CompletedTask;
         });
     }
@@ -86,6 +89,7 @@ internal static class SecurityHeadersSetup
         response.Headers[ReferrerPolicyHeader] = NoReferrerValue;
         response.Headers[PermissionsPolicyHeader] = PermissionsPolicyValue;
         response.Headers[CrossOriginOpenerPolicyHeader] = CrossOriginOpenerPolicyValue;
+        response.Headers[CrossOriginResourcePolicyHeader] = CrossOriginResourcePolicyValue;
         response.Headers[CrossDomainPoliciesHeader] = NoneValue;
     }
 
@@ -129,6 +133,24 @@ internal static class SecurityHeadersSetup
         response.Headers[CacheControlHeader] = NoStoreValue;
         response.Headers[PragmaHeader] = NoCacheValue;
         response.Headers[ExpiresHeader] = ZeroValue;
+    }
+
+    /// <summary>
+    /// Response 送出前完成 PDF CORP 例外與資訊洩漏清理。
+    /// </summary>
+    private static void FinalizeSecurityHeaders(HttpResponse response)
+    {
+        if (IsPdfResponse(response)) response.Headers.Remove(CrossOriginResourcePolicyHeader);
+        RemoveLeakyHeaders(response);
+    }
+
+    /// <summary>
+    /// 判斷最終 Response 是否為 PDF。
+    /// </summary>
+    private static bool IsPdfResponse(HttpResponse response)
+    {
+        var contentType = response.ContentType ?? string.Empty;
+        return contentType.StartsWith(PdfContentType, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

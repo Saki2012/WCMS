@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import express, { type NextFunction, type Request, type Response } from "express";
 import { crossOriginEmbedderPolicyValue } from "./COEPSetting";
+import { crossOriginResourcePolicyValue } from "./CORPSetting";
 import { buildProdCsp, type CspStyleMode } from "./CSPSetting";
 
 // #region Property
@@ -49,7 +50,7 @@ export const getResponseNonce = (res: Response): string =>
 /** 設定 SSR HTML 專用安全標頭；正式環境才送 CSP。 */
 export const setHtmlSecurityHeaders = (req: Request, res: Response, cfg: SecurityHeaderConfig, nonce: string): void =>
 {
-    setBaseSecurityHeaders(res, cfg);
+    setBaseSecurityHeaders(res, cfg, !isPdfPath(req.path));
     res.setHeader("Permissions-Policy", htmlPermissionsPolicy);
     if (!cfg.isProd) return;
 
@@ -67,9 +68,10 @@ export const setupSecurityHeaders = (app: express.Express, cfg: SecurityHeaderCo
 /** 清掉後端 Proxy 重複標頭，並由 Node 統一設定 API 對外安全標頭。 */
 export const setProxySecurityHeaders = (proxyRes: ProxyResponseLike, cfg: SecurityHeaderConfig): void =>
 {
+    const isPdf = isPdfProxyResponse(proxyRes.headers);
     stripProxyOwnedHeaders(proxyRes.headers);
     setProxyCacheHeaders(proxyRes.headers);
-    setProxyBaseHeaders(proxyRes.headers);
+    setProxyBaseHeaders(proxyRes.headers, !isPdf);
     if (cfg.isProd) proxyRes.headers["strict-transport-security"] = "max-age=31536000; includeSubDomains";
 };
 // #endregion
@@ -82,6 +84,30 @@ const isServicePath = (pathname: string): boolean =>
     return path === "/service" || path.startsWith("/service/");
 };
 
+/** 判斷靜態資源路徑是否為 PDF，避免 CORP 影響瀏覽器原生 PDF Viewer。 */
+const isPdfPath = (pathname: string): boolean =>
+{
+    const path = String(pathname || "").trim().toLowerCase();
+    return path.endsWith(".pdf");
+};
+
+/** 判斷 Proxy Response 是否為 PDF。 */
+const isPdfProxyResponse = (headers: ProxyHeaderMap): boolean =>
+{
+    const contentType = getProxyHeaderText(headers, "content-type").toLowerCase();
+    return contentType.startsWith("application/pdf");
+};
+
+/** 讀取 Proxy Response Header 文字值。 */
+const getProxyHeaderText = (headers: ProxyHeaderMap, name: string): string =>
+{
+    const key = Object.keys(headers).find(x => x.toLowerCase() === name.toLowerCase());
+    if (!key) return "";
+
+    const value = headers[key];
+    return Array.isArray(value) ? value.join(",") : String(value ?? "");
+};
+
 /** 套用 Node HTML/靜態資源的基礎安全標頭。 */
 const applyBaseSecurityHeaders = (req: Request, res: Response, next: NextFunction, cfg: SecurityHeaderConfig): void =>
 {
@@ -92,12 +118,12 @@ const applyBaseSecurityHeaders = (req: Request, res: Response, next: NextFunctio
         return;
     }
 
-    setBaseSecurityHeaders(res, cfg);
+    setBaseSecurityHeaders(res, cfg, !isPdfPath(req.path));
     next();
 };
 
 /** 設定 HTML、靜態資源共用的基礎安全標頭，不在這裡塞 CSP。 */
-const setBaseSecurityHeaders = (res: Response, cfg: SecurityHeaderConfig): void =>
+const setBaseSecurityHeaders = (res: Response, cfg: SecurityHeaderConfig, includeCorp: boolean): void =>
 {
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-Frame-Options", "SAMEORIGIN");
@@ -105,6 +131,7 @@ const setBaseSecurityHeaders = (res: Response, cfg: SecurityHeaderConfig): void 
     res.setHeader("Permissions-Policy", defaultPermissionsPolicy);
     res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
     res.setHeader("Cross-Origin-Embedder-Policy", crossOriginEmbedderPolicyValue);
+    if (includeCorp) res.setHeader("Cross-Origin-Resource-Policy", crossOriginResourcePolicyValue);
     res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
     if (cfg.isProd) res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
     stripDisclosureHeaders(res);
@@ -136,6 +163,7 @@ const stripProxyOwnedHeaders = (headers: ProxyHeaderMap): void =>
         "content-security-policy-report-only",
         "cross-origin-opener-policy",
         "cross-origin-embedder-policy",
+        "cross-origin-resource-policy",
         "permissions-policy",
         "referrer-policy",
         "strict-transport-security",
@@ -158,7 +186,7 @@ const setProxyCacheHeaders = (headers: ProxyHeaderMap): void =>
 };
 
 /** 設定 API Proxy 回應的基礎安全標頭。 */
-const setProxyBaseHeaders = (headers: ProxyHeaderMap): void =>
+const setProxyBaseHeaders = (headers: ProxyHeaderMap, includeCorp: boolean): void =>
 {
     headers["x-content-type-options"] = "nosniff";
     headers["x-frame-options"] = "SAMEORIGIN";
@@ -166,6 +194,7 @@ const setProxyBaseHeaders = (headers: ProxyHeaderMap): void =>
     headers["permissions-policy"] = defaultPermissionsPolicy;
     headers["cross-origin-opener-policy"] = "same-origin";
     headers["cross-origin-embedder-policy"] = crossOriginEmbedderPolicyValue;
+    if (includeCorp) headers["cross-origin-resource-policy"] = crossOriginResourcePolicyValue;
     headers["x-permitted-cross-domain-policies"] = "none";
     headers["content-security-policy"] = "default-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'; form-action 'none'";
 };
