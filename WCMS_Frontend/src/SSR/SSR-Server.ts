@@ -692,7 +692,7 @@ const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>
     });
 };
 
-/** 建立後端 API Proxy，HTTPS Backend 一律驗證正式憑證。 */
+/** 建立後端 API Proxy，使用 v3 Proxy Event 重寫 Browser 對外安全標頭。 */
 const setupApiProxy = (app: express.Express, cfg: SsrConfig) =>
 {
     const options = {
@@ -701,9 +701,11 @@ const setupApiProxy = (app: express.Express, cfg: SsrConfig) =>
         secure: true,
         logLevel: "warn",
         pathRewrite: (p: string) => `/Service${p}`,
-        onProxyRes: (proxyRes: ProxyResponseLike) =>
-        {
-            setProxySecurityHeaders(proxyRes, cfg);
+        on: {
+            proxyRes: (proxyRes: ProxyResponseLike) =>
+            {
+                setProxySecurityHeaders(proxyRes, cfg);
+            },
         },
     } as const;
     app.use("/Service", createProxyMiddleware(options));

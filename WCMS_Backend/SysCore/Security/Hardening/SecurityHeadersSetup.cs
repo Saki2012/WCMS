@@ -13,6 +13,7 @@ internal static class SecurityHeadersSetup
     private const string FrameOptionsHeader = "X-Frame-Options";
     private const string ReferrerPolicyHeader = "Referrer-Policy";
     private const string PermissionsPolicyHeader = "Permissions-Policy";
+    private const string CrossOriginOpenerPolicyHeader = "Cross-Origin-Opener-Policy";
     private const string CrossDomainPoliciesHeader = "X-Permitted-Cross-Domain-Policies";
     private const string ContentSecurityPolicyHeader = "Content-Security-Policy";
     private const string CacheControlHeader = "Cache-Control";
@@ -24,6 +25,7 @@ internal static class SecurityHeadersSetup
     private const string AspNetMvcVersionHeader = "X-AspNetMvc-Version";
     private const string NoSniffValue = "nosniff";
     private const string SameOriginValue = "SAMEORIGIN";
+    private const string CrossOriginOpenerPolicyValue = "same-origin";
     private const string NoReferrerValue = "no-referrer";
     private const string PermissionsPolicyValue = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
     private const string NoneValue = "none";
@@ -83,6 +85,7 @@ internal static class SecurityHeadersSetup
         response.Headers[FrameOptionsHeader] = SameOriginValue;
         response.Headers[ReferrerPolicyHeader] = NoReferrerValue;
         response.Headers[PermissionsPolicyHeader] = PermissionsPolicyValue;
+        response.Headers[CrossOriginOpenerPolicyHeader] = CrossOriginOpenerPolicyValue;
         response.Headers[CrossDomainPoliciesHeader] = NoneValue;
     }
 
