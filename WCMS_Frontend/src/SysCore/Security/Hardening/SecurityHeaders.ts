@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import express, { type NextFunction, type Request, type Response } from "express";
+import { crossOriginEmbedderPolicyValue } from "./COEPSetting";
 import { buildProdCsp, type CspStyleMode } from "./CSPSetting";
 
 // #region Property
@@ -16,8 +17,6 @@ const defaultReferrerPolicy = "strict-origin-when-cross-origin";
 const defaultPermissionsPolicy = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
 
 const htmlPermissionsPolicy = "geolocation=(), microphone=(), camera=(), fullscreen=(self \"https://www.youtube.com\" \"https://www.youtube-nocookie.com\")";
-
-const crossOriginEmbedderPolicyValue = "require-corp";
 // #endregion
 
 // #region Public
