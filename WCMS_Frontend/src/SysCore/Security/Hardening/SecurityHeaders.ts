@@ -198,6 +198,6 @@ const setProxyBaseHeaders = (headers: ProxyHeaderMap, includeCorp: boolean): voi
     headers["cross-origin-embedder-policy"] = crossOriginEmbedderPolicyValue;
     if (includeCorp) headers["cross-origin-resource-policy"] = crossOriginResourcePolicyValue;
     headers["x-permitted-cross-domain-policies"] = "none";
-    headers["content-security-policy"] = "default-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'; form-action 'none'";
+    headers["content-security-policy"] = "default-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'";
 };
 // #endregion

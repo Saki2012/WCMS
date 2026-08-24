@@ -32,7 +32,7 @@ internal static class SecurityHeadersSetup
     private const string NoReferrerValue = "no-referrer";
     private const string PermissionsPolicyValue = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
     private const string NoneValue = "none";
-    private const string ApiCspValue = "default-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'; form-action 'self'";
+    private const string ApiCspValue = "default-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'";
     private const string BackendCspValue = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'";
     private const string NoStoreValue = "no-store, no-cache, must-revalidate, proxy-revalidate";
     private const string NoCacheValue = "no-cache";
