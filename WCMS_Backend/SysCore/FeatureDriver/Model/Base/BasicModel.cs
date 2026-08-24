@@ -21,7 +21,7 @@ public abstract class HeaderModel : DbModel
     /// <summary>
     /// 系統內部唯一標識號
     /// </summary>
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.InternalId, DisplayName.Common_InternalId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.InternalId, DisplayName.Common_InternalId)]
     public virtual string InternalId { get; set; } = string.Empty;
     /// <summary>
     /// 創建時間
@@ -79,7 +79,7 @@ public abstract class HeaderModel : DbModel
     /// 資料版本-併發控制
     /// </summary>
     [Timestamp]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.DataVersion)]
+    [LibField(ApiFieldMode.Reference, DisplayName.DataVersion)]
     public byte[]? DataVersion { get; set; } = default!;
     /// <summary>
     /// // 是否為初始化資料
@@ -99,7 +99,7 @@ public abstract class DetailModel : DbModel
     /// 前端送入的明細異動狀態，不寫入資料庫。
     /// </summary>
     [NotMapped]
-    [LibField(ApiFieldMode.ReadWrite, DisplayName.RowState)]
+    [LibField(ApiFieldMode.WriteOnly, DisplayName.RowState)]
     public RowState RowState { get; set; }
 }
 
@@ -112,7 +112,7 @@ public abstract class FormDetailModel : DetailModel
     /// 由後端配置的明細主鍵。
     /// </summary>
     [Key]
-    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+    [LibNum(ApiFieldMode.Reference, DisplayName.Common_RowId)]
     public int RowId { get; set; }
 
     /// <summary>

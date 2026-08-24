@@ -16,7 +16,7 @@ public partial class Banner : HeaderModel
     /// 橫幅ID
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.BannerId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.BannerId)]
     public string BannerId { get; set; } = string.Empty;
     /// <summary>
     /// 類別ID
@@ -57,7 +57,7 @@ public partial class BannerDetail : FormDetailModel
     /// 
     /// </summary>
     [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.BannerId)]
+    [LibField(ApiFieldMode.Reference, DisplayName.BannerId)]
     public string BannerId { get; set; } = string.Empty;
     /// <summary>
     /// 圖片來源取檔案關聯
@@ -101,13 +101,13 @@ public partial class BannerDetailInfo : FormDetailModel
     /// 
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.BannerId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.BannerId)]
     public string BannerId { get; set; } = string.Empty;
     /// <summary>
     /// 
     /// </summary>
     [Key]
-    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.Reference, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 語系

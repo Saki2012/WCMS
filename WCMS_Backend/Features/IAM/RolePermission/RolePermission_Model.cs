@@ -19,7 +19,7 @@ public class RoleData : HeaderModel
     /// 角色權限代號
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.RolePermission_RoleId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.RolePermission_RoleId)]
     public string RoleId { get; set; } = string.Empty;
     /// <summary>
     /// 角色權限名稱
@@ -50,7 +50,7 @@ public class RolePermission : FormDetailModel
     /// 角色權限代號
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.RolePermission_RoleId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.RolePermission_RoleId)]
     public string RoleId { get; set; } = string.Empty;
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ProgId, DisplayName.RolePermission_PermissionKey)]
     public string PermissionKey { get; set; } = string.Empty;

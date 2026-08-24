@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -23,6 +23,7 @@ public sealed class LibApiFieldSchemaFilter(IOptions<JsonOptions>? jsonOptions =
     private const string ApiModeExtensionName = "x-wcms-api-mode";
     private const string CanReadExtensionName = "x-wcms-can-read";
     private const string CanWriteExtensionName = "x-wcms-can-write";
+    private const string CanReferenceExtensionName = "x-wcms-can-reference";
     private const string CanQueryExtensionName = "x-wcms-can-query";
     private const string CanSelectExtensionName = "x-wcms-can-select";
     private const string CanSortExtensionName = "x-wcms-can-sort";
@@ -105,6 +106,7 @@ public sealed class LibApiFieldSchemaFilter(IOptions<JsonOptions>? jsonOptions =
         propertySchema.Extensions[ApiModeExtensionName] = CreateExtension(apiMode.ToString());
         propertySchema.Extensions[CanReadExtensionName] = CreateExtension(LibApiFieldPolicyHelper.CanRead(apiMode));
         propertySchema.Extensions[CanWriteExtensionName] = CreateExtension(LibApiFieldPolicyHelper.CanWrite(apiMode));
+        propertySchema.Extensions[CanReferenceExtensionName] = CreateExtension(LibApiFieldPolicyHelper.CanReference(apiMode));
         propertySchema.Extensions[CanQueryExtensionName] = CreateExtension(LibApiFieldPolicyHelper.CanQuery(apiMode));
         propertySchema.Extensions[CanSelectExtensionName] = CreateExtension(LibApiFieldPolicyHelper.CanSelect(apiMode));
         propertySchema.Extensions[CanSortExtensionName] = CreateExtension(LibApiFieldPolicyHelper.CanSort(apiMode));

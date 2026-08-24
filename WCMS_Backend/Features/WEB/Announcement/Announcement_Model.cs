@@ -20,7 +20,7 @@ public partial class Announcement : HeaderModel
     /// 公告代碼
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.AnnouncementId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.AnnouncementId)]
     public string AnnouncementId { get; set; } = string.Empty;
     /// <summary>
     /// 類別 (多個)
@@ -77,7 +77,7 @@ public partial class AnnouncementDetail : FormDetailModel
     /// 公告代碼
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.AnnouncementId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.AnnouncementId)]
     public string AnnouncementId { get; set; } = string.Empty;
     /// <summary>
     /// 語系
@@ -128,13 +128,13 @@ public partial class AnnouncementDetailFile : FormDetailModel
     /// 公告代碼
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.AnnouncementId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.AnnouncementId)]
     public string AnnouncementId { get; set; } = string.Empty;
     /// <summary>
     /// 父行代碼
     /// </summary>
     [Key]
-    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.Reference, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 檔案來源

@@ -17,7 +17,7 @@ public class FileArchive : HeaderModel
     /// 檔案分類ID
     /// </summary>
     [Required, Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.FileArchiveId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.FileArchiveId)]
     public string FileArchiveId { get; set; } = string.Empty;
     /// <summary>
     /// 狀態:置頂/熱門/隱藏
@@ -56,7 +56,7 @@ public class FileArchiveInfo : FormDetailModel
     /// 檔案分類ID
     /// </summary>
     [Required, Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.FileArchiveId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.FileArchiveId)]
     public string FileArchiveId { get; set; } = string.Empty;
     /// <summary>
     /// 語系 LangCode
@@ -88,13 +88,13 @@ public class FileArchiveDetail : FormDetailModel
     /// 靜態客製頁面ID
     /// </summary>
     [Required, Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.FileArchiveId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.FileArchiveId)]
     public string FileArchiveId { get; set; } = string.Empty;
     /// <summary>
     /// 父行主鍵 (_FileArchiveInfo)
     /// </summary>
     [Key]
-    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.Reference, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 檔案來源
@@ -123,13 +123,13 @@ public class FileArchiveUrlDetail : FormDetailModel
     /// 靜態客製頁面ID
     /// </summary>
     [Required, Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.FileArchiveId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.FileArchiveId)]
     public string FileArchiveId { get; set; } = string.Empty;
     /// <summary>
     /// 父行主鍵 (_FileArchiveInfo)
     /// </summary>
     [Key]
-    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.Reference, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 檔案來源

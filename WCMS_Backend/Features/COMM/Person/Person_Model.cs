@@ -15,7 +15,7 @@ public class Person : HeaderModel
     /// 人員ID
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.Person_PersonId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.Person_PersonId)]
     public string PersonId { get; set; } = string.Empty;
     /// <summary>
     /// 人員名稱

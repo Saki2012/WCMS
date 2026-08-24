@@ -18,7 +18,7 @@ public class Survey : HeaderModel
     /// 問卷ID
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SurveyId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.SurveyId)]
     public string SurveyId { get; set; } = string.Empty;
     /// <summary>
     /// 問卷名稱
@@ -52,7 +52,7 @@ public class SurveyItem : FormDetailModel
     /// 問卷代碼
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SurveyId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.SurveyId)]
     public string SurveyId { get; set; } = string.Empty;
     /// <summary>
     /// 動態欄位代號
@@ -94,13 +94,13 @@ public class SurveyItemLang : FormDetailModel
     /// 問卷代碼
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SurveyId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.SurveyId)]
     public string SurveyId { get; set; } = string.Empty;
     /// <summary>
     /// 父行代碼
     /// </summary>
     [Key]
-    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+    [LibNum(ApiFieldMode.Reference, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
     /// <summary>
     /// 語系

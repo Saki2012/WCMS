@@ -37,7 +37,6 @@ public static class LibApiFieldPolicyHelper
         return result;
     }
 
-
     /// <summary>
     /// 檢查 Query 欄位是否存在於 Form Model 且符合 ApiFieldMode select / sort 規則。
     /// </summary>
@@ -63,7 +62,7 @@ public static class LibApiFieldPolicyHelper
     /// </summary>
     public static bool CanRead(ApiFieldMode apiMode)
     {
-        var result = apiMode is ApiFieldMode.ReadWrite or ApiFieldMode.ReadOnly;
+        var result = apiMode is ApiFieldMode.ReadWrite or ApiFieldMode.ReadOnly or ApiFieldMode.Reference;
         return result;
     }
 
@@ -86,6 +85,24 @@ public static class LibApiFieldPolicyHelper
     }
 
     /// <summary>
+    /// 判斷欄位是否允許外部 API 帶回作為參考值。
+    /// </summary>
+    public static bool CanReference(PropertyInfo? property)
+    {
+        var result = CanReference(GetApiMode(property));
+        return result;
+    }
+
+    /// <summary>
+    /// 判斷欄位模式是否允許外部 API 帶回作為參考值。
+    /// </summary>
+    public static bool CanReference(ApiFieldMode apiMode)
+    {
+        var result = apiMode == ApiFieldMode.Reference;
+        return result;
+    }
+
+    /// <summary>
     /// 判斷欄位是否允許進入 Query 條件。
     /// </summary>
     public static bool CanQuery(PropertyInfo? property)
@@ -99,7 +116,7 @@ public static class LibApiFieldPolicyHelper
     /// </summary>
     public static bool CanQuery(ApiFieldMode apiMode)
     {
-        var result = apiMode is ApiFieldMode.ReadWrite or ApiFieldMode.ReadOnly;
+        var result = apiMode is ApiFieldMode.ReadWrite or ApiFieldMode.ReadOnly or ApiFieldMode.Reference;
         return result;
     }
 

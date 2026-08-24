@@ -22,7 +22,7 @@ public class SiteMenu_Index : HeaderModel
     /// 站台代碼。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
     public string SiteIndex { get; set; } = string.Empty;
     /// <summary>
     /// Google Analytics 設定。
@@ -70,7 +70,7 @@ public class SiteMenu_IndexInfo : FormDetailModel
     /// 站台代碼。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
     public string SiteIndex { get; set; } = string.Empty;
     /// <summary>
     /// 語系。
@@ -134,7 +134,7 @@ public class SiteMenu_Item : FormDetailModel
     /// 站台代碼。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
     public string SiteIndex { get; set; } = string.Empty;
     /// <summary>
     /// 上層選單項目代碼；根節點為 null。
@@ -209,13 +209,13 @@ public class SiteMenu_Item_Title : FormDetailModel
     /// 站台代碼。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
     public string SiteIndex { get; set; } = string.Empty;
     /// <summary>
     /// 所屬選單項目代碼。
     /// </summary>
     [Key]
-    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+    [LibNum(ApiFieldMode.Reference, DisplayName.Common_RowId)]
     public int ItemRowId { get; set; }
     /// <summary>
     /// 語系。
@@ -252,13 +252,13 @@ public class SiteMenu_Item_Url : DetailModel
     /// 站台代碼。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
     public string SiteIndex { get; set; } = string.Empty;
     /// <summary>
     /// 所屬選單項目代碼。
     /// </summary>
     [Key]
-    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+    [LibNum(ApiFieldMode.Reference, DisplayName.Common_RowId)]
     public int ItemRowId { get; set; }
     /// <summary>
     /// 導向類型。
@@ -290,13 +290,13 @@ public class SiteMenu_Item_Module : DetailModel
     /// 站台代碼。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
     public string SiteIndex { get; set; } = string.Empty;
     /// <summary>
     /// 所屬選單項目代碼。
     /// </summary>
     [Key]
-    [LibNum(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+    [LibNum(ApiFieldMode.Reference, DisplayName.Common_RowId)]
     public int ItemRowId { get; set; }
     /// <summary>
     /// Banner 關聯資料。

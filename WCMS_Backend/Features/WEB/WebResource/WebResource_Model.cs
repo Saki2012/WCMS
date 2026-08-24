@@ -20,7 +20,7 @@ public class WebResource : HeaderModel
     /// 檔案分類ID
     /// </summary>
     [Required, Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.WebResourceId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.WebResourceId)]
     public string WebResourceId { get; set; } = string.Empty;
     /// <summary>
     /// 類別ID(多個)
@@ -67,7 +67,7 @@ public class WebResourceInfo : FormDetailModel
     /// 檔案分類ID
     /// </summary>
     [Required, Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.WebResourceId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.WebResourceId)]
     public string WebResourceId { get; set; } = string.Empty;
     /// <summary>
     /// 語系 LangCode

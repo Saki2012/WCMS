@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using WCMS.Features._Resx;
@@ -62,6 +62,10 @@ public enum ApiFieldMode : byte
     /// API 可讀可寫。
     /// </summary>
     ReadWrite = 1 << 2,
+    /// <summary>
+    /// API 可讀且可由 Client 帶回作為參考值，但不可視為一般可寫欄位。
+    /// </summary>
+    Reference = 1 << 3,
 }
 #endregion
 

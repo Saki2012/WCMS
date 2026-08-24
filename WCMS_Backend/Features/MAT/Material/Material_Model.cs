@@ -21,7 +21,7 @@ public class Material : HeaderModel
     /// 物件代碼
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.MaterialId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.MaterialId)]
     public string MaterialId { get; set; } = string.Empty;
     /// <summary>
     /// 類別
@@ -61,7 +61,7 @@ public class MaterialLangInfo : FormDetailModel
     /// 物件代碼
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.MaterialId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.MaterialId)]
     public string MaterialId { get; set; } = string.Empty;
     /// <summary>
     /// 語系
@@ -100,7 +100,7 @@ public class MaterialPicture : FormDetailModel
     /// 物件代碼
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.MaterialId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.MaterialId)]
     public string MaterialId { get; set; } = string.Empty;
     /// <summary>
     /// 照片來源
@@ -132,7 +132,7 @@ public class MaterialTags : FormDetailModel
     /// 物件代碼
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.MaterialId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.MaterialId)]
     public string MaterialId { get; set; } = string.Empty;
     /// <summary>
     /// 標籤

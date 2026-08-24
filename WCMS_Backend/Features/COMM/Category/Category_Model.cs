@@ -21,7 +21,7 @@ public class Category : HeaderModel
     /// 類別 ID。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.CategoryId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.CategoryId)]
     public string CategoryId { get; set; } = string.Empty;
     /// <summary>
     /// 對應功能模組 ID。
@@ -55,7 +55,7 @@ public class CategoryDetail : FormDetailModel
     /// 類別 ID。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.CategoryId)]
+    [LibStr(ApiFieldMode.Reference, DbStrLen.ID, DisplayName.CategoryId)]
     public string CategoryId { get; set; } = string.Empty;
     /// <summary>
     /// 語系。

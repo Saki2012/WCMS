@@ -30,7 +30,7 @@ public class FileManage : HeaderModel
     /// 檔案識別碼
     /// </summary>
     [Key, StringLength(DbStrLen.InternalId)]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Reference)]
     public override string InternalId { get; set; } = Guid.NewGuid().ToString();
     /// <summary>
     /// 路徑
@@ -126,7 +126,7 @@ public class FileManage_DownloadRecent : FormDetailModel
     /// 檔案識別碼
     /// </summary>
     [Key, StringLength(DbStrLen.InternalId)]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Reference)]
     public string InternalId { get; set; } = string.Empty;
     /// <summary>
     /// 匿名訪客識別碼
@@ -161,7 +161,7 @@ public class FileManage_SyncInfo : FormDetailModel
     /// 檔案識別碼
     /// </summary>
     [Key, StringLength(DbStrLen.InternalId)]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Reference)]
     public string InternalId { get; set; } = string.Empty;
     /// <summary>
     /// 同步狀態
