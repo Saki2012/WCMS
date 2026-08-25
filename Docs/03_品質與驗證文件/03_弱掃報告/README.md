@@ -138,7 +138,7 @@ Browser
 
 ## 6. 目前版本
 
-- [`FE1.5.3_BE1.5.2.1`](./FE1.5.3_BE1.5.2.1/README.md)：2026-08-20 HCL AppScan 360 DAST 2.1 + Tenable Nessus；2026-08-24 起進行集中 Security Hardening，正式 AppScan 複掃待執行。
+- [`FE1.5.3_BE1.5.2.1`](./FE1.5.3_BE1.5.2.1/README.md)：2026-08-20 HCL AppScan 360 DAST 2.1 + Tenable Nessus；2026-08-24 完成集中 Security Hardening，2026-08-25 完成第一批 ErrorHandling／Validation／FileManagement Upload Code mitigation，目前進入原 Payload Runtime Replay 與 Critical／High 人工覆核證據準備；正式 AppScan 複掃待執行。
 - `FE1.2.0_BE1.2.1.0`：歷史 Authenticated AppScan 報告，目前保留作版本追溯。
 
 後續新版本弱掃開始前，先讀本 README 與 `修改歷史與方針.md`，確認同類 Finding 是否已有 WCMS 共用處理方式，再進入該版本的個別分析。

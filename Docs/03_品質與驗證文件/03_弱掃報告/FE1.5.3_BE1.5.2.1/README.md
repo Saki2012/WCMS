@@ -3,7 +3,7 @@
 > 掃描日期：2026-08-20  
 > 修正主線：`Feature/Dev`  
 > 本文件最後整理：2026-08-25  
-> Code 實作對照基準：`bb826f6d1e60ec5b006671bdfc294b744edd7db0`（本次文件更新前實作 HEAD）
+> Code 實作對照基準：`cdc91e53bd36db9fc4540931928fb2dc4dfc1528`（本次文件同步前實作 HEAD）
 
 > [!IMPORTANT]
 > 本文件記錄原始 Finding、Runtime Log 分析與後續 Code mitigation／人工覆核狀態。2026-08-24～2026-08-25 的 Security、ErrorHandling 與 Validation 修正完成後，尚未取得正式 AppScan 複掃結果，因此不得宣稱 All Clear。
@@ -67,8 +67,12 @@ AppScan 原始統計：
 | `d00b0a3` | BE Validation：補上 SaveChanges 最終欄位驗證 | LibStr／LibNum 在進 SQL 前再次驗證，避免可預期長度／數值錯誤直接落入 SQL |
 | `087b311` | BE Validation：分離 LibField 共用規則與 Persistence 邊界 | API ModelState 與 SaveChanges 共用欄位驗證規則，避免兩層行為分歧 |
 | `bb826f6` | BE Validation：補齊 Upload Null 與 Model／DB 一致性防護 | 缺少必要上傳檔案改 400；LibField.Required 納入雙層驗證；Schema Drift 保留 500／BECode00046 |
+| `cdc91e5` | BE FileManagement：Upload 必要檔案 Filter 歸位 | `RequiredFormFileResourceFilter` 移至 `PlatformServices/FileManagement`，取消 FeatureDriver 全域 Filter，僅於 `Server_UploadTemp` 局部套用 |
 
 另外 `5603e61` 為 Security／弱掃文件與架構文件整併 Commit，不視為 Runtime mitigation。
+
+> [!NOTE]
+> `RequiredFormFileResourceFilter` 目前屬 FileManagement Upload 專用 HTTP Boundary，路徑為 `SysCore/PlatformServices/FileManagement/RequiredFormFileResourceFilter.cs`，不再由 `FeatureDriverApiSetup` 全域註冊。
 
 > [!NOTE]
 > Commit 存在只代表程式已修改。上述 2026-08-25 修正目前以靜態交叉檢查與 Code mitigation 為主，尚未完成 Backend Build、Runtime Payload 全量重送、DB Schema 比對或 AppScan 正式複掃。
@@ -223,7 +227,7 @@ Payload 真的能造成 500
 | SQL 547 Foreign Key Conflict | 260 | `fa40e5f`：依「被引用」或「FK 目標不存在／已變更」回 409 | 實測 Delete Reference、Insert／Update Missing FK；確認 SQL Server 語系訊息分類 |
 | SQL 2627 Duplicate Key | 2 | `fa40e5f`：2627／2601 轉 409 + BECode00045 | 原案例為 `FileManage_DownloadRecent`；仍需確認併發去重 Side Effect 是否應另做 Idempotency／Race 修正 |
 | Antiforgery SecurePolicy / HTTP `InvalidOperationException` | 702 | `f74e581`：Development HTTP XSRF Runtime 設定已修正 | Development／Production 各自確認 Cookie／HTTPS Policy |
-| Upload `NullReferenceException` | 3 | `bb826f6`：必要 `IFormFile` 缺檔／空檔於 HTTP 邊界回 400 + BECode00033；SHA256 內層另有 Null／Empty Guard | 重送 Missing File、Empty File、非 Form Content-Type |
+| Upload `NullReferenceException` | 3 | `bb826f6` + `cdc91e5`：必要 `IFormFile` 缺檔／空檔由 FileManagement 專屬 `RequiredFormFileResourceFilter` 於 `Server_UploadTemp` HTTP 邊界回 400 + BECode00033；SHA256 內層另有 Null／Empty Guard | 重送 Missing File、Empty File、非 Form Content-Type，確認非 FileManagement API 不受此 Filter 影響 |
 
 其中 Query 13,771 筆加上 Concurrency 2,095 筆，共 15,866 筆，依歷史 Log 分布約占全部 ERROR block 的 91.3%。目前已建立對應 400／409 Code path，但此比例只是依舊 Log 推算的理論收斂量，仍需同 Payload Runtime 重送證明。
 

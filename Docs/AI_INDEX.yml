@@ -1,4 +1,4 @@
-version: "1.8"
+version: "1.9"
 updated_at: "2026-08-25"
 purpose: "WCMS AI 快速定位索引；只提供導覽與搜尋入口，不取代正式架構、開發規範、品質驗證紀錄或實際程式碼。"
 
@@ -25,6 +25,7 @@ reading_order:
   - "依任務閱讀前端或後端專案架構"
   - "涉及 CSP、Security Header、SSR Host、COEP/COOP/CORP、Trusted Types 或 IIS→Node SSR→Backend 安全責任時，閱讀 02_前端專案架構.md 的 Security Hardening 章節並核對實際 Security 模組"
   - "涉及弱掃可重現 500、Exception 分類、DB Conflict、Dynamic Query 或 ErrorHandlingMiddleware 時，閱讀 03_後端專案架構.md 的 Auditing 與 Error Handling 章節"
+  - "涉及 LibField／LibStr／LibNum、SaveChanges 最終驗證、Model/DB Schema Drift 或必要 IFormFile Upload 時，同時核對 FeatureDriver Model Validation、Persistence Validation 與 PlatformServices/FileManagement"
   - "涉及登入、多分頁、同裝置 Browser Shared State、SaaS Membership 或購物車時，核對 01_整體專案架構.md 與 02_前端專案架構.md 的 Shared State／Auth Session 契約"
   - "涉及 Refresh Token Rotation、Refresh Race、LB 或 Redis Token State 時，追加核對 03_後端專案架構.md 的 IAM／Refresh Rotation 契約"
   - "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
@@ -101,15 +102,26 @@ navigation:
     spec_root: "WCMS_Backend/SpecFeatures"
     feature_setup: "WCMS_Backend/Features/Setup/FeaturesModuleSetup.cs"
     feature_driver_setup: "WCMS_Backend/SysCore/FeatureDriver/Setup/FeatureDriverModuleSetup.cs"
+    api_setup: "WCMS_Backend/SysCore/FeatureDriver/Api/Setup/FeatureDriverApiSetup.cs"
     api_controller: "WCMS_Backend/SysCore/FeatureDriver/Api/Controllers/ApiDataController.cs"
     api_response: "WCMS_Backend/SysCore/FeatureDriver/Api/Contracts/ApiResponse.cs"
+    lib_field_metadata: "WCMS_Backend/SysCore/FeatureDriver/Model/Metadata/LibFieldAttribute.cs"
+    lib_field_validator: "WCMS_Backend/SysCore/FeatureDriver/Model/Validation/LibFieldValidator.cs"
     biz_service: "WCMS_Backend/SysCore/FeatureDriver/Biz/BizService.cs"
     repository: "WCMS_Backend/SysCore/FeatureDriver/Repo/BasicRepository.cs"
     persistence_setup: "WCMS_Backend/SysCore/Persistence/PersistenceModuleSetup.cs"
     db_context: "WCMS_Backend/SysCore/Persistence/ApplicationDbContext.cs"
+    persistence_fk_normalizer: "WCMS_Backend/SysCore/Persistence/Normalization/StringForeignKeySaveChangesInterceptor.cs"
+    persistence_field_validator: "WCMS_Backend/SysCore/Persistence/Validation/LibFieldSaveChangesInterceptor.cs"
+    platform_services_setup: "WCMS_Backend/SysCore/PlatformServices/Setup/PlatformServicesModuleSetup.cs"
+    file_management_root: "WCMS_Backend/SysCore/PlatformServices/FileManagement"
+    file_management_api: "WCMS_Backend/SysCore/PlatformServices/FileManagement/FileManagement_API.cs"
+    file_management_biz: "WCMS_Backend/SysCore/PlatformServices/FileManagement/FileManagement_Biz.cs"
+    file_upload_required_filter: "WCMS_Backend/SysCore/PlatformServices/FileManagement/RequiredFormFileResourceFilter.cs"
     cache_setup: "WCMS_Backend/SysCore/PlatformServices/Cache/CacheModuleSetup.cs"
     cache_route: "WCMS_Backend/SysCore/PlatformServices/Cache/CacheRoute.cs"
     auditing_setup: "WCMS_Backend/SysCore/Auditing/AuditingModuleSetup.cs"
+    error_contracts: "WCMS_Backend/SysCore/Auditing/ErrorHandling/IWCMSException.cs"
     error_handling_middleware: "WCMS_Backend/SysCore/Auditing/ErrorHandling/ErrorHandlingMiddleware.cs"
     hardening_setup: "WCMS_Backend/SysCore/Security/Hardening/HardeningSetup.cs"
     security_headers_setup: "WCMS_Backend/SysCore/Security/Hardening/SecurityHeadersSetup.cs"
@@ -129,12 +141,15 @@ path_patterns:
     - "<FEATURE>_Model.cs"
     - "<FEATURE>_Biz.cs"
     - "<FEATURE>_Api.cs"
+  backend_platform_service: "WCMS_Backend/SysCore/PlatformServices/<SERVICE>/"
   backend_spec: "WCMS_Backend/SpecFeatures/<SPEC_CODE>/"
 
 search_sequence:
   - "先用功能名稱、PGID、Model 名稱、API Route 或錯誤訊息搜尋。"
   - "搜尋 Feature 的既有 Model、Biz、API、Hook、Loader、Component 與 Adapter。"
   - "搜尋 SysCore、Library、Helper、Template、FeatureDriver、Service 與 Repository 的共用能力。"
+  - "涉及檔案上傳、預覽、下載或 IFormFile 時，優先檢查 SysCore/PlatformServices/FileManagement；目前 RequiredFormFileResourceFilter 為 FileManagement 專用局部 HTTP Boundary，不是 FeatureDriver 全域 Filter。"
+  - "涉及 LibField／LibStr／LibNum 或 SQL 2628／515／8115 時，依序核對 Model Metadata、LibFieldValidator、Persistence Validation、實際 DB Schema 與 ErrorHandling。"
   - "搜尋目前 Spec 與相近 Spec 的延伸實作，但不得直接複製客製邏輯。"
   - "弱掃問題先比對報告、修改歷史與方針、對應版本 README、實際 Runtime Log 與 Security Commit，再判定真漏洞、疑似誤判或 Error Handling robustness 問題。"
   - "弱掃若以特殊輸入穩定觸發 500，即使掃描器漏洞名稱疑似誤判，也必須追查 Exception 分類與輸入邊界，不能只以 False Positive 結案。"
@@ -152,7 +167,7 @@ risk_tags:
   accessibility: ["AA", "keyboard", "focus", "ARIA", "CMS content"]
   rendering: ["SSR", "CSR", "hydration", "loader", "browser API"]
   security: ["weakness scan", "AppScan", "CSP", "Trusted Types", "COEP", "COOP", "CORP", "Host header", "SSRF", "XSRF", "CORS", "JWT", "cookie", "refresh rotation", "Error Handling", "500"]
-  data_contract: ["OpenAPI", "ApiResponse", "nullable", "optional", "DateOnly", "UTC"]
+  data_contract: ["OpenAPI", "ApiResponse", "nullable", "optional", "DateOnly", "UTC", "LibField", "LibStr", "LibNum", "Persistence Validation", "Schema Drift", "IFormFile"]
   runtime_state: ["cache", "token state", "permission", "output cache", "multi-tab", "shared state", "browser session", "last activity", "refresh race", "atomic rotation", "LB", "Redis", "SaaS membership", "cart state"]
   customization: ["Feature", "Spec", "fallback", "slot", "override"]
   localization: ["route language", "Accept-Language", "i18n", "multilingual data"]
@@ -170,6 +185,7 @@ maintenance:
     - "Feature／Spec 根目錄或命名規則變更"
     - "新的正式文件入口建立或舊入口移除"
     - "前端 Security Hardening 模組或安全責任邊界變更"
+    - "Backend Validation／Persistence／PlatformServices 的共用或局部責任邊界變更"
     - "弱掃版本目錄、正式追蹤文件或人工覆核證據入口變更"
     - "白箱 Rule Registry 或檢測模式入口變更"
     - "QA 生命週期、正式文件入口或版本狀態變更"
@@ -184,7 +200,7 @@ maintenance:
   verification:
     - "確認所有列出的檔案與目錄仍存在於指定分支"
     - "確認 README 與 AI 入口仍能導向本索引"
-    - "確認 Security Hardening、Error Handling 與弱掃入口可由本索引定位"
+    - "確認 Security Hardening、Error Handling、Validation、FileManagement 與弱掃入口可由本索引定位"
     - "確認白箱入口與 RULE_REGISTRY.yml 可由本索引定位"
     - "確認 QA README 與 WCMS-QA-GOV-001 可由本索引定位"
     - "確認本索引只提供定位，不與正式 Markdown、品質紀錄或 Rule Registry 衝突"
