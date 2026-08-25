@@ -35,7 +35,7 @@ internal static class FeatureDriverApiSetup
 
     #region Private
     /// <summary>
-    /// 註冊 Controller、Spec Filter 與 System.Text.Json 規則。
+    /// 註冊 Controller、Spec Filter、必要檔案檢查與 System.Text.Json 規則。
     /// </summary>
     private static void AddControllers(IServiceCollection services)
     {
@@ -43,6 +43,7 @@ internal static class FeatureDriverApiSetup
         {
             options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
             options.Filters.Add<SpecApiAccessFilter>();
+            options.Filters.Add<RequiredFormFileResourceFilter>();
         }).AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.PropertyNamingPolicy = null;

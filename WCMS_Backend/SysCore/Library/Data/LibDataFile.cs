@@ -27,6 +27,7 @@ public static partial class LibData
     /// </summary>
     public static string GetFileSHA256(IFormFile file)
     {
+        ValidateUploadFile(file);
         using var ms = new MemoryStream();
         file.CopyTo(ms);
         ms.Position = 0;
@@ -88,6 +89,14 @@ public static partial class LibData
     #endregion
 
     #region Private
+    /// <summary>
+    /// 防止內部流程將缺少或空白的上傳檔案送入檔案雜湊處理。
+    /// </summary>
+    private static void ValidateUploadFile(IFormFile? file)
+    {
+        if (file == null) throw new ArgumentNullException(nameof(file), "Upload file cannot be null.");
+        if (file.Length <= 0) throw new ArgumentException("Upload file cannot be empty.", nameof(file));
+    }
     /// <summary>
     /// 取得使用者上傳檔名副檔名。
     /// </summary>

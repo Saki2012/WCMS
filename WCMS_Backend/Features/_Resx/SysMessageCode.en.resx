@@ -272,4 +272,7 @@ Target node: {2}</value>
   <data name="BECode00045" xml:space="preserve">
     <value>The data duplicates an existing record. Please verify and try again.</value>
   </data>
+  <data name="BECode00046" xml:space="preserve">
+    <value>The persistence contract does not match the database schema. Please contact the system administrator.</value>
+  </data>
 </root>

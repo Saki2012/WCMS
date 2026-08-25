@@ -7,7 +7,7 @@ using WCMS.SysCore.FeatureDriver.Model.Metadata;
 namespace WCMS.SysCore.FeatureDriver.Model.Validation;
 
 /// <summary>
-/// 集中處理 LibStr / LibNum 驗證與 SysMessage 對應，供 API 與 Persistence 共用。
+/// 集中處理 LibField / LibStr / LibNum 驗證與 SysMessage 對應，供 API 與 Persistence 共用。
 /// </summary>
 internal static class LibFieldValidator
 {
@@ -18,7 +18,7 @@ internal static class LibFieldValidator
 
     #region Public
     /// <summary>
-    /// 驗證物件內符合條件的 LibStr / LibNum 欄位，回傳第一筆失敗結果。
+    /// 驗證物件內符合條件的 LibField / LibStr / LibNum 欄位，回傳第一筆失敗結果。
     /// </summary>
     public static LibFieldValidationFailure? Validate(object model, Func<string, bool>? includeProperty = null)
     {
@@ -52,7 +52,7 @@ internal static class LibFieldValidator
 
     #region Private
     /// <summary>
-    /// 建立單一型別需要執行的 LibStr / LibNum 驗證規則。
+    /// 建立單一型別需要執行的 WCMS 欄位驗證規則。
     /// </summary>
     private static LibFieldRule[] BuildRules(Type modelType)
     {
@@ -62,12 +62,13 @@ internal static class LibFieldValidator
     }
 
     /// <summary>
-    /// 將 Property 上的 LibStr / LibNum Attribute 轉成可快取規則。
+    /// 將 Property 上的 LibField / LibStr / LibNum Attribute 轉成可快取規則。
     /// </summary>
     private static LibFieldRule? CreateRule(PropertyInfo property)
     {
         ValidationAttribute? attribute = property.GetCustomAttribute<LibStrAttribute>(true);
         attribute ??= property.GetCustomAttribute<LibNumAttribute>(true);
+        attribute ??= property.GetCustomAttribute<LibFieldAttribute>(true);
         return attribute == null ? null : new LibFieldRule(property, attribute);
     }
 

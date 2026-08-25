@@ -1,4 +1,5 @@
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using NLog;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
@@ -53,6 +54,7 @@ public class ErrorHandlingMiddleware(RequestDelegate next, I18nCache i18n)
         if (TryAddForeignKeyUsedMessage(message, exception)) return StatusCodes.Status409Conflict;
         if (TryAddForeignKeyMissingMessage(message, exception)) return StatusCodes.Status409Conflict;
         if (TryAddDuplicateDataMessage(message, exception)) return StatusCodes.Status409Conflict;
+        if (TryAddPersistenceContractMessage(message, exception)) return StatusCodes.Status500InternalServerError;
 
         message.AddExceptionError();
         return StatusCodes.Status500InternalServerError;
@@ -217,6 +219,26 @@ Request: {method} {path}
 
         message.AddRequestError(SysMessageCode.BECode00045);
         return true;
+    }
+
+    /// <summary>
+    /// 將 SaveChanges 的 NOT NULL、字串截斷或數值溢位辨識為 Model / DB 持久化契約不一致。
+    /// </summary>
+    private static bool TryAddPersistenceContractMessage(IErrorHelper message, Exception exception)
+    {
+        DbUpdateException? dbException = GetInnerException<DbUpdateException>(exception);
+        SqlException? sqlException = GetInnerException<SqlException>(exception);
+        if (dbException == null || sqlException == null || !IsPersistenceContractError(sqlException.Number)) return false;
+        message.AddRequestError(SysMessageCode.BECode00046);
+        return true;
+    }
+
+    /// <summary>
+    /// 判斷 SaveChanges SQL Error Number 是否屬於應由 Model / DB 規格一致性避免的錯誤。
+    /// </summary>
+    private static bool IsPersistenceContractError(int errorNumber)
+    {
+        return errorNumber is 515 or 2628 or 8152 or 8115;
     }
 
     /// <summary>
