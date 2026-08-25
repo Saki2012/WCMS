@@ -95,7 +95,7 @@ public partial class CalendarDetail : DetailModel
     /// <summary>
     /// 修改人 ID。
     /// </summary>
-    [StringLength(DbStrLen.ID)]
+    [StringLength(DbStrLen.AccountId)]
     [LibField(ApiFieldMode.ReadOnly)]
     public string? ModifyUserId { get; set; }
 
