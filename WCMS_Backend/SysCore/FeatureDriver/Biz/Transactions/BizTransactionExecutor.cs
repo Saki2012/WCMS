@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using WCMS.Features._Resx;
 using WCMS.SysCore.Auditing.ErrorHandling;
 using WCMS.SysCore.Persistence;
 
@@ -40,6 +41,7 @@ internal sealed class BizTransactionExecutor(ApplicationDbContext dataAccess, IE
             throw;
         }
     }
+
     /// <summary>
     /// 執行不需要回傳資料的完整 Biz 交易骨架。
     /// </summary>
@@ -70,6 +72,7 @@ internal sealed class BizTransactionExecutor(ApplicationDbContext dataAccess, IE
         await DataAccess.Database.BeginTransactionAsync(ct);
         return true;
     }
+
     /// <summary>
     /// 只在目前流程擁有交易時執行 Rollback。
     /// </summary>
@@ -78,15 +81,25 @@ internal sealed class BizTransactionExecutor(ApplicationDbContext dataAccess, IE
         if (!ownsTransaction) return;
         await DataAccess.Database.RollbackTransactionAsync(ct);
     }
+
     /// <summary>
-    /// 儲存異動，並在目前流程擁有交易時 Commit。
+    /// 儲存異動，並將可預期的資料競爭轉為 WCMS Conflict Exception。
     /// </summary>
     private async Task CommitAsync(bool ownsTransaction, CancellationToken ct)
     {
-        await DataAccess.SaveChangesAsync(ct);
+        try
+        {
+            await DataAccess.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException exception)
+        {
+            throw new WCMSDataConcurrencyException(SysMessageCode.BECode00043, exception);
+        }
+
         if (!ownsTransaction) return;
         await DataAccess.Database.CommitTransactionAsync(ct);
     }
+
     /// <summary>
     /// Commit 後只由真正持有交易的流程執行 afterCommit。
     /// </summary>

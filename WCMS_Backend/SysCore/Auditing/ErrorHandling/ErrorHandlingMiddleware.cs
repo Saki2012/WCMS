@@ -45,8 +45,10 @@ public class ErrorHandlingMiddleware(RequestDelegate next, I18nCache i18n)
     /// </summary>
     private int AddErrorMessage(IErrorHelper message, Exception exception)
     {
+        if (TryAddWCMSQueryConditionMessage(message, exception)) return StatusCodes.Status400BadRequest;
         if (TryAddWCMSJsonMessage(message, exception)) return StatusCodes.Status400BadRequest;
         if (TryAddForeignKeyValueMessage(message, exception)) return StatusCodes.Status400BadRequest;
+        if (TryAddWCMSDataConcurrencyMessage(message, exception)) return StatusCodes.Status409Conflict;
         if (TryAddForeignKeyUsedMessage(message, exception)) return StatusCodes.Status409Conflict;
 
         message.AddExceptionError();
@@ -77,23 +79,34 @@ Request: {method} {path}
     }
 
     /// <summary>
-    /// 以指定 HTTP Status 回傳統一的 API 錯誤訊息。
+    /// 以指定 HTTP Status 回傳統一的 API 錯誤訊息與空 Data。
     /// </summary>
     private static async Task WriteExceptionResponseAsync(HttpContext context, int statusCode, IErrorHelper message)
     {
-        ApiResponse response = new() { SysMessage = message.Messages };
+        ApiResponse<object> response = new() { SysMessage = message.Messages, Data = [] };
         await WriteJsonAsync(context, statusCode, response);
     }
 
     /// <summary>
     /// 以指定 HTTP Status 回傳統一 ApiResponse JSON。
     /// </summary>
-    private static async Task WriteJsonAsync(HttpContext context, int statusCode, ApiResponse response)
+    private static async Task WriteJsonAsync(HttpContext context, int statusCode, ApiResponse<object> response)
     {
         context.Response.Clear();
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = SysParam.MediaTypes.ApplicationJson;
         await context.Response.WriteAsJsonAsync(response, context.RequestAborted);
+    }
+
+    /// <summary>
+    /// 將 WCMS 查詢條件例外轉成 Request Error。
+    /// </summary>
+    private static bool TryAddWCMSQueryConditionMessage(IErrorHelper message, Exception exception)
+    {
+        WCMSQueryConditionException? queryException = GetInnerException<WCMSQueryConditionException>(exception);
+        if (queryException == null) return false;
+        AddWCMSExceptionMessage(message, queryException);
+        return true;
     }
 
     /// <summary>
@@ -104,6 +117,17 @@ Request: {method} {path}
         WCMSJsonException? jsonException = GetInnerException<WCMSJsonException>(exception);
         if (jsonException == null) return false;
         AddWCMSExceptionMessage(message, jsonException);
+        return true;
+    }
+
+    /// <summary>
+    /// 將 WCMS 資料競爭例外轉成 Conflict Error。
+    /// </summary>
+    private static bool TryAddWCMSDataConcurrencyMessage(IErrorHelper message, Exception exception)
+    {
+        WCMSDataConcurrencyException? concurrencyException = GetInnerException<WCMSDataConcurrencyException>(exception);
+        if (concurrencyException == null) return false;
+        AddWCMSExceptionMessage(message, concurrencyException);
         return true;
     }
 

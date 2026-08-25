@@ -260,4 +260,10 @@
   <data name="BECode00040" xml:space="preserve">
     <value>【{0}】必須為有效數值。</value>
   </data>
+  <data name="BECode00042" xml:space="preserve">
+    <value>查詢條件格式不正確。</value>
+  </data>
+  <data name="BECode00043" xml:space="preserve">
+    <value>資料已被其他操作更新或刪除，請重新載入後再試。</value>
+  </data>
 </root>
