@@ -222,12 +222,13 @@ function Get-VersionValueFromSource {
 
 # 依目前 SpecCode、Feature ModelVersion 與 SpecModelVersion 組成 SQL 檔名。
 function Get-UpgradeSqlFileName {
-    param([string]$ProjectRoot, [string]$SpecCode, [string]$FallbackName)
+    param([string]$ProjectRoot, [string]$SpecCode)
 
-    if ([string]::IsNullOrWhiteSpace($SpecCode)) { return "$FallbackName.sql" }
     $featureVersionPath = Join-Path $ProjectRoot "SysCore\Configuration\SystemVersion.cs"
-    $specVersionPath = Join-Path $ProjectRoot "SpecFeatures\$SpecCode\SYS\SystemVersion\SystemVersion_Biz.cs"
     $featureModelVersion = Get-VersionValueFromSource -SourcePath $featureVersionPath -PropertyName "ModelVersion"
+    if ([string]::IsNullOrWhiteSpace($SpecCode)) { return "Feature-$featureModelVersion.sql" }
+
+    $specVersionPath = Join-Path $ProjectRoot "SpecFeatures\$SpecCode\SYS\SystemVersion\SystemVersion_Biz.cs"
     $specModelVersion = Get-VersionValueFromSource -SourcePath $specVersionPath -PropertyName "SpecModelVersion"
     return "$SpecCode-$featureModelVersion.$specModelVersion.sql"
 }
@@ -608,7 +609,7 @@ if (!$hasSpecCodeProperty) { throw "Missing SpecCode property in appsettings.Dev
 
 $specCode = if ($null -eq $settings.SpecCode) { "" } else { $settings.SpecCode.ToString().Trim() }
 if ([string]::IsNullOrWhiteSpace($conn)) { throw "Missing ConnectionStrings.SqlConnection in appsettings.Development.json." }
-$sqlFileName = Get-UpgradeSqlFileName -ProjectRoot $projectRoot -SpecCode $specCode -FallbackName $UpgradeName
+$sqlFileName = Get-UpgradeSqlFileName -ProjectRoot $projectRoot -SpecCode $specCode
 $sqlPath = Join-Path $sqlDir $sqlFileName
 
 Write-Host "SpecCode: $(Format-SpecCode $specCode)"
