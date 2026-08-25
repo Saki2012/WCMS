@@ -1,6 +1,6 @@
-version: "1.6"
-updated_at: "2026-08-20"
-purpose: "WCMS AI 快速定位索引；只提供導覽與搜尋入口，不取代正式架構、開發規範或實際程式碼。"
+version: "1.8"
+updated_at: "2026-08-25"
+purpose: "WCMS AI 快速定位索引；只提供導覽與搜尋入口，不取代正式架構、開發規範、品質驗證紀錄或實際程式碼。"
 
 repository:
   full_name: "Saki2012/WCMS"
@@ -14,6 +14,7 @@ source_priority:
   architecture_and_rules: "Docs 內有效的 Markdown 與白箱 RULE_REGISTRY.yml"
   change_reason: "Git Commit、PR、Issue 與決策紀錄"
   convergence_status: "Google Sheet：WCMS_整合收斂管理表"
+  verification_results: "Docs/03_品質與驗證文件 內對應版本的實際檢測報告與複驗紀錄"
   snapshots: "Office、PDF、ZIP 與 GitHub 內的試算表快照"
 
 reading_order:
@@ -22,11 +23,13 @@ reading_order:
   - "Docs/AI_INDEX.yml"
   - "Docs/01_研發與技術文件/01_系統架構/01_整體專案架構.md"
   - "依任務閱讀前端或後端專案架構"
+  - "涉及 CSP、Security Header、SSR Host、COEP/COOP/CORP、Trusted Types 或 IIS→Node SSR→Backend 安全責任時，閱讀 02_前端專案架構.md 的 Security Hardening 章節並核對實際 Security 模組"
+  - "涉及弱掃可重現 500、Exception 分類、DB Conflict、Dynamic Query 或 ErrorHandlingMiddleware 時，閱讀 03_後端專案架構.md 的 Auditing 與 Error Handling 章節"
   - "涉及登入、多分頁、同裝置 Browser Shared State、SaaS Membership 或購物車時，核對 01_整體專案架構.md 與 02_前端專案架構.md 的 Shared State／Auth Session 契約"
   - "涉及 Refresh Token Rotation、Refresh Race、LB 或 Redis Token State 時，追加核對 03_後端專案架構.md 的 IAM／Refresh Rotation 契約"
   - "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
   - "依任務閱讀前端或後端開發規範"
-  - "視任務閱讀 Git 與 Commit、品質驗證或開發歷程文件"
+  - "弱點掃描任務追加閱讀 03_品質與驗證文件/03_弱掃報告/README.md、修改歷史與方針.md 與對應版本 README"
   - "白箱任務追加閱讀 AI 白箱 README、RULE_REGISTRY.yml 與對應檢測規範"
   - "Shared State／Multi-Tab 白箱追加閱讀 Topics/BrowserSharedState.md"
   - "QA 任務追加閱讀 QA README 與 WCMS-QA-GOV-001 正式生命週期"
@@ -38,7 +41,9 @@ navigation:
     ai_entry: "Docs/WCMS_AI資料讀取入口.md"
     overall_architecture: "Docs/01_研發與技術文件/01_系統架構/01_整體專案架構.md"
     frontend_architecture: "Docs/01_研發與技術文件/01_系統架構/02_前端專案架構.md"
+    frontend_security_architecture: "Docs/01_研發與技術文件/01_系統架構/02_前端專案架構.md"
     backend_architecture: "Docs/01_研發與技術文件/01_系統架構/03_後端專案架構.md"
+    backend_security_error_handling: "Docs/01_研發與技術文件/01_系統架構/03_後端專案架構.md"
     common_rules: "Docs/01_研發與技術文件/02_開發規範/01_共通開發規範.md"
     frontend_rules: "Docs/01_研發與技術文件/02_開發規範/02_前端開發規範.md"
     backend_rules: "Docs/01_研發與技術文件/02_開發規範/03_後端開發規範.md"
@@ -52,6 +57,9 @@ navigation:
     whitebox_regression: "Docs/03_品質與驗證文件/01_AI白箱檢測/03_全專案白箱回歸檢測.md"
     qa_root: "Docs/03_品質與驗證文件/02_QA測試/README.md"
     qa_lifecycle: "Docs/03_品質與驗證文件/02_QA測試/01_WCMS_QA_RD_AI協作與開單驗證生命週期.md"
+    weak_scan_root: "Docs/03_品質與驗證文件/03_弱掃報告/README.md"
+    weak_scan_history_policy: "Docs/03_品質與驗證文件/03_弱掃報告/修改歷史與方針.md"
+    weak_scan_20260820: "Docs/03_品質與驗證文件/03_弱掃報告/FE1.5.3_BE1.5.2.1/README.md"
     development_history: "Docs/01_研發與技術文件/03_開發歷程與版本紀錄/01_開發歷程優化表.csv"
 
   frontend:
@@ -62,6 +70,12 @@ navigation:
     ssr_server: "WCMS_Frontend/src/SSR/SSR-Server.ts"
     ssr_entry: "WCMS_Frontend/src/SSR/Entry-Server.tsx"
     csr_entry: "WCMS_Frontend/src/SSR/Entry-Client.tsx"
+    security_headers: "WCMS_Frontend/src/SysCore/Security/Hardening/SecurityHeaders.ts"
+    security_csp: "WCMS_Frontend/src/SysCore/Security/Hardening/CSPSetting.ts"
+    security_coep: "WCMS_Frontend/src/SysCore/Security/Hardening/COEPSetting.ts"
+    security_corp: "WCMS_Frontend/src/SysCore/Security/Hardening/CORPSetting.ts"
+    security_host_validation: "WCMS_Frontend/src/SysCore/Security/Hardening/HostValidation.ts"
+    trusted_types_policy: "WCMS_Frontend/src/SysCore/Utils/Security/TrustedTypesPolicy.ts"
     api_base: "WCMS_Frontend/src/SysCore/Utils/API/APIBase.ts"
     api_client: "WCMS_Frontend/src/SysCore/Utils/API/APIClient.ts"
     api_adapter: "WCMS_Frontend/src/SysCore/Utils/API/APIAdapter.ts"
@@ -96,7 +110,10 @@ navigation:
     cache_setup: "WCMS_Backend/SysCore/PlatformServices/Cache/CacheModuleSetup.cs"
     cache_route: "WCMS_Backend/SysCore/PlatformServices/Cache/CacheRoute.cs"
     auditing_setup: "WCMS_Backend/SysCore/Auditing/AuditingModuleSetup.cs"
+    error_handling_middleware: "WCMS_Backend/SysCore/Auditing/ErrorHandling/ErrorHandlingMiddleware.cs"
     hardening_setup: "WCMS_Backend/SysCore/Security/Hardening/HardeningSetup.cs"
+    security_headers_setup: "WCMS_Backend/SysCore/Security/Hardening/SecurityHeadersSetup.cs"
+    xsrf_protection_setup: "WCMS_Backend/SysCore/Security/Hardening/XsrfProtectionSetup.cs"
     identity_access_setup: "WCMS_Backend/SysCore/Security/IdentityAccess/IdentityAccessSetup.cs"
     auth_api: "WCMS_Backend/Features/IAM/Auth/Auth_API.cs"
     token_service: "WCMS_Backend/SysCore/Security/IdentityAccess/Authentication/TokenService.cs"
@@ -119,6 +136,10 @@ search_sequence:
   - "搜尋 Feature 的既有 Model、Biz、API、Hook、Loader、Component 與 Adapter。"
   - "搜尋 SysCore、Library、Helper、Template、FeatureDriver、Service 與 Repository 的共用能力。"
   - "搜尋目前 Spec 與相近 Spec 的延伸實作，但不得直接複製客製邏輯。"
+  - "弱掃問題先比對報告、修改歷史與方針、對應版本 README、實際 Runtime Log 與 Security Commit，再判定真漏洞、疑似誤判或 Error Handling robustness 問題。"
+  - "弱掃若以特殊輸入穩定觸發 500，即使掃描器漏洞名稱疑似誤判，也必須追查 Exception 分類與輸入邊界，不能只以 False Positive 結案。"
+  - "涉及 CSP／COEP／COOP／CORP／Host／Trusted Types 時，同時追 IIS Edge、Node SSR、Backend 與 Browser 最外層 Response，正式設計以 02_前端專案架構.md 為準。"
+  - "涉及系統 Exception、DB Conflict、Dynamic Query 或 500 分類時，正式設計以 03_後端專案架構.md 為準。"
   - "涉及 Cookie、Session、Refresh、SaaS Membership、Cart 或其他共享 State 時，建立 Tab／Browser／Backend Scope Map。"
   - "涉及 Refresh Rotation 時，追蹤 Frontend Single-flight／跨 Tab Coordination，並一路追到 Backend old RTID Atomic Guarantee。"
   - "涉及 LB／Redis Token State 時，確認 Process-local Lock 不被誤當 Distributed Guarantee，並核對 Redis Required／Fail Closed 契約。"
@@ -130,12 +151,12 @@ search_sequence:
 risk_tags:
   accessibility: ["AA", "keyboard", "focus", "ARIA", "CMS content"]
   rendering: ["SSR", "CSR", "hydration", "loader", "browser API"]
-  security: ["weakness scan", "CSP", "XSRF", "CORS", "JWT", "cookie", "refresh rotation"]
+  security: ["weakness scan", "AppScan", "CSP", "Trusted Types", "COEP", "COOP", "CORP", "Host header", "SSRF", "XSRF", "CORS", "JWT", "cookie", "refresh rotation", "Error Handling", "500"]
   data_contract: ["OpenAPI", "ApiResponse", "nullable", "optional", "DateOnly", "UTC"]
   runtime_state: ["cache", "token state", "permission", "output cache", "multi-tab", "shared state", "browser session", "last activity", "refresh race", "atomic rotation", "LB", "Redis", "SaaS membership", "cart state"]
   customization: ["Feature", "Spec", "fallback", "slot", "override"]
   localization: ["route language", "Accept-Language", "i18n", "multilingual data"]
-  auditing: ["operation log", "change log", "NLog", "transaction"]
+  auditing: ["operation log", "change log", "NLog", "transaction", "TraceId", "Exception classification"]
 
 legacy_compatibility:
   - path: "WCMS_Frontend/src/SpecFetures"
@@ -148,6 +169,8 @@ maintenance:
     - "正式入口、主要目錄或核心檔案路徑變更"
     - "Feature／Spec 根目錄或命名規則變更"
     - "新的正式文件入口建立或舊入口移除"
+    - "前端 Security Hardening 模組或安全責任邊界變更"
+    - "弱掃版本目錄、正式追蹤文件或人工覆核證據入口變更"
     - "白箱 Rule Registry 或檢測模式入口變更"
     - "QA 生命週期、正式文件入口或版本狀態變更"
   do_not_duplicate:
@@ -155,12 +178,13 @@ maintenance:
     - "Code Style"
     - "功能完成狀態"
     - "套件精確版本"
-    - "測試或弱點掃描結果"
+    - "弱掃報告的逐筆原始內容"
     - "Rule 的完整判斷內容"
     - "QA 生命週期的完整流程與欄位定義"
   verification:
     - "確認所有列出的檔案與目錄仍存在於指定分支"
     - "確認 README 與 AI 入口仍能導向本索引"
+    - "確認 Security Hardening、Error Handling 與弱掃入口可由本索引定位"
     - "確認白箱入口與 RULE_REGISTRY.yml 可由本索引定位"
     - "確認 QA README 與 WCMS-QA-GOV-001 可由本索引定位"
-    - "確認本索引只提供定位，不與正式 Markdown 或 Rule Registry 衝突"
+    - "確認本索引只提供定位，不與正式 Markdown、品質紀錄或 Rule Registry 衝突"
