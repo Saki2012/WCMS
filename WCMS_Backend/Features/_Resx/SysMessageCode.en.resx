@@ -266,4 +266,10 @@ Target node: {2}</value>
   <data name="BECode00043" xml:space="preserve">
     <value>The data was updated or deleted by another operation. Please reload and try again.</value>
   </data>
+  <data name="BECode00044" xml:space="preserve">
+    <value>Related data does not exist or has changed. Please verify and try again.</value>
+  </data>
+  <data name="BECode00045" xml:space="preserve">
+    <value>The data duplicates an existing record. Please verify and try again.</value>
+  </data>
 </root>

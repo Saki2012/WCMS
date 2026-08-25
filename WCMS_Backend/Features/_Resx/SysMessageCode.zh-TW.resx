@@ -266,4 +266,10 @@
   <data name="BECode00043" xml:space="preserve">
     <value>資料已被其他操作更新或刪除，請重新載入後再試。</value>
   </data>
+  <data name="BECode00044" xml:space="preserve">
+    <value>關聯資料不存在或已變更，請重新確認。</value>
+  </data>
+  <data name="BECode00045" xml:space="preserve">
+    <value>資料與既有資料重複，請重新確認。</value>
+  </data>
 </root>

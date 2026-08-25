@@ -50,6 +50,8 @@ public class ErrorHandlingMiddleware(RequestDelegate next, I18nCache i18n)
         if (TryAddForeignKeyValueMessage(message, exception)) return StatusCodes.Status400BadRequest;
         if (TryAddWCMSDataConcurrencyMessage(message, exception)) return StatusCodes.Status409Conflict;
         if (TryAddForeignKeyUsedMessage(message, exception)) return StatusCodes.Status409Conflict;
+        if (TryAddForeignKeyMissingMessage(message, exception)) return StatusCodes.Status409Conflict;
+        if (TryAddDuplicateDataMessage(message, exception)) return StatusCodes.Status409Conflict;
 
         message.AddExceptionError();
         return StatusCodes.Status500InternalServerError;
@@ -167,6 +169,37 @@ Request: {method} {path}
             _i18n.GetDtoFirstTypeLabel(info.TableName),
             _i18n.GetDtoFirstPropertyLabel(info.TableName, info.ColumnName),
             info.ActionName);
+        return true;
+    }
+
+    /// <summary>
+    /// 將不存在或已變更的外鍵目標轉成資料狀態衝突。
+    /// </summary>
+    private static bool TryAddForeignKeyMissingMessage(IErrorHelper message, Exception exception)
+    {
+        SqlException? sqlException = GetInnerException<SqlException>(exception);
+        if (sqlException == null || sqlException.Number != 547) return false;
+
+        bool isForeignKey = sqlException.Message.Contains("FOREIGN KEY", StringComparison.OrdinalIgnoreCase)
+            || sqlException.Message.Contains("外部索引鍵", StringComparison.OrdinalIgnoreCase);
+        if (!isForeignKey) return false;
+
+        message.AddRequestError(SysMessageCode.BECode00044);
+        return true;
+    }
+
+    /// <summary>
+    /// 將 SQL 重複鍵或唯一索引衝突轉成資料重複 Conflict。
+    /// </summary>
+    private static bool TryAddDuplicateDataMessage(IErrorHelper message, Exception exception)
+    {
+        SqlException? sqlException = GetInnerException<SqlException>(exception);
+        if (sqlException == null) return false;
+
+        bool isDuplicate = sqlException.Number is 2627 or 2601;
+        if (!isDuplicate) return false;
+
+        message.AddRequestError(SysMessageCode.BECode00045);
         return true;
     }
 
