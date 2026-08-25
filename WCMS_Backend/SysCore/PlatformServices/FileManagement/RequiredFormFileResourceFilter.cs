@@ -6,7 +6,7 @@ using WCMS.Features._Resx;
 using WCMS.SysCore.Auditing.ErrorHandling;
 using WCMS.SysCore.FeatureDriver.Api.Contracts;
 
-namespace WCMS.SysCore.FeatureDriver.Api.Filters;
+namespace WCMS.SysCore.PlatformServices.FileManagement;
 
 /// <summary>
 /// 在 Controller Model Binding 前檢查必要的 IFormFile，避免缺檔或空檔進入後續 Biz 流程。

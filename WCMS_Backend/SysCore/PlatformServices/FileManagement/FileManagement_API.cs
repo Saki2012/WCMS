@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using PdfSharp.Pdf.IO;
@@ -107,6 +107,7 @@ public class FileManagementController : ApiDataController<FileManage>
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
+    [TypeFilter(typeof(RequiredFormFileResourceFilter))]
     [HttpPost(nameof(Server_UploadTemp)), AllowAnonymous, IgnoreAntiforgeryToken, RequestSizeLimit(200L * 1024 * 1024)]// 200 MB限制
     public async Task<IActionResult> Server_UploadTemp(IFormFile file)
     {
