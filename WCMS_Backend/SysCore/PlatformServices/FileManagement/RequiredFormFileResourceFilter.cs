@@ -5,6 +5,7 @@ using System.Reflection;
 using WCMS.Features._Resx;
 using WCMS.SysCore.Auditing.ErrorHandling;
 using WCMS.SysCore.FeatureDriver.Api.Contracts;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
 
 namespace WCMS.SysCore.PlatformServices.FileManagement;
 

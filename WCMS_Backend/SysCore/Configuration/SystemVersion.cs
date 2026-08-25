@@ -19,8 +19,8 @@ public class SystemVersion
     {
         SystemVersion_DTO data = new()
         {
-            FeatVersion = 6,
-            ModelVersion = 2,
+            FeatVersion = 7,
+            ModelVersion = 3,
             Patch = 0,
         };
         SetSpecVersion(data);

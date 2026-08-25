@@ -1179,6 +1179,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Auth/SessionDiagnostics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Banner/Create": {
         parameters: {
             query?: never;
@@ -9829,7 +9865,7 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         Account: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -9845,9 +9881,9 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly AccountId?: string | null;
+            AccountId?: string | null;
             AccountName?: string | null;
             Person?: components["schemas"]["Person"];
             PersonId?: string | null;
@@ -9868,7 +9904,7 @@ export interface components {
          */
         AccountStatus: 0 | 1;
         Announcement: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -9884,9 +9920,9 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly AnnouncementId?: string | null;
+            AnnouncementId?: string | null;
             Categories?: string | null;
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
@@ -9906,10 +9942,10 @@ export interface components {
         AnnouncementDetail: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly AnnouncementId?: string | null;
+            AnnouncementId?: string | null;
             Lang?: components["schemas"]["LangCode"];
             Title?: string | null;
             SubTitle?: string | null;
@@ -9921,18 +9957,18 @@ export interface components {
         AnnouncementDetailFile: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly AnnouncementId?: string | null;
+            AnnouncementId?: string | null;
             /** Format: int32 */
-            readonly ParentRowId?: number;
+            ParentRowId?: number;
             File?: components["schemas"]["FileManage"];
             FileId?: string | null;
             FileName?: string | null;
         };
         Banner: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -9948,9 +9984,9 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly BannerId?: string | null;
+            BannerId?: string | null;
             BannerCategoryName?: string | null;
             /** Format: int32 */
             Interval?: number | null;
@@ -9969,10 +10005,10 @@ export interface components {
         BannerDetail: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly BannerId?: string | null;
+            BannerId?: string | null;
             PicSrcId?: string | null;
             FontColor?: string | null;
             /** Format: date-time */
@@ -9986,12 +10022,12 @@ export interface components {
         BannerDetailInfo: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly BannerId?: string | null;
+            BannerId?: string | null;
             /** Format: int32 */
-            readonly ParentRowId?: number;
+            ParentRowId?: number;
             Lang?: components["schemas"]["LangCode"];
             Title?: string | null;
             Content?: string | null;
@@ -9999,7 +10035,7 @@ export interface components {
             URL_Open?: components["schemas"]["WindowTarget"];
         };
         Calendar: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -10015,10 +10051,10 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
             /** Format: int32 */
-            readonly Year?: number;
+            Year?: number;
             ImportSrc?: string | null;
             /** Format: date-time */
             LastImportTime?: string | null;
@@ -10031,9 +10067,9 @@ export interface components {
         CalendarDetail: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly Year?: number;
+            Year?: number;
             /** Format: date */
-            readonly Date?: string;
+            Date?: string;
             DayOfWeek?: components["schemas"]["DayOfWeek"];
             IsHoliday?: boolean | null;
             HolidayName?: string | null;
@@ -10055,7 +10091,7 @@ export interface components {
             Data?: components["schemas"]["CaptchaPublicConfig_DTO"][] | null;
         };
         Category: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -10071,9 +10107,9 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly CategoryId?: string | null;
+            CategoryId?: string | null;
             ProgId?: string | null;
             _CategoryDetail?: components["schemas"]["CategoryDetail"][] | null;
         };
@@ -10084,10 +10120,10 @@ export interface components {
         CategoryDetail: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly CategoryId?: string | null;
+            CategoryId?: string | null;
             Lang?: components["schemas"]["LangCode"];
             CategoryName?: string | null;
         };
@@ -10111,7 +10147,7 @@ export interface components {
          */
         DayOfWeek: 0 | 1 | 2 | 3 | 4 | 5 | 6;
         FileArchive: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -10127,9 +10163,9 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly FileArchiveId: string;
+            FileArchiveId: string;
             ContentStatus?: components["schemas"]["ContentStatus"];
             CategoriesId?: string | null;
             TagsId?: string | null;
@@ -10147,12 +10183,12 @@ export interface components {
         FileArchiveDetail: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly FileArchiveId: string;
+            FileArchiveId: string;
             /** Format: int32 */
-            readonly ParentRowId?: number;
+            ParentRowId?: number;
             FileSrcId?: string | null;
             FileSrc?: components["schemas"]["FileManage"];
             FileName?: string | null;
@@ -10160,10 +10196,10 @@ export interface components {
         FileArchiveInfo: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly FileArchiveId: string;
+            FileArchiveId: string;
             Lang?: components["schemas"]["LangCode"];
             Title?: string | null;
             _FileArchiveDetail?: components["schemas"]["FileArchiveDetail"][] | null;
@@ -10172,12 +10208,12 @@ export interface components {
         FileArchiveUrlDetail: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly FileArchiveId: string;
+            FileArchiveId: string;
             /** Format: int32 */
-            readonly ParentRowId?: number;
+            ParentRowId?: number;
             Url?: string | null;
             UrlDescription?: string | null;
             WindowTarget?: components["schemas"]["WindowTarget"];
@@ -10198,9 +10234,9 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             Path?: string | null;
             FileName?: string | null;
             FileExtension?: string | null;
@@ -10225,10 +10261,10 @@ export interface components {
         FileManage_DownloadRecent: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             VisitorKey?: string | null;
             RefererURL?: string | null;
             /** Format: date-time */
@@ -10237,10 +10273,10 @@ export interface components {
         FileManage_SyncInfo: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             FileStatus?: components["schemas"]["FileStatus"];
             SrcIP?: string | null;
             SrcNode?: string | null;
@@ -10269,7 +10305,7 @@ export interface components {
          */
         FuncAction: 0 | 1 | 2 | 4 | 7 | 8 | 16 | 32 | 63 | 64 | 127;
         Gallery: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -10285,9 +10321,9 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly GalleryId: string;
+            GalleryId: string;
             Categories?: string | null;
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
@@ -10307,10 +10343,10 @@ export interface components {
         GalleryInfo: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly GalleryId: string;
+            GalleryId: string;
             Lang?: components["schemas"]["LangCode"];
             Title?: string | null;
             Content?: string | null;
@@ -10318,10 +10354,10 @@ export interface components {
         GalleryPhotos: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly GalleryId: string;
+            GalleryId: string;
             PicSrc?: components["schemas"]["FileManage"];
             PicSrcId?: string | null;
             /** Format: int32 */
@@ -10331,12 +10367,12 @@ export interface components {
         GalleryPhotosInfo: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly GalleryId: string;
+            GalleryId: string;
             /** Format: int32 */
-            readonly ParentRowId?: number;
+            ParentRowId?: number;
             Lang?: components["schemas"]["LangCode"];
             Title?: string | null;
             Description?: string | null;
@@ -10391,27 +10427,27 @@ export interface components {
         MatCategoryInfoField: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly CategoryId?: string | null;
+            CategoryId?: string | null;
             Field?: string | null;
             _MatCategoryInfoFieldDisplay?: components["schemas"]["MatCategoryInfoFieldDisplay"][] | null;
         };
         MatCategoryInfoFieldDisplay: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly CategoryId?: string | null;
+            CategoryId?: string | null;
             /** Format: int32 */
-            readonly ParentRowId?: number;
+            ParentRowId?: number;
             Lang?: components["schemas"]["LangCode"];
             FieldDisplayName?: string | null;
         };
         Material: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -10427,9 +10463,9 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly MaterialId?: string | null;
+            MaterialId?: string | null;
             Category?: components["schemas"]["Category"];
             CategoryId?: string | null;
             /** Format: double */
@@ -10445,10 +10481,10 @@ export interface components {
         MaterialLangInfo: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly MaterialId?: string | null;
+            MaterialId?: string | null;
             Lang?: components["schemas"]["LangCode"];
             MaterialName?: string | null;
             MaterialInfoJson?: string | null;
@@ -10457,10 +10493,10 @@ export interface components {
         MaterialPicture: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly MaterialId?: string | null;
+            MaterialId?: string | null;
             Picture?: components["schemas"]["FileManage"];
             PictureId?: string | null;
             PictureName?: string | null;
@@ -10468,10 +10504,10 @@ export interface components {
         MaterialTags: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly MaterialId?: string | null;
+            MaterialId?: string | null;
             Tag?: components["schemas"]["TagData"];
             TagId?: string | null;
         };
@@ -10495,7 +10531,7 @@ export interface components {
             Desc?: boolean | null;
         };
         PageManagement: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -10511,11 +10547,11 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
             SiteIndex?: components["schemas"]["SiteMenu_Index"];
             SiteIndexId?: string | null;
-            readonly PageId?: string | null;
+            PageId?: string | null;
             ProgId?: string | null;
             CategoryId?: string | null;
             _PageManagementDetail?: components["schemas"]["PageManagementDetail"][] | null;
@@ -10527,10 +10563,10 @@ export interface components {
         PageManagementDetail: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly PageId?: string | null;
+            PageId?: string | null;
             Lang?: components["schemas"]["LangCode"];
             Title?: string | null;
             Content?: string | null;
@@ -10551,7 +10587,7 @@ export interface components {
             SupportMask?: components["schemas"]["FuncAction"];
         };
         Person: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -10567,9 +10603,9 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly PersonId?: string | null;
+            PersonId?: string | null;
             PersonName?: string | null;
             PersonImg?: components["schemas"]["FileManage"];
             PersonImgId?: string | null;
@@ -10601,7 +10637,7 @@ export interface components {
             NewPassword?: string | null;
         };
         RoleData: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -10617,9 +10653,9 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly RoleId?: string | null;
+            RoleId?: string | null;
             RoleName?: string | null;
             IsAdmin?: boolean | null;
             _RolePermission?: components["schemas"]["RolePermission"][] | null;
@@ -10631,10 +10667,10 @@ export interface components {
         RolePermission: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly RoleId?: string | null;
+            RoleId?: string | null;
             PermissionKey?: string | null;
             GrantMask?: components["schemas"]["FuncAction"];
         };
@@ -10717,7 +10753,7 @@ export interface components {
             Data?: components["schemas"]["SaveSiteInfo_DTO"];
         };
         SiteMenu_Index: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -10733,9 +10769,9 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly SiteIndex?: string | null;
+            SiteIndex?: string | null;
             GoogleAnalytics?: string | null;
             Enable?: boolean | null;
             DefaultLang?: components["schemas"]["LangCode"];
@@ -10750,10 +10786,10 @@ export interface components {
         SiteMenu_IndexInfo: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly SiteIndex?: string | null;
+            SiteIndex?: string | null;
             Lang?: components["schemas"]["LangCode"];
             Title?: string | null;
             Description?: string | null;
@@ -10766,10 +10802,10 @@ export interface components {
         SiteMenu_Item: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly SiteIndex?: string | null;
+            SiteIndex?: string | null;
             /** Format: int32 */
             ParentRowId?: number | null;
             ItemSiteUrl?: string | null;
@@ -10786,9 +10822,9 @@ export interface components {
         };
         SiteMenu_Item_Module: {
             RowState?: components["schemas"]["RowState"];
-            readonly SiteIndex?: string | null;
+            SiteIndex?: string | null;
             /** Format: int32 */
-            readonly ItemRowId?: number;
+            ItemRowId?: number;
             Banner?: components["schemas"]["Banner"];
             BannerId?: string | null;
             PageType?: components["schemas"]["ModulePageType"];
@@ -10798,21 +10834,21 @@ export interface components {
         SiteMenu_Item_Title: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly SiteIndex?: string | null;
+            SiteIndex?: string | null;
             /** Format: int32 */
-            readonly ItemRowId?: number;
+            ItemRowId?: number;
             Lang?: components["schemas"]["LangCode"];
             Title?: string | null;
             IsShowOnMenu?: boolean | null;
         };
         SiteMenu_Item_Url: {
             RowState?: components["schemas"]["RowState"];
-            readonly SiteIndex?: string | null;
+            SiteIndex?: string | null;
             /** Format: int32 */
-            readonly ItemRowId?: number;
+            ItemRowId?: number;
             RedirectType?: components["schemas"]["MenuUrlType"];
             RedirectUrl?: string | null;
         };
@@ -10831,7 +10867,7 @@ export interface components {
             LinkClickCount?: number | null;
         };
         SiteViewCountHeader: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -10847,7 +10883,7 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
             SiteMenu_Index?: components["schemas"]["SiteMenu_Index"];
             readonly SiteIndex?: string | null;
@@ -10866,7 +10902,7 @@ export interface components {
             Data?: string[] | null;
         };
         Survey: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -10882,9 +10918,9 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly SurveyId?: string | null;
+            SurveyId?: string | null;
             SurveyName?: string | null;
             SurveyDescription?: string | null;
             SurveySuccessContent?: string | null;
@@ -10897,10 +10933,10 @@ export interface components {
         SurveyItem: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly SurveyId?: string | null;
+            SurveyId?: string | null;
             FieldId?: string | null;
             IsRequired?: boolean | null;
             InputType?: components["schemas"]["LibInputType"];
@@ -10910,12 +10946,12 @@ export interface components {
         SurveyItemLang: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly SurveyId?: string | null;
+            SurveyId?: string | null;
             /** Format: int32 */
-            readonly ParentRowId?: number;
+            ParentRowId?: number;
             Lang?: components["schemas"]["LangCode"];
             FieldName?: string | null;
         };
@@ -10968,7 +11004,7 @@ export interface components {
             Message?: string | null;
         };
         TagData: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -10984,9 +11020,9 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly TagId?: string | null;
+            TagId?: string | null;
             ProgId?: string | null;
             _TagDetail?: components["schemas"]["TagDetail"][] | null;
         };
@@ -10997,15 +11033,15 @@ export interface components {
         TagDetail: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly TagId?: string | null;
+            TagId?: string | null;
             Lang?: components["schemas"]["LangCode"];
             TagName?: string | null;
         };
         Timeline: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -11021,9 +11057,9 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly TimelineId?: string | null;
+            TimelineId?: string | null;
             TimelineName?: string | null;
             _TimelineItem?: components["schemas"]["TimelineItem"][] | null;
         };
@@ -11034,10 +11070,10 @@ export interface components {
         TimelineItem: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly TimelineId?: string | null;
+            TimelineId?: string | null;
             /** Format: date-time */
             Date?: string | null;
             _TimelineLangDetail?: components["schemas"]["TimelineLangDetail"][] | null;
@@ -11045,12 +11081,12 @@ export interface components {
         TimelineLangDetail: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly TimelineId?: string | null;
+            TimelineId?: string | null;
             /** Format: int32 */
-            readonly ParentRowId?: number;
+            ParentRowId?: number;
             Lang?: components["schemas"]["LangCode"];
             Title?: string | null;
             Content?: string | null;
@@ -11074,7 +11110,7 @@ export interface components {
             SiteIndex?: string | null;
         };
         WebResource: {
-            readonly InternalId?: string | null;
+            InternalId?: string | null;
             /** Format: date-time */
             readonly CreateTime?: string | null;
             CreateUser?: components["schemas"]["Account"];
@@ -11090,9 +11126,9 @@ export interface components {
             InvalidUser?: components["schemas"]["Account"];
             readonly InvalidUserId?: string | null;
             /** Format: byte */
-            readonly DataVersion?: string | null;
+            DataVersion?: string | null;
             readonly IsIniData?: boolean;
-            readonly WebResourceId: string;
+            WebResourceId: string;
             Categories?: string | null;
             Tags?: string | null;
             ContentStatus?: components["schemas"]["ContentStatus"];
@@ -11108,10 +11144,10 @@ export interface components {
         WebResourceInfo: {
             RowState?: components["schemas"]["RowState"];
             /** Format: int32 */
-            readonly RowId?: number;
+            RowId?: number;
             /** Format: int32 */
             RowNo?: number | null;
-            readonly WebResourceId: string;
+            WebResourceId: string;
             Lang?: components["schemas"]["LangCode"];
             Title?: string | null;
             Content?: string | null;
