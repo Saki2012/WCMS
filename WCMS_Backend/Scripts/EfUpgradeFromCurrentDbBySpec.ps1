@@ -207,6 +207,31 @@ function Format-SpecCode {
     return $SpecCode
 }
 
+# 從 SystemVersion C# 原始碼讀取指定版本欄位的整數值。
+function Get-VersionValueFromSource {
+    param([string]$SourcePath, [string]$PropertyName)
+
+    if (!(Test-Path $SourcePath)) { throw "Version source not found: $SourcePath" }
+    $sourceText = Get-Content $SourcePath -Raw -Encoding UTF8
+    $escapedName = [regex]::Escape($PropertyName)
+    $pattern = "\b$escapedName\s*=\s*(?<value>\d+)\s*[,;]"
+    $match = [regex]::Match($sourceText, $pattern)
+    if (!$match.Success) { throw "Version property '$PropertyName' not found: $SourcePath" }
+    return [int]$match.Groups["value"].Value
+}
+
+# 依目前 SpecCode、Feature ModelVersion 與 SpecModelVersion 組成 SQL 檔名。
+function Get-UpgradeSqlFileName {
+    param([string]$ProjectRoot, [string]$SpecCode, [string]$FallbackName)
+
+    if ([string]::IsNullOrWhiteSpace($SpecCode)) { return "$FallbackName.sql" }
+    $featureVersionPath = Join-Path $ProjectRoot "SysCore\Configuration\SystemVersion.cs"
+    $specVersionPath = Join-Path $ProjectRoot "SpecFeatures\$SpecCode\SYS\SystemVersion\SystemVersion_Biz.cs"
+    $featureModelVersion = Get-VersionValueFromSource -SourcePath $featureVersionPath -PropertyName "ModelVersion"
+    $specModelVersion = Get-VersionValueFromSource -SourcePath $specVersionPath -PropertyName "SpecModelVersion"
+    return "$SpecCode-$featureModelVersion.$specModelVersion.sql"
+}
+
 function Invoke-SqlScalar {
     param([string]$ConnectionString, [string]$Sql)
 
@@ -569,7 +594,6 @@ $baselineScaffoldDir = Join-Path $migrationsDir "_BaselineScaffold"
 $tempMigrationDir = Join-Path $baselineScaffoldDir "__TempMigrations"
 $snapshotPath = Join-Path $migrationsDir "ApplicationDbContextModelSnapshot.cs"
 $sqlDir = Join-Path $migrationsDir "Sql"
-$sqlPath = Join-Path $sqlDir "$UpgradeName.sql"
 $diagnosticDir = Join-Path $projectRoot "obj\MigrationDiagnostics"
 
 Set-Location $projectRoot
@@ -584,10 +608,13 @@ if (!$hasSpecCodeProperty) { throw "Missing SpecCode property in appsettings.Dev
 
 $specCode = if ($null -eq $settings.SpecCode) { "" } else { $settings.SpecCode.ToString().Trim() }
 if ([string]::IsNullOrWhiteSpace($conn)) { throw "Missing ConnectionStrings.SqlConnection in appsettings.Development.json." }
+$sqlFileName = Get-UpgradeSqlFileName -ProjectRoot $projectRoot -SpecCode $specCode -FallbackName $UpgradeName
+$sqlPath = Join-Path $sqlDir $sqlFileName
 
 Write-Host "SpecCode: $(Format-SpecCode $specCode)"
 Write-Host "Configuration: $Configuration"
 Write-Host "Project: $projectPath"
+Write-Host "SQL Output: $sqlPath"
 
 # Validate DB SpecCode before any destructive file operation or DB update
 if ($SkipDbSpecCodeCheck) {
