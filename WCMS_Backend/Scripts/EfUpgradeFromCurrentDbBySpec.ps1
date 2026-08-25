@@ -222,14 +222,30 @@ function Get-VersionValueFromSource {
 
 # 依目前 SpecCode、Feature ModelVersion 與 SpecModelVersion 組成 SQL 檔名。
 function Get-UpgradeSqlFileName {
-    param([string]$ProjectRoot, [string]$SpecCode, [string]$FallbackName)
+    param([string]$ProjectRoot, [string]$SpecCode)
 
-    if ([string]::IsNullOrWhiteSpace($SpecCode)) { return "$FallbackName.sql" }
     $featureVersionPath = Join-Path $ProjectRoot "SysCore\Configuration\SystemVersion.cs"
-    $specVersionPath = Join-Path $ProjectRoot "SpecFeatures\$SpecCode\SYS\SystemVersion\SystemVersion_Biz.cs"
     $featureModelVersion = Get-VersionValueFromSource -SourcePath $featureVersionPath -PropertyName "ModelVersion"
+    if ([string]::IsNullOrWhiteSpace($SpecCode)) { return "Feature-$featureModelVersion.sql" }
+
+    $specVersionPath = Join-Path $ProjectRoot "SpecFeatures\$SpecCode\SYS\SystemVersion\SystemVersion_Biz.cs"
     $specModelVersion = Get-VersionValueFromSource -SourcePath $specVersionPath -PropertyName "SpecModelVersion"
     return "$SpecCode-$featureModelVersion.$specModelVersion.sql"
+}
+
+# 將本次 Upgrade MigrationId 改成 SQL 檔名（不含 .sql）。
+function Set-UpgradeMigrationHistoryId {
+    param([string]$SqlText, [string]$UpgradeName, [string]$SqlFileName)
+
+    $historyId = [System.IO.Path]::GetFileNameWithoutExtension($SqlFileName)
+    if ($historyId.Length -gt 150) { throw "Migration history id exceeds 150 characters: $historyId" }
+    $escapedUpgradeName = [regex]::Escape($UpgradeName)
+    $pattern = "VALUES\s*\(\s*N'(?<id>[^']*_$escapedUpgradeName)'\s*,\s*N'[^']+'\s*\)\s*;"
+    $match = [regex]::Match($SqlText, $pattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    if (!$match.Success) { throw "Upgrade migration history INSERT not found: $UpgradeName" }
+
+    $safeHistoryId = $historyId.Replace("'", "''")
+    return $SqlText.Remove($match.Groups["id"].Index, $match.Groups["id"].Length).Insert($match.Groups["id"].Index, $safeHistoryId)
 }
 
 function Invoke-SqlScalar {
@@ -608,7 +624,7 @@ if (!$hasSpecCodeProperty) { throw "Missing SpecCode property in appsettings.Dev
 
 $specCode = if ($null -eq $settings.SpecCode) { "" } else { $settings.SpecCode.ToString().Trim() }
 if ([string]::IsNullOrWhiteSpace($conn)) { throw "Missing ConnectionStrings.SqlConnection in appsettings.Development.json." }
-$sqlFileName = Get-UpgradeSqlFileName -ProjectRoot $projectRoot -SpecCode $specCode -FallbackName $UpgradeName
+$sqlFileName = Get-UpgradeSqlFileName -ProjectRoot $projectRoot -SpecCode $specCode
 $sqlPath = Join-Path $sqlDir $sqlFileName
 
 Write-Host "SpecCode: $(Format-SpecCode $specCode)"
@@ -770,6 +786,7 @@ Invoke-DotnetStep -Title "Generate SQL script" -Command {
 
 $sqlText = Get-Content $sqlPath -Raw -Encoding UTF8
 $hardenedSql = Add-ForeignKeyGuardsToSql -ConnectionString $conn -SqlText $sqlText
+$hardenedSql = Set-UpgradeMigrationHistoryId -SqlText $hardenedSql -UpgradeName $UpgradeName -SqlFileName $sqlFileName
 Set-Content $sqlPath $hardenedSql -Encoding UTF8
 Write-Host "Hardened SQL script generated: $sqlPath"
 
