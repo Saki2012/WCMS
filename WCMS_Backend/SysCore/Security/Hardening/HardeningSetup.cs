@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Net;
@@ -109,7 +110,7 @@ internal static class HardeningSetup
 
     #region Private - Services
     /// <summary>
-    /// 註冊 Antiforgery 內部 Cookie 與前端回送 Header 規則。
+    /// 註冊 Antiforgery 內部 Cookie 與前端回送 Header 規則；DEV HTTP 使用 SameAsRequest，非 DEV 維持 Always。
     /// </summary>
     private static void AddAntiforgery(IServiceCollection services)
     {
@@ -117,10 +118,15 @@ internal static class HardeningSetup
         {
             options.Cookie.Name = SysParam.CookieNames.AntiforgeryToken;
             options.Cookie.HttpOnly = true;
-            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             options.Cookie.SameSite = SameSiteMode.Strict;
             options.Cookie.Path = SysParam.CookiePaths.Root;
             options.HeaderName = SysParam.HttpHeaders.XsrfToken;
+        });
+        services.AddOptions<AntiforgeryOptions>().Configure<IWebHostEnvironment>((options, environment) =>
+        {
+            options.Cookie.SecurePolicy = environment.IsDevelopment()
+                ? CookieSecurePolicy.SameAsRequest
+                : CookieSecurePolicy.Always;
         });
     }
 

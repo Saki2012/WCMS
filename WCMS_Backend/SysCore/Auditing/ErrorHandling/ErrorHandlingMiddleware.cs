@@ -1,4 +1,5 @@
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using NLog;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
@@ -45,9 +46,15 @@ public class ErrorHandlingMiddleware(RequestDelegate next, I18nCache i18n)
     /// </summary>
     private int AddErrorMessage(IErrorHelper message, Exception exception)
     {
+        if (TryAddWCMSQueryConditionMessage(message, exception)) return StatusCodes.Status400BadRequest;
         if (TryAddWCMSJsonMessage(message, exception)) return StatusCodes.Status400BadRequest;
+        if (TryAddWCMSFieldValidationMessage(message, exception)) return StatusCodes.Status400BadRequest;
         if (TryAddForeignKeyValueMessage(message, exception)) return StatusCodes.Status400BadRequest;
+        if (TryAddWCMSDataConcurrencyMessage(message, exception)) return StatusCodes.Status409Conflict;
         if (TryAddForeignKeyUsedMessage(message, exception)) return StatusCodes.Status409Conflict;
+        if (TryAddForeignKeyMissingMessage(message, exception)) return StatusCodes.Status409Conflict;
+        if (TryAddDuplicateDataMessage(message, exception)) return StatusCodes.Status409Conflict;
+        if (TryAddPersistenceContractMessage(message, exception)) return StatusCodes.Status500InternalServerError;
 
         message.AddExceptionError();
         return StatusCodes.Status500InternalServerError;
@@ -77,23 +84,34 @@ Request: {method} {path}
     }
 
     /// <summary>
-    /// 以指定 HTTP Status 回傳統一的 API 錯誤訊息。
+    /// 以指定 HTTP Status 回傳統一的 API 錯誤訊息與空 Data。
     /// </summary>
     private static async Task WriteExceptionResponseAsync(HttpContext context, int statusCode, IErrorHelper message)
     {
-        ApiResponse response = new() { SysMessage = message.Messages };
+        ApiResponse<object> response = new() { SysMessage = message.Messages, Data = [] };
         await WriteJsonAsync(context, statusCode, response);
     }
 
     /// <summary>
     /// 以指定 HTTP Status 回傳統一 ApiResponse JSON。
     /// </summary>
-    private static async Task WriteJsonAsync(HttpContext context, int statusCode, ApiResponse response)
+    private static async Task WriteJsonAsync(HttpContext context, int statusCode, ApiResponse<object> response)
     {
         context.Response.Clear();
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = SysParam.MediaTypes.ApplicationJson;
         await context.Response.WriteAsJsonAsync(response, context.RequestAborted);
+    }
+
+    /// <summary>
+    /// 將 WCMS 查詢條件例外轉成 Request Error。
+    /// </summary>
+    private static bool TryAddWCMSQueryConditionMessage(IErrorHelper message, Exception exception)
+    {
+        WCMSQueryConditionException? queryException = GetInnerException<WCMSQueryConditionException>(exception);
+        if (queryException == null) return false;
+        AddWCMSExceptionMessage(message, queryException);
+        return true;
     }
 
     /// <summary>
@@ -104,6 +122,32 @@ Request: {method} {path}
         WCMSJsonException? jsonException = GetInnerException<WCMSJsonException>(exception);
         if (jsonException == null) return false;
         AddWCMSExceptionMessage(message, jsonException);
+        return true;
+    }
+
+    /// <summary>
+    /// 將 SaveChanges 前的 LibField 驗證失敗轉成欄位可讀的 Request Error。
+    /// </summary>
+    private bool TryAddWCMSFieldValidationMessage(IErrorHelper message, Exception exception)
+    {
+        WCMSFieldValidationException? validationException = GetInnerException<WCMSFieldValidationException>(exception);
+        if (validationException == null) return false;
+
+        string label = _i18n.GetDtoFirstPropertyLabel(validationException.EntityName, validationException.PropertyName);
+        object[] args = [.. validationException.MessageArgs];
+        if (args.Length > 0) args[0] = string.IsNullOrWhiteSpace(label) ? validationException.PropertyName : label;
+        message.AddRequestError(validationException.MessageCode, args);
+        return true;
+    }
+
+    /// <summary>
+    /// 將 WCMS 資料競爭例外轉成 Conflict Error。
+    /// </summary>
+    private static bool TryAddWCMSDataConcurrencyMessage(IErrorHelper message, Exception exception)
+    {
+        WCMSDataConcurrencyException? concurrencyException = GetInnerException<WCMSDataConcurrencyException>(exception);
+        if (concurrencyException == null) return false;
+        AddWCMSExceptionMessage(message, concurrencyException);
         return true;
     }
 
@@ -144,6 +188,57 @@ Request: {method} {path}
             _i18n.GetDtoFirstPropertyLabel(info.TableName, info.ColumnName),
             info.ActionName);
         return true;
+    }
+
+    /// <summary>
+    /// 將不存在或已變更的外鍵目標轉成資料狀態衝突。
+    /// </summary>
+    private static bool TryAddForeignKeyMissingMessage(IErrorHelper message, Exception exception)
+    {
+        SqlException? sqlException = GetInnerException<SqlException>(exception);
+        if (sqlException == null || sqlException.Number != 547) return false;
+
+        bool isForeignKey = sqlException.Message.Contains("FOREIGN KEY", StringComparison.OrdinalIgnoreCase)
+            || sqlException.Message.Contains("外部索引鍵", StringComparison.OrdinalIgnoreCase);
+        if (!isForeignKey) return false;
+
+        message.AddRequestError(SysMessageCode.BECode00044);
+        return true;
+    }
+
+    /// <summary>
+    /// 將 SQL 重複鍵或唯一索引衝突轉成資料重複 Conflict。
+    /// </summary>
+    private static bool TryAddDuplicateDataMessage(IErrorHelper message, Exception exception)
+    {
+        SqlException? sqlException = GetInnerException<SqlException>(exception);
+        if (sqlException == null) return false;
+
+        bool isDuplicate = sqlException.Number is 2627 or 2601;
+        if (!isDuplicate) return false;
+
+        message.AddRequestError(SysMessageCode.BECode00045);
+        return true;
+    }
+
+    /// <summary>
+    /// 將 SaveChanges 的 NOT NULL、字串截斷或數值溢位辨識為 Model / DB 持久化契約不一致。
+    /// </summary>
+    private static bool TryAddPersistenceContractMessage(IErrorHelper message, Exception exception)
+    {
+        DbUpdateException? dbException = GetInnerException<DbUpdateException>(exception);
+        SqlException? sqlException = GetInnerException<SqlException>(exception);
+        if (dbException == null || sqlException == null || !IsPersistenceContractError(sqlException.Number)) return false;
+        message.AddRequestError(SysMessageCode.BECode00046);
+        return true;
+    }
+
+    /// <summary>
+    /// 判斷 SaveChanges SQL Error Number 是否屬於應由 Model / DB 規格一致性避免的錯誤。
+    /// </summary>
+    private static bool IsPersistenceContractError(int errorNumber)
+    {
+        return errorNumber is 515 or 2628 or 8152 or 8115;
     }
 
     /// <summary>

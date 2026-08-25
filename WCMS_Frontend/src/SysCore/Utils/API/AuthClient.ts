@@ -117,6 +117,7 @@ export const AuthAPI = {
     login: async (p: { account: string; password: string; }) =>
     {
         const response = await api.post<ICurrentUserContextDto>("/Auth/Login", p);
+        await renewXsrfAfterAuth();
         initializeAuthSessionActivity();
         return response;
     },
@@ -157,7 +158,7 @@ export const UserAPI = { create: (dto: ICreateUserDto) => api.post<ICreateUserRe
 
 // #region Private
 import { LibCookie } from "../Library/LibData";
-import { api } from "./APIBase";
+import { api, type BrowserApiWithInit } from "./APIBase";
 
 /** 同步 Browser Shared Activity 至 Development Runtime Snapshot。 */
 const syncAuthActivityRuntime = (activityAt: number | null, idleDeadlineAt: number | null): void =>
@@ -221,6 +222,7 @@ const requestAuthRefresh = async (): Promise<void> =>
     try
     {
         await postWithXsrf("/Auth/Refresh");
+        await renewXsrfAfterAuth();
         authRuntimeSnapshot.LastRefreshSuccessAt = Date.now();
         authRuntimeSnapshot.RefreshSuccessCount += 1;
     }
@@ -228,6 +230,21 @@ const requestAuthRefresh = async (): Promise<void> =>
     {
         authRuntimeSnapshot.LastRefreshErrorAt = Date.now();
         throw error;
+    }
+};
+
+/** 登入或 Refresh 成功後重新取得符合目前身分的 XSRF Token；失敗時交由既有 403 補票機制接手。 */
+const renewXsrfAfterAuth = async (): Promise<void> =>
+{
+    const initXsrf = (api as BrowserApiWithInit).__initXsrfOnce;
+    if (!initXsrf) return;
+    try
+    {
+        await initXsrf();
+    }
+    catch
+    {
+        console.warn("[WCMS][Auth] Failed to renew XSRF token after authentication.");
     }
 };
 

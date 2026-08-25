@@ -84,7 +84,6 @@ public class Program
         HardeningSetup.UseForwardedHeaders(app);
         app.UseCookiePolicy();
         HardeningSetup.UseSecurityHeaders(app, configuration);
-        HardeningSetup.UseXsrfProtection(app, configuration);
         I18nModuleSetup.UseRequestLocalization(app);
         SwaggerAccessSetup.Use(app);
         HardeningSetup.UseProductionHsts(app);
@@ -93,6 +92,7 @@ public class Program
         app.UseResponseCompression();
         app.UseAuthentication();
         app.UseAuthorization();
+        HardeningSetup.UseXsrfProtection(app, configuration);
         app.UseOutputCache();
         app.MapControllers();
     }

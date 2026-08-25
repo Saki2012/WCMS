@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
+using WCMS.Features._Resx;
+using WCMS.SysCore.Auditing.ErrorHandling;
 using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Form;
@@ -97,8 +99,8 @@ internal sealed class FormQueryOperations<TFormModel>(
         IReadOnlyList<RankGroupsSpec>? detailRankGroups = null,
         CancellationToken ct = default)
     {
-        LambdaExpression whereExpression = ConditionBuilder.Build(type, queryCondition);
-        LambdaExpression filterExpression = ConditionBuilder.Build(type, detailFilterCondition ?? queryCondition);
+        LambdaExpression whereExpression = BuildConditionExpression(type, queryCondition);
+        LambdaExpression filterExpression = BuildConditionExpression(type, detailFilterCondition ?? queryCondition);
         Dictionary<string, LambdaExpression> detailFilterMap =
             FormProjectionExpressionBuilder.ExtractDetailPredicateMap(type, filterExpression);
         Dictionary<string, List<LambdaExpression>> detailRankMap =
@@ -113,13 +115,42 @@ internal sealed class FormQueryOperations<TFormModel>(
     /// </summary>
     internal async Task<int> QueryCountAsync(Type type, string condition, CancellationToken ct = default)
     {
-        LambdaExpression whereExpression = ConditionBuilder.Build(type, condition);
+        LambdaExpression whereExpression = BuildConditionExpression(type, condition);
         dynamic repo = ResolveRepo(type);
         return await repo.QueryListCountAsync(whereExpression, ct);
     }
     #endregion
 
     #region Private
+    /// <summary>
+    /// 建立查詢條件 Expression，將可預期的查詢格式錯誤收斂成 WCMS Request Exception。
+    /// </summary>
+    private LambdaExpression BuildConditionExpression(Type type, string condition)
+    {
+        try
+        {
+            return ConditionBuilder.Build(type, condition);
+        }
+        catch (WCMSQueryConditionException)
+        {
+            throw;
+        }
+        catch (Exception exception) when (IsInvalidQueryConditionException(exception))
+        {
+            throw new WCMSQueryConditionException(SysMessageCode.BECode00042, exception);
+        }
+    }
+
+    /// <summary>
+    /// 判斷是否為查詢條件解析或值轉換造成的已知 Request 錯誤。
+    /// </summary>
+    private static bool IsInvalidQueryConditionException(Exception exception)
+    {
+        return exception is System.Linq.Dynamic.Core.Exceptions.ParseException
+            or FormatException
+            or OverflowException;
+    }
+
     /// <summary>
     /// 建立 Repository 查詢設定。
     /// </summary>

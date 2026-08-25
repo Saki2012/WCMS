@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -24,6 +25,8 @@ public class AuthController(
 {
     #region Property
     private const int FingerprintLength = 12;
+    private const int LoginValidationFilterOrder = -3000;
+    private const string GenericLoginError = "帳號或密碼錯誤";
     private readonly TokenService _tokenSvc = tokenSvc;
     private readonly IConfiguration _cfg = cfg;
     private readonly AuthBiz _authBiz = authBiz;
@@ -43,11 +46,10 @@ public class AuthController(
     /// </summary>
     /// <param name="req"></param>
     /// <returns></returns>
-    [HttpPost(nameof(Login)), AllowAnonymous]
+    [HttpPost(nameof(Login)), AllowAnonymous, LoginCredentialValidationFilter(Order = LoginValidationFilterOrder)]
     public async Task<IActionResult> Login([FromBody] LoginDto req)
     {
         OperateLog.AddOperateLog(nameof(Login), req.Account, JsonConvert.SerializeObject(req.Account), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
-        const string GENERIC_LOGIN_ERROR = "帳號或密碼錯誤";
         CancellationToken ct = HttpContext.RequestAborted;
         int attempts = await _loginAttemptCache.GetAttemptsAsync(req.Account, ct);
         if (attempts >= 3) return StatusCode(StatusCodes.Status429TooManyRequests, new { message = "登入嘗試過多，請稍後再試。" });
@@ -55,7 +57,7 @@ public class AuthController(
         if (!ok || userInfo == null)
         {
             await _loginAttemptCache.SetAttemptsAsync(req.Account, attempts + 1, ct);
-            return Unauthorized(GENERIC_LOGIN_ERROR);
+            return Unauthorized(GenericLoginError);
         }
         await _loginAttemptCache.ClearAsync(req.Account, ct);
         var (accessToken, _, accessExp) = _tokenSvc.IssueAccessToken(userInfo);
@@ -65,14 +67,6 @@ public class AuthController(
         Response.Cookies.Append(SysParam.CookieNames.RefreshTokenId, tokenId, new CookieOptions
         {
             HttpOnly = true,
-            Secure = baseOpt.Secure,
-            SameSite = baseOpt.SameSite,
-            Path = baseOpt.Path,
-            Expires = refreshExp
-        });
-        Response.Cookies.Append(SysParam.CookieNames.XsrfToken, Guid.NewGuid().ToString(SysParam.Formats.GuidCompact), new CookieOptions
-        {
-            HttpOnly = false,
             Secure = baseOpt.Secure,
             SameSite = baseOpt.SameSite,
             Path = baseOpt.Path,
@@ -114,14 +108,6 @@ public class AuthController(
         Response.Cookies.Append(SysParam.CookieNames.RefreshTokenId, newRtid, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Lax,
-            Path = SysParam.CookiePaths.Root,
-            Expires = refreshExp
-        });
-        Response.Cookies.Append(SysParam.CookieNames.XsrfToken, xsrfCookie!, new CookieOptions
-        {
-            HttpOnly = false,
             Secure = true,
             SameSite = SameSiteMode.Lax,
             Path = SysParam.CookiePaths.Root,
@@ -266,6 +252,21 @@ public class AuthController(
         if (string.IsNullOrWhiteSpace(value)) return string.Empty;
         byte[] bytes = SHA256.HashData(Encoding.UTF8.GetBytes(value));
         return Convert.ToHexString(bytes)[..FingerprintLength];
+    }
+
+    /// <summary>
+    /// 將 Login DTO 自動驗證失敗統一成認證失敗回應，避免透過狀態差異枚舉帳號。
+    /// </summary>
+    private sealed class LoginCredentialValidationFilterAttribute : ActionFilterAttribute
+    {
+        /// <summary>
+        /// 在 ApiController 內建 ModelState Filter 前攔截 Login 驗證失敗。
+        /// </summary>
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            if (context.ModelState.IsValid) return;
+            context.Result = new UnauthorizedObjectResult(GenericLoginError);
+        }
     }
     #endregion
 }

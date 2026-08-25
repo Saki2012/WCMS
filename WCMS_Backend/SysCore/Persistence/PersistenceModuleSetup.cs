@@ -3,6 +3,7 @@ using WCMS.SysCore.Configuration.Startup;
 using WCMS.SysCore.Constants;
 using WCMS.SysCore.Persistence.Diagnostics;
 using WCMS.SysCore.Persistence.Normalization;
+using WCMS.SysCore.Persistence.Validation;
 namespace WCMS.SysCore.Persistence;
 
 /// <summary>
@@ -18,6 +19,7 @@ internal static class PersistenceModuleSetup
     {
         string connectionString = GetSqlConnectionString(configuration);
         services.AddSingleton<StringForeignKeySaveChangesInterceptor>();
+        services.AddSingleton<LibFieldSaveChangesInterceptor>();
 #if DEBUG
         services.AddSingleton<EfSqlConsoleInterceptor>();
 #endif
@@ -36,13 +38,16 @@ internal static class PersistenceModuleSetup
         if (!string.IsNullOrWhiteSpace(connectionString)) return connectionString;
         throw new InvalidOperationException("Missing ConnectionStrings:SqlConnection. 請在 appsettings.* 或使用環境變數/Secrets 設定。");
     }
+
     /// <summary>
-    /// 套用 SQL Server、字串外鍵防護與開發環境的 EF Core 設定。
+    /// 套用 SQL Server、字串外鍵正規化、LibField 最終驗證與開發環境的 EF Core 設定。
     /// </summary>
     private static void ConfigureDbContext(IServiceProvider provider, DbContextOptionsBuilder options, string connectionString)
     {
         options.UseSqlServer(connectionString);
-        options.AddInterceptors(provider.GetRequiredService<StringForeignKeySaveChangesInterceptor>());
+        options.AddInterceptors(
+            provider.GetRequiredService<StringForeignKeySaveChangesInterceptor>(),
+            provider.GetRequiredService<LibFieldSaveChangesInterceptor>());
 #if DEBUG
         options.AddInterceptors(provider.GetRequiredService<EfSqlConsoleInterceptor>());
         options.EnableDetailedErrors();

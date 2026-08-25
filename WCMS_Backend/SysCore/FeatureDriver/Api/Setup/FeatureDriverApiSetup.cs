@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.OpenApi;
-using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -12,7 +11,7 @@ using WCMS.SysCore.FeatureDriver.Api.Contracts;
 using WCMS.SysCore.FeatureDriver.Api.Filters;
 using WCMS.SysCore.FeatureDriver.Api.OpenApi;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
-using WCMS.SysCore.FeatureDriver.Model.Metadata;
+using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.I18n;
 
 namespace WCMS.SysCore.FeatureDriver.Api.Setup;
@@ -36,11 +35,6 @@ internal static class FeatureDriverApiSetup
 
     #region Private
     /// <summary>
-    /// LibField 必填驗證使用的內部識別碼。
-    /// </summary>
-    private const string RequiredErrorKey = "WCMS_REQUIRED";
-
-    /// <summary>
     /// 註冊 Controller、Spec Filter 與 System.Text.Json 規則。
     /// </summary>
     private static void AddControllers(IServiceCollection services)
@@ -57,6 +51,7 @@ internal static class FeatureDriverApiSetup
             options.JsonSerializerOptions.UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow;
         });
     }
+
     /// <summary>
     /// 註冊統一的 ModelState 400 回應格式。
     /// </summary>
@@ -71,6 +66,7 @@ internal static class FeatureDriverApiSetup
             };
         });
     }
+
     /// <summary>
     /// 註冊 Swagger 文件、語系 Header 與 Bearer 驗證描述。
     /// </summary>
@@ -86,6 +82,7 @@ internal static class FeatureDriverApiSetup
             options.AddWcmsBearerSecurity();
         });
     }
+
     /// <summary>
     /// 取得目前 SysCore 與 Spec 組合後的後端版本號。
     /// </summary>
@@ -97,6 +94,7 @@ internal static class FeatureDriverApiSetup
             ?? throw new InvalidOperationException($"無法建立系統版本服務：{implementationType.FullName}");
         return versionService.GetBackendVersion();
     }
+
     /// <summary>
     /// 取得目前 Spec 提供的系統版本服務型別。
     /// </summary>
@@ -109,6 +107,7 @@ internal static class FeatureDriverApiSetup
             && serviceType.IsAssignableFrom(type)
             && SpecSettings.IsCurrentSpecNamespace(type.Namespace ?? string.Empty));
     }
+
     /// <summary>
     /// 建立自訂的 400 驗證回應。
     /// </summary>
@@ -120,6 +119,7 @@ internal static class FeatureDriverApiSetup
         if (!message.Messages.Any()) message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00035, "資料");
         return new ApiResponse<string> { Data = [], SysMessage = message.Messages };
     }
+
     /// <summary>
     /// 依欄位驗證結果加入統一錯誤訊息。
     /// </summary>
@@ -128,54 +128,11 @@ internal static class FeatureDriverApiSetup
         PropertyInfo? property = FindModelProperty(context, key);
         string displayName = property == null ? GetFieldName(key) : i18n.GetLabel(property);
         string errorText = context.ModelState[key]?.Errors.FirstOrDefault()?.ErrorMessage ?? string.Empty;
-        if (TryAddLibNumMessage(message, property, errorText, displayName)) return;
-        AddDefaultInvalidModelMessage(message, property, errorText, displayName);
+        LibFieldValidationMessage validationMessage = LibFieldValidator.ResolveMessage(property, errorText);
+        object[] args = [displayName, .. validationMessage.MessageArgs];
+        message.AddMessage(MessageStatus.Error, validationMessage.MessageCode, args);
     }
-    /// <summary>
-    /// 將 LibNum 驗證錯誤轉成對應的 SysMessage。
-    /// </summary>
-    private static bool TryAddLibNumMessage(ErrorHelper message, PropertyInfo? property, string errorText, string displayName)
-    {
-        LibNumAttribute? attr = property?.GetCustomAttribute<LibNumAttribute>();
-        if (attr == null || IsRequiredError(errorText)) return false;
-        if (TryAddLibNumRuleMessage(message, attr, errorText, displayName)) return true;
-        message.AddMessage(MessageStatus.Error, attr.InvalidMessageCode, displayName);
-        return true;
-    }
-    /// <summary>
-    /// 依 LibNum 內部錯誤識別碼加入數值範圍訊息。
-    /// </summary>
-    private static bool TryAddLibNumRuleMessage(ErrorHelper message, LibNumAttribute attr, string errorText, string displayName)
-    {
-        if (errorText == LibNumAttribute.NumberRangeErrorKey)
-        {
-            message.AddMessage(MessageStatus.Error, attr.RangeMessageCode, displayName, attr.MinValue ?? string.Empty, attr.MaxValue ?? string.Empty);
-            return true;
-        }
-        if (errorText == LibNumAttribute.NumberMinimumErrorKey)
-        {
-            message.AddMessage(MessageStatus.Error, attr.MinimumMessageCode, displayName, attr.MinValue ?? string.Empty);
-            return true;
-        }
-        if (errorText == LibNumAttribute.NumberMaximumErrorKey)
-        {
-            message.AddMessage(MessageStatus.Error, attr.MaximumMessageCode, displayName, attr.MaxValue ?? string.Empty);
-            return true;
-        }
-        if (errorText != LibNumAttribute.InvalidNumberErrorKey) return false;
-        message.AddMessage(MessageStatus.Error, attr.InvalidMessageCode, displayName);
-        return true;
-    }
-    /// <summary>
-    /// 加入既有字串長度或一般格式錯誤訊息。
-    /// </summary>
-    private static void AddDefaultInvalidModelMessage(ErrorHelper message, PropertyInfo? property, string errorText, string displayName)
-    {
-        int? maxLength = GetMaxLength(property);
-        if (maxLength.HasValue && !IsRequiredError(errorText))
-            message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00034, displayName, maxLength.Value);
-        else message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00035, displayName);
-    }
+
     /// <summary>
     /// 從 Action Parameter 與 Model Key 反查實際欄位。
     /// </summary>
@@ -190,6 +147,7 @@ internal static class FeatureDriverApiSetup
         }
         return null;
     }
+
     /// <summary>
     /// 依照欄位路徑往下解析 PropertyInfo。
     /// </summary>
@@ -208,6 +166,7 @@ internal static class FeatureDriverApiSetup
         }
         return currentProperty;
     }
+
     /// <summary>
     /// 移除 Model Key 可能包含的 Action Parameter 前綴。
     /// </summary>
@@ -217,6 +176,7 @@ internal static class FeatureDriverApiSetup
         string prefix = $"{parameterName}.";
         return key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) ? key[prefix.Length..] : key;
     }
+
     /// <summary>
     /// 取得 Nullable 或集合欄位的實際資料型別。
     /// </summary>
@@ -228,16 +188,7 @@ internal static class FeatureDriverApiSetup
             ? realType.GetGenericArguments()[0]
             : realType;
     }
-    /// <summary>
-    /// 取得欄位的最大字串長度限制。
-    /// </summary>
-    private static int? GetMaxLength(PropertyInfo? property)
-    {
-        if (property == null) return null;
-        StringLengthAttribute? stringLength = property.GetCustomAttribute<StringLengthAttribute>();
-        MaxLengthAttribute? maxLength = property.GetCustomAttribute<MaxLengthAttribute>();
-        return stringLength?.MaximumLength ?? maxLength?.Length;
-    }
+
     /// <summary>
     /// 取得 Model Key 最後一段作為欄位名稱。
     /// </summary>
@@ -245,16 +196,6 @@ internal static class FeatureDriverApiSetup
     {
         string cleanKey = Regex.Replace(key ?? string.Empty, @"\[\d+\]", string.Empty);
         return cleanKey.Split('.', StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? "欄位";
-    }
-    /// <summary>
-    /// 判斷驗證訊息是否屬於必填錯誤。
-    /// </summary>
-    private static bool IsRequiredError(string errorText)
-    {
-        return errorText.Equals(RequiredErrorKey, StringComparison.Ordinal)
-            || errorText.Contains("required", StringComparison.OrdinalIgnoreCase)
-            || errorText.Contains("請輸入", StringComparison.OrdinalIgnoreCase)
-            || errorText.Contains("必填", StringComparison.OrdinalIgnoreCase);
     }
     #endregion
 }
