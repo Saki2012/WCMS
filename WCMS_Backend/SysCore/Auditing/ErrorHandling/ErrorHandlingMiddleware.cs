@@ -47,6 +47,7 @@ public class ErrorHandlingMiddleware(RequestDelegate next, I18nCache i18n)
     {
         if (TryAddWCMSQueryConditionMessage(message, exception)) return StatusCodes.Status400BadRequest;
         if (TryAddWCMSJsonMessage(message, exception)) return StatusCodes.Status400BadRequest;
+        if (TryAddWCMSFieldValidationMessage(message, exception)) return StatusCodes.Status400BadRequest;
         if (TryAddForeignKeyValueMessage(message, exception)) return StatusCodes.Status400BadRequest;
         if (TryAddWCMSDataConcurrencyMessage(message, exception)) return StatusCodes.Status409Conflict;
         if (TryAddForeignKeyUsedMessage(message, exception)) return StatusCodes.Status409Conflict;
@@ -119,6 +120,21 @@ Request: {method} {path}
         WCMSJsonException? jsonException = GetInnerException<WCMSJsonException>(exception);
         if (jsonException == null) return false;
         AddWCMSExceptionMessage(message, jsonException);
+        return true;
+    }
+
+    /// <summary>
+    /// 將 SaveChanges 前的 LibField 驗證失敗轉成欄位可讀的 Request Error。
+    /// </summary>
+    private bool TryAddWCMSFieldValidationMessage(IErrorHelper message, Exception exception)
+    {
+        WCMSFieldValidationException? validationException = GetInnerException<WCMSFieldValidationException>(exception);
+        if (validationException == null) return false;
+
+        string label = _i18n.GetDtoFirstPropertyLabel(validationException.EntityName, validationException.PropertyName);
+        object[] args = [.. validationException.MessageArgs];
+        if (args.Length > 0) args[0] = string.IsNullOrWhiteSpace(label) ? validationException.PropertyName : label;
+        message.AddRequestError(validationException.MessageCode, args);
         return true;
     }
 

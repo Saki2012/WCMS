@@ -86,3 +86,42 @@ public sealed class WCMSDataConcurrencyException : Exception, IWCMSException
     }
     #endregion
 }
+
+/// <summary>
+/// 表示資料在持久化前未通過 WCMS LibField 最終驗證。
+/// </summary>
+public sealed class WCMSFieldValidationException : Exception, IWCMSException
+{
+    #region Property
+    /// <summary>
+    /// 驗證失敗的 Entity 型別名稱。
+    /// </summary>
+    public string EntityName { get; }
+
+    /// <summary>
+    /// 驗證失敗的 Property 名稱。
+    /// </summary>
+    public string PropertyName { get; }
+
+    public string MessageCode { get; }
+    public object[] MessageArgs { get; }
+    #endregion
+
+    #region Construct
+    /// <summary>
+    /// 建立 WCMS 欄位驗證例外，第一個訊息參數固定保留欄位名稱供 ErrorHandling 多語系轉換。
+    /// </summary>
+    public WCMSFieldValidationException(
+        string entityName,
+        string propertyName,
+        string messageCode,
+        params object[] messageArgs)
+        : base("WCMS field validation failed.")
+    {
+        EntityName = entityName;
+        PropertyName = propertyName;
+        MessageCode = messageCode;
+        MessageArgs = [propertyName, .. messageArgs];
+    }
+    #endregion
+}
