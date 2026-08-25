@@ -34,7 +34,7 @@ public abstract class HeaderModel : DbModel
     [ForeignKey(nameof(CreateUserId))]
     [LibField(ApiFieldMode.ReadOnly)]
     public Account? CreateUser { get; set; }
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.Common_CreateUserId, DisplayName.CreateUserName)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.AccountId, DisplayName.Common_CreateUserId, DisplayName.CreateUserName)]
     public string? CreateUserId { get; set; }
     /// <summary>
     /// 修改時間
@@ -47,7 +47,7 @@ public abstract class HeaderModel : DbModel
     [ForeignKey(nameof(ModifyUserId))]
     [LibField(ApiFieldMode.ReadOnly)]
     public Account? ModifyUser { get; set; }
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.Common_ModifyUserId, DisplayName.ModifyUserName)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.AccountId, DisplayName.Common_ModifyUserId, DisplayName.ModifyUserName)]
     public string? ModifyUserId { get; set; }
     /// <summary>
     /// 單據狀態。
@@ -73,7 +73,7 @@ public abstract class HeaderModel : DbModel
     /// <summary>
     /// 作廢人員 ID。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.InvalidUserId)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.AccountId, DisplayName.InvalidUserId)]
     public string? InvalidUserId { get; set; }
     /// <summary>
     /// 資料版本-併發控制
@@ -121,4 +121,3 @@ public abstract class FormDetailModel : DetailModel
     [LibNum(ApiFieldMode.ReadWrite, DisplayName.RowNo)]
     public int RowNo { get; set; }
 }
-

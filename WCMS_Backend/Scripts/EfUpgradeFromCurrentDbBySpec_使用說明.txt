@@ -1,17 +1,20 @@
-﻿EfUpgradeFromCurrentDbBySpec.ps1 使用說明
+EfUpgradeFromCurrentDbBySpec.ps1 使用說明
 
 用途：
 自動處理 WCMS 後端 EF Migration 升級流程，包含：
 1. 讀取 appsettings.Development.json 的 SpecCode 與 SqlConnection
 2. 依 SpecCode 進行條件編譯
 3. 備份並清空 Migrations 資料夾
-4. 產生 Baseline migration
-5. 自動清空 Baseline 的 Up / Down
-6. Scaffold 目前舊 DB
-7. 產生 TempSnap_1_1
-8. 將 TempSnap 的 BuildTargetModel 植入 ApplicationDbContextModelSnapshot
-9. 產生 Upgrade migration
-10. 更新 DB 或產生 SQL script
+4. 產生空 Baseline migration
+5. Scaffold 目前舊 DB
+6. 產生 TempSnap_1_1
+7. 將舊 DB TempSnap 植入 ApplicationDbContextModelSnapshot
+8. 產生 Upgrade migration
+9. 產生 Upgrade SQL
+10. 自動分析 ALTER COLUMN 的 Foreign Key Dependency
+11. 自動補上 FK DROP / ALTER COLUMN / FK Restore
+12. 自動加入 SET XACT_ABORT ON
+13. 依參數只輸出 SQL，或執行同一份 Hardened SQL
 
 ============================================================
 參數列表
@@ -28,9 +31,6 @@
 預設值：
 Debug
 
-範例：
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1" -Configuration "Release"
-
 ------------------------------------------------------------
 
 2. -BaselineName
@@ -39,16 +39,10 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFrom
 -BaselineName "Baseline"
 
 用途：
-指定 Baseline migration 的名稱。
+指定空 Baseline migration 的名稱。
 
 預設值：
 Baseline
-
-產生檔案類似：
-Migrations/yyyyMMddHHmmss_Baseline.cs
-Migrations/yyyyMMddHHmmss_Baseline.Designer.cs
-
-一般不需要改。
 
 ------------------------------------------------------------
 
@@ -66,8 +60,6 @@ TempSnap_1_1
 產生位置：
 Migrations/_BaselineScaffold/__TempMigrations
 
-一般不需要改。
-
 ------------------------------------------------------------
 
 4. -UpgradeName
@@ -76,17 +68,13 @@ Migrations/_BaselineScaffold/__TempMigrations
 -UpgradeName "Upgrade_1_1_to_Latest"
 
 用途：
-指定真正差異升級 migration 的名稱。
+指定真正差異升級 migration 與 SQL 檔名稱。
 
 預設值：
 Upgrade_1_1_to_Latest
 
-產生檔案類似：
-Migrations/yyyyMMddHHmmss_Upgrade_1_1_to_Latest.cs
-Migrations/yyyyMMddHHmmss_Upgrade_1_1_to_Latest.Designer.cs
-
-如果不同版本升級，可以改名稱，例如：
--UpgradeName "Upgrade_1_2_to_Latest"
+產生 SQL：
+Migrations/Sql/{UpgradeName}.sql
 
 ------------------------------------------------------------
 
@@ -96,111 +84,129 @@ Migrations/yyyyMMddHHmmss_Upgrade_1_1_to_Latest.Designer.cs
 -GenerateSqlOnly
 
 用途：
-只產生 SQL script，不直接更新 DB。
+只產生 Hardened SQL script，不更新目標 DB Schema。
 
-不加這個參數時：
-會執行 dotnet ef database update，直接更新目標 DB。
+行為：
+- 不執行 Baseline database update
+- Scaffold 僅讀取目前 DB Schema
+- 產生 Upgrade migration
+- SQL 從 0 產生到 Upgrade，包含空 Baseline 的 Migration History
+- 自動補 FK Dependency Guard
+- 不執行最終 SQL
 
-加上這個參數時：
-會執行 dotnet ef migrations script，只產生 SQL 檔，不直接更新 DB。
-
-產生位置：
-Migrations/Sql/{UpgradeName}.sql
-
-範例：
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1" -GenerateSqlOnly
+建議：
+正式環境、DBA 審查、第一次驗證升級時優先使用此模式。
 
 ------------------------------------------------------------
 
 6. -SkipDbSpecCodeCheck
 
-範例：
--SkipDbSpecCodeCheck
-
 用途：
 跳過 DB 內 SysDbProfile.SpecCode 與 appsettings.Development.json 的 SpecCode 比對。
 
-使用時機：
-只有第一次升級舊 DB，而且該 DB 還沒有 SysDbProfile 表，或還沒有 ProfileKey = SpecCode 資料時才使用。
-
-範例：
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1" -SkipDbSpecCodeCheck
-
-只產 SQL 且第一次升級舊 DB：
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1" -SkipDbSpecCodeCheck -GenerateSqlOnly
-
-注意：
-第一次升級完成後，請啟動系統一次，讓系統自動寫入：
-ProfileKey = SpecCode
-ProfileValue = appsettings.Development.json 的 SpecCode
-
-之後再跑本 script 時，不要再加 -SkipDbSpecCodeCheck。
-讓 script 正常檢查 DB SpecCode，避免更新錯 DB。
+只建議：
+第一次升級舊 DB，且舊 DB 尚未建立 SysDbProfile / SpecCode 時使用。
 
 ============================================================
-常用執行方式
+Foreign Key Dependency Guard
 ============================================================
 
-1. 一般更新 DB
+EF Core 在只修改被 Foreign Key 參照欄位的長度/型別時，
+可能只產生 ALTER COLUMN，而沒有自動 DROP / CREATE 未變更的 FK。
 
-cd C:\Users\IT-013\Desktop\Project\WCMS\WCMS_Backend
+例如：
+Account.AccountId nvarchar(20) -> nvarchar(64)
+
+若 Material.CreateUserId / ModifyUserId / InvalidUserId 等欄位仍存在 FK：
+SQL Server 會以 5074 / 4922 阻擋 ALTER COLUMN。
+
+本 Script 會：
+
+1. 從 EF SQL 找出所有 ALTER TABLE ... ALTER COLUMN
+2. 從目前 DB 的 sys.foreign_keys / sys.foreign_key_columns 取得 FK Metadata
+3. 找出父欄位或被參照欄位命中 ALTER COLUMN 的 FK
+4. 若 EF 已有 DROP CONSTRAINT，則不重複處理
+5. 在 ALTER COLUMN 前自動 DROP 相關 FK
+6. 完成 Schema 變更後重建 FK
+7. 保留：
+   - Schema / Table / Constraint Name
+   - 複合 Foreign Key 欄位順序
+   - ON DELETE
+   - ON UPDATE
+   - NOT FOR REPLICATION
+   - Trusted / Untrusted
+   - Enabled / Disabled
+8. SQL 開頭加入 SET XACT_ABORT ON，避免 DDL 發生錯誤後仍提交半套 Schema
+
+============================================================
+一般更新 DB
+============================================================
+
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1"
 
-------------------------------------------------------------
+流程：
+1. 驗證 SpecCode
+2. 產生空 Baseline
+3. 將 Baseline 記錄到 DB Migration History
+4. Scaffold 目前 DB
+5. 產生 Upgrade
+6. 產生並 Harden Upgrade SQL
+7. 使用同一份 Hardened SQL 更新 DB
 
-2. 第一次升級舊 DB，尚未有 SysDbProfile / SpecCode
+注意：
+最終 DB 更新不再直接走 dotnet ef database update Upgrade，
+而是執行已通過 FK Guard 的 Migrations/Sql/{UpgradeName}.sql，
+避免「人工 SQL」與「自動 DB Update」走不同升級路徑。
 
-cd C:\Users\IT-013\Desktop\Project\WCMS\WCMS_Backend
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1" -SkipDbSpecCodeCheck
+============================================================
+只產 SQL
+============================================================
 
-------------------------------------------------------------
-
-3. 只產 SQL，不直接更新 DB
-
-cd C:\Users\IT-013\Desktop\Project\WCMS\WCMS_Backend
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1" -GenerateSqlOnly
 
-------------------------------------------------------------
+此模式不修改目標 DB Schema。
 
-4. 第一次升級舊 DB，只產 SQL
+產生後建議先人工確認：
+1. SQL 開頭包含 SET XACT_ABORT ON
+2. 若 AccountId 等被 FK 參照欄位有 ALTER COLUMN：
+   - 前方有 WCMS FK Guard DROP
+   - 子欄位與主欄位長度都有正確 ALTER
+   - 後方有 WCMS FK Guard Restore
+3. __EFMigrationsHistory 最後才寫入 Upgrade
+4. SQL 可在測試 DB 完整執行後再交正式環境
 
-cd C:\Users\IT-013\Desktop\Project\WCMS\WCMS_Backend
+============================================================
+第一次升級舊 DB
+============================================================
+
+如果尚未有 SysDbProfile / SpecCode：
+
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1" -SkipDbSpecCodeCheck -GenerateSqlOnly
+
+建議先使用 GenerateSqlOnly：
+1. 產 SQL
+2. 人工檢查 FK / ALTER COLUMN
+3. 在測試 DB 執行
+4. 啟動系統初始化 SysDbProfile.SpecCode
+5. 後續升級不再使用 SkipDbSpecCodeCheck
 
 ============================================================
 注意事項
 ============================================================
 
-1. 本 script 讀取 appsettings.Development.json。
-   請先確認：
-   - SpecCode 正確
-   - ConnectionStrings.SqlConnection 指向正確 DB
-
-2. SpecCode 允許空字串。
-   SpecCode = "" 代表純 Feature 版本，不啟用任何 SpecFeatures。
-
-3. script 會備份並清空 Migrations 資料夾。
+1. 本 Script 讀取 appsettings.Development.json。
+2. 執行前確認 SpecCode 與 SqlConnection 指向正確目標 DB。
+3. Script 會備份並清空 Migrations。
    備份位置：
    obj/MigrationBackups/Migrations_yyyyMMddHHmmss
-
-4. script 會使用：
-   /p:SpecCode={appsettings.Development.json 的 SpecCode}
+4. Script 會使用：
+   /p:SpecCode={SpecCode}
    /p:UseSpecCodeCompile=true
-
-5. 如果 DB 已經有 SysDbProfile.SpecCode，
-   appsettings.Development.json 的 SpecCode 必須與 DB 內一致。
-   不一致時會中止，避免更新錯 DB。
-
-6. -SkipDbSpecCodeCheck 只建議在第一次升級舊 DB 時使用。
-   後續正常升級不要使用。
-
-7. 第一次升級舊 DB 的建議流程：
-   A. 設定 appsettings.Development.json 的 SpecCode 與 SqlConnection。
-   B. 執行 EfUpgradeFromCurrentDbBySpec.ps1 -SkipDbSpecCodeCheck。
-   C. 啟動系統一次，讓系統自動寫入 SysDbProfile 的 SpecCode。
-   D. 後續再跑 EfUpgradeFromCurrentDbBySpec.ps1 時，不要加 -SkipDbSpecCodeCheck。
-
-8. 如果只想產 SQL 給 DBA 或正式環境手動套用，請加 -GenerateSqlOnly。
+5. GenerateSqlOnly 仍會讀 DB Schema 與 FK Metadata，但不更新 Schema。
+6. 若 DB SpecCode 不一致，預設直接中止。
+7. FK Guard 只補 EF 沒有自行 DROP 的現有 FK；EF 已處理的 FK 不重複插入。
+8. 正式升級前仍應保留 DB Backup。
+9. Hardened SQL 通過測試 DB 不等於正式 DB 一定一致；正式環境仍須確認 DB 版本與 Schema 基準。
 
 ============================================================
 版本備註
@@ -209,6 +215,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFrom
 目前設計方向：
 - EF / Migration 使用 appsettings.Development.json。
 - Publish / 正式打包使用 appsettings.production.json。
-- DB schema 升版與系統啟動檢查分開處理。
-- 建表 / 改欄位交給 EF migration script。
-- 系統啟動只負責補寫或比對 SysDbProfile.SpecCode。
+- 舊 DB 透過 Reverse Scaffold 建立 Migration Diff 基準。
+- Model 與 DB 欄位差異交由 EF Migration 產生。
+- SQL Server FK Dependency 由 WCMS Script 額外補強。
+- GenerateSqlOnly 為純 Schema Read + SQL Generate，不直接更新 DB。
+- 自動更新與人工更新共用同一份 Hardened SQL。
