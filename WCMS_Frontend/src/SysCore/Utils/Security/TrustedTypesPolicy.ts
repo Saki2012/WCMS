@@ -13,6 +13,7 @@ type TrustedTypesPolicyLike = {
 
 type TrustedTypesFactoryLike = {
     createPolicy: (name: string, rules: TrustedTypesRuleSet) => TrustedTypesPolicyLike;
+    defaultPolicy?: TrustedTypesPolicyLike | null;
 };
 
 interface WcmsTrustedTypesWindow extends Window
@@ -42,15 +43,22 @@ const allowedExternalScriptPrefixes = [
 // #endregion
 
 // #region Public
-/** 建立全站 default policy，供第三方套件在 Trusted Types 下正常運作。 */
-export const ensureWcmsDefaultTrustedTypesPolicy = (): void =>
+/** 建立指定 Window 的 default policy，供主頁與 TinyMCE iframe 在 Trusted Types 下共用 WCMS 規則。 */
+export const ensureWcmsDefaultTrustedTypesPolicy = (targetWindow?: Window): void =>
 {
-    if (typeof window === "undefined") return;
-
-    const win = window as WcmsTrustedTypesWindow;
+    const win = getTargetWindow(targetWindow);
+    if (!win) return;
     if (win.__wcmsTrustedTypesReady) return;
     if (!win.trustedTypes)
     {
+        win.__wcmsTrustedTypesReady = true;
+        return;
+    }
+
+    const existingDefaultPolicy = win.trustedTypes.defaultPolicy;
+    if (existingDefaultPolicy)
+    {
+        win.__wcmsDefaultTrustedTypesPolicy = existingDefaultPolicy;
         win.__wcmsTrustedTypesReady = true;
         return;
     }
@@ -61,24 +69,24 @@ export const ensureWcmsDefaultTrustedTypesPolicy = (): void =>
             createHTML: sanitizeHtml,
             createScriptURL: (value: string) =>
             {
-                if (isAllowedScriptUrl(value)) return value;
+                if (isAllowedScriptUrl(value, win)) return value;
                 throw new TypeError(`Blocked untrusted script URL: ${value}`);
             },
         });
-    } catch
+        win.__wcmsTrustedTypesReady = true;
+    } catch (error)
     {
-        // default policy 可能已由其他入口建立；保留瀏覽器既有行為即可。
+        console.error("[WCMS][TrustedTypes] Failed to create default policy.", error);
     }
-
-    win.__wcmsTrustedTypesReady = true;
 };
 
 /** 產生可安全指定給 HTMLScriptElement.src 的 URL。 */
 export const createTrustedScriptUrl = (value: string): unknown =>
 {
-    ensureWcmsDefaultTrustedTypesPolicy();
+    const win = getTargetWindow();
+    if (!win) return value;
 
-    const win = window as WcmsTrustedTypesWindow;
+    ensureWcmsDefaultTrustedTypesPolicy(win);
     return win.__wcmsDefaultTrustedTypesPolicy?.createScriptURL?.(value) ?? value;
 };
 
@@ -90,6 +98,14 @@ export const setTrustedScriptElementSrc = (script: HTMLScriptElement, src: strin
 // #endregion
 
 // #region Private
+/** 取得 Trusted Types 要套用的 Window；SSR 無 Window 時直接略過。 */
+const getTargetWindow = (targetWindow?: Window): WcmsTrustedTypesWindow | null =>
+{
+    if (targetWindow) return targetWindow as WcmsTrustedTypesWindow;
+    if (typeof window === "undefined") return null;
+    return window as WcmsTrustedTypesWindow;
+};
+
 /** 取得允許的同源 script 路徑，DEV 額外允許 Vite /src 資源。 */
 const getAllowedSameOriginScriptPrefixes = (): readonly string[] =>
 {
@@ -99,10 +115,10 @@ const getAllowedSameOriginScriptPrefixes = (): readonly string[] =>
 };
 
 /** 檢查動態 script URL 是否屬於 WCMS 允許載入的來源。 */
-const isAllowedScriptUrl = (value: string): boolean =>
+const isAllowedScriptUrl = (value: string, targetWindow: Window): boolean =>
 {
-    const url = new URL(value, window.location.origin);
-    if (url.origin === window.location.origin)
+    const url = new URL(value, targetWindow.location.origin);
+    if (url.origin === targetWindow.location.origin)
     {
         const pathname = url.pathname.toLowerCase();
         return getAllowedSameOriginScriptPrefixes().some(prefix => pathname.startsWith(prefix.toLowerCase()));

@@ -3,6 +3,7 @@ import { DefaultLang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Editor, type IAllProps } from "@tinymce/tinymce-react";
 import { useEffect, useMemo, useState } from "react";
+import { registerTinyMceTrustedTypesBridge } from "./Core/tinyMceTrustedTypes";
 import type { TinyMCEEditor } from "./Core/tinyMceTypes";
 import { useTinyMceIframeEdit } from "./Features/Iframe/tinyMceIframeFeature";
 import { useTinyMceInternalImage } from "./Features/Image/tinyMceImageFeature";
@@ -106,6 +107,7 @@ export const TinyMCE_Comp = ({ args }: Props) =>
             contextmenu: mergedContextMenu,
             setup: (editor: TinyMCEEditor) =>
             {
+                registerTinyMceTrustedTypesBridge(editor);
                 if (typeof originalSetup === "function") originalSetup(editor);
                 image.setup(editor);
                 iframe.setup(editor);

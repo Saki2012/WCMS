@@ -57,7 +57,7 @@ export const setHtmlSecurityHeaders = (req: Request, res: Response, cfg: Securit
     res.setHeader("Permissions-Policy", htmlPermissionsPolicy);
     if (!cfg.isProd) return;
 
-    res.setHeader("Content-Security-Policy", buildProdCsp(nonce, getHtmlCspOptions(req)));
+    res.setHeader("Content-Security-Policy", buildProdCsp(nonce, getHtmlCspOptions()));
 };
 
 /** 先驗證 Host，再讓 HTML/靜態資源帶基礎安全標頭；API Proxy 由 setProxySecurityHeaders 重寫。 */
@@ -156,12 +156,10 @@ const setBaseSecurityHeaders = (res: Response, cfg: SecurityHeaderConfig, includ
     stripDisclosureHeaders(res);
 };
 
-/** 建立正式環境 HTML CSP 的調整參數。 */
-const getHtmlCspOptions = (req: Request) =>
+/** 建立正式環境 HTML CSP 的調整參數；前後台統一採 Balanced。 */
+const getHtmlCspOptions = () =>
 {
-    const pathname = String(req.path || "");
-    const isServerPage = /^\/server(?:\/|$)/i.test(pathname);
-    return { styleMode: isServerPage ? "legacy" as CspStyleMode : "balanced" as CspStyleMode };
+    return { styleMode: "balanced" as CspStyleMode };
 };
 
 /** 從 Proxy Header Map 移除指定標頭，避免後端/IIS/Node 重複輸出。 */
