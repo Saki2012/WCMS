@@ -1,9 +1,9 @@
 version: "1.9"
-updated_at: "2026-08-25"
+updated_at: "2026-08-26"
 purpose: "WCMS AI 快速定位索引；只提供導覽與搜尋入口，不取代正式架構、開發規範、品質驗證紀錄或實際程式碼。"
 
 repository:
-  full_name: "Saki2012/WCMS"
+  full_name: "iteasygo/WCMS"
   default_branch: "main"
   shared_development_branch: "Feature/Dev"
   release_branch: "Feature/Release"

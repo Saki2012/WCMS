@@ -22,7 +22,7 @@ jobs:
         with:
           github-token: ${{ secrets.PROJECT_SYNC_TOKEN }}
           script: |
-            const projectOwner = 'Saki2012';
+            const projectOwner = 'iteasygo';
             const projectNumber = 2;
             const issueNodeId = context.payload.issue.node_id;
             const issueBody = context.payload.issue.body || '';

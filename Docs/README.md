@@ -50,7 +50,7 @@ Docs/
 
 文件與實作發生差異時，依內容責任判斷：
 
-1. 程式實作以 GitHub `Saki2012/WCMS` 的指定分支為準。
+1. 程式實作以 GitHub `iteasygo/WCMS` 的指定分支為準。
 2. 架構與開發規則以 `01_研發與技術文件` 內有效的 Markdown 為準。
 3. 待辦、複驗與收斂狀態以 Google Sheet「WCMS_整合收斂管理表」最新內容為準。
 4. 某次修改的原因與範圍以 Git Commit、PR、Issue 及相關決策紀錄為準。

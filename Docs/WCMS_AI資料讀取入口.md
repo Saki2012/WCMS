@@ -8,7 +8,7 @@
 
 ## 1. GitHub Repository
 
-Repository：`https://github.com/Saki2012/WCMS`
+Repository：`https://github.com/iteasygo/WCMS`
 
 主要分支用途：
 

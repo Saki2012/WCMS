@@ -1,7 +1,7 @@
 name: QA Bug Report
 description: QA 回報 Bug / 測試問題
 labels: ["bug"]
-projects: ["Saki2012/2"]
+projects: ["iteasygo/2"]
 
 body:
   - type: dropdown

@@ -1,7 +1,7 @@
 # WCMS AI 白箱檢測
 
 > 文件版本：Version 1.0  
-> 適用 Repository：`Saki2012/WCMS`  
+> 適用 Repository：`iteasygo/WCMS`  
 > 執行與最終判定：RD  
 > AI 角色：依正式文件與指定 Commit 提供靜態分析、證據與修正建議
 
