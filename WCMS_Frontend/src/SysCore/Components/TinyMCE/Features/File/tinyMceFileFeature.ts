@@ -1,3 +1,9 @@
+import {
+    CMS_HTML_FILE_ACTION_ATTR,
+    CMS_HTML_FILE_ACTION_DOWNLOAD,
+    CMS_HTML_FILE_ACTION_PREVIEW,
+    type CmsHtmlFileAction,
+} from "@/SysCore/Components/CmsHtml/CmsHtml_Types";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { INTERNAL_ATTR } from "../../Core/tinyMceConstants";
 import type { TinyMCEEditor, TinyMceUploadFile } from "../../Core/tinyMceTypes";
@@ -162,7 +168,7 @@ export const pickLocalFile = (
     input.click();
 };
 
-/** 將檔案連結套用到目前選取內容，並同步 WCMS internalId。 */
+/** 將檔案連結套用到目前選取內容，並同步 WCMS internalId / File Action。 */
 export const applyFileLinkToSelection = (
     ed: TinyMCEEditor,
     opts: {
@@ -173,6 +179,7 @@ export const applyFileLinkToSelection = (
         download?: boolean;
         target?: string;
         targetBlank?: boolean;
+        fileAction?: CmsHtmlFileAction;
     },
 ) =>
 {
@@ -183,6 +190,7 @@ export const applyFileLinkToSelection = (
         internalId,
         download,
         targetBlank,
+        fileAction,
     } = opts;
 
     const target = opts.target ?? (targetBlank ? "_blank" : "");
@@ -200,6 +208,7 @@ export const applyFileLinkToSelection = (
         ed.dom.setAttrib(anchor, "target", target || null);
         ed.dom.setAttrib(anchor, "rel", target === "_blank" ? "noopener" : null);
         ed.dom.setAttrib(anchor, "download", download ? "" : null);
+        ed.dom.setAttrib(anchor, CMS_HTML_FILE_ACTION_ATTR, fileAction ?? null);
 
         if (internalId)
         {
@@ -472,7 +481,7 @@ const buildFallbackDialogData = (data: TinyMceFileLinkDialogData, file: File): T
     return { ...data, text: fallbackName, title: fallbackName };
 };
 
-/** 依下載/預覽模式產生公開網址並插入連結。 */
+/** 依下載/預覽模式產生公開網址並插入連結，同步寫入正式 File Action 語意。 */
 const insertUploadedFileLink = (
     ed: TinyMCEEditor,
     data: TinyMceFileLinkDialogData,
@@ -482,6 +491,9 @@ const insertUploadedFileLink = (
 ) =>
 {
     const fallbackName = removeFileExtension(file.name);
+    const fileAction = mode === "preview"
+        ? CMS_HTML_FILE_ACTION_PREVIEW
+        : CMS_HTML_FILE_ACTION_DOWNLOAD;
 
     const href = mode === "preview"
         ? FileManagementAPI.get_Public_Preview_Url(internalId)
@@ -494,6 +506,7 @@ const insertUploadedFileLink = (
         internalId,
         download: mode === "download",
         target: data.target ?? "",
+        fileAction,
     });
 };
 
@@ -559,6 +572,10 @@ const isDownloadLinkSelected = (
         ? node
         : ed.dom.getParent(node, "a");
 
-    return Boolean(anchor?.hasAttribute("download"));
+    if (!anchor) return false;
+    const fileAction = `${anchor.getAttribute(CMS_HTML_FILE_ACTION_ATTR) ?? ""}`.trim().toLowerCase();
+    if (fileAction === CMS_HTML_FILE_ACTION_DOWNLOAD) return true;
+    if (fileAction === CMS_HTML_FILE_ACTION_PREVIEW) return false;
+    return anchor.hasAttribute("download");
 };
 // #endregion
