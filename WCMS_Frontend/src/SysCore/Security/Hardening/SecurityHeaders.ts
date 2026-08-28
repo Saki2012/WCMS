@@ -70,13 +70,16 @@ export const setupSecurityHeaders = (app: express.Express, cfg: SecurityHeaderCo
     app.use((req: Request, res: Response, next: NextFunction) => applyBaseSecurityHeaders(req, res, next, cfg));
 };
 
-/** 清掉後端 Proxy 重複標頭，並由 Node 統一設定 API 對外安全標頭。 */
+/** 清掉後端 Proxy 重複標頭，並由 Node 統一設定 API 對外安全標頭。PDF 例外只沿用 Backend 已明確移除 CORP 的 Response。 */
 export const setProxySecurityHeaders = (proxyRes: ProxyResponseLike, cfg: SecurityHeaderConfig): void =>
 {
     const isPdf = isPdfProxyResponse(proxyRes.headers);
+    const backendHasCorp = hasProxyHeader(proxyRes.headers, "cross-origin-resource-policy");
+    const excludeCorp = isPdf && !backendHasCorp;
+
     stripProxyOwnedHeaders(proxyRes.headers);
     setProxyCacheHeaders(proxyRes.headers);
-    setProxyBaseHeaders(proxyRes.headers, !isPdf);
+    setProxyBaseHeaders(proxyRes.headers, !excludeCorp);
     if (cfg.isProd) proxyRes.headers["strict-transport-security"] = "max-age=31536000; includeSubDomains";
 };
 // #endregion
@@ -115,6 +118,12 @@ const isPdfProxyResponse = (headers: ProxyHeaderMap): boolean =>
 {
     const contentType = getProxyHeaderText(headers, "content-type").toLowerCase();
     return contentType.startsWith("application/pdf");
+};
+
+/** 判斷 Proxy Response 是否具有指定 Header。 */
+const hasProxyHeader = (headers: ProxyHeaderMap, name: string): boolean =>
+{
+    return Object.keys(headers).some(key => key.toLowerCase() === name.toLowerCase());
 };
 
 /** 讀取 Proxy Response Header 文字值。 */
