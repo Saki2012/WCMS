@@ -3,7 +3,7 @@ namespace WCMS.SysCore.PlatformServices.Cookies;
 /// <summary>
 /// 提供 Server-issued Cookie 的共用讀取、寫入與刪除入口；安全傳輸屬性由 Cookie Policy Middleware 最終套用。
 /// </summary>
-internal sealed class CookieService(IHttpContextAccessor httpContextAccessor)
+public sealed class CookieService(IHttpContextAccessor httpContextAccessor)
 {
     #region Property
     private HttpContext Context => httpContextAccessor.HttpContext ?? throw new InvalidOperationException("CookieService requires an active HttpContext.");
