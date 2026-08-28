@@ -5,7 +5,7 @@ using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Contracts;
 using WCMS.SysCore.FeatureDriver.Api.Controllers;
 using WCMS.SysCore.FeatureDriver.Api.Metadata;
-using WCMS.SysCore.PlatformServices.Visitor;
+using WCMS.SysCore.PlatformServices.Cookies.Visitor;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 using static WCMS.SysCore.Constants.SysParam;
 namespace WCMS.Features.WEB.SiteViewCount;

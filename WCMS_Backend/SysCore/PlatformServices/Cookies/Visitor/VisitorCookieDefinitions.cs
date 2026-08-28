@@ -1,6 +1,5 @@
 using WCMS.SysCore.Constants;
-using WCMS.SysCore.PlatformServices.Cookies;
-namespace WCMS.SysCore.PlatformServices.Visitor;
+namespace WCMS.SysCore.PlatformServices.Cookies.Visitor;
 
 /// <summary>
 /// 定義匿名 Visitor Cookie 的角色屬性。

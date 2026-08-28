@@ -14,6 +14,7 @@ using WCMS.SysCore.FeatureDriver.Model.Contracts;
 using WCMS.SysCore.FeatureDriver.Model.Form;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.I18n;
+using WCMS.SysCore.PlatformServices.Cookies.Xsrf;
 using WCMS.SysCore.PlatformServices.FileManagement;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SysCore.FeatureDriver.Api.Controllers;
@@ -282,30 +283,24 @@ public abstract class ApiDataController<TFormModel> : ApiDataQueryController<TFo
 /// 系統功能API
 /// </summary>
 [ApiController, Route(SysParam.ApiRoutes.Service)]
-public class SystemAPIController(IAntiforgery anti, SystemVersion systemVersionBiz, I18nCache i18n) : ControllerBase
+public class SystemAPIController(IAntiforgery anti, SystemVersion systemVersionBiz, I18nCache i18n, XsrfCookieService xsrfCookieService) : ControllerBase
 {
     #region Property
     private readonly IAntiforgery _anti = anti;
     private readonly SystemVersion _systemVersionBiz = systemVersionBiz;
     private readonly I18nCache _i18n = i18n;
-
+    private readonly XsrfCookieService _xsrfCookieService = xsrfCookieService;
     #endregion
 
     #region Public
     /// <summary>
-    /// 發出/更新 XSRF Token，寫入可讀 Cookie：XSRF-TOKEN
+    /// 發出/更新 XSRF Token，寫入可讀 Cookie：XSRF-TOKEN。
     /// </summary>
     [HttpGet(nameof(GetXsrfToken)), AllowAnonymous, ResponseCache(NoStore = true, Location = ResponseCacheLocation.None), IgnoreAntiforgeryToken]
     public IActionResult GetXsrfToken()
     {
         var tokens = _anti.GetAndStoreTokens(HttpContext);
-        Response.Cookies.Append(SysParam.CookieNames.XsrfToken, tokens.RequestToken!, new CookieOptions
-        {
-            HttpOnly = false,                 // 讓前端可讀，axios 才能送到 header
-            Secure = true,                  // 只在 HTTPS 傳送
-            SameSite = SameSiteMode.Strict,      // 同站情境會自動帶上
-            Path = SysParam.CookiePaths.Root
-        });
+        _xsrfCookieService.WriteRequestToken(tokens.RequestToken!);
         return NoContent();
     }
     /// <summary>
@@ -339,5 +334,4 @@ public class SystemAPIController(IAntiforgery anti, SystemVersion systemVersionB
     }
     #endregion
 }
-
 

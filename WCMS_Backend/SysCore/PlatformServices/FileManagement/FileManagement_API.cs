@@ -9,7 +9,7 @@ using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Contracts;
 using WCMS.SysCore.FeatureDriver.Api.Controllers;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
-using WCMS.SysCore.PlatformServices.Visitor;
+using WCMS.SysCore.PlatformServices.Cookies.Visitor;
 using static WCMS.SysCore.Constants.SysParam;
 namespace WCMS.SysCore.PlatformServices.FileManagement;
 
@@ -31,12 +31,9 @@ public class FileManagementController : ApiDataController<FileManage>
     [HttpGet($"{nameof(Public_Download)}/{{internalId}}"), AllowAnonymous, IgnoreAntiforgeryToken]
     public async Task<IActionResult> Public_Download(string internalId, CancellationToken ct, [FromQuery] string? fileName = null)
     {
-        // 宣告變數：取得單筆公開檔案
         var (errorResult, file) = await ReadSingleFileAsync(internalId, true);
         if (errorResult != null || file == null) return errorResult!;
-        // 執行 function：前台下載計次
         await CountPublicDownloadAsync(file.InternalId, ct);
-        // return
         return BuildDownloadResult(file, fileName);
     }
     /// <summary>
@@ -48,15 +45,11 @@ public class FileManagementController : ApiDataController<FileManage>
     [HttpGet($"{nameof(Public_Preview)}/{{internalId}}"), AllowAnonymous, IgnoreAntiforgeryToken]
     public async Task<IActionResult> Public_Preview(string internalId, CancellationToken ct, [FromQuery] string? fileName = null)
     {
-        // 宣告變數：取得單筆公開檔案
         var (errorResult, file) = await ReadSingleFileAsync(internalId, true);
         if (errorResult != null || file == null) return errorResult!;
-        // 宣告變數：確認是否可預覽
         var previewError = EnsureCanPreview(file, out var isPdf);
         if (previewError != null) return previewError;
-        // 執行 function：PDF preview 視同下載時才計次
         if (isPdf) await CountPublicDownloadAsync(file.InternalId, ct);
-        // return
         return BuildPreviewResult(file, fileName, isPublic: true);
     }
     #endregion
@@ -72,15 +65,10 @@ public class FileManagementController : ApiDataController<FileManage>
     [HttpGet($"{nameof(Server_Preview)}/{{internalId}}"), Authorize]
     public async Task<IActionResult> Server_Preview(string internalId, CancellationToken ct, [FromQuery] string? fileName = null)
     {
-        // 宣告變數：取得單筆後台檔案
         var (errorResult, file) = await ReadSingleFileAsync(internalId, false);
         if (errorResult != null || file == null) return errorResult!;
-
-        // 宣告變數：確認是否可預覽
         var previewError = EnsureCanPreview(file, out _);
         if (previewError != null) return previewError;
-
-        // return
         return BuildPreviewResult(file, fileName, isPublic: false);
     }
     /// <summary>
@@ -93,18 +81,13 @@ public class FileManagementController : ApiDataController<FileManage>
     [HttpGet($"{nameof(Server_Download)}/{{internalId}}"), Authorize]
     public async Task<IActionResult> Server_Download(string internalId, CancellationToken ct, [FromQuery] string? fileName = null)
     {
-        // 宣告變數：紀錄操作
         OperateLog followInfo = OperateLog.AddOperateLog(
             $"{Service.ProgId}/{nameof(Server_Download)}",
             OperateUser.UserId,
             JsonConvert.SerializeObject(internalId),
             Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
-
-        // 宣告變數：取得單筆後台檔案
         var (errorResult, file) = await ReadSingleFileAsync(internalId, false);
         if (errorResult != null || file == null) return errorResult!;
-
-        // return
         return BuildDownloadResult(file, fileName);
     }
     /// <summary>
@@ -181,9 +164,7 @@ public class FileManagementController : ApiDataController<FileManage>
     /// </summary>
     private async Task<(IActionResult? errorResult, FileManage? file)> ReadSingleFileAsync(string internalId, bool onlyPublic)
     {
-        // 宣告變數：讀取檔案資訊
         var result = await GetFileBiz().ReadFileInfo([internalId], onlyPublic);
-        // 執行 function：處理 Biz 錯誤
         if (Message.HasError) return (BadRequest(Message.Messages), null);
         if (result.Count == 0) return (NotFound(), null);
         if (result.Count != 1) return (BadRequest(), null);
@@ -195,9 +176,7 @@ public class FileManagementController : ApiDataController<FileManage>
     /// </summary>
     private IActionResult? EnsureCanPreview(FileManage file, out bool isPdf)
     {
-        // 宣告變數：檢查是否可預覽
         var canPreview = GetFileBiz().CheckFileCanPreview(file, out isPdf);
-        // 執行 function：不可預覽則回錯誤
         if (!canPreview)
         {
             Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00033, file.InternalId);
@@ -211,11 +190,8 @@ public class FileManagementController : ApiDataController<FileManage>
     /// </summary>
     private async Task CountPublicDownloadAsync(string fileInternalId, CancellationToken ct)
     {
-        // 宣告變數：取得訪客資訊
         var visitorKey = VisitorCookieService.GetOrCreate();
         var refererUrl = Request.Headers.Referer.ToString();
-
-        // 執行 function：累加前台下載次數
         await GetFileBiz().TryCountPublicDownload(fileInternalId, visitorKey, refererUrl, ct);
     }
 
@@ -242,15 +218,12 @@ public class FileManagementController : ApiDataController<FileManage>
     /// </summary>
     private string ResolveContentType(FileManage file, string safeFileName)
     {
-        // 宣告變數：先取既有 MimeType
         var contentType = file.MimeType;
-        // 執行 function：若 MimeType 不完整則依副檔名推斷
         if (string.IsNullOrWhiteSpace(contentType) || contentType.Equals("application/octet-stream", StringComparison.OrdinalIgnoreCase))
         {
             var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
             if (!provider.TryGetContentType(safeFileName, out contentType)) contentType = "application/octet-stream";
         }
-        // return
         return contentType;
     }
     /// <summary>
@@ -258,7 +231,6 @@ public class FileManagementController : ApiDataController<FileManage>
     /// </summary>
     private void ApplyPreviewHeaders(FileManage file, string safeFileName, bool isPublic)
     {
-        // 執行 function：設定快取 Header
         if (!string.IsNullOrWhiteSpace(file.FileSHA256)) Response.Headers.ETag = $"W/\"{file.FileSHA256}\"";
         if (file.ModifyTime != default)
         {
@@ -268,7 +240,6 @@ public class FileManagementController : ApiDataController<FileManage>
             Response.Headers.LastModified = lastModified.ToString("R");
         }
         Response.Headers.CacheControl = isPublic ? "public, max-age=31536000, immutable" : "private, max-age=0, must-revalidate";
-        // 執行 function：設定 inline 檔名
         var asciiFallback = Regex.Replace(safeFileName, @"[^\x20-\x7E]", "_").Replace("\"", "'");
         Response.Headers.ContentDisposition = $"inline; filename=\"{asciiFallback}\"; filename*=UTF-8''{Uri.EscapeDataString(safeFileName)}";
         Response.Headers.XContentTypeOptions = "nosniff";
@@ -288,15 +259,11 @@ public class FileManagementController : ApiDataController<FileManage>
     /// </summary>
     private IActionResult BuildPreviewResult(FileManage file, string? fileName, bool isPublic)
     {
-        // 宣告變數：建立回應內容
         var physicalPath = BuildPhysicalPath(file);
         var safeFileName = BuildFileName(file, fileName);
         var contentType = ResolveContentType(file, safeFileName);
-        // 執行 function：PDF 走動態改寫 title 的預覽流程
         if (IsPdfFile(file)) return BuildPdfPreviewResult(physicalPath, safeFileName, isPublic);
-        // 執行 function：非 PDF 維持原本流程
         ApplyPreviewHeaders(file, safeFileName, isPublic);
-        // return
         return PhysicalFile(physicalPath, contentType, enableRangeProcessing: true);
     }
     /// <summary>
@@ -304,10 +271,7 @@ public class FileManagementController : ApiDataController<FileManage>
     /// </summary>
     private bool IsPdfFile(FileManage file)
     {
-        // 宣告變數：整理副檔名
         var ext = (file.FileExtension ?? string.Empty).Trim().TrimStart('.');
-
-        // return
         return ext.Equals("pdf", StringComparison.OrdinalIgnoreCase);
     }
     /// <summary>
@@ -315,10 +279,7 @@ public class FileManagementController : ApiDataController<FileManage>
     /// </summary>
     private string BuildPdfTitle(string safeFileName)
     {
-        // 宣告變數：取不含副檔名的名稱
         var title = Path.GetFileNameWithoutExtension(safeFileName ?? string.Empty).Trim();
-
-        // return
         return string.IsNullOrWhiteSpace(title) ? "document" : title;
     }
     /// <summary>
@@ -326,48 +287,33 @@ public class FileManagementController : ApiDataController<FileManage>
     /// </summary>
     private IActionResult BuildPdfPreviewResult(string physicalPath, string safeFileName, bool isPublic)
     {
-        // 宣告變數：建立 PDF stream
         var pdfTitle = BuildPdfTitle(safeFileName);
         var stream = CreatePdfPreviewStream(physicalPath, pdfTitle);
-
-        // 執行 function：設定 PDF 預覽專用 Header
         ApplyPdfPreviewHeaders(safeFileName, isPublic);
-
-        // 宣告變數：建立回應結果
         var result = new FileStreamResult(stream, "application/pdf")
         {
             EnableRangeProcessing = true,
         };
-
-        // return
         return result;
     }
     /// <summary>
-    /// 建立 PDF 預覽 stream，並動態改寫 title
+    /// 建立 PDF preview stream，並動態改寫 title
     /// </summary>
     private MemoryStream CreatePdfPreviewStream(string physicalPath, string pdfTitle)
     {
-        // 宣告變數：建立輸出 stream
         var output = new MemoryStream();
-
         try
         {
-            // 執行 function：讀取原始 PDF 並修改 metadata
             using var input = System.IO.File.OpenRead(physicalPath);
             using var document = PdfReader.Open(input, PdfDocumentOpenMode.Modify);
-
             document.Info.Title = pdfTitle;
             document.Save(output, false);
             output.Position = 0;
-
-            // return
             return output;
         }
         catch
         {
-            // 執行 function：若 PDF 無法修改，退回原始檔內容
             output.Dispose();
-
             var fallback = new MemoryStream(System.IO.File.ReadAllBytes(physicalPath));
             fallback.Position = 0;
             return fallback;
@@ -378,10 +324,7 @@ public class FileManagementController : ApiDataController<FileManage>
     /// </summary>
     private void ApplyPdfPreviewHeaders(string safeFileName, bool isPublic)
     {
-        // 宣告變數：建立 ASCII fallback 檔名
         var asciiFallback = Regex.Replace(safeFileName, @"[^\x20-\x7E]", "_").Replace("\"", "'");
-
-        // 執行 function：設定快取與檔名
         Response.Headers.CacheControl = isPublic ? "public, max-age=0, must-revalidate" : "private, max-age=0, must-revalidate";
         Response.Headers.ContentDisposition = $"inline; filename=\"{asciiFallback}\"; filename*=UTF-8''{Uri.EscapeDataString(safeFileName)}";
         Response.Headers.XContentTypeOptions = "nosniff";
