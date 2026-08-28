@@ -1,4 +1,4 @@
-import { ensureWcmsDefaultTrustedTypesPolicy } from "@/SysCore/Utils/Security/TrustedTypesPolicy";
+import { ensureWcmsDefaultTrustedTypesPolicy } from "@/SysCore/Security/Runtime/TrustedTypesPolicy";
 import type { TinyMCEEditor } from "./tinyMceTypes";
 
 // #region Public

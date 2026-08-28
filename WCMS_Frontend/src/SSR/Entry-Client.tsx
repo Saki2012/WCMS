@@ -3,12 +3,12 @@ import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp.
 import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp.tsx";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang.ts";
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter.ts";
+import { ensureWcmsDefaultTrustedTypesPolicy } from "@/SysCore/Security/Runtime/TrustedTypesPolicy";
 import { api, type BrowserApiWithInit } from "@/SysCore/Utils/API/APIBase.ts";
 import { LibJson, LibType } from "@/SysCore/Utils/Library/LibData";
 import { importSpecAssets } from "@/SysCore/Utils/Library/SlotResolver";
 import { LibRouteLang } from "@/SysCore/Utils/Route/LibRoute";
 import { createClientRouter } from "@/SysCore/Utils/Route/Routes.tsx";
-import { ensureWcmsDefaultTrustedTypesPolicy } from "@/SysCore/Utils/Security/TrustedTypesPolicy";
 import type { FC, ReactElement } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";

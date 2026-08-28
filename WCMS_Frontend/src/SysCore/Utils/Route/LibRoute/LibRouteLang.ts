@@ -1,11 +1,11 @@
+import { RouteLanguageCookieDefinition } from "@/SysCore/Security/Browser/Cookies/RouteLanguageCookieDefinition";
+import { writeBrowserCookie } from "@/SysCore/Security/Browser/Cookies/BrowserCookieService";
 import { DefaultLang, isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
 import { LibCookie, LibText } from "@/SysCore/Utils/Library/LibData";
 import { LANG_COOKIE_KEY } from "@/SysCore/Utils/Library/SysParam";
 import * as LibRoutePath from "./LibRoutePath";
 
 // #region Property
-/** 語系 Cookie 保存秒數，目前設定為一年 */
-const LANG_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 /** Accept-Language 權重預設值 */
 const DEFAULT_ACCEPT_LANGUAGE_Q_VALUE = 1;
 /** Accept-Language 主項分隔符號 */
@@ -22,8 +22,6 @@ const LANG_CANONICAL_SEPARATOR = "-";
 const EN_LANG: Lang = "en";
 /** 繁中語系 canonical 值 */
 const ZH_TW_LANG: Lang = "zh-tw";
-/** HTTPS protocol 文字 */
-const HTTPS_PROTOCOL = "https:";
 /** Route 語系處理略過的路徑 segment */
 export const ROUTE_LANG_BYPASS_SEGMENTS = ["server", "service"] as const;
 /** URL 解析用的預設 base url */
@@ -44,8 +42,7 @@ interface AcceptLanguageEntry
 /** 寫入使用者目前選擇的路由語系 Cookie。 */
 export const writeRouteLangCookie = (lang: Lang): void =>
 {
-    const isSecure = isHttpsLocation();
-    LibCookie.writeClientCookie({ name: LANG_COOKIE_KEY, value: lang, maxAgeSeconds: LANG_COOKIE_MAX_AGE_SECONDS, sameSite: "Lax", isSecure });
+    writeBrowserCookie(RouteLanguageCookieDefinition, lang);
 };
 
 /** 嘗試將輸入語系轉成系統支援的 route canonical 語系。 */
@@ -177,15 +174,6 @@ export const buildLangPathname = (pathname: string, lang: Lang): string =>
 // #endregion
 
 // #region Private
-/** 判斷目前 Client 是否為 HTTPS 環境。 */
-const isHttpsLocation = (): boolean =>
-{
-    if (typeof window === "undefined") return false;
-
-    const isSecure = window.location.protocol === HTTPS_PROTOCOL;
-    return isSecure;
-};
-
 /** 解碼並正規化 route 語系文字。 */
 const decodeRouteLangText = (value?: string | null): string =>
 {

@@ -1,6 +1,6 @@
 // LoadFeaturesJs.ts
 
-import { setTrustedScriptElementSrc } from "@/SysCore/Utils/Security/TrustedTypesPolicy";
+import { setTrustedScriptElementSrc } from "@/SysCore/Security/Runtime/TrustedTypesPolicy";
 import loginAnimateUrl from "./Server/ContentBack/bg_dynamic/login-particles.js?url";
 import bootstrapUrl from "./Server/ContentBack/bootstrap-5.1.1/js/bootstrap.bundle.min.js?url";
 import jqueryUrl from "./Server/ContentBack/jquery-3.7.1/jquery-3.7.1.min.js?url";
