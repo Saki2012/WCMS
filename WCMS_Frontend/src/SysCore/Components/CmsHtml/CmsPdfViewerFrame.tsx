@@ -1,3 +1,4 @@
+import { withNativePdfPreviewContext } from "@/SysCore/Security/Contracts/PdfPreviewSecurityContract";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ReactElement } from "react";
 import { CmsPdfViewer, type CmsPdfViewerText } from "./CmsPdfViewer";
@@ -13,11 +14,12 @@ export interface CmsPdfViewerFrameProps
 // #endregion
 
 // #region Public
-/** CMS PDF 外框，提供 SSR fallback 與 PDF Viewer 顯示入口。 */
+/** CMS PDF 外框，PDF.js 維持一般 Preview URL；只有 Browser 原生 fallback 帶 Native Preview Context。 */
 export const CmsPdfViewerFrame = (props: CmsPdfViewerFrameProps): ReactElement =>
 {
     const title = resolvePdfTitle(props.title);
     const text = resolvePdfViewerText(props.lang);
+    const nativePreviewUrl = withNativePdfPreviewContext(props.fileUrl);
 
     return (
         <span className="cms-pdf-viewer-frame" role="group" aria-label={title}>
@@ -25,7 +27,7 @@ export const CmsPdfViewerFrame = (props: CmsPdfViewerFrameProps): ReactElement =
             <span className="cms-pdf-viewer-fallback">
                 <span className="cms-pdf-viewer-fallback-text">
                     {text.fallbackHint}
-                    <a href={props.fileUrl} target="_blank" rel="noopener noreferrer" className="cms-pdf-viewer-open-link" title={text.openOriginal}><i className="fas fa-external-link"></i></a>
+                    <a href={nativePreviewUrl} target="_blank" rel="noopener noreferrer" className="cms-pdf-viewer-open-link" title={text.openOriginal}><i className="fas fa-external-link"></i></a>
                     。
                 </span>
             </span>
