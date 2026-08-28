@@ -3,7 +3,16 @@ import { render } from "dom-serializer";
 import type { Element } from "domhandler";
 import { DomUtils, parseDocument } from "htmlparser2";
 import { INTERNAL_ATTR } from "../TinyMCE/Core/tinyMceConstants";
-import { CMS_HTML_VIEWER_ATTR, CMS_HTML_VIEWER_PDF, type CmsHtmlFileMeta, type CmsHtmlTransformOptions } from "./CmsHtml_Types";
+import {
+    CMS_HTML_FILE_ACTION_ATTR,
+    CMS_HTML_FILE_ACTION_DOWNLOAD,
+    CMS_HTML_FILE_ACTION_PREVIEW,
+    CMS_HTML_VIEWER_ATTR,
+    CMS_HTML_VIEWER_PDF,
+    type CmsHtmlFileAction,
+    type CmsHtmlFileMeta,
+    type CmsHtmlTransformOptions,
+} from "./CmsHtml_Types";
 import { isYoutubeIframeUrl, mergeYoutubeIframeAllow, normalizeYoutubeEmbedUrl } from "./CmsIframeUtils";
 
 // #region Property
@@ -14,6 +23,8 @@ const MEDIA_PREVIEW_ELEMENT_NAMES = new Set(["img", "iframe", "video", "audio", 
 const DANGEROUS_URL_PATTERN = /^\s*(javascript|vbscript|data):/i;
 
 const CMS_FILE_PREVIEW_URL_FRAGMENT = "/service/filemanagement/public_preview/";
+
+const CMS_FILE_DOWNLOAD_URL_FRAGMENT = "/service/filemanagement/public_download/";
 // #endregion
 
 // #region Public
@@ -125,25 +136,55 @@ const normalizeAnchor = (el: Element, options?: CmsHtmlTransformOptions): void =
 {
     const internalId = getInternalId(el);
 
-    if (internalId) normalizeInternalDownloadAnchor(el, internalId, options);
+    if (internalId) normalizeInternalFileAnchor(el, internalId, options);
 
     normalizeAnchorHref(el);
     normalizeBlankAnchorRel(el);
 };
 
 
-/** 將 data-internalid 的 a 轉成前台下載網址。 */
-const normalizeInternalDownloadAnchor = (el: Element, internalId: string, options?: CmsHtmlTransformOptions): void =>
+/** 依正式 File Action 或舊資料線索決定 Preview / Download，再產生對應 URL。 */
+const normalizeInternalFileAnchor = (el: Element, internalId: string, options?: CmsHtmlTransformOptions): void =>
 {
     const meta = options?.fileMetaMap?.[internalId];
-    const label = getAnchorText(el) || getMetaFileName(meta) || "下載檔案";
+    const action = resolveInternalFileAction(el);
+    const label = getAnchorText(el) || getMetaFileName(meta) || (action === CMS_HTML_FILE_ACTION_PREVIEW ? "預覽檔案" : "下載檔案");
 
-    el.attribs.href = buildCmsHtmlDownloadUrl(internalId, meta, options);
-    el.attribs.download = el.attribs.download ?? "";
+    el.attribs[CMS_HTML_FILE_ACTION_ATTR] = action;
     el.attribs["aria-label"] = el.attribs["aria-label"] || label;
 
-    if (options?.downloadInNewWindow !== false) el.attribs.target = "_blank";
+    if (action === CMS_HTML_FILE_ACTION_PREVIEW)
+    {
+        el.attribs.href = buildCmsHtmlPreviewUrl(internalId, meta, options);
+        delete el.attribs.download;
+    } else
+    {
+        el.attribs.href = buildCmsHtmlDownloadUrl(internalId, meta, options);
+        el.attribs.download = el.attribs.download ?? "";
+        if (options?.downloadInNewWindow !== false) el.attribs.target = "_blank";
+    }
+
     if (!options?.keepDataInternalId) delete el.attribs[INTERNAL_ATTR];
+};
+
+
+/**
+ * 解析 WCMS 內部檔案連結行為。
+ * 新資料優先使用 data-wcms-file-action；舊資料再依 download / URL 回推，無法辨識時安全退回 Download。
+ */
+const resolveInternalFileAction = (el: Element): CmsHtmlFileAction =>
+{
+    const explicitAction = `${el.attribs?.[CMS_HTML_FILE_ACTION_ATTR] ?? ""}`.trim().toLowerCase();
+    if (explicitAction === CMS_HTML_FILE_ACTION_PREVIEW) return CMS_HTML_FILE_ACTION_PREVIEW;
+    if (explicitAction === CMS_HTML_FILE_ACTION_DOWNLOAD) return CMS_HTML_FILE_ACTION_DOWNLOAD;
+
+    if (Object.prototype.hasOwnProperty.call(el.attribs ?? {}, "download")) return CMS_HTML_FILE_ACTION_DOWNLOAD;
+
+    const href = `${el.attribs?.href ?? ""}`.trim().toLowerCase();
+    if (href.includes(CMS_FILE_DOWNLOAD_URL_FRAGMENT)) return CMS_HTML_FILE_ACTION_DOWNLOAD;
+    if (href.includes(CMS_FILE_PREVIEW_URL_FRAGMENT)) return CMS_HTML_FILE_ACTION_PREVIEW;
+
+    return CMS_HTML_FILE_ACTION_DOWNLOAD;
 };
 
 
