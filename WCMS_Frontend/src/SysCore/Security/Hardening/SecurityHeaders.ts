@@ -20,7 +20,8 @@ const defaultPermissionsPolicy = "geolocation=(), microphone=(), camera=(), full
 
 const htmlPermissionsPolicy = "geolocation=(), microphone=(), camera=(), fullscreen=(self \"https://www.youtube.com\" \"https://www.youtube-nocookie.com\")";
 
-const staticScriptCspValue = "default-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'";
+/** JavaScript 靜態資源仍需宣告 Trusted Types Enforcement，避免 Scanner 將各個 JS Response 視為未啟用。 */
+const staticScriptCspValue = "default-src 'none'; require-trusted-types-for 'script'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'";
 // #endregion
 
 // #region Public
@@ -102,7 +103,7 @@ const isJavaScriptPath = (pathname: string): boolean =>
     return path.endsWith(".js") || path.endsWith(".mjs");
 };
 
-/** 正式環境僅替 JavaScript 靜態資源補最小 CSP，避免影響 HTML、PDF 與其他資源。 */
+/** 正式環境替 JavaScript 靜態資源補最小 CSP，並同步宣告 Trusted Types Enforcement。 */
 const setStaticResourceSecurityHeaders = (req: Request, res: Response, cfg: SecurityHeaderConfig): void =>
 {
     if (!cfg.isProd || !isJavaScriptPath(req.path)) return;
