@@ -32,6 +32,21 @@ export const withNativePdfPreviewContext = (url: string): string =>
     const separator = base.includes("?") ? "&" : "?";
     return `${base}${separator}${queryKey}=${queryValue}${hash}`;
 };
+
+/** 判斷 Browser-facing Request 是否為具名 Native PDF Preview Context。 */
+export const isNativePdfPreviewRequestUrl = (url: string): boolean =>
+{
+    const source = `${url ?? ""}`.trim();
+    if (!source || !isWcmsPublicPreviewUrl(source)) return false;
+
+    const queryIndex = source.indexOf("?");
+    if (queryIndex < 0) return false;
+
+    const hashIndex = source.indexOf("#", queryIndex);
+    const query = source.slice(queryIndex + 1, hashIndex >= 0 ? hashIndex : undefined);
+    const params = new URLSearchParams(query);
+    return params.get(PDF_NATIVE_PREVIEW_QUERY_KEY)?.trim().toLowerCase() === PDF_NATIVE_PREVIEW_QUERY_VALUE;
+};
 // #endregion
 
 // #region Private
