@@ -33,6 +33,7 @@ public class AuthController(
     private readonly LoginAttemptCache _loginAttemptCache = loginAttemptCache;
     private readonly IPermissionCache _permissionCache = permissionCache;
     private readonly IWebHostEnvironment _environment = environment;
+    private AuthCookieService AuthCookieService => HttpContext.RequestServices.GetRequiredService<AuthCookieService>();
     protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
     private IOperateLog? _OperateLog;
     private ICurrentUserAccessor _Current;
@@ -63,23 +64,7 @@ public class AuthController(
         var (accessToken, _, accessExp) = _tokenSvc.IssueAccessToken(userInfo);
         var (tokenId, refreshExp) = _tokenSvc.IssueRefreshToken();
         await _tokenSvc.StoreRefreshAsync(userInfo.UserId, tokenId, refreshExp, ct);
-        var baseOpt = new CookieOptions { Path = SysParam.CookiePaths.Root, Secure = true, SameSite = SameSiteMode.Lax };
-        Response.Cookies.Append(SysParam.CookieNames.RefreshTokenId, tokenId, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = baseOpt.Secure,
-            SameSite = baseOpt.SameSite,
-            Path = baseOpt.Path,
-            Expires = refreshExp
-        });
-        Response.Cookies.Append(SysParam.CookieNames.AccessToken, accessToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = baseOpt.Secure,
-            SameSite = baseOpt.SameSite,
-            Path = baseOpt.Path,
-            Expires = accessExp
-        });
+        AuthCookieService.WriteSession(accessToken, accessExp, tokenId, refreshExp);
         await _permissionCache.InvalidateUsersAsync([userInfo.UserId], ct);
         CurrentUserContext_DTO context = await BuildCurrentUserContextAsync(userInfo, ct);
         return Ok(context);
@@ -105,22 +90,7 @@ public class AuthController(
         var (newRtid, refreshExp) = _tokenSvc.IssueRefreshToken();
         bool rotated = await _tokenSvc.TryRotateRefreshAsync(user.UserId, oldRtid, newRtid, refreshExp, ct);
         if (!rotated) return Unauthorized("Refresh already consumed.");
-        Response.Cookies.Append(SysParam.CookieNames.RefreshTokenId, newRtid, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Lax,
-            Path = SysParam.CookiePaths.Root,
-            Expires = refreshExp
-        });
-        Response.Cookies.Append(SysParam.CookieNames.AccessToken, access, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Lax,
-            Path = SysParam.CookiePaths.Root,
-            Expires = accessExp
-        });
+        AuthCookieService.WriteSession(access, accessExp, newRtid, refreshExp);
         return Ok(new { AccessToken = access, ExpiresAt = accessExp });
     }
 
@@ -137,16 +107,14 @@ public class AuthController(
         if (!string.IsNullOrEmpty(jti)) await _tokenSvc.BlacklistAccessAsync(jti, ttl, ct);
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
         if (Request.Cookies.TryGetValue(SysParam.CookieNames.RefreshTokenId, out var rtid) && !string.IsNullOrEmpty(userId)) await _tokenSvc.RevokeRefreshAsync(rtid, ct);
-        var delOpt = new CookieOptions { Path = SysParam.CookiePaths.Root, Secure = true, SameSite = SameSiteMode.Lax };
         OperateLog followInfo = new OperateLog();
         followInfo.APIName = nameof(Logout);
         followInfo.UserId = OperateUser.UserId;
-        followInfo.followingDT = JsonConvert.SerializeObject(delOpt);
+        followInfo.followingDT = JsonConvert.SerializeObject(new { Cookies = new[] { SysParam.CookieNames.RefreshTokenId, SysParam.CookieNames.AccessToken, SysParam.CookieNames.XsrfToken } });
         followInfo.IP = Request.Headers[SysParam.HttpHeaders.ClientIp].ToString();
         OperateLog.AddOperateLog(followInfo);
-        Response.Cookies.Delete(SysParam.CookieNames.RefreshTokenId, delOpt);
-        Response.Cookies.Delete(SysParam.CookieNames.XsrfToken, delOpt);
-        Response.Cookies.Delete(SysParam.CookieNames.AccessToken, delOpt);
+        AuthCookieService.DeleteSession();
+        Response.Cookies.Delete(SysParam.CookieNames.XsrfToken, new CookieOptions { Path = SysParam.CookiePaths.Root });
         return Ok();
     }
 

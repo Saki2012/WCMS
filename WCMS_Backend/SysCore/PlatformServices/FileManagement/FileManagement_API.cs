@@ -9,12 +9,17 @@ using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Contracts;
 using WCMS.SysCore.FeatureDriver.Api.Controllers;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.PlatformServices.Visitor;
 using static WCMS.SysCore.Constants.SysParam;
 namespace WCMS.SysCore.PlatformServices.FileManagement;
 
 [ApiController, Route(SysParam.ApiRoutes.Service)]
 public class FileManagementController : ApiDataController<FileManage>
 {
+    #region Property
+    private VisitorCookieService VisitorCookieService => HttpContext.RequestServices.GetRequiredService<VisitorCookieService>();
+    #endregion
+
     #region Public
 
     #region 對外公開API
@@ -207,7 +212,7 @@ public class FileManagementController : ApiDataController<FileManage>
     private async Task CountPublicDownloadAsync(string fileInternalId, CancellationToken ct)
     {
         // 宣告變數：取得訪客資訊
-        var visitorKey = GetOrCreateVisitorKey();
+        var visitorKey = VisitorCookieService.GetOrCreate();
         var refererUrl = Request.Headers.Referer.ToString();
 
         // 執行 function：累加前台下載次數
@@ -380,45 +385,6 @@ public class FileManagementController : ApiDataController<FileManage>
         Response.Headers.CacheControl = isPublic ? "public, max-age=0, must-revalidate" : "private, max-age=0, must-revalidate";
         Response.Headers.ContentDisposition = $"inline; filename=\"{asciiFallback}\"; filename*=UTF-8''{Uri.EscapeDataString(safeFileName)}";
         Response.Headers.XContentTypeOptions = "nosniff";
-    }
-    #endregion
-
-    #region Cookies相關
-    /// <summary>
-    /// 獲取或建立前台匿名訪客識別碼（VisitorKey）
-    /// </summary>
-    /// <returns></returns>
-    private string GetOrCreateVisitorKey()
-    {
-        var visitorKey = TryGetVisitorKey();
-        if (!string.IsNullOrWhiteSpace(visitorKey)) return visitorKey;
-        visitorKey = Guid.NewGuid().ToString("N");
-        WriteVisitorKeyCookie(visitorKey);
-        return visitorKey;
-    }
-    /// <summary>
-    /// 讀取前台匿名訪客 Cookie
-    /// </summary>
-    private string TryGetVisitorKey()
-    {
-        var hasValue = Request.Cookies.TryGetValue(CookieNames.VisitorKey, out var visitorKey);
-        return hasValue ? (visitorKey ?? string.Empty).Trim() : string.Empty;
-    }
-    /// <summary>
-    /// 寫入前台匿名訪客 Cookie
-    /// </summary>
-    private void WriteVisitorKeyCookie(string visitorKey)
-    {
-        var option = new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = Request.IsHttps,
-            SameSite = SameSiteMode.Lax,
-            IsEssential = true,
-            Expires = DateTimeOffset.UtcNow.AddMonths(6),
-            Path = SysParam.CookiePaths.Root,
-        };
-        Response.Cookies.Append(CookieNames.VisitorKey, visitorKey, option);
     }
     #endregion
 

@@ -3,14 +3,14 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using WCMS.SysCore.Constants;
 using WCMS.SysCore.Security.IdentityAccess.Authentication;
 using WCMS.SysCore.Security.IdentityAccess.Authentication.CurrentUser;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
-using WCMS.SysCore.Constants;
 namespace WCMS.SysCore.Security.IdentityAccess;
 
 /// <summary>
-/// 集中註冊 JWT 身分認證與應用程式登入 Cookie 設定。
+/// 集中註冊 JWT 身分認證、Current User 與 Authentication Cookie Lifecycle 服務。
 /// </summary>
 internal static class IdentityAccessSetup
 {
@@ -20,15 +20,14 @@ internal static class IdentityAccessSetup
     /// </summary>
     public static void AddServices(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserAccessor, HttpContextCurrentUserAccessor>();
         services.AddScoped<LibPermissionChecker>();
+        services.AddScoped<AuthCookieService>();
         services.AddSingleton<TokenStateCache>();
         services.AddSingleton<LoginAttemptCache>();
         services.AddSingleton<TokenService>();
         services.AddAuthorization();
         AddJwtAuthentication(services, configuration);
-        AddAppCookie(services);
     }
     #endregion
 
@@ -96,18 +95,6 @@ internal static class IdentityAccessSetup
         if (string.IsNullOrEmpty(jti)) return;
         var tokenService = context.HttpContext.RequestServices.GetRequiredService<TokenService>();
         if (await tokenService.IsAccessBlacklistedAsync(jti, context.HttpContext.RequestAborted)) context.Fail("Token has been revoked");
-    }
-
-    /// <summary>
-    /// 設定應用程式登入 Cookie 的安全屬性。
-    /// </summary>
-    private static void AddAppCookie(IServiceCollection services)
-    {
-        services.ConfigureApplicationCookie(options =>
-        {
-            options.Cookie.SameSite = SameSiteMode.Strict;
-            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        });
     }
     #endregion
 }

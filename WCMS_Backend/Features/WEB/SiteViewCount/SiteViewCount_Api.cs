@@ -5,6 +5,7 @@ using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Contracts;
 using WCMS.SysCore.FeatureDriver.Api.Controllers;
 using WCMS.SysCore.FeatureDriver.Api.Metadata;
+using WCMS.SysCore.PlatformServices.Visitor;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 using static WCMS.SysCore.Constants.SysParam;
 namespace WCMS.Features.WEB.SiteViewCount;
@@ -12,6 +13,10 @@ namespace WCMS.Features.WEB.SiteViewCount;
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.SiteViewCount, FuncAction.Report)]
 public class SiteViewCountController : ApiDataQueryController<SiteViewCountHeader>
 {
+    #region Property
+    private VisitorCookieService VisitorCookieService => HttpContext.RequestServices.GetRequiredService<VisitorCookieService>();
+    #endregion
+
     #region Public
     /// <summary>
     /// 計算主站整體瀏覽次數
@@ -92,7 +97,7 @@ public class SiteViewCountController : ApiDataQueryController<SiteViewCountHeade
     /// </summary>
     private async Task<IActionResult> ExecuteSiteViewAsync(TryCountSiteViewRequest_DTO request, CancellationToken ct)
     {
-        string visitorKey = GetVisitorKey();
+        string visitorKey = VisitorCookieService.GetOrCreate();
         string refererUrl = GetRefererUrl();
         TryCountResult_DTO result = await ((SiteViewCountFunc_Biz)Service).BizUpdateSiteViewCount(request?.SiteIndex ?? string.Empty, visitorKey, refererUrl, ct);
         ApiResponse<TryCountResult_DTO> response = new() { Data = [result], SysMessage = Message.Messages, };
@@ -103,7 +108,7 @@ public class SiteViewCountController : ApiDataQueryController<SiteViewCountHeade
     /// </summary>
     private async Task<IActionResult> ExecuteDetailViewAsync(TryCountDetailViewRequest_DTO request, ViewCountActionType actionType, CancellationToken ct)
     {
-        string visitorKey = GetVisitorKey();
+        string visitorKey = VisitorCookieService.GetOrCreate();
         string refererUrl = GetRefererUrl();
         TryCountResult_DTO result = await ((SiteViewCountFunc_Biz)Service).BizUpdatePageViewCount(request?.SiteIndex ?? string.Empty, request?.ProgId ?? string.Empty, request?.InternalId ?? string.Empty, actionType, visitorKey, refererUrl, ct);
         ApiResponse<TryCountResult_DTO> response = new() { Data = [result], SysMessage = Message.Messages, };
@@ -111,29 +116,11 @@ public class SiteViewCountController : ApiDataQueryController<SiteViewCountHeade
     }
 
     /// <summary>
-    /// 取得匿名訪客識別碼，若不存在則建立 Cookie
-    /// </summary>
-    private string GetVisitorKey()
-    {
-        string? visitorKey = Request.Cookies[CookieNames.VisitorKey];
-        if (!string.IsNullOrWhiteSpace(visitorKey)) return visitorKey.Trim();
-        visitorKey = Guid.NewGuid().ToString(SysParam.Formats.GuidCompact);
-        Response.Cookies.Append(CookieNames.VisitorKey, visitorKey, BuildVisitorCookieOptions());
-        return visitorKey;
-    }
-    /// <summary>
     /// 取得 Referer URL
     /// </summary>
     private string GetRefererUrl()
     {
         return Request.Headers.Referer.ToString().Trim();
-    }
-    /// <summary>
-    /// 建立匿名訪客 Cookie 設定
-    /// </summary>
-    private CookieOptions BuildVisitorCookieOptions()
-    {
-        return new CookieOptions { HttpOnly = true, IsEssential = true, SameSite = SameSiteMode.Lax, Secure = Request.IsHttps, Expires = DateTimeOffset.UtcNow.AddYears(1), };
     }
     #endregion
 }

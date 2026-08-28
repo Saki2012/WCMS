@@ -32,7 +32,7 @@ internal static class HardeningSetup
     }
 
     /// <summary>
-    /// 註冊 CORS、Anti-forgery 與 HSTS 服務。
+    /// 註冊 CORS、Anti-forgery、Cookie Policy 與 HSTS 服務。
     /// </summary>
     public static void AddServices(IServiceCollection services, IConfiguration configuration)
     {
@@ -110,7 +110,7 @@ internal static class HardeningSetup
 
     #region Private - Services
     /// <summary>
-    /// 註冊 Antiforgery 內部 Cookie 與前端回送 Header 規則；DEV HTTP 使用 SameAsRequest，非 DEV 維持 Always。
+    /// 註冊 Antiforgery 內部 Cookie 與前端回送 Header 規則；SameSite／Secure 最終由中央 Cookie Policy 執行。
     /// </summary>
     private static void AddAntiforgery(IServiceCollection services)
     {
@@ -118,7 +118,6 @@ internal static class HardeningSetup
         {
             options.Cookie.Name = SysParam.CookieNames.AntiforgeryToken;
             options.Cookie.HttpOnly = true;
-            options.Cookie.SameSite = SameSiteMode.Strict;
             options.Cookie.Path = SysParam.CookiePaths.Root;
             options.HeaderName = SysParam.HttpHeaders.XsrfToken;
         });
@@ -146,16 +145,17 @@ internal static class HardeningSetup
     }
 
     /// <summary>
-    /// 設定全站 Cookie Policy。
+    /// 設定全站 Cookie Policy，由 WCMS Resolver 決定 Default Strict 與未來具名例外。
     /// </summary>
     private static void AddCookiePolicy(IServiceCollection services)
     {
-        services.Configure<CookiePolicyOptions>(options =>
+        services.AddOptions<CookiePolicyOptions>().Configure<IWebHostEnvironment>((options, environment) =>
         {
-            options.MinimumSameSitePolicy = SameSiteMode.Strict;
-            options.Secure = CookieSecurePolicy.Always;
+            options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
+            options.Secure = environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
             options.HttpOnly = HttpOnlyPolicy.None;
-            options.OnAppendCookie = context => ApplyCookieSecurity(context.CookieOptions);
+            options.OnAppendCookie = context => CookieSecurityPolicy.Apply(context.CookieName, context.CookieOptions, !environment.IsDevelopment() || context.Context.Request.IsHttps);
+            options.OnDeleteCookie = context => CookieSecurityPolicy.Apply(context.CookieName, context.CookieOptions, !environment.IsDevelopment() || context.Context.Request.IsHttps);
         });
     }
 
@@ -170,15 +170,6 @@ internal static class HardeningSetup
             options.IncludeSubDomains = false;
             options.MaxAge = TimeSpan.FromDays(365);
         });
-    }
-
-    /// <summary>
-    /// 強制補齊 Cookie 的 SameSite 與 Secure 屬性。
-    /// </summary>
-    private static void ApplyCookieSecurity(CookieOptions cookieOptions)
-    {
-        if (cookieOptions.SameSite == SameSiteMode.Unspecified) cookieOptions.SameSite = SameSiteMode.Strict;
-        cookieOptions.Secure = true;
     }
 
     /// <summary>
