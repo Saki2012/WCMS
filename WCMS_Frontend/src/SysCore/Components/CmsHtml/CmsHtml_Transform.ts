@@ -1,3 +1,4 @@
+import { withNativePdfPreviewContext } from "@/SysCore/Security/Contracts/PdfPreviewSecurityContract";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { render } from "dom-serializer";
 import type { Element } from "domhandler";
@@ -155,7 +156,8 @@ const normalizeInternalFileAnchor = (el: Element, internalId: string, options?: 
 
     if (action === CMS_HTML_FILE_ACTION_PREVIEW)
     {
-        el.attribs.href = buildCmsHtmlPreviewUrl(internalId, meta, options);
+        const previewUrl = buildCmsHtmlPreviewUrl(internalId, meta, options);
+        el.attribs.href = withNativePdfPreviewContext(previewUrl);
         delete el.attribs.download;
     } else
     {
