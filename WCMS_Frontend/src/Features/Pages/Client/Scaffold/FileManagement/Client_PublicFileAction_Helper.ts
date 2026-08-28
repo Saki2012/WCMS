@@ -1,3 +1,4 @@
+import { withNativePdfPreviewContext } from "@/SysCore/Security/Contracts/PdfPreviewSecurityContract";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 
 // #region Property
@@ -88,7 +89,7 @@ const resolvePublicFileActionType = (
         : "download";
 };
 
-/** 依附件行為建立既有的公開預覽或下載網址。 */
+/** 依附件行為建立既有的公開預覽或下載網址；Browser Preview 額外帶具名 Native Context。 */
 const buildPublicFileActionUrl = (
     source: IPublicFileActionSource,
     actionType: PublicFileActionType,
@@ -96,10 +97,11 @@ const buildPublicFileActionUrl = (
 {
     if (actionType === "preview")
     {
-        return FileManagementAPI.get_Public_Preview_Url(
+        const previewUrl = FileManagementAPI.get_Public_Preview_Url(
             source.internalId,
             source.fileName,
         );
+        return withNativePdfPreviewContext(previewUrl);
     }
 
     return FileManagementAPI.get_Public_Download_Url(
