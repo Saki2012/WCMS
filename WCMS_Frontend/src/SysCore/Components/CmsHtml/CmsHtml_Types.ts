@@ -5,6 +5,15 @@ export const CMS_HTML_VIEWER_ATTR = "data-wcms-viewer";
 
 export const CMS_HTML_VIEWER_PDF = "pdf";
 
+/** CMS 內部檔案連結的正式行為標記。 */
+export const CMS_HTML_FILE_ACTION_ATTR = "data-wcms-file-action";
+
+export const CMS_HTML_FILE_ACTION_PREVIEW = "preview";
+
+export const CMS_HTML_FILE_ACTION_DOWNLOAD = "download";
+
+export type CmsHtmlFileAction = typeof CMS_HTML_FILE_ACTION_PREVIEW | typeof CMS_HTML_FILE_ACTION_DOWNLOAD;
+
 export interface CmsHtmlFileMeta
 {
     id: string;
