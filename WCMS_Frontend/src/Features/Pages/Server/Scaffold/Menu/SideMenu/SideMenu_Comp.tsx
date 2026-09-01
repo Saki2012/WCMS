@@ -2,6 +2,7 @@ import { type IActionMeta, type IModuleMeta, ServerModuleRoutes } from "@/Featur
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { resolveSpecAsset } from "@/SysCore/Utils/Library/SlotResolver";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
+import clsx from "clsx";
 import { useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -9,8 +10,25 @@ import { useLocation } from "react-router-dom";
 const logoImg = resolveSpecAsset("Assets/Server/menu_logo_PC", "");
 // #endregion
 
+// #region Property
+interface SidebarMenuProps
+{
+    /** 目前後台模組代碼。 */
+    moduleCode: IModuleMeta["ModuleCode"];
+
+    /** 是否收合桌機 Sidebar。 */
+    isCollapsed: boolean;
+
+    /** 是否顯示行動版 Sidebar。 */
+    isMobileOpen: boolean;
+
+    /** 關閉行動版 Sidebar，供遮罩點擊時使用。 */
+    onMobileClose: () => void;
+}
+// #endregion
+
 // #region Public
-export const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
+export const SidebarMenu = (prop: SidebarMenuProps) =>
 {
     const module = useMemo(() => ServerModuleRoutes.find((p) => p.ModuleCode === prop.moduleCode), [prop.moduleCode]);
 
@@ -124,7 +142,14 @@ export const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
     if (!module) return null;
 
     return (
-        <nav className="pc-sidebar" ref={navRef}>
+        <nav
+            className={clsx(
+                "pc-sidebar",
+                prop.isCollapsed && "pc-sidebar-hide",
+                prop.isMobileOpen && "mob-sidebar-active",
+            )}
+            ref={navRef}
+        >
             <div className="navbar-wrapper">
                 <div className="m-header">
                     <h1>
@@ -167,6 +192,11 @@ export const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
                     </ul>
                 </div>
             </div>
+
+            {/* 行動版 Sidebar 開啟時由 React 管理遮罩生命週期，點擊遮罩即可收合。 */}
+            {prop.isMobileOpen && (
+                <div className="pc-menu-overlay" onClick={prop.onMobileClose} />
+            )}
         </nav>
     );
 };
