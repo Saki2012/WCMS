@@ -5,18 +5,35 @@ import { resolveSpecAsset } from "@/SysCore/Utils/Library/SlotResolver";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_Hooks/useOptionalSpecAssetUrl";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { AuthSessionDiagnosticsComp } from "./AuthSessionDiagnostics_Comp";
 
 // #region Initialization
 const logoImg = resolveSpecAsset("Assets/Server/menu_logo_PC", "");
 // #endregion
 
+// #region Property
+interface NavibarMenuProps
+{
+    /** 切換桌機 Sidebar 收合狀態。 */
+    onSidebarToggle: () => void;
+
+    /** 切換行動版 Sidebar 顯示狀態。 */
+    onMobileSidebarToggle: () => void;
+}
+// #endregion
+
 // #region Private
-export const NavibarMenu = () =>
+export const NavibarMenu = (props: NavibarMenuProps) =>
 {
     const operateFileUrl = useOptionalSpecAssetUrl({ relativePath: "Assets/Server/後台操作手冊.pdf", fallbackToDefault: true }) ?? "";
+    const location = useLocation();
     const [userName, setUserName] = useState<string>("");
     const [userInternalId, setuserInternalId] = useState<string>("");
+
+    /** 控制行動版 Header 導覽選單是否展開，沿用 Bootstrap collapse 的 show 樣式契約。 */
+    const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
     useEffect(() =>
     {
         /** 載入目前登入使用者顯示名稱與內部識別碼。 */
@@ -30,33 +47,50 @@ export const NavibarMenu = () =>
         };
         void loadUserName();
     }, []);
+
+    useEffect(() =>
+    {
+        /** 後台路由完成切換後收合手機 Header 導覽，避免新頁面仍保留展開選單。 */
+        setIsMobileNavOpen(false);
+    }, [location.pathname]);
+
+    /** 切換行動版 Header 導覽選單展開狀態。 */
+    const handleMobileNavToggle = () =>
+    {
+        setIsMobileNavOpen(value => !value);
+    };
+
     return (
         <header className="pc-header">
             <div className="header-wrapper">
                 <div className="mobile-logo me-auto">
                     <ul className="list-unstyled">
                         <li className="pc-h-item pc-sidebar-collapse">
+                            {/* 桌機 Sidebar 收合由 React callback 接管，不再依賴 Legacy click listener。 */}
                             <a
                                 href="#"
                                 onClick={(e) =>
                                 {
                                     e.preventDefault();
+                                    props.onSidebarToggle();
                                 }}
                                 className="pc-head-link ms-0"
-                                id="sidebar-hide"
+                                id="sidebar-hide-react"
                             >
                                 <i className="fas fa-bars"></i>
                             </a>
                         </li>
                         <li className="pc-h-item pc-sidebar-popup">
+                            {/* 行動版 Sidebar 顯示狀態由 React callback 接管。 */}
                             <a
                                 href="#"
                                 onClick={(e) =>
                                 {
                                     e.preventDefault();
+                                    props.onMobileSidebarToggle();
                                 }}
                                 className="pc-head-link ms-0"
-                                id="mobile-collapse"
+                                id="mobile-collapse-react"
                             >
                                 <i className="fas fa-bars"></i>
                             </a>
@@ -76,18 +110,31 @@ export const NavibarMenu = () =>
 
                 <div className="ml-auto">
                     <nav className="navbar navbar-expand-lg navbar-light">
+                        {/* 行動版 Header 選單由 React 控制 show 狀態，導頁後可同步收合。 */}
                         <a
                             className="navbar-toggler"
-                            type="button"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#navbar_right"
+                            href="#"
+                            role="button"
                             aria-controls="navbar_right"
-                            aria-expanded="false"
+                            aria-expanded={isMobileNavOpen}
                             aria-label="Toggle navigation"
+                            onClick={(e) =>
+                            {
+                                e.preventDefault();
+                                handleMobileNavToggle();
+                            }}
                         >
                             <i className="fas fa-grip-horizontal"></i>
                         </a>
-                        <div className="Customize_collapse + collapse navbar-collapse" id="navbar_right">
+                        <div
+                            className={clsx(
+                                "Customize_collapse",
+                                "collapse",
+                                "navbar-collapse",
+                                isMobileNavOpen && "show",
+                            )}
+                            id="navbar_right"
+                        >
                             <ul className={clsx("navbar-nav", "me-auto", "mb-2", "mb-lg-0")}>
                                 <li className={clsx("nav-item", "d-flex", "align-items-center")}>
                                     <AuthSessionDiagnosticsComp />
