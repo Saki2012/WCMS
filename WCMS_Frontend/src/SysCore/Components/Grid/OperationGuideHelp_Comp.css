@@ -10,6 +10,13 @@
   padding: 0;
 }
 
+@media (max-width: 1139px) {
+  .wcms-help-trigger.mb-display-none{
+    display: none;
+  } 
+}
+
+
 .wcms-help-trigger:hover,
 .wcms-help-trigger:focus-visible {
   text-decoration: underline;

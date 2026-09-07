@@ -79,13 +79,13 @@ const TagListItem = (prop: { item: TagFormModel; lang: Lang; dirPath: string; ac
     return (
         <li className="list-group-item">
             <div className="checkboxDIV my-2">
-                <div className="custom-control form-check">
+                <div className="custom-control form-check ps-0 pe-3">
                     <LangLink to={`${prop.dirPath}/${internalId}`} className="form-check-label" aria-label={`前往 ${tagName} 詳細頁`}>
-                        <span className="check-txt">{tagName}</span>
+                        <span className="check-txt align-items-center">{tagName}</span>
                     </LangLink>
                 </div>
             </div>
-            <div className="form-check form-switch my-2">
+            <div className="form-check form-switch my-2 ps-0">
                 <GridCol_Toolbar action={prop.actions} internalId={internalId} />
             </div>
         </li>
