@@ -52,9 +52,9 @@ export const getResponseNonce = (res: Response): string =>
 };
 
 /** 設定 SSR HTML 專用安全標頭；正式環境才送 CSP。 */
-export const setHtmlSecurityHeaders = (req: Request, res: Response, cfg: SecurityHeaderConfig, nonce: string): void =>
+export const setHtmlSecurityHeaders = (_req: Request, res: Response, cfg: SecurityHeaderConfig, nonce: string): void =>
 {
-    setBaseSecurityHeaders(res, cfg, !isPdfPath(req.path));
+    setBaseSecurityHeaders(res, cfg);
     res.setHeader("Permissions-Policy", htmlPermissionsPolicy);
     if (!cfg.isProd) return;
 
@@ -90,13 +90,6 @@ const isServicePath = (pathname: string): boolean =>
 {
     const path = String(pathname || "").toLowerCase();
     return path === "/service" || path.startsWith("/service/");
-};
-
-/** 判斷靜態資源路徑是否為 PDF，避免 CORP 影響瀏覽器原生 PDF Viewer。 */
-const isPdfPath = (pathname: string): boolean =>
-{
-    const path = String(pathname || "").trim().toLowerCase();
-    return path.endsWith(".pdf");
 };
 
 /** 判斷路徑是否為需要補 CSP 的 JavaScript 靜態資源。 */
@@ -146,13 +139,13 @@ const applyBaseSecurityHeaders = (req: Request, res: Response, next: NextFunctio
         return;
     }
 
-    setBaseSecurityHeaders(res, cfg, !isPdfPath(req.path));
+    setBaseSecurityHeaders(res, cfg);
     setStaticResourceSecurityHeaders(req, res, cfg);
     next();
 };
 
-/** 設定 HTML、靜態資源共用的基礎安全標頭，不在這裡塞 CSP。 */
-const setBaseSecurityHeaders = (res: Response, cfg: SecurityHeaderConfig, includeCorp: boolean): void =>
+/** 設定 Node-owned HTML、靜態資源共用的基礎安全標頭，不在這裡塞 CSP。 */
+const setBaseSecurityHeaders = (res: Response, cfg: SecurityHeaderConfig): void =>
 {
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-Frame-Options", "SAMEORIGIN");
@@ -160,7 +153,7 @@ const setBaseSecurityHeaders = (res: Response, cfg: SecurityHeaderConfig, includ
     res.setHeader("Permissions-Policy", defaultPermissionsPolicy);
     res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
     res.setHeader("Cross-Origin-Embedder-Policy", crossOriginEmbedderPolicyValue);
-    if (includeCorp) res.setHeader("Cross-Origin-Resource-Policy", crossOriginResourcePolicyValue);
+    res.setHeader("Cross-Origin-Resource-Policy", crossOriginResourcePolicyValue);
     res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
     if (cfg.isProd) res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
     stripDisclosureHeaders(res);

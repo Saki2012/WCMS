@@ -137,7 +137,7 @@ export const LoginPage = () =>
                                                                 type={showPwd ? "text" : "password"}
                                                                 className="form-control"
                                                                 name="password"
-                                                                autoComplete="current-password"
+                                                                autoComplete="off"
                                                                 required
                                                                 value={password}
                                                                 onChange={e => setPassword(e.target.value)}

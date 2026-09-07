@@ -6,22 +6,63 @@ import { SidebarMenu } from "@/Features/Pages/Server/Scaffold/Menu/SideMenu/Side
 import { type RouteHandleMeta } from "@/Features/Pages/Server/Scaffold/Routes/ServerRouter";
 import { ToastViewport_Comp } from "@/Features/Pages/Server/Scaffold/Toast/ToastViewport_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { Outlet, useMatches } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Outlet, useLocation, useMatches } from "react-router-dom";
 import { useSiteFooterRuntime } from "../../Client/Route/ClientRouter_Loader";
 
 // #region Public
 export const DashboardPage = ({ theme }: { theme: IBETheme; }) =>
 {
     const matches = useMatches();
+    const location = useLocation();
     const lastHandle = [...matches].reverse().find(m => (m.handle as RouteHandleMeta | undefined))?.handle as RouteHandleMeta;
     const pageTitle = lastHandle?.title;
     const lastModule = [...matches].reverse().find(m => (m.handle as RouteHandleMeta | undefined)?.moduleCode);
     const moduleCode = (lastModule?.handle as RouteHandleMeta | undefined)?.moduleCode ?? "WebManagement"; // 你的預設
     const footerVm = useSiteFooterRuntime("");
+
+    /** 控制桌機 Sidebar 是否收合，沿用既有 pc-sidebar-hide 樣式契約。 */
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+    /** 控制行動版 Sidebar 是否顯示，沿用既有 mob-sidebar-active 樣式契約。 */
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+    /** 切換桌機 Sidebar 收合狀態。 */
+    const handleSidebarToggle = () =>
+    {
+        setIsSidebarCollapsed(value => !value);
+    };
+
+    /** 切換行動版 Sidebar 顯示狀態。 */
+    const handleMobileSidebarToggle = () =>
+    {
+        setIsMobileSidebarOpen(value => !value);
+    };
+
+    /** 關閉行動版 Sidebar，供遮罩與導頁完成後統一收合。 */
+    const handleMobileSidebarClose = () =>
+    {
+        setIsMobileSidebarOpen(false);
+    };
+
+    useEffect(() =>
+    {
+        /** 後台路由完成切換後收合手機 Sidebar，避免新頁面仍被側欄覆蓋。 */
+        setIsMobileSidebarOpen(false);
+    }, [location.pathname]);
+
     return (
         <>
-            <SidebarMenu moduleCode={moduleCode} />
-            <NavibarMenu />
+            <SidebarMenu
+                moduleCode={moduleCode}
+                isCollapsed={isSidebarCollapsed}
+                isMobileOpen={isMobileSidebarOpen}
+                onMobileClose={handleMobileSidebarClose}
+            />
+            <NavibarMenu
+                onSidebarToggle={handleSidebarToggle}
+                onMobileSidebarToggle={handleMobileSidebarToggle}
+            />
             <div className="pc-container">
                 <div className="pc-content">
                     <div className="page-header">
