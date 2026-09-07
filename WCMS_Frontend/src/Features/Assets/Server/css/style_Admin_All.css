@@ -283,6 +283,13 @@ b, strong {
 	}
 }
 
+
+@media (max-width: 1139px) {
+    .mb-max-width-250px{
+        max-width: 250px;
+    }
+}
+
 .imgALL_box {
     display: -webkit-box;
 	display: -ms-flexbox;

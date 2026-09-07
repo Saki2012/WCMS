@@ -19,7 +19,7 @@ export const LibPicturePreview = (prop: ILibPicturePreviewProp) =>
         <>
             <div className="row align-items-center">
                 <div className="col-md-4 col-12 float-md-left float-sm-none py-1">
-                    <div className="position-relative">
+                    <div className="position-relative mb-max-width-250px">
                         <picture className="imgALL_box">
                             <img src={prop.PicSrc} className="d-block w-100 h-100 object-fit-contain card_image" alt={prop.PicDescription} />
                         </picture>

@@ -29,7 +29,7 @@ export const OperationGuideHelp_Comp = (props: { lang?: Lang; }) =>
             {/* 觸發按鈕 */}
             <button
                 type="button"
-                className="wcms-help-trigger"
+                className="wcms-help-trigger mb-display-none"
                 aria-haspopup="dialog"
                 aria-expanded={open}
                 aria-controls={dialogId}

@@ -413,7 +413,7 @@ const SiteInfoItem_Comp = (prop: { title: string; canModify: boolean; isActive: 
 
     return (
         <div className="dd-item dd3-item">
-            <div className="dd-handle dd3-handle" style={{ visibility: "hidden" }} aria-hidden="true" />
+            <div className="dd-handle dd3-handle" style={{ display: "none" }} aria-hidden="true" />
             <div
                 className={`dd3-content content_bar${prop.isActive ? " active-edit" : ""}`}
                 onClick={prop.canModify ? prop.onSelect : undefined}
@@ -448,7 +448,7 @@ const SiteInfoItem_Comp = (prop: { title: string; canModify: boolean; isActive: 
 const ActionPlaceholder_Comp = (prop: { iconClass: string; title: string; }) =>
 {
     return (
-        <div className="icon" style={{ visibility: "hidden", pointerEvents: "none" }} aria-hidden="true">
+        <div className="icon" style={{ display: "none", pointerEvents: "none" }} aria-hidden="true">
             <button type="button" title={prop.title} className="btn btn-ctm btn-ctm-rounded" tabIndex={-1}>
                 <i className={prop.iconClass} />
             </button>

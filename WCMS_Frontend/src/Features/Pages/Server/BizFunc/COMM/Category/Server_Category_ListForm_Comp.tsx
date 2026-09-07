@@ -79,13 +79,13 @@ const CategoryListItem = (prop: { item: CategoryFormModel; lang: Lang; dirPath: 
     return (
         <li className="list-group-item">
             <div className="checkboxDIV my-2">
-                <div className="custom-control form-check">
+                <div className="custom-control form-check ps-0 pe-3">
                     <LangLink to={`${prop.dirPath}/${internalId}`} className="form-check-label" aria-label={`前往 ${categoryName} 詳細頁`}>
-                        <span className="check-txt">{categoryName}</span>
+                        <span className="check-txt align-items-center">{categoryName}</span>
                     </LangLink>
                 </div>
             </div>
-            <div className="form-check form-switch my-2">
+            <div className="form-check form-switch my-2 ps-0">
                 <GridCol_Toolbar action={prop.actions} internalId={internalId} />
             </div>
         </li>
