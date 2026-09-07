@@ -1,9 +1,9 @@
 # WCMS Git 與 Commit 規範
 
-> 文件版本：Version 1.0  
+> 文件版本：Version 1.1  
 > 適用 Repository：`iteasygo/WCMS`  
 > 適用範圍：`Feature/Dev`、`Feature/Release`、`Spec####`  
-> 最後整理：2026-08-03
+> 最後整理：2026-09-07
 
 > [!NOTE]
 > 本文件規範 Commit 建立流程、GitHub Desktop 使用的 `Summary` 與 `Description`，以及完成修改單元時的交付與變更說明。
@@ -103,6 +103,129 @@ AI 白箱使用已 Commit 且 Push 的版本，並以 Commit SHA 鎖定；AI 只
 適用於單一專案 UI、版型、內容、Spec 專用功能、Route、Assets 或設定。
 
 Description 視需要補充 Spec 編號、是否純客製、是否修改 Feature、是否同步其他 Spec 及 Fallback／Override 影響。共用問題應回到 `Feature/Dev`，不在 Spec 複製修正。
+
+### 2.6 WCMS 系統版本號與升版規則
+
+WCMS 的系統版本號用來區分 Feature Release、Release Hotfix、Backend DB Model 與 Spec 專案客製版本。版本號必須依實際異動端別與版本責任調整，不得把不同層級的版號混用。
+
+#### 2.6.1 Frontend Feature 版本
+
+Frontend Feature 版本格式：
+
+```text
+1.{ReleaseVersion}.{Patch}
+```
+
+各欄位定義：
+
+- `1`：目前 WCMS Major Version。
+- `ReleaseVersion`：`Feature/Dev` 整合至 `Feature/Release` 時的 Feature 發布版號。
+- `Patch`：已進入 `Feature/Release` 後，直接於 Release 上進行 Hotfix 的修正版號。
+
+Frontend Spec 版本接在 Feature 版本後：
+
+```text
+1.{ReleaseVersion}.{Patch}-R{SpecVersion}
+```
+
+其中 `SpecVersion` 為該 `Spec####` 的專案修改版號。
+
+#### 2.6.2 Backend Feature 版本
+
+Backend Feature 版本格式：
+
+```text
+1.{ReleaseVersion}.{ModelVersion}.{Patch}
+```
+
+各欄位定義：
+
+- `1`：目前 WCMS Major Version。
+- `ReleaseVersion`：`Feature/Dev` 整合至 `Feature/Release` 時的 Feature 發布版號。
+- `ModelVersion`：Backend DB Model 契約版號；只有 DB Model 契約版本異動時才調整。
+- `Patch`：已進入 `Feature/Release` 後，直接於 Release 上進行 Hotfix 的修正版號。
+
+Backend Spec 版本接在 Feature 版本後：
+
+```text
+1.{ReleaseVersion}.{ModelVersion}.{Patch}-R{SpecVersion}.{SpecModelVersion}
+```
+
+其中：
+
+- `SpecVersion`：該 `Spec####` 的專案修改版號。
+- `SpecModelVersion`：該 Spec 專用 DB Model 契約版號；只有 Spec DB Model 契約版本異動時才調整。
+
+#### 2.6.3 `Feature/Dev` → `Feature/Release`
+
+每一次新的 `Feature/Dev` 整合至 `Feature/Release` 時：
+
+1. 只對本次實際有程式或功能異動的端別增加 `ReleaseVersion`。
+2. 該端別的 `Patch` 一律重設為 `0`，重新開始計算。
+3. 未異動的端別維持原正式版本號，不因另一端升版而同步增加。
+4. Backend 的 `ModelVersion` 不因一般 Dev → Release 自動增加；只有 DB Model 契約版本實際異動時才調整。
+
+例如：
+
+```text
+原正式版本：
+FE 1.8.1
+BE 1.8.3.0
+
+本次 Dev → Release 只有 Frontend 異動：
+FE 1.9.0
+BE 1.8.3.0
+```
+
+因此 `FE 1.8.1` 在下一次新的 Dev → Release 後應進入 `FE 1.9.0`，不是 `FE 1.8.2`；`1.8.2` 的語意應是同一個 `1.8` Release Line 上的第二次 Release Hotfix。
+
+若 Frontend 與 Backend 都有實際異動，兩端各自增加自己的 `ReleaseVersion`，並將各自 `Patch` 重設為 `0`。
+
+#### 2.6.4 `Feature/Release` Hotfix
+
+已進入 `Feature/Release` 後，若不重新走一個新的 Dev → Release，而是直接針對目前 Release Line 進行 Hotfix：
+
+- `ReleaseVersion` 維持不變。
+- `ModelVersion`／`SpecModelVersion` 依各自 DB Model 契約規則判斷，不因一般 Hotfix 自動增加。
+- 只有實際異動端別的 `Patch + 1`。
+
+例如：
+
+```text
+FE 1.9.0
+→ Release Hotfix
+→ FE 1.9.1
+
+BE 1.9.3.0
+→ Release Hotfix
+→ BE 1.9.3.1
+```
+
+下一次新的 Dev → Release 時，Patch 不延續累加，而是重新歸零：
+
+```text
+FE 1.9.1
+→ 下一次 Dev → Release
+→ FE 1.10.0
+```
+
+#### 2.6.5 Spec 版本
+
+Spec 版本獨立描述單一專案的客製修改，不取代 Feature Version。
+
+Frontend：
+
+```text
+FE 1.{ReleaseVersion}.{Patch}-R{SpecVersion}
+```
+
+Backend：
+
+```text
+BE 1.{ReleaseVersion}.{ModelVersion}.{Patch}-R{SpecVersion}.{SpecModelVersion}
+```
+
+Spec 功能修改時調整 `SpecVersion`；Spec DB Model 契約版本異動時調整 `SpecModelVersion`。共用 Feature 問題仍應回到 `Feature/Dev` 修正，不以增加 Spec Version 取代共用主線修正。
 
 ---
 
