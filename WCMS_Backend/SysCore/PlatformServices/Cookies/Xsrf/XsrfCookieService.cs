@@ -3,7 +3,7 @@ namespace WCMS.SysCore.PlatformServices.Cookies.Xsrf;
 /// <summary>
 /// 管理 XSRF Request Token Cookie 的寫入生命週期。
 /// </summary>
-internal sealed class XsrfCookieService(CookieService cookieService)
+public sealed class XsrfCookieService(CookieService cookieService)
 {
     #region Public
     /// <summary>
