@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Reflection;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
@@ -21,7 +22,7 @@ public sealed class EntityChangeApplier<TDbModel>(ApplicationDbContext dataAcces
 
     #region Internal
     /// <summary>
-    /// 比對 EF Metadata 允許更新的欄位並逐欄設定 IsModified。
+    /// 比對 EF Metadata 與 Reference 欄位契約允許更新的欄位，並逐欄設定 IsModified。
     /// </summary>
     internal void Apply(TDbModel oldData, TDbModel newData)
     {
@@ -37,12 +38,24 @@ public sealed class EntityChangeApplier<TDbModel>(ApplicationDbContext dataAcces
 
     #region Private
     /// <summary>
-    /// 以 CLR Setter 與 EF Metadata 判斷欄位是否可由一般 Update 覆寫。
+    /// 以 CLR Setter、Reference 欄位契約與 EF Metadata 判斷欄位是否可由一般 Update 覆寫。
     /// </summary>
     private static bool CanApply(PropertyInfo property, EfRepositoryMetadataCache.EntityMap entityMap)
     {
         if (!property.CanWrite) return false;
+        if (IsReferenceProperty(property)) return false;
         return entityMap.CanUpdateScalar(property.Name);
+    }
+    /// <summary>
+    /// Reference 允許 Client round trip 作為識別／控制值，但不可由一般 Update 覆寫。
+    /// </summary>
+    private static bool IsReferenceProperty(PropertyInfo property)
+    {
+        ILibFieldAttr? fieldAttribute = property
+            .GetCustomAttributes(inherit: true)
+            .OfType<ILibFieldAttr>()
+            .FirstOrDefault();
+        return fieldAttribute?.ApiMode == ApiFieldMode.Reference;
     }
     /// <summary>
     /// 寫入單一欄位差異並標記為已修改。
