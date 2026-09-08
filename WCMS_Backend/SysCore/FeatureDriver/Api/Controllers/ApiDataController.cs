@@ -220,6 +220,7 @@ public abstract class ApiDataController<TFormModel> : ApiDataQueryController<TFo
     public virtual async Task<IActionResult> Update(ApiRequest<TFormModel> request, CancellationToken ct)
     {
         OperateLog followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Update)}", OperateUser.UserId, JsonConvert.SerializeObject(request), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
+        if (!Guid.TryParse(request.InternalId, out _)) return BadRequest("Invalid internalId format.");
         if (request.Data != null) SpecBeforeWrite(request.Data);
         TFormModel result = await Service.BizUpdateDataAsync(request.InternalId, request.Data!, ct);
         await EvictForDataAsync(ct, request.InternalId);
@@ -334,4 +335,3 @@ public class SystemAPIController(IAntiforgery anti, SystemVersion systemVersionB
     }
     #endregion
 }
-
