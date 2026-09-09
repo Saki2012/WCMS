@@ -1,4 +1,4 @@
-﻿using WCMS.SysCore.Constants;
+using WCMS.SysCore.Constants;
 namespace WCMS.SysCore.Security.Hardening;
 
 /// <summary>
@@ -9,9 +9,6 @@ internal static class SecurityHeadersSetup
     #region Property
     private const string SwaggerPath = "/swagger";
     private const string ServicePath = "/Service";
-    private const string PublicPreviewPath = "/Service/FileManagement/Public_Preview";
-    private const string NativePreviewQueryKey = "wcmsPreview";
-    private const string NativePreviewQueryValue = "native";
     private const string ContentTypeOptionsHeader = "X-Content-Type-Options";
     private const string FrameOptionsHeader = "X-Frame-Options";
     private const string ReferrerPolicyHeader = "Referrer-Policy";
@@ -31,7 +28,6 @@ internal static class SecurityHeadersSetup
     private const string SameOriginValue = "SAMEORIGIN";
     private const string CrossOriginOpenerPolicyValue = "same-origin";
     private const string CrossOriginResourcePolicyValue = "same-origin";
-    private const string PdfContentType = "application/pdf";
     private const string NoReferrerValue = "no-referrer";
     private const string PermissionsPolicyValue = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
     private const string NoneValue = "none";
@@ -69,7 +65,7 @@ internal static class SecurityHeadersSetup
     }
 
     /// <summary>
-    /// 設定共用安全標頭，並在送出前完成具名 PDF 例外與資訊洩漏清理。
+    /// 設定共用安全標頭，並在送出前完成資訊洩漏清理。
     /// </summary>
     private static void PrepareSecurityHeaders(WebApplication app, HttpContext context)
     {
@@ -77,7 +73,7 @@ internal static class SecurityHeadersSetup
         SetPathSecurityHeaders(app, context);
         context.Response.OnStarting(() =>
         {
-            FinalizeSecurityHeaders(context);
+            FinalizeSecurityHeaders(context.Response);
             return Task.CompletedTask;
         });
     }
@@ -139,35 +135,11 @@ internal static class SecurityHeadersSetup
     }
 
     /// <summary>
-    /// Response 送出前只對 Public_Preview 的 Browser Native PDF Context 套用 CORP 具名例外。
+    /// Response 送出前移除可能暴露伺服器實作細節的標頭；CORP 維持共用 same-origin Policy。
     /// </summary>
-    private static void FinalizeSecurityHeaders(HttpContext context)
+    private static void FinalizeSecurityHeaders(HttpResponse response)
     {
-        if (IsPdfResponse(context.Response) && IsNativePdfPreviewRequest(context.Request))
-        {
-            context.Response.Headers.Remove(CrossOriginResourcePolicyHeader);
-        }
-        RemoveLeakyHeaders(context.Response);
-    }
-
-    /// <summary>
-    /// 判斷最終 Response 是否為 PDF。
-    /// </summary>
-    private static bool IsPdfResponse(HttpResponse response)
-    {
-        var contentType = response.ContentType ?? string.Empty;
-        return contentType.StartsWith(PdfContentType, StringComparison.OrdinalIgnoreCase);
-    }
-
-    /// <summary>
-    /// 判斷是否為 Frontend 明確宣告的 Public_Preview Browser Native PDF Context。
-    /// Query 僅描述 Rendering Context，不具 Authentication／Authorization 語意。
-    /// </summary>
-    private static bool IsNativePdfPreviewRequest(HttpRequest request)
-    {
-        if (!request.Path.StartsWithSegments(PublicPreviewPath, StringComparison.OrdinalIgnoreCase)) return false;
-        var value = request.Query[NativePreviewQueryKey].ToString().Trim();
-        return value.Equals(NativePreviewQueryValue, StringComparison.OrdinalIgnoreCase);
+        RemoveLeakyHeaders(response);
     }
 
     /// <summary>
