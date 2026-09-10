@@ -29,7 +29,7 @@ internal sealed class FormDefaultSelectFieldResolver<TFormModel>(FormGraphRepoSc
         return ResolveFields(includeReferenceDetails: false);
     }
     /// <summary>
-    /// 建立 QueryData 完整 Aggregate 欄位，包含一對一 Detail。
+    /// 建立 QueryData 完整 Aggregate 欄位，包含一對一 Detail 與 Composite FormGraphPath。
     /// </summary>
     internal string[] ResolveForQueryData()
     {
@@ -46,7 +46,43 @@ internal sealed class FormDefaultSelectFieldResolver<TFormModel>(FormGraphRepoSc
         List<string> result = [];
         HashSet<Type> graphPath = [];
         AddFields(GraphRepo.RootDbModelType, string.Empty, result, graphPath, includeReferenceDetails);
+        if (includeReferenceDetails) AddCompositeFormGraphFields(result, graphPath, includeReferenceDetails);
         return [.. result.Distinct(StringComparer.Ordinal)];
+    }
+    /// <summary>
+    /// 將 Composite FormModel 對外公開的 FormGraphPath 一併加入 QueryData Projection。
+    /// Root 內部 Navigation 即使為 ApiFieldMode.Ignore，仍可由可讀取的 FormModel Proxy 安全對外提供。
+    /// </summary>
+    private void AddCompositeFormGraphFields(List<string> result, HashSet<Type> graphPath, bool includeReferenceDetails)
+    {
+        if (typeof(DbModel).IsAssignableFrom(typeof(TFormModel))) return;
+        foreach (PropertyInfo property in ModelMetadata.GetProperties(typeof(TFormModel)))
+        {
+            FormGraphPathAttribute? mapping = property.GetCustomAttribute<FormGraphPathAttribute>(true);
+            if (mapping == null || !LibApiFieldPolicyHelper.CanRead(property)) continue;
+            AddMappedGraphFields(mapping.RootPath, result, graphPath, includeReferenceDetails);
+        }
+    }
+    /// <summary>
+    /// 依 Root DbModel Graph Path 解析最終 DbModel 型別，並加入該 Graph 的完整查詢欄位。
+    /// </summary>
+    private void AddMappedGraphFields(string rootPath, List<string> result, HashSet<Type> graphPath, bool includeReferenceDetails)
+    {
+        string[] parts = rootPath.Split('.', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0) return;
+        Type currentType = GraphRepo.RootDbModelType;
+        string prefix = string.Empty;
+        foreach (string part in parts)
+        {
+            PropertyInfo? property = ModelMetadata.GetProperty(currentType, part);
+            if (property == null) return;
+            Type? childType = GetGraphPropertyType(property);
+            if (childType == null) return;
+            prefix += part + ".";
+            currentType = childType;
+        }
+        if (!GraphRepo.ContainsRepo(currentType)) return;
+        AddFields(currentType, prefix, result, graphPath, includeReferenceDetails);
     }
     /// <summary>
     /// 遞迴加入目前 Entity 的 Scalar 與 Aggregate Detail 欄位。

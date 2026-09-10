@@ -2,7 +2,7 @@
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useState } from "react";
-import { type ApiResponse, MessageStatus, type SysMessageModel } from "../API/APIBase";
+import { MessageStatus } from "../API/APIBase";
 
 // #region Property
 export interface UploadResult
@@ -14,15 +14,15 @@ export interface UploadResult
     error: string | null;
 }
 
-
 export interface UseUploadFileOptions
 {
     /** 是否嘗試建立本地預覽（圖片用），預設 true */
     enablePreview?: boolean;
     /** onUploaded 會不會把後端回傳的原檔名帶出去，預設 true */
     keepOriginalName?: boolean;
+    /** 上傳成功後建立預覽 URL；未指定時使用 Public_Preview。 */
+    previewUrlFactory?: (internalId: string) => string;
 }
-
 
 type UploadedCallback = (internalId: string, originalName: string) => void;
 // #endregion
@@ -33,6 +33,7 @@ export const useUploadFile = (opts?: UseUploadFileOptions) =>
     const { publish } = useToast();
     const enablePreview = opts?.enablePreview ?? true;
     const keepOriginalName = opts?.keepOriginalName ?? true;
+    const previewUrlFactory = opts?.previewUrlFactory ?? ((internalId: string) => FileManagementAPI.get_Public_Preview_Url(internalId));
 
     const [result, setResult] = useState<UploadResult>({ internalId: null, fileName: null, previewUrl: null, uploading: false, error: null });
 
@@ -45,44 +46,40 @@ export const useUploadFile = (opts?: UseUploadFileOptions) =>
         setResult(prev => ({ ...prev, previewUrl: localPreview, fileName: file.name, uploading: true, error: null }));
         try
         {
-            const form = new FormData();
-            form.append("file", file);
-            // 依你的後端：/Service/FileManagement/UploadTemp
-            const resp = await fetch(FileManagementAPI.Server_UploadTemp, {
-                method: "POST",
-                body: form,
-                credentials: "include", // 有 HttpOnly Cookie/JWT 建議加
-            });
-            if (!resp.ok) throw new Error(`Upload failed: ${resp.status}`);
-
-            const json = await resp.json() as ApiResponse<string>;
-            if (json.IsSuccess)
+            const json = await FileManagementAPI.uploadTemp(file);
+            if (!json.IsSuccess)
             {
-                const internalId: string | null = json?.Data?.[0] ?? null;
-                if (!internalId) throw new Error("No internalId in response");
-
-                const next: UploadResult = {
-                    internalId,
-                    fileName: keepOriginalName ? file.name : null,
-                    previewUrl: localPreview ? FileManagementAPI.get_Public_Preview_Url(internalId) : null,
-                    uploading: false,
-                    error: null,
-                };
-                setResult(next);
-                onUploaded?.(internalId, file.name);
-            } else
-            {
-                (json.SysMessage as SysMessageModel[]).forEach((msg) =>
+                json.SysMessage.forEach((msg) =>
                 {
-                    if (msg.Status === 3)
+                    if (msg.Status === MessageStatus.Error)
                     {
                         publish({ level: MessageStatus.Error, title: msg.MessageCode, text: msg.Message });
                     }
                 });
+                if (localPreview) URL.revokeObjectURL(localPreview);
+                const message = json.SysMessage.find(msg => msg.Status === MessageStatus.Error)?.Message ?? "Upload failed";
+                setResult(prev => ({ ...prev, previewUrl: null, uploading: false, error: message }));
+                return;
             }
-        } catch (err: any)
+
+            const internalId = json.Data?.[0] ?? null;
+            if (!internalId) throw new Error("No internalId in response");
+            if (localPreview) URL.revokeObjectURL(localPreview);
+
+            const next: UploadResult = {
+                internalId,
+                fileName: keepOriginalName ? file.name : null,
+                previewUrl: enablePreview ? previewUrlFactory(internalId) : null,
+                uploading: false,
+                error: null,
+            };
+            setResult(next);
+            onUploaded?.(internalId, file.name);
+        } catch (err: unknown)
         {
-            setResult(prev => ({ ...prev, uploading: false, error: err?.message ?? "Upload error" }));
+            if (localPreview) URL.revokeObjectURL(localPreview);
+            const message = err instanceof Error ? err.message : "Upload error";
+            setResult(prev => ({ ...prev, previewUrl: null, uploading: false, error: message }));
         }
     };
 

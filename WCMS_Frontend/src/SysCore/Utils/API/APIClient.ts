@@ -148,11 +148,25 @@ export class FileManagementAPI
 
     private static readonly SERVER_DOWNLOAD_URL: string = `${this.baseUrl}/${this.BASEURL}/Server_Download`;
 
-    /** 後台上傳檔案url (但流程應該可以優化共用，待處理) */
+    /** 後台上傳暫存檔案 URL；實際上傳請使用 uploadTemp，避免繞過共用 XSRF API 流程。 */
     public static readonly Server_UploadTemp: string = `${this.baseUrl}/${this.BASEURL}/Server_UploadTemp`;
     // #endregion
 
     // #region Public
+    /**
+     * 後台上傳檔案至暫存區，統一沿用共用 Axios 的 Cookie、XSRF 與 403 補票重試流程。
+     * @param file 要上傳的檔案
+     * @param uploadUrl 可選的相容上傳 URL；未指定時使用 FileManagement Server_UploadTemp
+     */
+    public static async uploadTemp(file: File, uploadUrl?: string): Promise<ApiResponse<string[]>>
+    {
+        const form = new FormData();
+        form.append("file", file);
+        const requestUrl = this.toApiRequestPath(uploadUrl ?? this.Server_UploadTemp);
+        const response = await api.post<ApiResponse<string[]>>(requestUrl, form);
+        return response.data;
+    }
+
     /** 取得前台預覽網址
      *
      * @param internalId
@@ -207,6 +221,14 @@ export class FileManagementAPI
     // #endregion
 
     // #region Private
+    /** 將既有 /Service/... URL 轉成共用 Axios baseURL 可直接使用的相對路徑。 */
+    private static toApiRequestPath(url: string): string
+    {
+        const normalized = url.trim();
+        const servicePrefix = `${this.baseUrl}/`;
+        return normalized.startsWith(servicePrefix) ? normalized.slice(servicePrefix.length) : normalized;
+    }
+
     /** 組合 query string；有值才附加
      * @param fileName
      * @returns

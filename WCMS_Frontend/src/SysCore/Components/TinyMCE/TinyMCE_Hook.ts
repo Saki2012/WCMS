@@ -2,7 +2,7 @@
 import pdfIconUrl from "@/Features/Assets/Server/fonts/fontawesome-5.15.4/svgs/regular/file-pdf.svg?url";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { CMS_HTML_VIEWER_ATTR, CMS_HTML_VIEWER_PDF } from "@/SysCore/Components/CmsHtml/CmsHtml_Types";
-import { MessageStatus, type SysMessageModel } from "@/SysCore/Utils/API/APIBase";
+import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { PGID } from "@/types/SchemaFields";
 import { useCallback, useMemo, useRef } from "react";
@@ -41,9 +41,9 @@ export interface TinyMceHookOptions
     makeFileUrl?: (internalId: string, meta: { kind: "file" | "image"; }) => string;
 
     // 多語、外觀
-    languageUrl?: string; // 例如 "/tinymce-i18n/langs5/zh_TW.js"
-    language?: string; // "zh_TW"
-    baseUrl?: string; // "/tinymce"
+    languageUrl?: string;
+    language?: string;
+    baseUrl?: string;
     initExtras?: TinyMceInitExtras;
 }
 // #endregion
@@ -57,15 +57,14 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
 {
     const editorRef = useRef<TinyMCEEditor | null>(null);
     const { publish } = useToast();
-    // 1) 掛上內容轉換（prefix 可自訂；不給就用預設）
     const { toDb, toEditor } = useContentTransform({
-        previewPrefix: `/Service/${PGID.FileManagement}/Public_Preview`, // 這邊暫時寫死，後續橋
+        previewPrefix: `/Service/${PGID.FileManagement}/Public_Preview`,
         attrName: INTERNAL_ATTR,
     });
 
     const uploadAndReturn = useCallback((file: File) =>
     {
-        return uploadTinyMceFile(file, p.uploadFileApi ?? `${FileManagementAPI.Server_UploadTemp}`, publish);
+        return uploadTinyMceFile(file, p.uploadFileApi ?? FileManagementAPI.Server_UploadTemp, publish);
     }, [p.uploadFileApi, publish]);
 
     const toUrl = useCallback((id: string, kind: "file" | "image") =>
@@ -123,8 +122,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             ],
             visualblocks_default_state: true,
             toolbar_mode: "wrap",
-
-            // ★06 字體大小、字型
             font_size_formats: "8=8px 9=9px 10=10px 11=11px 12=12px 14=14px 16=16px 18=18px 20=20px 24=24px 28=28px 32=32px 36=36px 48=48px 72=72px",
             font_family_formats: `
         Arial=arial,helvetica,sans-serif;
@@ -136,8 +133,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
         微軟正黑體=微軟正黑體,Microsoft JhengHei,sans-serif;
         新細明體=新細明體,PMingLiU,serif;
         標楷體=標楷體,DFKai-SB,serif;`,
-
-            // 編輯器內容格式由 Global 唯一來源同步至 public/tinymce，避免前後台樣式不一致。
             valid_styles: {
                 table: "border-color,border-top-color,border-right-color,border-bottom-color,border-left-color",
                 td: "background-color,border-color,border-top-color,border-right-color,border-bottom-color,border-left-color",
@@ -150,14 +145,11 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             table_cell_advtab: true,
             table_toolbar: "tableprops tabledelete | tableinsertrowbefore tableinsertrowafter tabledeleterow | "
                 + "tableinsertcolbefore tableinsertcolafter tabledeletecol | mergecells",
-            // i18n / skin
             skin_url: `${baseUrl}/skins/ui/oxide`,
             content_css: [`${baseUrl}/skins/content/default/content.css`, `${baseUrl}/cms_content_format.css`],
             icons_url: `${baseUrl}/icons/default/icons.js`,
             language: p.language ?? "zh_TW",
             language_url: p.languageUrl ?? "/tinymce-i18n/langs5/zh_TW.js",
-
-            // ★01/02 本機檔案與圖片上傳（插入 data-internal）
             file_picker_types: "image",
             file_picker_callback: (callback: TinyMceFilePickerCallback, _value: string, meta: TinyMceFilePickerMeta) =>
             {
@@ -170,7 +162,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                         if (meta.filetype === "file")
                         {
                             const href = toUrl(internalId, "file");
-                            // 插入可下載連結 + data-internal
                             const ed = editorRef.current;
                             if (!ed) return;
                             applyFileLinkToSelection(ed, {
@@ -178,15 +169,12 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                                 title: name ?? file.name,
                                 internalId,
                                 download: true,
-                                // targetBlank: true, // 若你想讓下載另開視窗可打開這行
                             });
-                            // 直接把當前選取轉成 <a>
                             const anchor = ed.dom.select(`a[href="${href}"]`).pop();
                             if (anchor) ed.dom.setAttrib(anchor, "download", "");
                         } else if (meta.filetype === "image")
                         {
                             const src = toUrl(internalId, "image");
-                            // 先用 100% RWD
                             callback(src, { alt: name ?? file.name, "class": "rwd-img", [INTERNAL_ATTR]: internalId });
                         }
                     } catch
@@ -195,8 +183,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     }
                 });
             },
-
-            // ★04 自訂 IFrame 插入
             setup: (editor: TinyMCEEditor) =>
             {
                 editorRef.current = editor;
@@ -211,12 +197,10 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     openFormattedSourceCodeDialog(editor);
                 });
 
-                // DB → 編輯器：BeforeSetContent 時把 data-internalid 改回 src
                 editor.on("BeforeSetContent", (e: TinyMceContentEvent) =>
                 {
                     if (typeof e.content === "string") e.content = toTinyMcePdfEditorHtml(normalizeTableHtmlForEditor(toEditor(e.content)), pdfIconUrl);
                 });
-                // 編輯器 → DB：GetContent 時把 src 改回 data-internalid（僅程式取用）
                 editor.on("GetContent", (e: TinyMceContentEvent) =>
                 {
                     if (typeof e.content === "string")
@@ -232,22 +216,18 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 registerDownloadLinkTargetFieldBehavior(editor);
                 registerInternalImageSync(editor, (internalId) => toUrl(internalId, "image"));
 
-                // insertiframe 按鈕
                 editor.ui.registry.addButton("insertiframe", {
                     icon: "embed",
                     tooltip: "插入 IFrame（YouTube / Google Map）",
                     onAction: () => openInsertIframeDialog(editor),
                 });
-                // 🆕 上傳 PDF 並插入 iframe
                 editor.ui.registry.addButton("insertpdfiframe", {
                     icon: "export-pdf",
                     tooltip: "上傳 PDF 並插入 iFrame",
                     onAction: () =>
                     {
-                        // 用既有的本機檔案挑選工具
                         pickLocalFile(async (file) =>
                         {
-                            // 只接受 pdf
                             if (!/\.pdf$/i.test(file.name))
                             {
                                 alert("請選擇 PDF 檔案");
@@ -259,10 +239,9 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                                 const { isSuccess, internalId, name } = await uploadAndReturn(file);
                                 if (!isSuccess) return;
 
-                                // 用預覽 API 當 src（可視需要改成 toUrl(internalId, 'file')）
                                 const src = FileManagementAPI.get_Public_Preview_Url(internalId);
                                 const title = (name ?? file.name).replace(/\.[^.]+$/, "");
-                                const attrName = INTERNAL_ATTR; // data-internalid
+                                const attrName = INTERNAL_ATTR;
 
                                 const html = `<p>`
                                     + `<iframe`
@@ -274,9 +253,8 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                                     + ` frameborder="0"`
                                     + ` allowfullscreen`
                                     + ` ${CMS_HTML_VIEWER_ATTR}="${CMS_HTML_VIEWER_PDF}"`
-                                    // + ` sandbox="allow-same-origin"`
                                     + ` src="${editor.dom.encode(src)}"`
-                                    + ` ${attrName}="${editor.dom.encode(internalId)}"` // 🔴 關鍵：把 internalId 寫進 data-internalid
+                                    + ` ${attrName}="${editor.dom.encode(internalId)}"`
                                     + `></iframe>`
                                     + `</p>`;
 
@@ -291,14 +269,11 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 });
 
                 editor.ui.registry.addButton("wcmsHr", { text: "HR", tooltip: "插入水平線", onAction: () => editor.insertContent("<hr />") });
-
-                // ★01 檔案連結插入按鈕：改由 TinyMCE Dialog 處理檔案、文字、標題、Target 與下載/預覽模式。
                 editor.ui.registry.addButton("filepicker", {
                     icon: "new-document",
                     tooltip: "上傳檔案並插入連結",
                     onAction: () => openFileLinkDialog(editor, uploadAndReturn),
                 });
-                // AA：連結預設帶 title（以文字當 title，使用者可再改）
                 editor.on("ExecCommand", (cmd) =>
                 {
                     if (cmd.command?.toLowerCase() === "mcelink")
@@ -308,9 +283,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     }
                 });
             },
-            // ★06 / ★14 文字前景/背景色已在 toolbar forecolor / backcolor
-            // ★10 / ★11 的快捷鍵見 setup
-            // 基本事件接上外部 state
             setup_onchange: true,
             init_instance_callback: (ed: TinyMCEEditor) =>
             {
@@ -322,7 +294,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             valid_elements: "*[*]",
             extended_valid_elements: undefined,
             invalid_elements: "script",
-            // ← 這裡是處理從 Word/Excel 貼上時移除固定 px 寬度
             paste_postprocess: (_plugin: unknown, args: { node: HTMLElement; }) =>
             {
                 normalizePastedTableElement(args.node);
@@ -337,25 +308,25 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
 // #endregion
 
 // #region Private
-const uploadTinyMceFile = async (file: File, api: string, publish: TinyMceToastPublish): Promise<TinyMceUploadResult> =>
+/** TinyMCE 上傳統一沿用 FileManagementAPI，避免 raw fetch 繞過共用 XSRF 流程。 */
+const uploadTinyMceFile = async (file: File, uploadUrl: string, publish: TinyMceToastPublish): Promise<TinyMceUploadResult> =>
 {
-    const fd = new FormData();
-    fd.append("file", file);
-    const res = await fetch(api, { method: "POST", body: fd });
-    if (!res.ok) throw new Error("Upload failed");
-    // 後端請回傳 { internalId: "xxx", name: "filename.ext" }
-    const json = await res.json();
+    const json = await FileManagementAPI.uploadTemp(file, uploadUrl);
     if (!json.IsSuccess)
     {
-        (json.SysMessage as SysMessageModel[]).forEach((msg) =>
+        json.SysMessage.forEach((msg) =>
         {
-            if (msg.Status === 3)
+            if (msg.Status === MessageStatus.Error)
             {
                 publish({ level: MessageStatus.Error, title: msg.MessageCode, text: msg.Message });
             }
         });
+        return { isSuccess: false, internalId: "", name: file.name };
     }
-    return { isSuccess: json.IsSuccess, internalId: json.Data[0], name: file.name };
+
+    const internalId = json.Data?.[0] ?? "";
+    if (!internalId) throw new Error("No internalId in upload response");
+    return { isSuccess: true, internalId, name: file.name };
 };
 
 const resolveTinyMceFileUrl = (
