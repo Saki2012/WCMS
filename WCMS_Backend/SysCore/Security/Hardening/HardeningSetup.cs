@@ -110,19 +110,22 @@ internal static class HardeningSetup
 
     #region Private - Services
     /// <summary>
-    /// 註冊 Antiforgery 內部 Cookie 與前端回送 Header 規則；SameSite／Secure 最終由中央 Cookie Policy 執行。
+    /// 註冊 Antiforgery 內部 Cookie 與前端回送 Header 規則；Development HTTP 使用無 __Host- 前綴名稱，Production 維持 __Host- + Secure。
+    /// SameSite／Secure 最終仍由中央 Cookie Policy 執行。
     /// </summary>
     private static void AddAntiforgery(IServiceCollection services)
     {
         services.AddAntiforgery(options =>
         {
-            options.Cookie.Name = SysParam.CookieNames.AntiforgeryToken;
             options.Cookie.HttpOnly = true;
             options.Cookie.Path = SysParam.CookiePaths.Root;
             options.HeaderName = SysParam.HttpHeaders.XsrfToken;
         });
         services.AddOptions<AntiforgeryOptions>().Configure<IWebHostEnvironment>((options, environment) =>
         {
+            options.Cookie.Name = environment.IsDevelopment()
+                ? SysParam.CookieNames.AntiforgeryTokenDevelopment
+                : SysParam.CookieNames.AntiforgeryToken;
             options.Cookie.SecurePolicy = environment.IsDevelopment()
                 ? CookieSecurePolicy.SameAsRequest
                 : CookieSecurePolicy.Always;

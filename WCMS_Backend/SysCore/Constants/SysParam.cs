@@ -157,9 +157,15 @@ public static class SysParam
         public const string AccessToken = "access";
         public const string RefreshTokenId = "rtid";
         /// <summary>
-        /// ASP.NET Core Antiforgery 內部驗證 Cookie，不提供前端 JavaScript 讀取。
+        /// 非 Development 使用的 ASP.NET Core Antiforgery 內部驗證 Cookie，不提供前端 JavaScript 讀取。
+        /// __Host- 前綴要求 Secure，因此不直接用於 localhost HTTP 開發環境。
         /// </summary>
         public const string AntiforgeryToken = "__Host-WCMS-Antiforgery";
+        /// <summary>
+        /// Development 使用的 ASP.NET Core Antiforgery 內部驗證 Cookie，不提供前端 JavaScript 讀取。
+        /// 不使用 __Host- 前綴，讓 localhost HTTP 可配合 SameAsRequest 完整驗證 XSRF 流程。
+        /// </summary>
+        public const string AntiforgeryTokenDevelopment = "WCMS-Antiforgery";
         /// <summary>
         /// 前端可讀取並回送到 X-XSRF-TOKEN Header 的 Request Token Cookie。
         /// </summary>
