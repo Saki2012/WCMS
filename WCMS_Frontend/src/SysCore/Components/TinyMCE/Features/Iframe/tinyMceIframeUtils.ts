@@ -1,6 +1,12 @@
+import {
+    isGoogleMapsEmbedUrl,
+    isGoogleMapsShortUrl,
+    isGoogleMapsUrl,
+    normalizeGoogleMapsEmbedUrl,
+} from "@/SysCore/Components/CmsHtml/CmsIframeUtils";
+
 // #region Property
 const IFRAME_DIMENSION_RE = /^\d+(?:\.\d+)?(?:px|%|vh|vw|rem|em)?$/i;
-const GOOGLE_MAPS_HOST_PATTERN = /(^|\.)google\.[^/]+$/i;
 const NUMERIC_IFRAME_DIMENSION_RE = /^\d+(?:\.\d+)?$/;
 const PX_IFRAME_DIMENSION_RE = /^\d+(?:\.\d+)?px$/i;
 // #endregion
@@ -40,35 +46,25 @@ export const toIframeDimensionAttribute = (value: string): string | null =>
     return null;
 };
 
-export const isGoogleMapsUrl = (value: string): boolean =>
-{
-    const url = tryParseUrl(value);
-    if (!url) return false;
-    if (!GOOGLE_MAPS_HOST_PATTERN.test(url.hostname)) return false;
+export { isGoogleMapsEmbedUrl, isGoogleMapsUrl };
 
-    return url.hostname.startsWith("maps.") || url.pathname.startsWith("/maps");
-};
-
-export const isGoogleMapsEmbedUrl = (value: string): boolean =>
-{
-    const url = tryParseUrl(value);
-    if (!url) return false;
-    if (!GOOGLE_MAPS_HOST_PATTERN.test(url.hostname)) return false;
-
-    return url.pathname.startsWith("/maps/embed")
-        || url.pathname.startsWith("/maps/embed/v1")
-        || (url.pathname.startsWith("/maps") && url.searchParams.get("output") === "embed");
-};
-
+/**
+ * 驗證並正規化 iframe URL。
+ * Google Maps 一般 place/search/座標網址可直接轉為 embed；短網址或無法解析目的地的網址要求使用官方嵌入 src。
+ */
 export const validateIframeSrc = (raw?: string): { url: string; warning?: string; } =>
 {
     const url = `${raw ?? ""}`.trim();
     if (!url) return { url: "" };
-    if (isGoogleMapsUrl(url) && !isGoogleMapsEmbedUrl(url))
+    if (isGoogleMapsShortUrl(url))
     {
-        return { url, warning: "Google Maps requires an iframe embed src; share URLs are not supported." };
+        return { url, warning: "Google Maps 短網址無法直接轉成 iframe，請由「分享 → 嵌入地圖」複製 iframe src。" };
     }
-    return { url };
+    if (!isGoogleMapsUrl(url)) return { url };
+
+    const normalizedUrl = normalizeGoogleMapsEmbedUrl(url);
+    if (isGoogleMapsEmbedUrl(normalizedUrl)) return { url: normalizedUrl };
+    return { url, warning: "Google Maps 請使用「分享 → 嵌入地圖」提供的 iframe src；目前網址無法安全轉成可嵌入格式。" };
 };
 
 export const getIframeReferrerPolicy = (value: string): string =>
@@ -84,16 +80,5 @@ const normalizeIframeDimension = (raw: string | undefined, fallback: string): st
     if (!value) return fallback;
     if (!IFRAME_DIMENSION_RE.test(value)) return fallback;
     return value.toLowerCase();
-};
-
-const tryParseUrl = (value: string): URL | null =>
-{
-    try
-    {
-        return new URL(value);
-    } catch
-    {
-        return null;
-    }
 };
 // #endregion

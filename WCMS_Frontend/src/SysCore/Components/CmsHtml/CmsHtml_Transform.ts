@@ -14,7 +14,13 @@ import {
     type CmsHtmlFileMeta,
     type CmsHtmlTransformOptions,
 } from "./CmsHtml_Types";
-import { isYoutubeIframeUrl, mergeYoutubeIframeAllow, normalizeYoutubeEmbedUrl } from "./CmsIframeUtils";
+import {
+    isGoogleMapsUrl,
+    isYoutubeIframeUrl,
+    mergeYoutubeIframeAllow,
+    normalizeGoogleMapsEmbedUrl,
+    normalizeYoutubeEmbedUrl,
+} from "./CmsIframeUtils";
 
 // #region Property
 const UNSAFE_ELEMENT_NAMES = new Set(["script", "object", "embed", "base"]);
@@ -214,8 +220,24 @@ const normalizeIframe = (el: Element, options?: CmsHtmlTransformOptions): void =
     const internalId = getInternalId(el);
     const meta = internalId ? options?.fileMetaMap?.[internalId] : undefined;
     normalizeIframeAttributes(el, meta);
+    normalizeGoogleMapsIframe(el);
     normalizeYoutubeIframe(el);
     markPdfViewer(el, meta, internalId);
+};
+
+
+/**
+ * 將舊資料中的 Google Maps 一般分享／瀏覽網址轉成可嵌入網址。
+ * CSP 已限制可載入的 frame source，因此此處只做 URL 相容處理，不擴大來源白名單。
+ */
+const normalizeGoogleMapsIframe = (el: Element): void =>
+{
+    const src = `${el.attribs.src ?? ""}`.trim();
+    if (!isGoogleMapsUrl(src)) return;
+
+    el.attribs.src = normalizeGoogleMapsEmbedUrl(src);
+    el.attribs.referrerpolicy = "no-referrer-when-downgrade";
+    if (!hasNonEmptyAttribute(el, "title") || el.attribs.title === "Embedded content") el.attribs.title = "Google 地圖";
 };
 
 

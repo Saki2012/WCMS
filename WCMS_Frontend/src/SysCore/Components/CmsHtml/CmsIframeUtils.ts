@@ -19,6 +19,9 @@ const YOUTUBE_IFRAME_ALLOW_FEATURES = [
     "web-share",
     "fullscreen",
 ];
+
+const GOOGLE_MAPS_HOST_PATTERN = /(^|\.)google\.[a-z.]+$/i;
+const GOOGLE_MAPS_SHORT_HOST_NAMES = new Set(["maps.app.goo.gl", "goo.gl", "www.goo.gl"]);
 // #endregion
 
 // #region Public
@@ -61,6 +64,66 @@ export const mergeYoutubeIframeAllow = (value?: string | null): string =>
 
     return entries.join("; ");
 };
+
+/** 判斷 URL 是否為 Google Maps 網頁或 iframe 來源。 */
+export const isGoogleMapsUrl = (value?: string | null): boolean =>
+{
+    const url = parseHttpUrl(value);
+    if (!url || !GOOGLE_MAPS_HOST_PATTERN.test(normalizeHostName(url.hostname))) return false;
+
+    const hostName = normalizeHostName(url.hostname);
+    const pathName = url.pathname.toLowerCase();
+    return hostName.startsWith("maps.") || pathName === "/maps" || pathName.startsWith("/maps/");
+};
+
+/** 判斷是否已經是瀏覽器可直接 iframe 的 Google Maps embed URL。 */
+export const isGoogleMapsEmbedUrl = (value?: string | null): boolean =>
+{
+    const url = parseHttpUrl(value);
+    if (!url || !isGoogleMapsUrl(url.toString())) return false;
+
+    const pathName = url.pathname.toLowerCase();
+    const output = `${url.searchParams.get("output") ?? ""}`.toLowerCase();
+    return pathName.startsWith("/maps/embed")
+        || pathName.startsWith("/maps/d/embed")
+        || (pathName.startsWith("/maps") && output === "embed");
+};
+
+/** 判斷是否為無法在前端離線解析目的地的 Google Maps 短網址。 */
+export const isGoogleMapsShortUrl = (value?: string | null): boolean =>
+{
+    const url = parseHttpUrl(value);
+    if (!url) return false;
+    const hostName = normalizeHostName(url.hostname);
+    if (hostName === "maps.app.goo.gl") return true;
+    return (hostName === "goo.gl" || hostName === "www.goo.gl") && url.pathname.toLowerCase().startsWith("/maps");
+};
+
+/**
+ * 將可辨識的 Google Maps 分享／瀏覽網址轉成 iframe 可使用的 embed URL。
+ * 已是官方 embed URL 時保持其參數；短網址或無法解析目的地的網址不猜測內容，原樣回傳。
+ */
+export const normalizeGoogleMapsEmbedUrl = (value?: string | null): string =>
+{
+    const raw = `${value ?? ""}`.trim();
+    const url = parseHttpUrl(raw);
+    if (!url || !isGoogleMapsUrl(url.toString())) return raw;
+    if (isGoogleMapsEmbedUrl(url.toString())) return url.toString();
+
+    const myMapsUrl = buildGoogleMyMapsEmbedUrl(url);
+    if (myMapsUrl) return myMapsUrl;
+
+    const legacyMapsUrl = buildLegacyGoogleMapsEmbedUrl(url);
+    if (legacyMapsUrl) return legacyMapsUrl;
+
+    const query = resolveGoogleMapsQuery(url);
+    if (!query) return raw;
+
+    const embedUrl = new URL("https://www.google.com/maps");
+    embedUrl.searchParams.set("q", query);
+    embedUrl.searchParams.set("output", "embed");
+    return embedUrl.toString();
+};
 // #endregion
 
 // #region Private
@@ -100,5 +163,65 @@ const copyYoutubeSearchParams = (source: URL, target: URL): void =>
     {
         if (key.toLowerCase() !== "v") target.searchParams.append(key, value);
     });
+};
+
+/** Google My Maps viewer 轉成官方 /maps/d/embed。 */
+const buildGoogleMyMapsEmbedUrl = (url: URL): string =>
+{
+    if (!url.pathname.toLowerCase().startsWith("/maps/d/")) return "";
+    const mid = `${url.searchParams.get("mid") ?? ""}`.trim();
+    if (!mid) return "";
+
+    const embedUrl = new URL("https://www.google.com/maps/d/embed");
+    embedUrl.searchParams.set("mid", mid);
+    const ll = `${url.searchParams.get("ll") ?? ""}`.trim();
+    const z = `${url.searchParams.get("z") ?? ""}`.trim();
+    if (ll) embedUrl.searchParams.set("ll", ll);
+    if (z) embedUrl.searchParams.set("z", z);
+    return embedUrl.toString();
+};
+
+/** 舊 maps.google.* /maps/ms 類型保留既有參數，只補 output=embed。 */
+const buildLegacyGoogleMapsEmbedUrl = (url: URL): string =>
+{
+    const pathName = url.pathname.toLowerCase();
+    if (!pathName.startsWith("/maps/ms")) return "";
+    if (!url.searchParams.has("msid") && !url.searchParams.has("mid")) return "";
+
+    const embedUrl = new URL(url.toString());
+    embedUrl.protocol = "https:";
+    embedUrl.searchParams.set("output", "embed");
+    return embedUrl.toString();
+};
+
+/** 從一般 Maps URL 取得可建立 q=... embed 的目的地。 */
+const resolveGoogleMapsQuery = (url: URL): string =>
+{
+    const directQuery = ["q", "query", "ll", "center"]
+        .map(key => `${url.searchParams.get(key) ?? ""}`.trim())
+        .find(Boolean);
+    if (directQuery) return directQuery;
+
+    const pathParts = url.pathname.split("/").map(part => part.trim()).filter(Boolean);
+    const semanticIndex = pathParts.findIndex(part => part.toLowerCase() === "place" || part.toLowerCase() === "search");
+    if (semanticIndex >= 0 && pathParts[semanticIndex + 1])
+    {
+        const decoded = decodeGoogleMapsPathValue(pathParts[semanticIndex + 1]);
+        if (decoded) return decoded;
+    }
+
+    const coordinateMatch = url.pathname.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+    return coordinateMatch ? `${coordinateMatch[1]},${coordinateMatch[2]}` : "";
+};
+
+const decodeGoogleMapsPathValue = (value: string): string =>
+{
+    try
+    {
+        return decodeURIComponent(value.replace(/\+/g, " ")).trim();
+    } catch
+    {
+        return value.replace(/\+/g, " ").trim();
+    }
 };
 // #endregion
