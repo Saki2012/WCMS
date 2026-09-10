@@ -228,7 +228,7 @@ const normalizeIframe = (el: Element, options?: CmsHtmlTransformOptions): void =
 
 /**
  * 將舊資料中的 Google Maps 一般分享／瀏覽網址轉成可嵌入網址。
- * CSP 已限制可載入的 frame source，因此此處只做 URL 相容處理，不擴大來源白名單。
+ * 全站保留 COEP require-corp；Google Maps iframe 使用 credentialless 避免要求第三方頁面配合 COEP。
  */
 const normalizeGoogleMapsIframe = (el: Element): void =>
 {
@@ -237,6 +237,7 @@ const normalizeGoogleMapsIframe = (el: Element): void =>
 
     el.attribs.src = normalizeGoogleMapsEmbedUrl(src);
     el.attribs.referrerpolicy = "no-referrer-when-downgrade";
+    el.attribs.credentialless = "";
     if (!hasNonEmptyAttribute(el, "title") || el.attribs.title === "Embedded content") el.attribs.title = "Google 地圖";
 };
 
