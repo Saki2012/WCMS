@@ -96,7 +96,7 @@ public class FileManagementController : ApiDataController<FileManage>
     /// <param name="file"></param>
     /// <returns></returns>
     [TypeFilter(typeof(RequiredFormFileResourceFilter))]
-    [HttpPost(nameof(Server_UploadTemp)), AllowAnonymous, IgnoreAntiforgeryToken, RequestSizeLimit(200L * 1024 * 1024)]// 200 MB限制
+    [HttpPost(nameof(Server_UploadTemp)), Authorize, RequestSizeLimit(200L * 1024 * 1024)]// 200 MB限制
     public async Task<IActionResult> Server_UploadTemp(IFormFile file)
     {
         OperateLog followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Server_UploadTemp)}", OperateUser.UserId, JsonConvert.SerializeObject(file), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
@@ -109,7 +109,7 @@ public class FileManagementController : ApiDataController<FileManage>
     /// </summary>
     /// <param name="internalIds"></param>
     /// <returns></returns>
-    [HttpPost(nameof(Server_MoveToPermanent)), AllowAnonymous, IgnoreAntiforgeryToken]
+    [HttpPost(nameof(Server_MoveToPermanent)), Authorize]
     public async Task<IActionResult> Server_MoveToPermanent(string[] internalIds)
     {
         OperateLog followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Server_MoveToPermanent)}", OperateUser.UserId, JsonConvert.SerializeObject(internalIds), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
@@ -122,7 +122,7 @@ public class FileManagementController : ApiDataController<FileManage>
     /// </summary>
     /// <param name="internalIds"></param>
     /// <returns></returns>
-    [HttpPost(nameof(Server_CancelUploadFiles)), AllowAnonymous, IgnoreAntiforgeryToken]
+    [HttpPost(nameof(Server_CancelUploadFiles)), Authorize]
     public async Task<IActionResult> Server_CancelUploadFiles(string[] internalIds)
     {
         OperateLog followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Server_CancelUploadFiles)}", OperateUser.UserId, JsonConvert.SerializeObject(internalIds), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
