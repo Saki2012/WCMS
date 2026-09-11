@@ -1,5 +1,5 @@
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
-import { type CSSProperties, type MouseEvent, useCallback, useEffect, useRef, useState } from "react";
+import { type CSSProperties, type MouseEvent, useCallback, useEffect, useState } from "react";
 import Lightbox, { createIcon, useLightboxState } from "yet-another-react-lightbox";
 import Counter from "yet-another-react-lightbox/plugins/counter";
 import Download from "yet-another-react-lightbox/plugins/download";
@@ -17,8 +17,6 @@ export type { LibLightBoxSlide };
 interface LibLightBoxCaptionOverlayProps
 {
     captionVisible: boolean;
-    captionExpanded: boolean;
-    onCanExpandChange: (value: boolean) => void;
 }
 
 interface LibLightBoxCaptionToggleButtonProps
@@ -28,14 +26,6 @@ interface LibLightBoxCaptionToggleButtonProps
     onToggleCaption: () => void;
 }
 
-interface LibLightBoxCaptionExpandButtonProps
-{
-    captionVisible: boolean;
-    captionExpanded: boolean;
-    canCaptionExpand: boolean;
-    a11y: LightBoxA11yText;
-    onToggleCaptionExpand: () => void;
-}
 interface LibLightBoxCaptionIconButtonProps
 {
     label: string;
@@ -53,8 +43,6 @@ type LightBoxA11yText = {
     share: string;
     showCaption: string;
     hideCaption: string;
-    expandCaption: string;
-    collapseCaption: string;
 };
 
 /** Lightbox a11y 文案表（用 xxx[lang] 讀；不足語系會 fallback） */
@@ -67,8 +55,6 @@ const LIGHTBOX_A11Y_MAP: Partial<Record<Lang, LightBoxA11yText>> = {
         share: "分享圖片",
         showCaption: "顯示圖片說明",
         hideCaption: "隱藏圖片說明",
-        expandCaption: "展開圖片說明",
-        collapseCaption: "收合圖片說明",
     },
     "zh-cn": {
         close: "关闭",
@@ -78,8 +64,6 @@ const LIGHTBOX_A11Y_MAP: Partial<Record<Lang, LightBoxA11yText>> = {
         share: "分享图片",
         showCaption: "显示图片说明",
         hideCaption: "隐藏图片说明",
-        expandCaption: "展开图片说明",
-        collapseCaption: "收合图片说明",
     },
     en: {
         close: "Close",
@@ -89,8 +73,6 @@ const LIGHTBOX_A11Y_MAP: Partial<Record<Lang, LightBoxA11yText>> = {
         share: "Share image",
         showCaption: "Show captions",
         hideCaption: "Hide captions",
-        expandCaption: "Expand captions",
-        collapseCaption: "Collapse captions",
     },
 };
 
@@ -101,8 +83,6 @@ const lightBoxRootStyle: LibLightBoxRootStyle = {
     "--yarl__counter_left": "5px",
     "--yarl__icon_size": "28px",
 };
-
-const captionPreviewLineCount = 7;
 
 const captionPanelStyle: CSSProperties = {
     position: "absolute",
@@ -123,24 +103,11 @@ const captionTitleStyle: CSSProperties = {
     marginBottom: "8px",
 };
 
-const captionDescriptionBaseStyle: CSSProperties = {
+const captionDescriptionStyle: CSSProperties = {
     margin: 0,
     padding: 0,
     lineHeight: 1.6,
     whiteSpace: "pre-line",
-};
-
-const captionDescriptionClampStyle: CSSProperties = {
-    ...captionDescriptionBaseStyle,
-    display: "-webkit-box",
-    WebkitBoxOrient: "vertical" as const,
-    WebkitLineClamp: captionPreviewLineCount,
-    overflow: "hidden",
-};
-
-const captionDescriptionExpandedStyle: CSSProperties = {
-    ...captionDescriptionBaseStyle,
-    display: "block",
     maxHeight: "65vh",
     overflowY: "auto",
 };
@@ -177,32 +144,6 @@ const CaptionHideIcon = createIcon(
         </g>
     ),
 );
-
-/** Caption 展開圖示 */
-const CaptionExpandIcon = createIcon(
-    "LibLightBoxCaptionExpandIcon",
-    (
-        <g fill="currentColor">
-            <path d="M4 5h16v2H4z"></path>
-            <path d="M4 10h16v2H4z"></path>
-            <path d="M4 15h10v2H4z"></path>
-            <path d="M17 14l3 3l-3 3l-1.4-1.4l1.6-1.6l-1.6-1.6z"></path>
-        </g>
-    ),
-);
-
-/** Caption 收合圖示 */
-const CaptionCollapseIcon = createIcon(
-    "LibLightBoxCaptionCollapseIcon",
-    (
-        <g fill="currentColor">
-            <path d="M4 5h16v2H4z"></path>
-            <path d="M4 10h16v2H4z"></path>
-            <path d="M4 15h10v2H4z"></path>
-            <path d="M20 14l-3 3l3 3l1.4-1.4l-1.6-1.6l1.6-1.6z"></path>
-        </g>
-    ),
-);
 // #endregion
 
 // #region Public
@@ -210,36 +151,19 @@ const CaptionCollapseIcon = createIcon(
 export const LibLightBox_Comp = (props: LibLightBoxProps) =>
 {
     const [captionVisible, setCaptionVisible] = useState(true);
-    const [captionExpanded, setCaptionExpanded] = useState(false);
-    const [canCaptionExpand, setCanCaptionExpand] = useState(false);
-
     const a11y = getLightBoxA11y(props.lang);
 
     /** 切換 caption 顯示/隱藏 */
     const onToggleCaption = useCallback(() =>
     {
-        setCaptionVisible(prev =>
-        {
-            const nextValue = !prev;
-            if (!nextValue) setCaptionExpanded(false);
-            return nextValue;
-        });
+        setCaptionVisible(prev => !prev);
     }, []);
 
-    /** 切換 caption 展開/收合 */
-    const onToggleCaptionExpand = useCallback(() =>
-    {
-        setCaptionExpanded(prev => !prev);
-    }, []);
-
-    /** 開啟 Lightbox 時重設 caption 狀態 */
+    /** 開啟 Lightbox 時重設 caption 顯示狀態 */
     useEffect(() =>
     {
         if (!props.open) return;
-
         setCaptionVisible(true);
-        setCaptionExpanded(false);
-        setCanCaptionExpand(false);
     }, [props.open]);
 
     if (props.slides.length === 0) return null;
@@ -260,35 +184,12 @@ export const LibLightBox_Comp = (props: LibLightBoxProps) =>
                         a11y={a11y}
                         onToggleCaption={onToggleCaption}
                     />,
-                    <LibLightBoxCaptionExpandButton
-                        key="lib-caption-expand"
-                        captionVisible={captionVisible}
-                        captionExpanded={captionExpanded}
-                        canCaptionExpand={canCaptionExpand}
-                        a11y={a11y}
-                        onToggleCaptionExpand={onToggleCaptionExpand}
-                    />,
                     "download",
                     "share",
                     "close",
                 ],
             }}
-            on={{
-                view: () =>
-                {
-                    setCaptionExpanded(false);
-                    setCanCaptionExpand(false);
-                },
-            }}
-            render={{
-                controls: () => (
-                    <LibLightBoxCaptionOverlay
-                        captionVisible={captionVisible}
-                        captionExpanded={captionExpanded}
-                        onCanExpandChange={setCanCaptionExpand}
-                    />
-                ),
-            }}
+            render={{ controls: () => <LibLightBoxCaptionOverlay captionVisible={captionVisible} /> }}
             styles={{
                 root: lightBoxRootStyle,
                 toolbar: { top: 0, bottom: "unset" },
@@ -327,6 +228,7 @@ const LibLightBoxCaptionToggleButton = (props: LibLightBoxCaptionToggleButtonPro
     const { currentSlide } = useLightboxState();
     const slide = currentSlide as LibLightBoxSlide | undefined;
     const hasCaption = getHasCaption(slide);
+
     return (
         <LibLightBoxCaptionIconButton
             label={props.captionVisible ? props.a11y.hideCaption : props.a11y.showCaption}
@@ -337,97 +239,14 @@ const LibLightBoxCaptionToggleButton = (props: LibLightBoxCaptionToggleButtonPro
     );
 };
 
-/** 自訂 Caption 展開/收合 toolbar 按鈕 */
-const LibLightBoxCaptionExpandButton = (props: LibLightBoxCaptionExpandButtonProps) =>
-{
-    const { currentSlide } = useLightboxState();
-    const slide = currentSlide as LibLightBoxSlide | undefined;
-    const hasDescription = getHasDescription(slide);
-    const disabled = !props.captionVisible || !hasDescription || !props.canCaptionExpand;
-    return (
-        <LibLightBoxCaptionIconButton
-            label={props.captionExpanded ? props.a11y.collapseCaption : props.a11y.expandCaption}
-            icon={props.captionExpanded ? CaptionCollapseIcon : CaptionExpandIcon}
-            disabled={disabled}
-            onClick={props.onToggleCaptionExpand}
-        />
-    );
-};
-
 /** 自訂 Lightbox Caption 區塊 */
 const LibLightBoxCaptionOverlay = (props: LibLightBoxCaptionOverlayProps) =>
 {
-    const { currentIndex, currentSlide } = useLightboxState();
-    const recalcFrameRef = useRef<number | null>(null);
-    const descriptionRef = useRef<HTMLParagraphElement | null>(null);
+    const { currentSlide } = useLightboxState();
     const activeSlide = currentSlide as LibLightBoxSlide | undefined;
     const activeTitle = normalizeCaptionText(activeSlide?.title);
     const activeDescription = normalizeCaptionText(activeSlide?.description);
     const hasCaption = activeTitle.length > 0 || activeDescription.length > 0;
-    const hasDescription = activeDescription.length > 0;
-
-    /** 計算目前描述是否可展開 */
-    const updateCaptionExpandState = useCallback(() =>
-    {
-        if (typeof window === "undefined") return;
-
-        const element = descriptionRef.current;
-
-        if (!props.captionVisible || !element || !hasDescription)
-        {
-            props.onCanExpandChange(false);
-            return;
-        }
-
-        props.onCanExpandChange(getCanExpandDescription(element));
-    }, [props.captionVisible, props.onCanExpandChange, hasDescription, activeDescription]);
-
-    /** 延後計算，避免 DOM 尚未完成渲染 */
-    const scheduleCaptionRecalc = useCallback(() =>
-    {
-        if (typeof window === "undefined") return;
-
-        if (recalcFrameRef.current !== null) window.cancelAnimationFrame(recalcFrameRef.current);
-
-        recalcFrameRef.current = window.requestAnimationFrame(() =>
-        {
-            recalcFrameRef.current = window.requestAnimationFrame(() =>
-            {
-                recalcFrameRef.current = null;
-                updateCaptionExpandState();
-            });
-        });
-    }, [updateCaptionExpandState]);
-
-    /** slide / 顯示狀態改變時重算是否可展開 */
-    useEffect(() =>
-    {
-        props.onCanExpandChange(false);
-
-        window.requestAnimationFrame(() =>
-        {
-            scheduleCaptionRecalc();
-        });
-    }, [currentIndex, activeTitle, activeDescription, props.captionVisible, props.onCanExpandChange, scheduleCaptionRecalc]);
-
-    /** resize 時重新計算是否超過 7 行 */
-    useEffect(() =>
-    {
-        scheduleCaptionRecalc();
-
-        window.addEventListener("resize", scheduleCaptionRecalc);
-
-        return () =>
-        {
-            if (recalcFrameRef.current !== null)
-            {
-                window.cancelAnimationFrame(recalcFrameRef.current);
-                recalcFrameRef.current = null;
-            }
-
-            window.removeEventListener("resize", scheduleCaptionRecalc);
-        };
-    }, [scheduleCaptionRecalc]);
 
     /** 防止點擊 caption 區域觸發 Lightbox 底層事件 */
     const onClickCaptionPanel = (e: MouseEvent<HTMLDivElement>) =>
@@ -445,12 +264,8 @@ const LibLightBoxCaptionOverlay = (props: LibLightBoxCaptionOverlayProps) =>
                 </div>
             )}
 
-            {hasDescription && (
-                <p
-                    ref={descriptionRef}
-                    className="custom-lightbox-caption-description"
-                    style={props.captionExpanded ? captionDescriptionExpandedStyle : captionDescriptionClampStyle}
-                >
+            {activeDescription && (
+                <p className="custom-lightbox-caption-description" style={captionDescriptionStyle}>
                     {activeDescription}
                 </p>
             )}
@@ -463,14 +278,10 @@ const LibLightBoxCaptionOverlay = (props: LibLightBoxCaptionOverlayProps) =>
 /** 取得 Lightbox a11y 文案（語系不在表內時，回退到 DefaultLang） */
 const getLightBoxA11y = (lang?: Lang): LightBoxA11yText =>
 {
-    // 宣告：fallback key
     const key = (lang ?? DefaultLang) as Lang;
-
-    // 執行：依語系取值，取不到就回 default
     const byLang = LIGHTBOX_A11Y_MAP[key];
     const byDefault = LIGHTBOX_A11Y_MAP[DefaultLang];
 
-    // return：保證回傳一份可用文案
     return byLang ?? byDefault ?? {
         close: "關閉",
         prev: "上一張",
@@ -479,8 +290,6 @@ const getLightBoxA11y = (lang?: Lang): LightBoxA11yText =>
         share: "分享圖片",
         showCaption: "顯示圖片說明",
         hideCaption: "隱藏圖片說明",
-        expandCaption: "展開圖片說明",
-        collapseCaption: "收合圖片說明",
     };
 };
 
@@ -498,63 +307,4 @@ const getHasCaption = (slide?: LibLightBoxSlide): boolean =>
 
     return title.length > 0 || description.length > 0;
 };
-
-/** 判斷目前 slide 是否有 description */
-const getHasDescription = (slide?: LibLightBoxSlide): boolean =>
-{
-    return normalizeCaptionText(slide?.description).length > 0;
-};
-
-/** 取得元素 line-height */
-const getElementLineHeight = (element: HTMLElement): number =>
-{
-    const style = window.getComputedStyle(element);
-    const lineHeight = Number.parseFloat(style.lineHeight);
-
-    if (Number.isFinite(lineHeight)) return lineHeight;
-
-    const fontSize = Number.parseFloat(style.fontSize);
-    return Number.isFinite(fontSize) ? fontSize * 1.6 : 24;
-};
-
-/** 複製 description 量自然高度，避免 line-clamp 影響判斷 */
-const getNaturalDescriptionHeight = (element: HTMLElement): number =>
-{
-    const rect = element.getBoundingClientRect();
-
-    if (rect.width <= 0) return 0;
-
-    const clone = element.cloneNode(true) as HTMLElement;
-
-    clone.style.position = "fixed";
-    clone.style.left = "-9999px";
-    clone.style.top = "-9999px";
-    clone.style.width = `${rect.width}px`;
-    clone.style.height = "auto";
-    clone.style.maxHeight = "none";
-    clone.style.overflow = "visible";
-    clone.style.display = "block";
-    clone.style.pointerEvents = "none";
-    clone.style.setProperty("-webkit-line-clamp", "unset");
-    clone.style.setProperty("-webkit-box-orient", "initial");
-
-    document.body.appendChild(clone);
-
-    const height = clone.scrollHeight;
-
-    clone.remove();
-
-    return height;
-};
-
-/** 判斷描述是否超過預覽行數 */
-const getCanExpandDescription = (element: HTMLElement): boolean =>
-{
-    const lineHeight = getElementLineHeight(element);
-    const naturalHeight = getNaturalDescriptionHeight(element);
-    const maxPreviewHeight = lineHeight * captionPreviewLineCount;
-
-    return naturalHeight > maxPreviewHeight + Math.ceil(lineHeight * 0.35);
-};
-
 // #endregion
