@@ -1,4 +1,5 @@
 using WCMS.Features._Resx;
+using WCMS.Features.MAT.Material;
 using WCMS.Features.WEB.Announcement;
 using WCMS.Features.WEB.FileArchive;
 using WCMS.Features.WEB.Gallery;
@@ -58,6 +59,7 @@ public class TagBiz(BizDeps bizDeps) : BizService<TagData>(bizDeps)
     {
         return progId switch
         {
+            ProgKeys.MAT.Material => await DoQueryListCountAsync<MaterialTags>($"{nameof(MaterialTags.TagId)} = \"{tagId}\""),
             ProgKeys.WEB.Announcement => await DoQueryListCountAsync<Announcement>($@"{nameof(Announcement.Tags)} HasAny {tagId}"),
             ProgKeys.WEB.FileArchive => await DoQueryListCountAsync<FileArchive>($@"{nameof(FileArchive.TagsId)} HasAny {tagId}"),
             ProgKeys.WEB.Gallery => await DoQueryListCountAsync<Gallery>($@"{nameof(Gallery.Tags)} HasAny {tagId}"),
