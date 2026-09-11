@@ -58,7 +58,6 @@ internal static class PageManagementOldDataMigration
         PageManagement result = new()
         {
             PageId = row["Sn"].ToString(),
-            CategoryId = row["Category"].ToString(),
             CreateTime = row["CreateTime"].ToString().ToDateTime(),
             ModifyTime = row["UpdateTime"].ToString().ToDateTime(),
         };

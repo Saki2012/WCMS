@@ -65,9 +65,6 @@ interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
     setField: ReturnType<typeof useFormModelField<PageManagementFormModel>>;
-
-    /** 頁面分類下拉選項 */
-    categoryOptions: Map<string, string>;
 }
 
 interface DetailTabContentOptions
@@ -146,9 +143,8 @@ export const Server_PageManagement_Form_Comp = (props: PageManagementFormCompPro
 const HeaderComp = (props: HeaderSectionProps) =>
 {
     const setField = useFormModelField<PageManagementFormModel>(props.binding);
-    const categoryOptions = useMemo(() => buildCategoryOptions(props.refs.categoryMap), [props.refs.categoryMap]);
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Basic: "基本", System: "系統資訊" } };
-    const tabContent = buildHeaderTabContent({ ...props, setField, categoryOptions });
+    const tabContent = buildHeaderTabContent({ ...props, setField });
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
@@ -179,11 +175,6 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
 const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
     return [
-        <LibDropList
-            Style={opt.theme.DropList}
-            Options={opt.categoryOptions}
-            {...opt.setField(PageManagementFields.CategoryId, "string")}
-        />,
         <LibDropList
             Style={opt.theme.DropList}
             Options={opt.refs.usedProgMap}
@@ -217,11 +208,5 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
             {...opt.setField(PageManagementFields._PageManagementDetail, PageManagementDetailFields.Content, "string", opt.rowKeys)}
         />,
     ];
-};
-
-/** 將 category object 轉成 LibDropList 使用的 Map。 */
-const buildCategoryOptions = (categoryMap: Record<string, string>): Map<string, string> =>
-{
-    return new Map<string, string>(Object.entries(categoryMap ?? {}));
 };
 // #endregion

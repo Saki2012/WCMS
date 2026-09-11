@@ -187,11 +187,6 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                     Title: "頁面維護",
                     RoutePath: "Form/:internalId?",
                     elementFactory: (ctx) => <Server_PageManagement_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
-                }, {
-                    ActionCode: "Category",
-                    Title: "頁面類別",
-                    RoutePath: "Category/:internalId?",
-                    elementFactory: (ctx) => <Server_CategoryListFormComp progId="PageManagement" title="類別" theme={ctx.theme} lang={ctx.lang} />,
                 }],
             },
 

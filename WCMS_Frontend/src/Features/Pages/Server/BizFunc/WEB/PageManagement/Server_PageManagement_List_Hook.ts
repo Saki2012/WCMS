@@ -1,12 +1,8 @@
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WEB/PageManagement_Api";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
 import {
-    buildServerCategoryTextMap as buildCategoryTextMap,
     buildServerListColumns,
-    buildServerListIdListNode as mapIdsToList,
-    buildServerListSelectOptions as buildCategorySearchOptions,
     getServerColumnTitle as getColumnTitle,
     getServerSearchStringValue as getSearchStringValue,
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
@@ -19,9 +15,9 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
-import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { findTextByKey, formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PageManagementDetailFields, PageManagementFields, PGID } from "@/types/SchemaFields";
@@ -34,8 +30,6 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 type PageManagementFormModel = components["schemas"]["PageManagement"];
 
 type PageManagementApiAdapter = ReturnType<typeof PageManagementAdapter>;
-
-type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
 
 type PageManagementCudActions = ReturnType<PageManagementApiAdapter["hooks"]["useCudActions"]>;
 
@@ -55,9 +49,6 @@ export interface PageManagementSearchParams
 
     /** 頁面標題搜尋關鍵字 */
     title?: string;
-
-    /** 頁面類別搜尋條件 */
-    categoryId?: string;
 }
 
 export interface PageManagementListRawData
@@ -82,18 +73,12 @@ export interface PageManagementListRawData
 
     /** 實際送出的 QueryListParam */
     param: QueryListParam;
-
-    /** 類別代碼與顯示文字對照 */
-    categoryMap: Record<string, string>;
 }
 
 export interface PageManagementListAdapter
 {
     /** 頁面管理 API adapter */
     PageManagement: PageManagementApiAdapter;
-
-    /** 類別 API adapter */
-    Category: CategoryApiAdapter;
 
     /** 頁面管理 CUD 操作 */
     cudActions: PageManagementCudActions;
@@ -124,9 +109,6 @@ type CrudDeps = {
 
 // #region Public
 export const PAGE_MANAGEMENT_TITLE_SEARCH_KEY = "title";
-
-export const PAGE_MANAGEMENT_CATEGORY_SEARCH_KEY = "categoryId";
-
 
 const PAGE_MANAGEMENT_LIST_STATE_KEY = "server-page-management-list";
 
@@ -204,7 +186,7 @@ const usePageManagementListGridDataSource = (
 
     const apiAdapter = useMemo(() =>
     {
-        return { PageManagement: PageManagementAdapter(), Category: CategoryAdapter() };
+        return { PageManagement: PageManagementAdapter() };
     }, []);
 
     const cudActions = apiAdapter.PageManagement.hooks.useCudActions({ onError });
@@ -214,11 +196,6 @@ const usePageManagementListGridDataSource = (
         modelDeps: [ctx.searchParams.lang],
         onError,
     });
-    const category = apiAdapter.Category.hooks.useMapByProgId({ progId: PGID.PageManagement, lang: ctx.searchParams.lang, onError });
-
-    const categoryMap = useMemo(() => buildCategoryTextMap(category.map ?? {}, ctx.searchParams.lang), [category.map, ctx.searchParams.lang]);
-    const isLoading = Boolean(grid.isLoading || category.isLoading);
-    const errors = useMemo(() => [...(grid.errors ?? []), category.errorText].filter((x): x is string => Boolean(x)), [grid.errors, category.errorText]);
     const rawData = useMemo<PageManagementListRawData>(() =>
     {
         return {
@@ -229,9 +206,8 @@ const usePageManagementListGridDataSource = (
             totalPages: grid.totalPages ?? 1,
             onPageChange: grid.onPageChange,
             param: grid.param,
-            categoryMap,
         };
-    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param, categoryMap]);
+    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param]);
 
     const refetchData = useCallback(async (): Promise<void> =>
     {
@@ -240,22 +216,17 @@ const usePageManagementListGridDataSource = (
 
     const refetchRefData = useCallback(async (): Promise<void> =>
     {
-        await category.refetch();
-    }, [category]);
+        await Promise.resolve();
+    }, []);
 
-    return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData, refetchRefData };
+    return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading: Boolean(grid.isLoading), errors: grid.errors ?? [], refetchData, refetchRefData };
 };
 
 /** 建立頁面管理搜尋欄位設定 */
 const buildPageManagementSearchFields = (rawData: PageManagementListRawData): SearchFieldConfig[] =>
 {
     const title = getColumnTitle(rawData.modelDisplayName, PageManagementDetailFields.Title, "標題");
-    const categoryTitle = getColumnTitle(rawData.modelDisplayName, PageManagementFields.CategoryId, "類別");
-
-    return [
-        { key: PAGE_MANAGEMENT_TITLE_SEARCH_KEY, title, type: "text", placeholder: `請輸入${title}` },
-        { key: PAGE_MANAGEMENT_CATEGORY_SEARCH_KEY, title: categoryTitle, type: "select", options: buildCategorySearchOptions(rawData.categoryMap) },
-    ];
+    return [{ key: PAGE_MANAGEMENT_TITLE_SEARCH_KEY, title, type: "text", placeholder: `請輸入${title}` }];
 };
 
 /** 將 SearchValues 轉為頁面管理列表查詢參數 */
@@ -264,7 +235,6 @@ const toPageManagementSearchParams = (values: SearchValues, lang: Lang): PageMan
     return {
         lang,
         title: getSearchStringValue(values[PAGE_MANAGEMENT_TITLE_SEARCH_KEY]),
-        categoryId: getSearchStringValue(values[PAGE_MANAGEMENT_CATEGORY_SEARCH_KEY]),
     };
 };
 
@@ -276,11 +246,6 @@ const buildPageManagementSearchConditions = (ctx: { searchParams: PageManagement
     if (ctx.searchParams.title)
     {
         conditions.push(`${PageManagementFields._PageManagementDetail}.${PageManagementDetailFields.Title} Like ${ctx.searchParams.title}`);
-    }
-
-    if (ctx.searchParams.categoryId)
-    {
-        conditions.push(`${PageManagementFields.CategoryId} = ${ctx.searchParams.categoryId}`);
     }
 
     return conditions;
@@ -304,7 +269,7 @@ const buildPageManagementQueryFields = (): string[] =>
     return [
         PageManagementFields.InternalId,
         PageManagementFields.PageId,
-        PageManagementFields.CategoryId,
+        PageManagementFields.ProgId,
         PageManagementFields.ModifyUserId,
         PageManagementFields.ModifyTime,
         `${PageManagementFields.ModifyUser}.${AccountFields.AccountName}`,
@@ -326,7 +291,7 @@ const buildPageManagementGridProps = (
     },
 ): GridProps =>
 {
-    const visibleCols = [PageManagementFields.CategoryId, PageManagementDetailFields.Title, PageManagementFields.ModifyUserId, PageManagementFields.ModifyTime];
+    const visibleCols = [PageManagementFields.ProgId, PageManagementDetailFields.Title, PageManagementFields.ModifyUserId, PageManagementFields.ModifyTime];
     const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName);
     const rows = buildPageManagementRows(opt.raw, opt.lang, columns);
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
@@ -382,7 +347,7 @@ const buildPageManagementRows = (raw: PageManagementListRawData, lang: Lang, col
         const pageManagement = formModel;
         const keyId = pageManagement?.InternalId ?? LibText.Merge("|", false, pageManagement?.PageId);
         const cells: RowCell[] = [
-            { col: columns[0], content: mapIdsToList(pageManagement?.CategoryId, raw.categoryMap) },
+            { col: columns[0], content: pageManagement?.ProgId ?? "" },
             { col: columns[1], content: getPageManagementTitle(formModel, lang) },
             { col: columns[2], content: pageManagement?.ModifyUser?.AccountName ?? "" },
             { col: columns[3], content: formatDateTime(pageManagement?.ModifyTime) },

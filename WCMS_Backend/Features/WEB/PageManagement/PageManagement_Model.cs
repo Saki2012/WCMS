@@ -23,11 +23,6 @@ public class PageManagement : WEBModel
     /// </summary>
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ProgId, DisplayName.Common_ProgId)]
     public string ProgId { get; set; } = ProgKeys.WEB.PageManagement;
-    /// <summary>
-    /// 類別ID
-    /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, DisplayName.Common_Category)]
-    public string CategoryId { get; set; } = string.Empty;
 
     #region 主子表關聯
     [InverseProperty(nameof(PageManagementDetail._PageManagement))]

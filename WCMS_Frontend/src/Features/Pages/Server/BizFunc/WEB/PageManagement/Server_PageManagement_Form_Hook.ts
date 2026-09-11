@@ -1,4 +1,3 @@
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WEB/PageManagement_Api";
 import type {
     ServerFormBinding,
@@ -11,7 +10,7 @@ import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIA
 import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { PageManagementDetailFields, PageManagementFields, PGID } from "@/types/SchemaFields";
+import { PageManagementDetailFields, PageManagementFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import { buildServerSupportedLangDetailMap } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Helper";
 
@@ -74,9 +73,6 @@ export interface PageManagementDetailTabsResult
 }
 
 export type PageManagementFormRefs = {
-    /** 頁面分類下拉選項 */
-    categoryMap: Record<string, string>;
-
     /** 可綁定 SiteMenu 的功能模塊選項 */
     usedProgMap: Map<string, string>;
 };
@@ -89,7 +85,7 @@ export type PageManagementFormActionsOpt = {
     onPreviewFromDto: (dto: PageManagementFormModel) => void;
 };
 
-export type PageManagementFormAdapter = { PageManagement: ReturnType<typeof PageManagementAdapter>; Category: ReturnType<typeof CategoryAdapter>; };
+export type PageManagementFormAdapter = { PageManagement: ReturnType<typeof PageManagementAdapter>; };
 
 const emptyUsedProgMap = new Map<string, string>();
 // #endregion
@@ -168,7 +164,7 @@ const buildPageManagementInitialData = (ctx: { mode: "new" | "edit"; emptyData: 
 /** 建立 PageManagement Form 會使用到的 Adapter 群組。 */
 const buildPageManagementFormAdapter = (): PageManagementFormAdapter =>
 {
-    return { PageManagement: PageManagementAdapter(), Category: CategoryAdapter() };
+    return { PageManagement: PageManagementAdapter() };
 };
 
 /** 取得 Header / Detail 需要的參照資料與語系明細補齊。 */
@@ -183,21 +179,20 @@ const usePageManagementReferenceData = (
         preferFirstLang: ctx.lang,
     });
 
-    const category = ctx.adapter.Category.hooks.useMapByProgId({ progId: PGID.PageManagement, lang: ctx.lang });
     const usedProg = ctx.adapter.PageManagement.hooks.useUsedProgList({ deps: [] });
 
     return useMemo(() =>
     {
         return {
-            refs: { categoryMap: category.map ?? {}, usedProgMap: usedProg.data ?? emptyUsedProgMap },
-            isLoading: Boolean(category.isLoading || usedProg.isLoading),
-            errors: [category.errorText, usedProg.errorText],
+            refs: { usedProgMap: usedProg.data ?? emptyUsedProgMap },
+            isLoading: Boolean(usedProg.isLoading),
+            errors: [usedProg.errorText],
             refetchRefData: async () =>
             {
-                await Promise.all([category.refetch(), usedProg.refetch()]);
+                await usedProg.refetch();
             },
         };
-    }, [category.errorText, category.isLoading, category.map, category.refetch, usedProg.data, usedProg.errorText, usedProg.isLoading, usedProg.refetch]);
+    }, [usedProg.data, usedProg.errorText, usedProg.isLoading, usedProg.refetch]);
 };
 
 /** 取得 PageManagement Model 顯示名稱，避免 Form 標題寫死功能名稱。 */
