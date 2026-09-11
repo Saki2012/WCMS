@@ -2,6 +2,7 @@ using WCMS.Features._Resx;
 using WCMS.Features.WEB.Announcement;
 using WCMS.Features.WEB.FileArchive;
 using WCMS.Features.WEB.Gallery;
+using WCMS.Features.WEB.WebResource;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.FeatureDriver.Biz.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
@@ -98,6 +99,7 @@ public abstract class CategoryBizBase<TFormModel>(BizDeps bizDeps) : BizService<
             ProgKeys.WEB.Announcement => await DoQueryListCountAsync<Announcement>($"{nameof(Announcement.Categories)} HasAny {categoryId}"),
             ProgKeys.WEB.FileArchive => await DoQueryListCountAsync<FileArchive>($"{nameof(FileArchive.CategoriesId)} HasAny {categoryId}"),
             ProgKeys.WEB.Gallery => await DoQueryListCountAsync<Gallery>($"{nameof(Gallery.Categories)} HasAny {categoryId}"),
+            ProgKeys.WEB.WebResource => await DoQueryListCountAsync<WebResource>($"{nameof(WebResource.Categories)} HasAny {categoryId}"),
             _ => await SpecGetCategoryUseCountAsync(progId, categoryId, categoryName)
         };
     }

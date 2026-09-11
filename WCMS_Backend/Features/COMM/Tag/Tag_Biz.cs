@@ -2,6 +2,7 @@ using WCMS.Features._Resx;
 using WCMS.Features.WEB.Announcement;
 using WCMS.Features.WEB.FileArchive;
 using WCMS.Features.WEB.Gallery;
+using WCMS.Features.WEB.WebResource;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.FeatureDriver.Biz.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
@@ -60,6 +61,7 @@ public class TagBiz(BizDeps bizDeps) : BizService<TagData>(bizDeps)
             ProgKeys.WEB.Announcement => await DoQueryListCountAsync<Announcement>($@"{nameof(Announcement.Tags)} HasAny {tagId}"),
             ProgKeys.WEB.FileArchive => await DoQueryListCountAsync<FileArchive>($@"{nameof(FileArchive.TagsId)} HasAny {tagId}"),
             ProgKeys.WEB.Gallery => await DoQueryListCountAsync<Gallery>($@"{nameof(Gallery.Tags)} HasAny {tagId}"),
+            ProgKeys.WEB.WebResource => await DoQueryListCountAsync<WebResource>($@"{nameof(WebResource.Tags)} HasAny {tagId}"),
             _ => await GetSpecTagUseCountAsync(progId, tagId, tagName),
         };
     }
