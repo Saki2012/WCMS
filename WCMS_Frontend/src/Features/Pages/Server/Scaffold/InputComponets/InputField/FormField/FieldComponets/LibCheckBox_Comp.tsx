@@ -47,7 +47,10 @@ export const LibCheckBox = (prop: ILibCheckBoxProp) =>
 
     return (
         <>
-            <label className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label">{prop.ColumnDisplayName}</label>
+            <label className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label">
+                {prop.ColumnDisplayName}
+                {prop.ColumnHint && <small className="text-muted ms-1">{prop.ColumnHint}</small>}
+            </label>
             <div className="col-md-10 col-sm-12 float-md-left float-sm-none">
                 {entries.map(([itemId, itemDisplayName], idx) =>
                 {

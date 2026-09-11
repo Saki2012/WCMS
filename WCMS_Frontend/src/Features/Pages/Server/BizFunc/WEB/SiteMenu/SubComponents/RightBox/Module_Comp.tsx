@@ -52,6 +52,7 @@ interface ModuleOptionsJson
 }
 
 const moduleOptionsDefaults: ModuleOptionsJson = { PageId: "", Category: "", Tag: "", Style: 1 };
+const moduleFilterHint = "未選取則為全部顯示";
 
 interface ModuleSettingTabExtensionContext
 {
@@ -343,8 +344,8 @@ const Module_Announcement_Comp = (
     }, [prop.styleDict]);
     return (
         <>
-            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
-            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" ColumnHint={moduleFilterHint} options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" ColumnHint={moduleFilterHint} options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
             <LibDropList
                 Style={prop.theme.DropList}
                 ColumnDisplayName="清單樣式"
@@ -407,8 +408,8 @@ const Module_Gallery_Comp = (
     }, [prop.styleDict]);
     return (
         <>
-            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
-            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" ColumnHint={moduleFilterHint} options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" ColumnHint={moduleFilterHint} options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
             <LibDropList
                 Style={prop.theme.DropList}
                 ColumnDisplayName="清單樣式"
@@ -448,8 +449,8 @@ const Module_FileArchive_Comp = (
     }, [prop.styleDict]);
     return (
         <>
-            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
-            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" ColumnHint={moduleFilterHint} options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" ColumnHint={moduleFilterHint} options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
             <LibDropList
                 Style={prop.theme.DropList}
                 ColumnDisplayName="清單樣式"
@@ -489,8 +490,8 @@ const Module_WebResource_Comp = (
     }, [prop.styleDict]);
     return (
         <>
-            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
-            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" ColumnHint={moduleFilterHint} options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" ColumnHint={moduleFilterHint} options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
             <LibDropList
                 Style={prop.theme.DropList}
                 ColumnDisplayName="清單樣式"
@@ -611,8 +612,8 @@ const Module_Material_Comp = (
                 InputValue={pageBind.value}
                 onChange={pageBind.onChange}
             />
-            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
-            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" ColumnHint={moduleFilterHint} options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" ColumnHint={moduleFilterHint} options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
         </>
     );
 };
