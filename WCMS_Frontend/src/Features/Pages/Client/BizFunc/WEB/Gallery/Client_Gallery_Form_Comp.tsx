@@ -4,6 +4,7 @@ import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_
 import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { LibLightBox_Comp, type LibLightBoxSlide } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
@@ -95,8 +96,18 @@ export const Client_Gallery_Form = (props: GalleryFormViewProps) =>
 /** 相簿表單 Feature 預設 View，只負責輸出 DOM。 */
 const Client_Gallery_Form_FeatureView = (props: GalleryFormViewProps) =>
 {
+    const content = useMemo(
+        () => LibText.findTextByKey(
+            props.data._GalleryInfo,
+            (item) => LibText.safeTrim(item?.Lang).toLowerCase(),
+            LibText.safeTrim(props.lang).toLowerCase(),
+            (item) => item?.Content,
+        ),
+        [props.data._GalleryInfo, props.lang],
+    );
     return (
         <ModuleContent nodeTitle={props.node.title} title={props.title} isLoading={props.isLoading} errorList={props.errorList} viewCountConfig={props.viewCountConfig}>
+            <CmsHtml_Comp html={content} lang={props.lang} />
             <GalleryPhotoList_Section lang={props.lang} data={props.data} />
         </ModuleContent>
     );
