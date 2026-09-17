@@ -14,7 +14,8 @@ public sealed class TokenService(TokenStateCache tokenStateCache, IConfiguration
 {
     #region Property
     private const string TokenIdFormat = "N";
-    private const string DefaultAccessTokenMinutes = "30";
+    // 2026-09-17：原 30 分鐘改為 24 小時，與前端 Idle 一致，排查 SameSite 可能誤判。
+    private const string DefaultAccessTokenMinutes = "1440";
     private const string DefaultRefreshTokenDays = "7";
     private TokenStateCache TokenStateCache { get; } = tokenStateCache;
     private IConfiguration Configuration { get; } = cfg;
