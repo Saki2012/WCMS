@@ -12,8 +12,8 @@ import {
 // #region Property
 /** 同來源路由切換時，五分鐘內不重複確認登入狀態。 */
 const THROTTLE_MS = 300_000;
-/** Development 使用兩分鐘 Idle 方便驗證；其他環境維持三十分鐘。 */
-const AUTH_IDLE_TIMEOUT_MS = import.meta.env.DEV ? 2 * 60 * 1000 : 30 * 60 * 1000;
+/** 2026-09-17：一般部署 Idle 由 30 分鐘調為 24 小時，排查 SameSite 可能誤判；Development 保留兩分鐘驗證。 */
+const AUTH_IDLE_TIMEOUT_MS = import.meta.env.DEV ? 2 * 60 * 1000 : 24 * 60 * 60 * 1000;
 /** Development 使用一分鐘 Refresh 節流方便驗證；其他環境維持五分鐘。 */
 const AUTH_REFRESH_THROTTLE_MS = import.meta.env.DEV ? 1 * 60 * 1000 : 5 * 60 * 1000;
 let lastCheckAt = 0;

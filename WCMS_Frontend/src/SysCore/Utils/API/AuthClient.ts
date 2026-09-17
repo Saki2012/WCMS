@@ -18,7 +18,7 @@ type AnyConfig = import("axios").InternalAxiosRequestConfig & { _retry?: boolean
 
 export interface IAuthIdleOptions
 {
-    /** 閒置多久登出（預設 30 分鐘） */
+    /** 閒置多久登出（2026-09-17：預設由 30 分鐘調為 24 小時，排查 SameSite 可能誤判） */
     idleMs?: number;
     /** 有動作時，refresh 節流間隔（預設 5 分鐘最多一次） */
     refreshThrottleMs?: number;
@@ -100,7 +100,7 @@ export interface IAuthIdleGuardHandle
 }
 
 const authRuntimeSnapshot: IAuthRuntimeSnapshot = {
-    IdleTimeoutMs: 30 * 60 * 1000,
+    IdleTimeoutMs: 24 * 60 * 60 * 1000,
     RefreshThrottleMs: 5 * 60 * 1000,
     LastActivityAt: null,
     IdleDeadlineAt: null,
@@ -135,7 +135,7 @@ export const getAuthRuntimeSnapshot = (): IAuthRuntimeSnapshot =>
 /** 啟用 Browser Shared 閒置登出與目前 Tab 活動續期機制。 */
 export const startAuthIdleGuard = (opt?: IAuthIdleOptions): IAuthIdleGuardHandle =>
 {
-    const idleMs = opt?.idleMs ?? 30 * 60 * 1000;
+    const idleMs = opt?.idleMs ?? 24 * 60 * 60 * 1000;
     const refreshThrottleMs = opt?.refreshThrottleMs ?? 5 * 60 * 1000;
     if (typeof window === "undefined") return { stop: () => void 0, initialState: "missing" };
 
