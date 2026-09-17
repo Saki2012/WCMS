@@ -199,7 +199,9 @@ const setupCsrXsrfRetryInterceptor = (instance: AxiosInstance, ensureXsrf: Ensur
         const config = err?.config;
         const status = err?.response?.status;
 
-        if (status !== HTTP_FORBIDDEN_STATUS_CODE || !config || config.__xsrfRetried) return Promise.reject(err);
+        // 2026-09-17: Token 端點失敗時必須直接拒絕，避免 ensureXsrf 等待自己的 Promise。
+        const isTokenEndpoint = String(config?.url ?? "").split(/[?#]/)[0].replace(/\/$/, "").split("/").slice(-2).join("/") === XSRF_TOKEN_ENDPOINT;
+        if (status !== HTTP_FORBIDDEN_STATUS_CODE || !config || config.__xsrfRetried || isTokenEndpoint) return Promise.reject(err);
 
         config.__xsrfRetried = true;
         await ensureXsrf();
