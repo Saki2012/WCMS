@@ -154,9 +154,9 @@ tr.tr-only-hide-titlebar {
 
 /* --- 以上標準bootstrap.min table CSS --- */
 /*-- @media (max-width: 736px) --*/
-/*-- @media (max-width: 768px) --*/
+/*-- @media (max-width: 1139px) --*/
 /*-- @media (max-width: 992px) --*/
-@media (max-width: 1139px) {
+@media (max-width: 767px) {
 	.table-rwd {
 		min-width: 100%;
 	}

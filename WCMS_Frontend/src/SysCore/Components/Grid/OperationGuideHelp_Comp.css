@@ -10,7 +10,7 @@
   padding: 0;
 }
 
-@media (max-width: 1139px) {
+@media (max-width: 767px) {
   .wcms-help-trigger.mb-display-none{
     display: none;
   } 
