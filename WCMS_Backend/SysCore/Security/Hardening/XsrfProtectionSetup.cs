@@ -111,6 +111,7 @@ internal static class XsrfProtectionSetup
     /// </summary>
     private static async Task RejectInvalidOriginAsync(HttpContext context)
     {
+        SecurityRejectionDiagnostics.Record(context, SecurityRejectionStage.Origin);
         context.Response.StatusCode = StatusCodes.Status403Forbidden;
         await context.Response.WriteAsJsonAsync(new { success = false, message = "Invalid Origin/Referer." });
     }
@@ -120,6 +121,7 @@ internal static class XsrfProtectionSetup
     /// </summary>
     private static async Task RejectInvalidXsrfAsync(HttpContext context)
     {
+        SecurityRejectionDiagnostics.Record(context, SecurityRejectionStage.Antiforgery);
         context.Response.StatusCode = StatusCodes.Status403Forbidden;
         await context.Response.WriteAsJsonAsync(new { success = false, message = "Invalid XSRF token." });
     }

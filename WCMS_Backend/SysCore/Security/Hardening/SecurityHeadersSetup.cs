@@ -58,6 +58,7 @@ internal static class SecurityHeadersSetup
         PrepareSecurityHeaders(app, context);
         if (IsBlockedProductionHost(app, context, backendHosts))
         {
+            SecurityRejectionDiagnostics.Record(context, SecurityRejectionStage.Host);
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
             return;
         }

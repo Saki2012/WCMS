@@ -14,6 +14,7 @@ internal static class NLogSetup
     private const string BaseLogPath = "${basedir}/logs";
     private const string HostCategory = "WCMS.Host";
     private const string HttpCategory = "WCMS.Http";
+    private const string SecurityCategory = "WCMS.Security";
     private const string LogSeparator = "============================================================";
     private const string ExceptionLayout =
         "${longdate} | ${level:uppercase=true} | ${logger} | ${message}" +
@@ -32,6 +33,9 @@ internal static class NLogSetup
         FileTarget httpTarget = BuildFileTarget("httpFile", "http");
         configuration.AddRule(LogLevel.Error, LogLevel.Fatal, hostTarget, HostCategory);
         configuration.AddRule(LogLevel.Error, LogLevel.Fatal, httpTarget, HttpCategory);
+        // 2026-09-17: 安全拒絕使用獨立 Warning 分流，不混入技術異常。
+        FileTarget securityTarget = BuildFileTarget("securityFile", "security");
+        configuration.AddRule(LogLevel.Warn, LogLevel.Fatal, securityTarget, SecurityCategory);
         LogManager.Configuration = configuration;
     }
     /// <summary>
@@ -47,6 +51,13 @@ internal static class NLogSetup
     public static Logger GetHttpLogger()
     {
         return LogManager.GetLogger(HttpCategory);
+    }
+    /// <summary>
+    /// 取得安全拒絕診斷專用 Logger。
+    /// </summary>
+    public static Logger GetSecurityLogger()
+    {
+        return LogManager.GetLogger(SecurityCategory);
     }
     /// <summary>
     /// 完成剩餘 Log 寫入並關閉 NLog。
