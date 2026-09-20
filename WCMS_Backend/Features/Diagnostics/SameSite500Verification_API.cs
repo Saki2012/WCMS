@@ -47,6 +47,35 @@ public sealed class SameSite500VerificationController(
         IActionResult? rejected = await ValidateVerificationRequestAsync(ct);
         if (rejected != null) return rejected;
 
+        AppendDiagnosticCookie();
+
+        return StatusCode(
+            StatusCodes.Status500InternalServerError,
+            new
+            {
+                message = "Controlled SameSite 500 CookiePolicy verification.",
+                cookie = DiagnosticCookieName,
+            });
+    }
+    /// <summary>
+    /// 先寫入診斷 Cookie 再拋出例外，驗證錯誤回應清除待送 Cookie 後仍補回安全標頭。
+    /// </summary>
+    [HttpGet("CookieThenThrow")]
+    public async Task<IActionResult> CookieThenThrowAsync(CancellationToken ct)
+    {
+        IActionResult? rejected = await ValidateVerificationRequestAsync(ct);
+        if (rejected != null) return rejected;
+        AppendDiagnosticCookie();
+        throw new InvalidOperationException("Controlled SameSite CookieThenThrow verification exception.");
+    }
+    #endregion
+
+    #region Private
+    /// <summary>
+    /// 發行未自行指定 SameSite／Secure 的短效診斷 Cookie，交由中央 CookiePolicy 補齊安全屬性。
+    /// </summary>
+    private void AppendDiagnosticCookie()
+    {
         Response.Cookies.Append(
             DiagnosticCookieName,
             Guid.NewGuid().ToString("N"),
@@ -57,18 +86,8 @@ public sealed class SameSite500VerificationController(
                 IsEssential = true,
                 Expires = DateTimeOffset.UtcNow.AddMinutes(5),
             });
-
-        return StatusCode(
-            StatusCodes.Status500InternalServerError,
-            new
-            {
-                message = "Controlled SameSite 500 CookiePolicy verification.",
-                cookie = DiagnosticCookieName,
-            });
     }
-    #endregion
 
-    #region Private
     /// <summary>
     /// 限制驗證端點僅能由系統管理者搭配明確驗證 Header 呼叫，避免一般操作誤觸。
     /// </summary>

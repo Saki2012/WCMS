@@ -66,7 +66,7 @@ internal static class SecurityHeadersSetup
     }
 
     /// <summary>
-    /// 設定共用安全標頭，並在送出前完成資訊洩漏清理。
+    /// 設定共用安全標頭，送出前重新套用以補回例外處理 Response.Clear() 清除的安全政策；錯誤回應禁止快取。
     /// </summary>
     private static void PrepareSecurityHeaders(WebApplication app, HttpContext context)
     {
@@ -74,6 +74,9 @@ internal static class SecurityHeadersSetup
         SetPathSecurityHeaders(app, context);
         context.Response.OnStarting(() =>
         {
+            SetCommonSecurityHeaders(context.Response);
+            SetPathSecurityHeaders(app, context);
+            if (context.Response.StatusCode >= StatusCodes.Status400BadRequest) SetNoStoreHeaders(context.Response);
             FinalizeSecurityHeaders(context.Response);
             return Task.CompletedTask;
         });
