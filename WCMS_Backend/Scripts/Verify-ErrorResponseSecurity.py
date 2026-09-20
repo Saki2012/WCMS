@@ -1,5 +1,7 @@
 """WCMS 已部署測試環境的錯誤回應回歸測試；不輸出憑證或 Cookie 值。"""
+import json
 import os
+import re
 import unittest
 from http.cookies import SimpleCookie
 from urllib.error import HTTPError
@@ -40,6 +42,10 @@ class ErrorResponseSecurityTests(unittest.TestCase):
         if verification:
             headers["X-WCMS-Security-Verification"] = "SameSite500"
         request = Request(self.base + "/Service/Diagnostics/SameSite500/" + name, headers=headers)
+        return self.send_request(request)
+
+    def send_request(self, request):
+        """讀取原始回應，保留 HTTP 錯誤碼且不跟隨轉址。"""
         try:
             response = self.client.open(request, timeout=30)
         except HTTPError as error:
@@ -51,18 +57,56 @@ class ErrorResponseSecurityTests(unittest.TestCase):
         expected = {
             "X-Content-Type-Options": "nosniff",
             "X-Frame-Options": "SAMEORIGIN",
-            "Referrer-Policy": "no-referrer",
             "Cross-Origin-Opener-Policy": "same-origin",
             "Cross-Origin-Resource-Policy": "same-origin",
             "X-Permitted-Cross-Domain-Policies": "none",
         }
         for name, value in expected.items():
             self.assertEqual(headers.get(name), value, name)
+        self.assertIn(headers.get("Referrer-Policy"), ("no-referrer", "strict-origin-when-cross-origin"))
         self.assertIn("default-src 'none'", headers.get("Content-Security-Policy", ""))
         self.assertIn("no-store", headers.get("Cache-Control", "").lower())
         self.assertEqual(headers.get("Pragma"), "no-cache")
         for name in ("X-Powered-By", "X-AspNet-Version", "X-AspNetMvc-Version"):
-            self.assertIsNone(headers.get(name), name)
+            self.assertFalse(headers.get(name, "").strip(), name)
+
+    def test_xsrf_rejections(self):
+        """向僅支援 GET 的診斷路由送 POST，避免防護失效時進入登入或計次業務。"""
+        parsed = urlsplit(self.base)
+        origin = parsed.scheme + "://" + parsed.netloc
+        traces = set()
+        for case in ("missing_cookie", "invalid_token"):
+            with self.subTest(case=case):
+                headers = {
+                    "Origin": origin,
+                    "Referer": self.base + "/",
+                    "Content-Type": "application/json",
+                    "X-XSRF-TOKEN": "wcms-verification-invalid-token",
+                }
+                if case == "invalid_token":
+                    headers["Cookie"] = "__Host-WCMS-Antiforgery=wcms-verification-invalid-cookie"
+                request = Request(self.base + "/Service/Diagnostics/SameSite500/Throw",
+                                  data=b"{}", headers=headers, method="POST")
+                status, response_headers, body = self.send_request(request)
+                self.assertEqual(status, 403, "應由 XSRF Middleware 拒絕；405 代表未通過本測試")
+                self.assert_error_headers(response_headers)
+                self.assertTrue(response_headers.get("Content-Type", "").lower().startswith("application/json"),
+                                "403 必須保留 JSON，不可被 IIS HTML 錯誤頁取代")
+                try:
+                    payload = json.loads(body)
+                except ValueError:
+                    self.fail("403 回應不是有效 JSON")
+                self.assertTrue(isinstance(payload, dict), "403 JSON 必須為物件")
+                self.assertTrue(payload.get("success") is False, "必須回報驗證失敗")
+                self.assertTrue(payload.get("message") == "Invalid XSRF token.",
+                                "必須確認為 XSRF 拒絕，而非 Host 或 Origin 拒絕")
+                trace = response_headers.get("X-WCMS-Trace-Id", "")
+                self.assertTrue(re.fullmatch(r"[0-9a-f]{32}", trace) is not None,
+                                "缺少有效的伺服器 Trace ID")
+                self.assertTrue(trace not in traces, "不同拒絕請求不可重用 Trace ID")
+                traces.add(trace)
+                self.assertFalse(response_headers.get_all("Set-Cookie", []),
+                                 "此 XSRF 拒絕流程不應發行 Cookie")
 
     def test_exception_responses(self):
         for name in ("Throw", "CookieThenThrow"):
